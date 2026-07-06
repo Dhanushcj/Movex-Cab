@@ -1,3 +1,4 @@
+import Colors from '../constants/colors';
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView, TextInput, Platform, KeyboardAvoidingView, Alert } from 'react-native';
 import { useAuth } from '../context/AuthContext';
@@ -161,11 +162,11 @@ export default function ProfileEditScreen({ onBack, onSave }: { onBack: () => vo
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#F3F4F6'
+    backgroundColor: Colors.bgPrimary
   },
   container: {
     flex: 1,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: Colors.bgPrimary,
     paddingHorizontal: 16
   },
   header: {
@@ -190,7 +191,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 16,
     fontWeight: '400',
-    color: '#000'
+    color: Colors.textPrimary
   },
   avatarContainer: {
     alignItems: 'center',
@@ -222,7 +223,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: Colors.bgPrimary,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1.75,
@@ -230,11 +231,11 @@ const styles = StyleSheet.create({
   },
   plateId: {
     fontSize: 16,
-    color: '#000'
+    color: Colors.textPrimary
   },
   sectionTitle: {
     fontSize: 16,
-    color: '#000',
+    color: Colors.textPrimary,
     marginBottom: 12
   },
   cardBlock: {
@@ -271,7 +272,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     padding: 16,
     paddingBottom: Platform.OS === 'ios' ? 30 : 20,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: Colors.bgPrimary,
     gap: 19,
     justifyContent: 'center'
   },

@@ -1,3 +1,4 @@
+import Colors from '../constants/colors';
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert, Animated } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
@@ -115,7 +116,7 @@ export default function CustomerQRScannerScreen({ ride, onPaymentComplete, onClo
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F3F4F6'
+    backgroundColor: Colors.bgPrimary
   },
   header: {
     paddingTop: 50,
@@ -124,7 +125,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#fff',
+    backgroundColor: Colors.bgSecondary,
     borderBottomWidth: 1,
     borderBottomColor: '#E5E7EB'
   },

@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
     top: 20,
     left: 20,
     zIndex: 10,
-    backgroundColor: '#fff',
+    backgroundColor: Colors.bgSecondary,
     padding: 12,
     borderRadius: 12,
     shadowColor: '#000',

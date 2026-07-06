@@ -290,10 +290,10 @@ export default function AdminDashboardScreen({ onNavigateLogout }: { onNavigateL
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: Colors.bgPrimary,
   },
   header: {
-    backgroundColor: '#fff',
+    backgroundColor: Colors.bgSecondary,
     paddingTop: 60,
     paddingHorizontal: 20,
     paddingBottom: 20,
@@ -353,7 +353,7 @@ const styles = StyleSheet.create({
     borderBottomColor: 'rgba(255,255,255,0.1)',
   },
   sidebarItemActive: {
-    backgroundColor: '#fff',
+    backgroundColor: Colors.bgSecondary,
   },
   sidebarItemText: {
     color: '#fff',
@@ -375,7 +375,7 @@ const styles = StyleSheet.create({
   },
   statCard: {
     width: '47%',
-    backgroundColor: '#fff',
+    backgroundColor: Colors.bgSecondary,
     padding: 16,
     borderRadius: 16,
     shadowColor: '#000',
@@ -422,7 +422,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   driverCard: {
-    backgroundColor: '#fff',
+    backgroundColor: Colors.bgSecondary,
     borderRadius: 16,
     padding: 16,
     marginBottom: 16,
@@ -499,7 +499,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   rejectBtn: {
-    backgroundColor: '#fff',
+    backgroundColor: Colors.bgSecondary,
     borderWidth: 1,
     borderColor: Colors.danger,
   },

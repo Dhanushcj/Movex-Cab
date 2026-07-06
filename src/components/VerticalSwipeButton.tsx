@@ -1,3 +1,4 @@
+import Colors from '../constants/colors';
 import React, { useRef } from 'react';
 import { View, Animated, PanResponder, StyleSheet, Text, Dimensions } from 'react-native';
 import { Feather } from '@expo/vector-icons';
@@ -85,7 +86,7 @@ export default function VerticalSwipeButton({
 const styles = StyleSheet.create({
   container: {
     borderRadius: 30,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: Colors.bgPrimary,
     justifyContent: 'center',
     overflow: 'hidden',
   },

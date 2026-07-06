@@ -1,3 +1,4 @@
+import Colors from '../constants/colors';
 import React, { useState } from 'react';
 import {
   View,
@@ -86,7 +87,7 @@ export default function NotificationScreen({ visible, onClose }: NotificationScr
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: Colors.bgPrimary,
     paddingTop: Platform.OS === 'ios' ? 50 : StatusBar.currentHeight ? StatusBar.currentHeight + 10 : 44,
   },
   header: {
@@ -106,7 +107,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 16,
-    color: '#000000',
+    color: Colors.textPrimary,
     fontWeight: '500',
   },
   tabsRow: {
@@ -142,7 +143,7 @@ const styles = StyleSheet.create({
     fontWeight: '400',
   },
   tabInactiveText: {
-    color: '#A1A3A6',
+    color: Colors.textSecondary,
     fontSize: 16,
     fontWeight: '400',
   },
@@ -182,7 +183,7 @@ const styles = StyleSheet.create({
   },
   notifTitle: {
     fontSize: 14,
-    color: '#000000',
+    color: Colors.textPrimary,
     fontWeight: '400',
   },
   notifSubTitle: {

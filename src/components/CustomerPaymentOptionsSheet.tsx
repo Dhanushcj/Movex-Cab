@@ -1,3 +1,4 @@
+import Colors from '../constants/colors';
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -47,7 +48,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: '#fff',
+    backgroundColor: Colors.bgSecondary,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     padding: 24,
@@ -83,13 +84,13 @@ const styles = StyleSheet.create({
   },
   optionBtn: {
     flex: 1,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: Colors.bgPrimary,
     borderRadius: 12,
     padding: 16,
     alignItems: 'center',
     marginHorizontal: 4,
     borderWidth: 1,
-    borderColor: '#E5E7EB'
+    borderColor: Colors.borderGlass
   },
   optionText: {
     marginTop: 8,

@@ -1,3 +1,4 @@
+import Colors from '../constants/colors';
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
@@ -343,13 +344,13 @@ export default function DriverWalletScreen({ onBack, onNavigateHome, onNavigateH
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: Colors.bgPrimary,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F3F4F6',
+    backgroundColor: Colors.bgPrimary,
   },
 
   // ── Header ──
@@ -408,7 +409,7 @@ const styles = StyleSheet.create({
 
   // ── Balance Card ──
   balanceCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.bgSecondary,
     borderRadius: 12,
     marginHorizontal: 16,
     paddingHorizontal: 20,
@@ -545,7 +546,7 @@ const styles = StyleSheet.create({
   },
   serviceCard: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.bgSecondary,
     borderRadius: 12,
     height: 108,
     shadowColor: '#000',
@@ -586,7 +587,7 @@ const styles = StyleSheet.create({
     left: 16,
     right: 16,
     borderRadius: 20,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.bgSecondary,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
@@ -618,7 +619,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.4)',
   },
   modalContent: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.bgSecondary,
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
     paddingHorizontal: 24,
@@ -648,7 +649,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1.5,
-    borderColor: '#E5E7EB',
+    borderColor: Colors.borderGlass,
     borderRadius: 12,
     paddingHorizontal: 16,
     marginBottom: 16,
@@ -674,10 +675,10 @@ const styles = StyleSheet.create({
   quickBtn: {
     paddingHorizontal: 16,
     paddingVertical: 10,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: Colors.bgPrimary,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: Colors.borderGlass,
   },
   quickBtnActive: {
     backgroundColor: '#0053B3',

@@ -68,7 +68,7 @@ export default function PayoutsTab() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.bgPrimary },
-  card: { backgroundColor: '#fff', padding: 16, borderRadius: 12, marginBottom: 12, borderWidth: 1, borderColor: Colors.border },
+  card: { backgroundColor: Colors.bgSecondary, padding: 16, borderRadius: 12, marginBottom: 12, borderWidth: 1, borderColor: Colors.border },
   cardHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
   iconBox: { width: 40, height: 40, borderRadius: 20, backgroundColor: Colors.success + '20', justifyContent: 'center', alignItems: 'center', marginRight: 12 },
   info: { flex: 1 },

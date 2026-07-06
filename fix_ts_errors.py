@@ -1,50 +1,36 @@
-with open('App.tsx', 'r', encoding='utf-8') as f:
-    content = f.read()
-
-# 1. Fix missing onNavigateLanguage in HomeScreen instantiation
-content = content.replace(
-    "onNavigateProfileEdit={() => setActiveScreen('driverProfileEdit')} \n        />",
-    "onNavigateProfileEdit={() => setActiveScreen('driverProfileEdit')} \n          onNavigateLanguage={() => setActiveScreen('customerLanguage')}\n        />"
-)
-
-# 2. Add 'customerLanguage' to activeScreen type
-content = content.replace(
-    "const [activeScreen, setActiveScreen] = useState<'onboarding' | 'login' | 'home' | 'tracking' | 'register' | 'driverProfile' | 'driverProfileEdit' | 'driverLanguage' | 'driverHistory' | 'driverWallet' | 'adminDashboard'>('onboarding');",
-    "const [activeScreen, setActiveScreen] = useState<'onboarding' | 'login' | 'home' | 'tracking' | 'register' | 'driverProfile' | 'driverProfileEdit' | 'driverLanguage' | 'customerLanguage' | 'driverHistory' | 'driverWallet' | 'adminDashboard'>('onboarding');"
-)
-
-# 3. Add useTheme import if missing
-if "import { useTheme } from './src/context/ThemeContext';" not in content:
-    content = content.replace(
-        "import { useLanguage } from './src/context/LanguageContext';",
-        "import { useLanguage } from './src/context/LanguageContext';\nimport { useTheme } from './src/context/ThemeContext';"
-    )
-
-# 4. Fix TS error for map items: add type cast to the arrays
 import re
-content = re.sub(
-    r"\[\s*\{\s*key: 'darkTheme'",
-    "([ { key: 'darkTheme'",
-    content
-)
-content = re.sub(
-    r"\{ key: 'alertSound', icon: 'volume-2', color: '#0053B3' \},\s*\]\.map\(\(item, idx\)",
-    "{ key: 'alertSound', icon: 'volume-2', color: '#0053B3' }, ] as any[]).map((item, idx)",
-    content
-)
 
-content = re.sub(
-    r"\[\s*\{\s*key: 'helpCentre'",
-    "([ { key: 'helpCentre'",
-    content
-)
-content = re.sub(
-    r"\{ key: 'settings', icon: 'settings', color: '#0053B3' \},\s*\]\.map\(\(item, idx\)",
-    "{ key: 'settings', icon: 'settings', color: '#0053B3' }, ] as any[]).map((item, idx)",
-    content
-)
+def fix_file(filename):
+    with open(filename, 'r', encoding='utf-8') as f:
+        content = f.read()
 
-with open('App.tsx', 'w', encoding='utf-8') as f:
-    f.write(content)
+    # If useTheme is not imported but used
+    if 'useTheme' in content and 'import { useTheme }' not in content:
+        content = "import { useTheme } from '../context/ThemeContext';\n" + content
+    if 'Colors' in content and 'import Colors' not in content:
+        content = "import Colors from '../constants/colors';\n" + content
+
+    # If getStyles is defined but styles is missing
+    if 'const getStyles = (Colors: any)' in content and 'const styles = getStyles(Colors);' not in content:
+        # inject const styles = getStyles(Colors); inside the component
+        content = re.sub(
+            r'(const\s+\{\s*isDark\s*\}\s*=\s*useTheme\(\);\n)',
+            r'\1    const styles = getStyles(Colors);\n',
+            content
+        )
+
+    with open(filename, 'w', encoding='utf-8') as f:
+        f.write(content)
+
+files = [
+    'src/components/ProfileEditScreen.tsx',
+    'src/components/RegistrationScreen.tsx',
+    'src/components/SlideToStartScreen.tsx',
+    'src/components/TripCompletedPaymentSheet.tsx',
+    'src/components/VerticalSwipeButton.tsx'
+]
+
+for file in files:
+    fix_file(file)
 
 print('Success')

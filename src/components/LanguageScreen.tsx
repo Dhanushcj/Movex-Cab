@@ -1,3 +1,4 @@
+import Colors from '../constants/colors';
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Platform } from 'react-native';
 import { useLanguage } from '../context/LanguageContext';
@@ -73,7 +74,7 @@ export default function LanguageScreen({ onBack }: { onBack: () => void }) {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#F3F4F6'
+    backgroundColor: Colors.bgPrimary
   },
   container: {
     flex: 1,
@@ -127,7 +128,7 @@ const styles = StyleSheet.create({
     borderWidth: 0
   },
   langCardInactive: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.bgSecondary,
     borderWidth: 1,
     borderColor: '#DEE0E3'
   },
@@ -135,7 +136,7 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     borderRadius: 4,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.bgSecondary,
     alignItems: 'center',
     justifyContent: 'center'
   },
@@ -165,7 +166,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     padding: 16,
     paddingBottom: Platform.OS === 'ios' ? 30 : 20,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: Colors.bgPrimary,
     gap: 16,
     justifyContent: 'center'
   },
@@ -174,7 +175,7 @@ const styles = StyleSheet.create({
     height: 44,
     borderWidth: 1,
     borderColor: '#0053B3',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.bgSecondary,
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center'

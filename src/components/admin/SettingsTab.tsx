@@ -21,7 +21,7 @@ export default function SettingsTab() {
 
 const styles = StyleSheet.create({
   container: { padding: 16 },
-  card: { backgroundColor: '#fff', padding: 20, borderRadius: 12, borderWidth: 1, borderColor: Colors.border },
+  card: { backgroundColor: Colors.bgSecondary, padding: 20, borderRadius: 12, borderWidth: 1, borderColor: Colors.border },
   header: { flexDirection: 'row', alignItems: 'center', marginBottom: 16 },
   title: { fontSize: 20, fontWeight: 'bold', color: Colors.textPrimary, marginLeft: 12 },
   description: { fontSize: 16, color: Colors.textSecondary, lineHeight: 24 }

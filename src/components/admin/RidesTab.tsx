@@ -82,7 +82,7 @@ export default function RidesTab() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.bgPrimary },
-  card: { backgroundColor: '#fff', padding: 16, borderRadius: 12, marginBottom: 12, borderWidth: 1, borderColor: Colors.border },
+  card: { backgroundColor: Colors.bgSecondary, padding: 16, borderRadius: 12, marginBottom: 12, borderWidth: 1, borderColor: Colors.border },
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
   rideId: { fontSize: 14, fontWeight: 'bold', color: Colors.textSecondary },
   badge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 4 },

@@ -240,7 +240,7 @@ export default function AuthScreen({ onNavigateRegister }: { onNavigateRegister:
               </TouchableOpacity>
 
               <TouchableOpacity 
-                style={[styles.continueButton, { backgroundColor: '#ffffff', borderWidth: 1, borderColor: '#D1D5DB', marginTop: 15 }]}
+                style={[styles.continueButton, { backgroundColor: Colors.bgSecondary, borderWidth: 1, borderColor: '#D1D5DB', marginTop: 15 }]}
                 onPress={async () => {
                   try {
                     await resendVerificationEmail();
@@ -423,7 +423,7 @@ export default function AuthScreen({ onNavigateRegister }: { onNavigateRegister:
           {/* Google Auth Button */}
           {!(mode === 'register' && role === 'driver') && mode !== 'forgot_password' && (
             <TouchableOpacity 
-              style={[styles.continueButton, { backgroundColor: '#ffffff', borderWidth: 1, borderColor: '#D1D5DB', marginTop: 15 }]} 
+              style={[styles.continueButton, { backgroundColor: Colors.bgSecondary, borderWidth: 1, borderColor: '#D1D5DB', marginTop: 15 }]} 
               onPress={handleGoogleSignIn}
               disabled={loading}
               activeOpacity={0.8}
@@ -495,7 +495,7 @@ export default function AuthScreen({ onNavigateRegister }: { onNavigateRegister:
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: Colors.bgPrimary,
     position: 'relative'
   },
   backgroundOrb1: {
@@ -573,7 +573,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   authTabActive: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.bgSecondary,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -613,7 +613,7 @@ const styles = StyleSheet.create({
     borderColor: '#DEE0E3',
     borderRadius: 16,
     paddingHorizontal: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.bgSecondary,
   },
   countryCode: {
     fontFamily: 'sans-serif',
@@ -647,7 +647,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#fff'
+    backgroundColor: Colors.bgSecondary
   },
   genderBtnActive: {
     borderColor: '#0053B3',

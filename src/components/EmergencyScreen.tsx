@@ -1,3 +1,4 @@
+import Colors from '../constants/colors';
 import React from 'react';
 import {
   View,
@@ -103,7 +104,7 @@ export default function EmergencyScreen({ visible, onClose }: EmergencyScreenPro
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: Colors.bgPrimary,
     paddingTop: Platform.OS === 'ios' ? 50 : StatusBar.currentHeight ? StatusBar.currentHeight + 10 : 44,
   },
   header: {
@@ -123,7 +124,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 16,
-    color: '#000000',
+    color: Colors.textPrimary,
     fontWeight: '500',
   },
   sosContainer: {
@@ -152,7 +153,7 @@ const styles = StyleSheet.create({
   },
   sosTitle: {
     fontSize: 20,
-    color: '#000000',
+    color: Colors.textPrimary,
     fontWeight: '500',
     marginBottom: 12,
   },

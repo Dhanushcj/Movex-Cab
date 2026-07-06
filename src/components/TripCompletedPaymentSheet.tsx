@@ -1,3 +1,4 @@
+import Colors from '../constants/colors';
 import React, { useRef, useMemo } from 'react';
 import {
   View,
@@ -203,12 +204,12 @@ export default function TripCompletedPaymentSheet({
 const styles = StyleSheet.create({
   fullScreen: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: Colors.bgPrimary,
     zIndex: 100,
   },
   container: {
     flex: 1,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: Colors.bgPrimary,
   },
 
   // Top Bar
@@ -224,7 +225,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.bgSecondary,
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#000',
@@ -237,7 +238,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.bgSecondary,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1.5,
@@ -346,7 +347,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginBottom: 16,
     padding: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.bgSecondary,
     borderRadius: 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },

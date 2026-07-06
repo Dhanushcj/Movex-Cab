@@ -1,3 +1,4 @@
+import Colors from '../constants/colors';
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -147,7 +148,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   fareBadge: {
-    backgroundColor: '#F3F4F6',
+    backgroundColor: Colors.bgPrimary,
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 8,
@@ -190,7 +191,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F9FAFB',
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: Colors.borderGlass,
     gap: 8,
   },
   payOptionActive: {
@@ -221,7 +222,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F9FAFB',
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: Colors.borderGlass,
   },
   tipButtonActive: {
     backgroundColor: '#0053B3',

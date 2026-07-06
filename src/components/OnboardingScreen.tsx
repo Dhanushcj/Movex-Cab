@@ -1,3 +1,4 @@
+import Colors from '../constants/colors';
 import React, { useRef, useState } from 'react';
 import { 
   StyleSheet, 
@@ -128,7 +129,7 @@ export default function OnboardingScreen({ onComplete }: OnboardingScreenProps) 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: Colors.bgPrimary,
   },
   scrollContainer: {
     flex: 1,

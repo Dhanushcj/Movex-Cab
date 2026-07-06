@@ -1,3 +1,4 @@
+import Colors from '../constants/colors';
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView, TextInput, Platform, ActivityIndicator } from 'react-native';
 import { Feather } from '@expo/vector-icons';
@@ -143,11 +144,11 @@ export default function DriverHistoryScreen({ onNavigateHome }: { onNavigateHome
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#F3F4F6'
+    backgroundColor: Colors.bgPrimary
   },
   container: {
     flex: 1,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: Colors.bgPrimary,
   },
   header: {
     marginTop: Platform.OS === 'ios' ? 40 : 60,
@@ -156,7 +157,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 16,
-    color: '#000000',
+    color: Colors.textPrimary,
     fontWeight: '400'
   },
   searchBar: {
@@ -170,7 +171,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     marginBottom: 24,
     gap: 8,
-    backgroundColor: '#F3F4F6'
+    backgroundColor: Colors.bgPrimary
   },
   searchInput: {
     flex: 1,
@@ -205,7 +206,7 @@ const styles = StyleSheet.create({
     color: '#FCFCFC'
   },
   filterTextInactive: {
-    color: '#A1A3A6'
+    color: Colors.textSecondary
   },
   listContainer: {
     flex: 1,
@@ -256,7 +257,7 @@ const styles = StyleSheet.create({
     height: 60,
     paddingHorizontal: 20,
     borderRadius: 30,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.bgSecondary,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,

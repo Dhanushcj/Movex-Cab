@@ -64,7 +64,7 @@ export default function VehiclesTab() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.bgPrimary },
-  card: { backgroundColor: '#fff', padding: 16, borderRadius: 12, marginBottom: 12, borderWidth: 1, borderColor: Colors.border },
+  card: { backgroundColor: Colors.bgSecondary, padding: 16, borderRadius: 12, marginBottom: 12, borderWidth: 1, borderColor: Colors.border },
   cardHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
   iconBox: { width: 44, height: 44, borderRadius: 8, backgroundColor: Colors.accentGlow, justifyContent: 'center', alignItems: 'center', marginRight: 12 },
   info: { flex: 1 },

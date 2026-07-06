@@ -525,7 +525,7 @@ const styles = StyleSheet.create({
   screenMainTitle: {
     fontFamily: 'sans-serif',
     fontSize: 16,
-    color: '#000000',
+    color: Colors.textPrimary,
     textAlign: 'center',
     marginBottom: 20
   },
@@ -552,7 +552,7 @@ const styles = StyleSheet.create({
     borderColor: '#DEE0E3',
     borderRadius: 16,
     paddingHorizontal: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.bgSecondary,
   },
   countryCode: {
     fontFamily: 'sans-serif',
@@ -705,7 +705,7 @@ const styles = StyleSheet.create({
     padding: 20
   },
   modalContent: {
-    backgroundColor: '#fff',
+    backgroundColor: Colors.bgSecondary,
     borderRadius: 16,
     maxHeight: '80%',
     padding: 20,

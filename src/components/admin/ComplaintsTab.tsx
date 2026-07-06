@@ -64,7 +64,7 @@ export default function ComplaintsTab() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.bgPrimary },
-  card: { backgroundColor: '#fff', padding: 16, borderRadius: 12, marginBottom: 12, borderWidth: 1, borderColor: Colors.border },
+  card: { backgroundColor: Colors.bgSecondary, padding: 16, borderRadius: 12, marginBottom: 12, borderWidth: 1, borderColor: Colors.border },
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 },
   subject: { fontSize: 16, fontWeight: 'bold', color: Colors.textPrimary, flex: 1, marginRight: 8 },
   badge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 4 },
