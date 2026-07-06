@@ -63,7 +63,7 @@ const FareManagement = () => {
     <div className="space-y-8 animate-fade-in">
       {/* Top Header */}
       <div>
-        <h2 className="text-2xl font-bold text-white tracking-tight">Fare Management</h2>
+        <h2 className="text-2xl font-bold text-[var(--text-primary)] tracking-tight">Fare Management</h2>
         <p className="text-sm text-[var(--text-muted)] mt-1">Configure base bookings, distance charges, and active surge pricing multipliers</p>
       </div>
 
@@ -73,12 +73,12 @@ const FareManagement = () => {
           <div key={fare._id} className="glass-card p-6 flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between mb-4">
-                <span className="text-xs font-semibold uppercase px-2.5 py-0.5 bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 rounded">
+                <span className="text-xs font-semibold uppercase px-2.5 py-0.5 bg-indigo-100 border border-indigo-200 text-indigo-700 rounded">
                   {fare.vehicleType}
                 </span>
                 <button
                   onClick={() => handleEdit(fare)}
-                  className="p-1.5 rounded-lg hover:bg-white/5 text-[var(--text-muted)] hover:text-white transition-colors"
+                  className="p-1.5 rounded-lg hover:bg-[var(--bg-tertiary)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
                 >
                   <Edit3 className="w-4 h-4" />
                 </button>
@@ -90,23 +90,23 @@ const FareManagement = () => {
               <div className="space-y-3.5 border-t border-[var(--border-glass)] pt-4">
                 <div className="flex justify-between text-sm">
                   <span className="text-[var(--text-muted)]">Base Flagoff Rate:</span>
-                  <span className="font-semibold text-white">₹{fare.baseFare}</span>
+                  <span className="font-semibold text-[var(--text-primary)]">₹{fare.baseFare}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-[var(--text-muted)]">Distance Rate (per km):</span>
-                  <span className="font-semibold text-white">₹{fare.perKmCharge}</span>
+                  <span className="font-semibold text-[var(--text-primary)]">₹{fare.perKmCharge}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-[var(--text-muted)]">Duration Rate (per min):</span>
-                  <span className="font-semibold text-white">₹{fare.perMinCharge}</span>
+                  <span className="font-semibold text-[var(--text-primary)]">₹{fare.perMinCharge}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-[var(--text-muted)]">Minimum Ride Fare:</span>
-                  <span className="font-semibold text-white">₹{fare.minFare}</span>
+                  <span className="font-semibold text-[var(--text-primary)]">₹{fare.minFare}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-[var(--text-muted)]">Surge Multiplier:</span>
-                  <span className={`font-semibold ${fare.surgeMultiplier > 1 ? 'text-amber-400' : 'text-emerald-400'}`}>
+                  <span className={`font-semibold ${fare.surgeMultiplier > 1 ? 'text-amber-600' : 'text-emerald-600'}`}>
                     {fare.surgeMultiplier}x
                   </span>
                 </div>
@@ -123,12 +123,12 @@ const FareManagement = () => {
             <button
               type="button"
               onClick={() => setEditingFare(null)}
-              className="absolute top-6 right-6 text-[var(--text-muted)] hover:text-white transition-colors"
+              className="absolute top-6 right-6 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
             >
               Cancel
             </button>
 
-            <h3 className="text-lg font-bold text-white mb-6">
+            <h3 className="text-lg font-bold text-[var(--text-primary)] mb-6">
               Update {editingFare.vehicleType.toUpperCase()} Pricing Config
             </h3>
 
