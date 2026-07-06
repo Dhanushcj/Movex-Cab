@@ -14,6 +14,7 @@ const {
   addMoney,
   withdrawMoney
 } = require('../controllers/driverController');
+const { createComplaint, getMyComplaints } = require('../controllers/complaintController');
 
 // Multer storage engine configuration
 const storage = multer.diskStorage({
@@ -63,5 +64,8 @@ router.post('/documents', (req, res, next) => {
     next();
   });
 }, uploadDocuments);
+
+router.post('/complaints', createComplaint);
+router.get('/complaints', getMyComplaints);
 
 module.exports = router;

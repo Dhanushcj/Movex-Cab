@@ -23,6 +23,19 @@ export default function Complaints() {
     }
   };
 
+  const handleResolve = async (id) => {
+    if (!window.confirm('Are you sure you want to mark this ticket as resolved?')) return;
+    try {
+      const res = await api.put(`/admin/complaints/${id}`, { status: 'resolved' });
+      if (res.data.success) {
+        fetchComplaints();
+      }
+    } catch (error) {
+      console.error('Error resolving ticket', error);
+      alert('Failed to resolve ticket');
+    }
+  };
+
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
@@ -61,7 +74,12 @@ export default function Complaints() {
                   <td className="p-4 flex gap-2">
                     <button className="text-[var(--accent-color)] hover:underline font-medium">View</button>
                     {c.status !== 'resolved' && (
-                      <button className="text-emerald-600 hover:underline font-medium ml-2">Resolve</button>
+                      <button 
+                        className="text-emerald-600 hover:underline font-medium ml-2"
+                        onClick={() => handleResolve(c._id)}
+                      >
+                        Resolve
+                      </button>
                     )}
                   </td>
                 </tr>

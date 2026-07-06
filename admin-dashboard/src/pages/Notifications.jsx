@@ -108,22 +108,22 @@ export default function Notifications() {
             <div className="space-y-4">
               <div>
                 <label className="text-xs font-semibold text-[var(--text-muted)] uppercase">Title</label>
-                <input type="text" value={form.title} onChange={e => setForm({...form, title: e.target.value})} className="glass-input mt-1 w-full" required />
+                <input type="text" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} className="glass-input mt-1 w-full" required />
               </div>
               <div>
                 <label className="text-xs font-semibold text-[var(--text-muted)] uppercase">Message</label>
-                <textarea rows="3" value={form.message} onChange={e => setForm({...form, message: e.target.value})} className="glass-input mt-1 w-full" required></textarea>
+                <textarea rows="3" value={form.message} onChange={e => setForm({ ...form, message: e.target.value })} className="glass-input mt-1 w-full" required></textarea>
               </div>
               <div>
                 <label className="text-xs font-semibold text-[var(--text-muted)] uppercase">Target Audience</label>
-                <select value={form.targetAudience} onChange={e => setForm({...form, targetAudience: e.target.value})} className="glass-input mt-1 w-full">
+                <select value={form.targetAudience} onChange={e => setForm({ ...form, targetAudience: e.target.value })} className="glass-input mt-1 w-full">
                   <option value="both">Both</option>
                   <option value="customer">Customer App</option>
                   <option value="driver">Driver App</option>
                 </select>
               </div>
               <div className="flex items-center gap-2 mt-4">
-                <input type="checkbox" checked={form.isActive} onChange={e => setForm({...form, isActive: e.target.checked})} id="isActive" />
+                <input type="checkbox" checked={form.isActive} onChange={e => setForm({ ...form, isActive: e.target.checked })} id="isActive" />
                 <label htmlFor="isActive" className="text-sm text-white">Active (Show on app start)</label>
               </div>
               <button type="submit" className="btn-primary w-full justify-center mt-4"><Save className="w-4 h-4 mr-2" /> Save Notification</button>
