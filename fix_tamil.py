@@ -1,13 +1,11 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
-import * as SecureStore from 'expo-secure-store';
+﻿import json
+import codecs
 
-type LanguageContextType = {
-  language: 'en' | 'ta';
-  setLanguage: (lang: 'en' | 'ta') => void;
-  t: (key: string) => string;
-};
+with codecs.open('src/context/LanguageContext.tsx', 'r', 'utf-8') as f:
+    content = f.read()
 
-
+# We will just rewrite the 	ranslations object inside the file.
+new_translations = '''
 const translations = {
   en: {
     "app.HowWasYourMovexTrip": "How was your Movex trip?",
@@ -82,13 +80,7 @@ const translations = {
     "app.Profile": "Profile",
     "app.EditProfile": "Edit Profile",
     "app.Language": "Language",
-          "app.Logout": "Logout",
-      "profile.darkTheme": "Dark theme",
-      "profile.appLanguage": "App language",
-      "profile.alertSound": "Order alert sound",
-      "profile.helpCentre": "Help Centre",
-      "profile.supportTickets": "Support tickets",
-      "profile.settings": "Settings",
+    "app.Logout": "Logout",
     "app.RideHistory": "Ride History",
     "app.Wallet": "Wallet"
   },
@@ -170,39 +162,12 @@ const translations = {
     "app.Wallet": "வாலட்"
   }
 };
+'''
 
+import re
+content = re.sub(r'const translations = \{.*?\n\};', new_translations, content, flags=re.DOTALL)
 
-const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
+with codecs.open('src/context/LanguageContext.tsx', 'w', 'utf-8') as f:
+    f.write(content)
 
-export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [language, setLanguageState] = useState<'en' | 'ta'>('en');
-
-  useEffect(() => {
-    SecureStore.getItemAsync('app_lang').then(lang => {
-      if (lang === 'ta') setLanguageState('ta');
-    });
-  }, []);
-
-  const setLanguage = (lang: 'en' | 'ta') => {
-    setLanguageState(lang);
-    SecureStore.setItemAsync('app_lang', lang);
-  };
-
-  const t = (key: string): string => {
-    return (translations[language] as any)[key] || key;
-  };
-
-  return (
-    <LanguageContext.Provider value={{ language, setLanguage, t }}>
-      {children}
-    </LanguageContext.Provider>
-  );
-};
-
-export const useLanguage = () => {
-  const context = useContext(LanguageContext);
-  if (context === undefined) {
-    throw new Error('useLanguage must be used within a LanguageProvider');
-  }
-  return context;
-};
+print('Success')

@@ -2,11 +2,15 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView } from 'react-native';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
+import { useTheme } from '../context/ThemeContext';
 import { Feather } from '@expo/vector-icons';
+import Colors from '../constants/colors';
 
 export default function ProfileScreen({ onBack, onEditProfile, onNavigateLanguage }: { onBack: () => void, onEditProfile?: () => void, onNavigateLanguage?: () => void }) {
   const { user, logout } = useAuth();
   const { t } = useLanguage();
+  const { isDark, toggleTheme } = useTheme();
+  const styles = getStyles();
 
   const getIconName = (title: string): keyof typeof Feather.glyphMap => {
     switch(title) {
@@ -20,7 +24,7 @@ export default function ProfileScreen({ onBack, onEditProfile, onNavigateLanguag
     }
   };
 
-  const renderOptionRow = (titleKey: string, showToggle: boolean = false, onPress?: () => void) => (
+  const renderOptionRow = (titleKey: string, showToggle: boolean = false, onPress?: () => void, toggleState: boolean = false) => (
     <TouchableOpacity style={styles.optionRow} onPress={onPress} activeOpacity={0.7} disabled={!onPress}>
       <View style={styles.iconCircle}>
         <Feather name={getIconName(titleKey)} size={18} color="#0053B3" />
@@ -28,8 +32,8 @@ export default function ProfileScreen({ onBack, onEditProfile, onNavigateLanguag
       <Text style={styles.optionText}>{t(`profile.${titleKey}`)}</Text>
       <View style={{ flex: 1 }} />
       {showToggle ? (
-        <View style={styles.toggleTrack}>
-          <View style={styles.toggleThumb} />
+        <View style={[styles.toggleTrack, toggleState && { backgroundColor: '#0053B3' }]}>
+          <View style={[styles.toggleThumb, toggleState && { transform: [{ translateX: 28 }] }]} />
         </View>
       ) : (
         <Text style={styles.chevron}>›</Text>
@@ -43,7 +47,7 @@ export default function ProfileScreen({ onBack, onEditProfile, onNavigateLanguag
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={onBack} style={styles.backButton}>
-            <Feather name="chevron-left" size={24} color="#262D36" />
+            <Feather name="chevron-left" size={24} color={Colors.textPrimary} />
           </TouchableOpacity>
         </View>
 
@@ -66,7 +70,7 @@ export default function ProfileScreen({ onBack, onEditProfile, onNavigateLanguag
               </View>
             </View>
             <View style={{ flex: 1 }} />
-            <Feather name="edit-2" size={24} color="#FCFCFC" style={{ opacity: 0.8 }} />
+            <Feather name="edit-2" size={24} color={Colors.textPrimary} style={{ opacity: 0.8 }} />
           </View>
         </TouchableOpacity>
 
@@ -78,7 +82,7 @@ export default function ProfileScreen({ onBack, onEditProfile, onNavigateLanguag
 
         {/* First Options Block */}
         <View style={styles.optionsBlock}>
-          {renderOptionRow('darkTheme', true)}
+          {renderOptionRow('darkTheme', true, toggleTheme, isDark)}
           <View style={styles.divider} />
           {renderOptionRow('appLanguage', false, onNavigateLanguage)}
           <View style={styles.divider} />
@@ -103,14 +107,14 @@ export default function ProfileScreen({ onBack, onEditProfile, onNavigateLanguag
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = () => StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#F3F4F6'
+    backgroundColor: Colors.bgPrimary
   },
   container: {
     flex: 1,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: Colors.bgPrimary,
     paddingHorizontal: 16
   },
   header: {
@@ -121,20 +125,20 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#DEE0E3',
+    backgroundColor: Colors.borderGlass,
     alignItems: 'center',
     justifyContent: 'center'
   },
   backButtonIcon: {
     fontSize: 18,
-    color: '#262D36'
+    color: Colors.textPrimary
   },
   profileCard: {
     backgroundColor: '#0053B3',
     borderRadius: 16,
     padding: 16,
     marginBottom: 20,
-    shadowColor: '#000',
+    shadowColor: Colors.textPrimary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 10,
@@ -157,12 +161,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center'
   },
   profileName: {
-    color: '#FCFCFC',
+    color: Colors.textPrimary,
     fontSize: 16,
     fontWeight: '600'
   },
   profileId: {
-    color: '#A1A3A6',
+    color: Colors.textSecondary,
     fontSize: 14,
     marginTop: 4
   },
@@ -182,30 +186,30 @@ const styles = StyleSheet.create({
     opacity: 0.5
   },
   ratingText: {
-    color: '#FCFCFC',
+    color: Colors.textPrimary,
     fontSize: 14,
     fontWeight: '500',
     marginLeft: 4
   },
   referralCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.bgSecondary,
     borderRadius: 16,
     padding: 20,
     marginBottom: 20,
     justifyContent: 'center'
   },
   referralTitle: {
-    color: '#000000',
+    color: Colors.textPrimary,
     fontSize: 14,
     fontWeight: '500'
   },
   referralSubtitle: {
-    color: '#7C848D',
+    color: Colors.textMuted,
     fontSize: 12,
     marginTop: 4
   },
   optionsBlock: {
-    backgroundColor: '#FCFCFC',
+    backgroundColor: Colors.bgSecondary,
     borderRadius: 16,
     paddingHorizontal: 16,
     marginBottom: 20
@@ -220,7 +224,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#F6F8FE',
+    backgroundColor: Colors.iconBg,
     borderWidth: 1.5,
     borderColor: 'rgba(0, 83, 179, 0.2)',
     alignItems: 'center',
@@ -228,23 +232,23 @@ const styles = StyleSheet.create({
   },
   optionText: {
     fontSize: 14,
-    color: '#262D36',
+    color: Colors.textPrimary,
     fontWeight: '500'
   },
   divider: {
     height: 1,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: Colors.bgPrimary,
     marginHorizontal: -16
   },
   chevron: {
     fontSize: 20,
-    color: '#262D36',
+    color: Colors.textPrimary,
     opacity: 0.5
   },
   toggleTrack: {
     width: 56,
     height: 28,
-    backgroundColor: '#DEE0E3',
+    backgroundColor: Colors.borderGlass,
     borderRadius: 16,
     justifyContent: 'center',
     paddingHorizontal: 2

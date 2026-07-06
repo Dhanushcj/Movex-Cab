@@ -1,4 +1,4 @@
-{
+export default {
   "expo": {
     "name": "customer-app",
     "slug": "customer-app",
@@ -21,7 +21,7 @@
       "googleServicesFile": "./google-services.json",
       "config": {
         "googleMaps": {
-          "apiKey": "YOUR_GOOGLE_MAPS_API_KEY"
+          "apiKey": process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY
         }
       }
     },
@@ -52,4 +52,4 @@
     },
     "newArchEnabled": false
   }
-}
+};
