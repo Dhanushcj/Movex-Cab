@@ -195,7 +195,7 @@ const Drivers = () => {
                 <h5 className="text-xs font-semibold text-[var(--text-muted)] uppercase mb-2">Driving License</h5>
                 <div className="text-sm font-semibold text-white mb-1">No: {selectedDriver.documents?.drivingLicense?.number || 'N/A'}</div>
                 <a 
-                  href={`http://localhost:5000${selectedDriver.documents?.drivingLicense?.url}`}
+                  href={`https://movex-cab.onrender.com${selectedDriver.documents?.drivingLicense?.url}`}
                   target="_blank" 
                   rel="noreferrer"
                   className="text-xs text-indigo-400 flex items-center gap-1 hover:underline mt-2"
@@ -209,7 +209,7 @@ const Drivers = () => {
                 <h5 className="text-xs font-semibold text-[var(--text-muted)] uppercase mb-2">Registration Certificate (RC)</h5>
                 <div className="text-sm font-semibold text-white mb-1">No: {selectedDriver.documents?.vehicleRC?.number || 'N/A'}</div>
                 <a 
-                  href={`http://localhost:5000${selectedDriver.documents?.vehicleRC?.url}`}
+                  href={`https://movex-cab.onrender.com${selectedDriver.documents?.vehicleRC?.url}`}
                   target="_blank" 
                   rel="noreferrer"
                   className="text-xs text-indigo-400 flex items-center gap-1 hover:underline mt-2"
