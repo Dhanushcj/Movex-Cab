@@ -1,19 +1,56 @@
-import React, { useState } from 'react';
-import { Settings as SettingsIcon, Save } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Settings as SettingsIcon, Save, Activity } from 'lucide-react';
+import API from '../services/api';
 
 export default function Settings() {
   const [settings, setSettings] = useState({
-    siteName: 'MoveX Admin',
-    supportEmail: 'support@movex.com',
-    cancellationFee: 50,
+    siteName: '',
+    supportEmail: '',
+    defaultCancellationFee: 50,
+    commissionPercentage: 20,
     maintenanceMode: false
   });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const res = await API.get('/admin/settings');
+        if (res.data.data) {
+          setSettings(res.data.data);
+        }
+      } catch (err) {
+        console.error('Failed to fetch settings:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchSettings();
+  }, []);
+
+  const handleSave = async () => {
+    try {
+      await API.put('/admin/settings', settings);
+      alert('Settings saved successfully!');
+    } catch (err) {
+      console.error(err);
+      alert('Failed to save settings.');
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <Activity className="animate-spin text-indigo-500 w-8 h-8" />
+      </div>
+    );
+  }
 
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Platform Settings</h1>
-        <button className="btn-primary">
+        <button className="btn-primary" onClick={handleSave}>
           <Save className="w-4 h-4 mr-2" />
           Save Changes
         </button>
@@ -47,16 +84,26 @@ export default function Settings() {
           </div>
 
           <div>
+            <label className="block text-sm font-medium mb-2">Commission Percentage (%)</label>
+            <input 
+              type="number" 
+              className="w-full px-4 py-2 rounded-lg border border-[var(--border-glass)] bg-white text-[var(--text-dark)]"
+              value={settings.commissionPercentage}
+              onChange={(e) => setSettings({...settings, commissionPercentage: Number(e.target.value)})}
+            />
+          </div>
+
+          <div>
             <label className="block text-sm font-medium mb-2">Default Cancellation Fee (₹)</label>
             <input 
               type="number" 
               className="w-full px-4 py-2 rounded-lg border border-[var(--border-glass)] bg-white text-[var(--text-dark)]"
-              value={settings.cancellationFee}
-              onChange={(e) => setSettings({...settings, cancellationFee: Number(e.target.value)})}
+              value={settings.defaultCancellationFee}
+              onChange={(e) => setSettings({...settings, defaultCancellationFee: Number(e.target.value)})}
             />
           </div>
 
-          <div className="flex items-center justify-between pt-4">
+          <div className="flex items-center justify-between pt-4 border-t border-[var(--border-glass)]">
             <div>
               <div className="font-medium">Maintenance Mode</div>
               <div className="text-sm text-[var(--text-muted)]">Disable the app for users</div>

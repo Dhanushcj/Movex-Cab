@@ -16,7 +16,7 @@ const FareManagement = () => {
 
   const fetchFares = async () => {
     try {
-      const response = await API.get('/fares');
+      const response = await API.get('/admin/fares');
       setFares(response.data.data);
     } catch (err) {
       console.error('Failed to load fares configs:', err);

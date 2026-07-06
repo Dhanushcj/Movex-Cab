@@ -13,7 +13,8 @@ import Payments from './pages/Payments';
 import Payouts from './pages/Payouts';
 import Complaints from './pages/Complaints';
 import Settings from './pages/Settings';
-
+import Notifications from './pages/Notifications';
+import Banners from './pages/Banners';
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [checking, setChecking] = useState(true);
@@ -45,6 +46,9 @@ function App() {
         <Route path="/payouts" element={<Payouts />} />
         <Route path="/complaints" element={<Complaints />} />
         <Route path="/settings" element={<Settings />} />
+        <Route path="/fares" element={<FareManagement />} />
+        <Route path="/banners" element={<Banners />} />
+        <Route path="/notifications" element={<Notifications />} />
         {/* Fallback routes */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

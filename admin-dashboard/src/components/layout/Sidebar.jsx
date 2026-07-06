@@ -24,6 +24,9 @@ const Sidebar = () => {
     { path: '/map', name: 'Live Map', icon: MapPin },
     { path: '/payments', name: 'Payments', icon: CreditCard },
     { path: '/payouts', name: 'Driver Payouts', icon: DollarSign },
+    { path: '/fares', name: 'Fares & Pricing', icon: Tag },
+    { path: '/banners', name: 'Ad Banners', icon: LayoutDashboard },
+    { path: '/notifications', name: 'Notifications', icon: AlertTriangle },
     { path: '/complaints', name: 'Complaints', icon: AlertTriangle },
     { path: '/settings', name: 'Settings', icon: Settings }
   ];

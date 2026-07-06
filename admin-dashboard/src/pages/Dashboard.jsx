@@ -48,24 +48,8 @@ const Dashboard = () => {
     );
   }
 
-  // Mock charts details
-  const revenueData = [
-    { name: 'Mon', Revenue: 4000, Commission: 800 },
-    { name: 'Tue', Revenue: 5200, Commission: 1040 },
-    { name: 'Wed', Revenue: 4800, Commission: 960 },
-    { name: 'Thu', Revenue: 6100, Commission: 1220 },
-    { name: 'Fri', Revenue: 7500, Commission: 1500 },
-    { name: 'Sat', Revenue: 9200, Commission: 1840 },
-    { name: 'Sun', Revenue: 8400, Commission: 1680 }
-  ];
-
-  const vehicleDistribution = [
-    { name: 'Bike', count: 120 },
-    { name: 'Auto', count: 85 },
-    { name: 'Mini', count: 64 },
-    { name: 'Sedan', count: 98 },
-    { name: 'SUV', count: 42 }
-  ];
+  const revenueData = stats?.chartData?.revenueData || [];
+  const vehicleDistribution = stats?.chartData?.vehicleDistribution || [];
 
   const cards = [
     {

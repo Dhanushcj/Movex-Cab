@@ -10,3 +10,4 @@ build/
 coverage/
 .next/
 out/
+backend/serviceAccountKey.json

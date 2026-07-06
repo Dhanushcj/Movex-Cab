@@ -2,6 +2,19 @@ const express = require('express');
 const router = express.Router();
 const { protect, authorize } = require('../middleware/auth');
 const {
+  getSettings,
+  updateSettings,
+  getFares,
+  createFare,
+  deleteFare,
+  getBanners,
+  createBanner,
+  updateBanner,
+  deleteBanner,
+  getNotifications,
+  createNotification,
+  updateNotification,
+  deleteNotification,
   getDashboardStats,
   getDrivers,
   updateDriverStatus,
@@ -23,6 +36,23 @@ const {
 // All endpoints in admin router are protected and limited to the admin role
 router.use(protect);
 router.use(authorize('admin'));
+
+router.get('/settings', getSettings);
+router.put('/settings', updateSettings);
+
+router.get('/fares', getFares);
+router.post('/fares', createFare);
+router.delete('/fares/:id', deleteFare);
+
+router.get('/banners', getBanners);
+router.post('/banners', createBanner);
+router.put('/banners/:id', updateBanner);
+router.delete('/banners/:id', deleteBanner);
+
+router.get('/notifications', getNotifications);
+router.post('/notifications', createNotification);
+router.put('/notifications/:id', updateNotification);
+router.delete('/notifications/:id', deleteNotification);
 
 router.get('/dashboard', getDashboardStats);
 

@@ -31,6 +31,53 @@ const getDashboardStats = async (req, res, next) => {
     const completedBookings = await Booking.countDocuments({ status: 'completed' });
     const cancelledBookings = await Booking.countDocuments({ status: 'cancelled' });
 
+    // Aggregate Vehicle Distribution
+    const vehicleDistAgg = await Driver.aggregate([
+      { $match: { 'vehicle.type': { $exists: true } } },
+      { $group: { _id: '$vehicle.type', count: { $sum: 1 } } }
+    ]);
+    const vehicleDistribution = vehicleDistAgg.map(v => ({
+      name: v._id.charAt(0).toUpperCase() + v._id.slice(1),
+      count: v.count
+    }));
+
+    // Aggregate Revenue Data (last 7 days)
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
+    sevenDaysAgo.setHours(0, 0, 0, 0);
+
+    const revenueAgg = await Payment.aggregate([
+      { 
+        $match: { 
+          status: 'completed',
+          createdAt: { $gte: sevenDaysAgo }
+        } 
+      },
+      {
+        $group: {
+          _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+          Revenue: { $sum: "$amount" },
+          Commission: { $sum: "$commission" }
+        }
+      }
+    ]);
+
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const revenueData = [];
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(sevenDaysAgo);
+      d.setDate(d.getDate() + i);
+      const dateStr = d.toISOString().split('T')[0];
+      const dayName = days[d.getDay()];
+      
+      const found = revenueAgg.find(r => r._id === dateStr);
+      revenueData.push({
+        name: dayName,
+        Revenue: found ? found.Revenue : 0,
+        Commission: found ? found.Commission : 0
+      });
+    }
+
     res.json({
       success: true,
       data: {
@@ -49,6 +96,10 @@ const getDashboardStats = async (req, res, next) => {
           completed: completedBookings,
           cancelled: cancelledBookings,
           active: activeBookingsCount
+        },
+        chartData: {
+          vehicleDistribution,
+          revenueData
         }
       }
     });
@@ -340,7 +391,129 @@ const getMapData = async (req, res, next) => {
   }
 };
 
+const PlatformSettings = require('../models/PlatformSettings');
+const AdBanner = require('../models/AdBanner');
+const NotificationMessage = require('../models/NotificationMessage');
+const FareConfig = require('../models/FareConfig');
+
+// Settings
+const getSettings = async (req, res, next) => {
+  try {
+    let settings = await PlatformSettings.findOne();
+    if (!settings) {
+      settings = await PlatformSettings.create({});
+    }
+    res.json({ success: true, data: settings });
+  } catch (err) { next(err); }
+};
+
+const updateSettings = async (req, res, next) => {
+  try {
+    let settings = await PlatformSettings.findOne();
+    if (!settings) {
+      settings = await PlatformSettings.create(req.body);
+    } else {
+      Object.assign(settings, req.body);
+      await settings.save();
+    }
+    res.json({ success: true, data: settings });
+  } catch (err) { next(err); }
+};
+
+// Fares
+const getFares = async (req, res, next) => {
+  try {
+    const fares = await FareConfig.find();
+    res.json({ success: true, data: fares });
+  } catch (err) { next(err); }
+};
+
+const createFare = async (req, res, next) => {
+  try {
+    const fare = await FareConfig.create(req.body);
+    res.json({ success: true, data: fare });
+  } catch (err) { next(err); }
+};
+
+const deleteFare = async (req, res, next) => {
+  try {
+    await FareConfig.findByIdAndDelete(req.params.id);
+    res.json({ success: true });
+  } catch (err) { next(err); }
+};
+
+// Banners
+const getBanners = async (req, res, next) => {
+  try {
+    const banners = await AdBanner.find().sort({ createdAt: -1 });
+    res.json({ success: true, data: banners });
+  } catch (err) { next(err); }
+};
+
+const createBanner = async (req, res, next) => {
+  try {
+    const banner = await AdBanner.create(req.body);
+    res.json({ success: true, data: banner });
+  } catch (err) { next(err); }
+};
+
+const updateBanner = async (req, res, next) => {
+  try {
+    const banner = await AdBanner.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    res.json({ success: true, data: banner });
+  } catch (err) { next(err); }
+};
+
+const deleteBanner = async (req, res, next) => {
+  try {
+    await AdBanner.findByIdAndDelete(req.params.id);
+    res.json({ success: true });
+  } catch (err) { next(err); }
+};
+
+// Notifications
+const getNotifications = async (req, res, next) => {
+  try {
+    const notifications = await NotificationMessage.find().sort({ createdAt: -1 });
+    res.json({ success: true, data: notifications });
+  } catch (err) { next(err); }
+};
+
+const createNotification = async (req, res, next) => {
+  try {
+    const notification = await NotificationMessage.create(req.body);
+    res.json({ success: true, data: notification });
+  } catch (err) { next(err); }
+};
+
+const updateNotification = async (req, res, next) => {
+  try {
+    const notification = await NotificationMessage.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    res.json({ success: true, data: notification });
+  } catch (err) { next(err); }
+};
+
+const deleteNotification = async (req, res, next) => {
+  try {
+    await NotificationMessage.findByIdAndDelete(req.params.id);
+    res.json({ success: true });
+  } catch (err) { next(err); }
+};
+
 module.exports = {
+  getSettings,
+  updateSettings,
+  getFares,
+  createFare,
+  deleteFare,
+  getBanners,
+  createBanner,
+  updateBanner,
+  deleteBanner,
+  getNotifications,
+  createNotification,
+  updateNotification,
+  deleteNotification,
   getDashboardStats,
   getDrivers,
   updateDriverStatus,
