@@ -16,6 +16,7 @@ const paymentRoutes = require('./src/routes/paymentRoutes');
 const adminRoutes = require('./src/routes/adminRoutes');
 const fareRoutes = require('./src/routes/fareRoutes');
 const uploadRoutes = require('./src/routes/uploadRoutes');
+const publicRoutes = require('./src/routes/publicRoutes');
 
 const app = express();
 const server = http.createServer(app);
@@ -47,6 +48,7 @@ app.use('/api/payments', paymentRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/fares', fareRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/public', publicRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
