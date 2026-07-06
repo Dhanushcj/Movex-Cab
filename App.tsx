@@ -27,6 +27,7 @@ import { AuthProvider, useAuth } from './src/context/AuthContext';
 import { LocationProvider, useLocation } from './src/context/LocationContext';
 import { SocketProvider, useSocket } from './src/context/SocketContext';
 import { LanguageProvider, useLanguage } from './src/context/LanguageContext';
+import { ThemeProvider, useTheme } from './src/context/ThemeContext';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
 import Colors from './src/constants/colors';
@@ -98,7 +99,7 @@ const LIGHT_MAP_STYLE = [
 // Navigation controller
 function NavigationRoot() {
   const { user, loading } = useAuth();
-  const [activeScreen, setActiveScreen] = useState<'onboarding' | 'login' | 'home' | 'tracking' | 'register' | 'driverProfile' | 'driverProfileEdit' | 'driverLanguage' | 'driverHistory' | 'driverWallet' | 'adminDashboard'>('onboarding');
+  const [activeScreen, setActiveScreen] = useState<'onboarding' | 'login' | 'home' | 'tracking' | 'register' | 'driverProfile' | 'driverProfileEdit' | 'driverLanguage' | 'customerLanguage' | 'driverHistory' | 'driverWallet' | 'adminDashboard'>('onboarding');
   const [selectedRide, setSelectedRide] = useState<any>(null);
   const [driverRegData, setDriverRegData] = useState<any>(null);
   const [onboardingDone, setOnboardingDone] = useState(false);
@@ -139,6 +140,7 @@ function NavigationRoot() {
             setActiveScreen('tracking');
           }} 
           onNavigateProfileEdit={() => setActiveScreen('driverProfileEdit')} 
+          onNavigateLanguage={() => setActiveScreen('customerLanguage')}
         />
       )}
       {activeScreen === 'tracking' && user?.role === 'customer' && (
@@ -182,6 +184,9 @@ function NavigationRoot() {
           onBack={() => setActiveScreen(user?.role === 'customer' ? 'home' : 'driverProfile')}
           onSave={() => setActiveScreen(user?.role === 'customer' ? 'home' : 'driverProfile')}
         />
+      )}
+      {activeScreen === 'customerLanguage' && (
+        <LanguageScreen onBack={() => setActiveScreen('home')} />
       )}
       {activeScreen === 'driverLanguage' && (
         <LanguageScreen onBack={() => setActiveScreen('driverProfile')} />
@@ -238,6 +243,7 @@ function LocationPickerScreen({
   onBack: () => void;
 }) {
   const { location, geocodeSearch } = useLocation();
+  const { t } = useLanguage();
 
   const [activeField, setActiveField] = useState<'pickup' | 'drop'>(initialActiveField);
 
@@ -523,8 +529,10 @@ function LocationPickerScreen({
 }
 
 // 2. REVAMPED HOME / BOOKING SCREEN
-function HomeScreen({ onRideBooked, onNavigateProfileEdit }: { onRideBooked: (ride: any) => void; onNavigateProfileEdit: () => void; }) {
+function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage }: { onRideBooked: (ride: any) => void; onNavigateProfileEdit: () => void; onNavigateLanguage: () => void; }) {
   const { user, logout, updateUserWallet } = useAuth();
+  const { t } = useLanguage();
+  const { isDark, toggleTheme } = useTheme();
   const { location, locationAddress, geocodeSearch } = useLocation();
 
   // ── Location / booking state ───────────────────────────────────────────────
@@ -811,7 +819,7 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit }: { onRideBooked: (ri
                     </View>
                     <View style={{ flexDirection: 'column', gap: 4 }}>
                       <Text style={{ fontFamily: 'sans-serif', fontSize: 14, color: '#7C848D' }}>{new Date().getHours() < 12 ? 'Good Morning' : new Date().getHours() < 17 ? 'Good Afternoon' : 'Good Evening'}</Text>
-                      <Text style={{ fontFamily: 'sans-serif', fontSize: 20, color: '#262D36', fontWeight: 'bold' }}>{user?.name?.split(' ')[0] || 'Rider'}</Text>
+                      <Text style={{ fontFamily: 'sans-serif', fontSize: 20, color: Colors.textPrimary, fontWeight: 'bold' }}>{user?.name?.split(' ')[0] || 'Rider'}</Text>
                     </View>
                   </TouchableOpacity>
 
@@ -819,7 +827,7 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit }: { onRideBooked: (ri
                     <TouchableOpacity onPress={handleSOS} style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#FEECEC', borderWidth: 1.5, borderColor: '#F71313', alignItems: 'center', justifyContent: 'center' }}>
                       <Feather name="alert-triangle" size={18} color="#F71313" />
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={() => setShowNotificationScreen(true)} style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#F6F8FE', borderWidth: 1.2, borderColor: '#9098A2', alignItems: 'center', justifyContent: 'center' }}>
+                    <TouchableOpacity onPress={() => setShowNotificationScreen(true)} style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: Colors.iconBg, borderWidth: 1.2, borderColor: '#9098A2', alignItems: 'center', justifyContent: 'center' }}>
                       <Feather name="bell" size={18} color="#9098A2" />
                     </TouchableOpacity>
 
@@ -970,7 +978,7 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit }: { onRideBooked: (ri
           <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1, paddingHorizontal: 16, paddingTop: 60 }} contentContainerStyle={{ paddingBottom: 120 }}>
             {/* Header */}
             <View style={{ marginBottom: 20 }}>
-              <Text style={{ fontSize: 24, fontWeight: '800', color: '#262D36' }}>My Profile</Text>
+              <Text style={{ fontSize: 24, fontWeight: '800', color: Colors.textPrimary }}>My Profile</Text>
             </View>
 
             {/* Profile Card */}
@@ -1010,47 +1018,43 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit }: { onRideBooked: (ri
             </TouchableOpacity>
 
             {/* Options Block */}
-            <View style={{ backgroundColor: '#FCFCFC', borderRadius: 16, paddingHorizontal: 16, marginBottom: 20 }}>
-              {[
-                { icon: 'moon', label: 'Dark theme', color: '#0053B3', toggle: true },
-                { icon: 'globe', label: 'App language', color: '#0053B3' },
-                { icon: 'volume-2', label: 'Alert sound', color: '#0053B3' },
-              ].map((item, idx) => (
+            <View style={{ backgroundColor: Colors.bgSecondary, borderRadius: 16, paddingHorizontal: 16, marginBottom: 20 }}>
+              {([ { key: 'darkTheme', icon: 'moon', color: '#0053B3', toggle: true },
+                { key: 'appLanguage', icon: 'globe', color: '#0053B3', onPress: onNavigateLanguage },
+                { key: 'alertSound', icon: 'volume-2', color: '#0053B3' }, ] as any[]).map((item, idx) => (
                 <View key={idx}>
-                  <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, gap: 12 }} activeOpacity={0.7}>
-                    <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#F6F8FE', borderWidth: 1.5, borderColor: 'rgba(0, 83, 179, 0.2)', alignItems: 'center', justifyContent: 'center' }}>
+                  <TouchableOpacity onPress={item.toggle ? toggleTheme : item.onPress} style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, gap: 12 }} activeOpacity={0.7} disabled={!item.toggle && !item.onPress}>
+                    <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: Colors.iconBg, borderWidth: 1.5, borderColor: 'rgba(0, 83, 179, 0.2)', alignItems: 'center', justifyContent: 'center' }}>
                       <Feather name={item.icon as any} size={18} color={item.color} />
                     </View>
-                    <Text style={{ fontSize: 14, color: '#262D36', fontWeight: '500', flex: 1 }}>{item.label}</Text>
+                    <Text style={{ fontSize: 14, color: Colors.textPrimary, fontWeight: '500', flex: 1 }}>{t('profile.' + item.key)}</Text>
                     {item.toggle ? (
-                      <View style={{ width: 56, height: 28, backgroundColor: '#DEE0E3', borderRadius: 16, justifyContent: 'center', paddingHorizontal: 2 }}>
-                        <View style={{ width: 24, height: 24, borderRadius: 12, backgroundColor: '#F5F5F5' }} />
+                      <View style={[{ width: 56, height: 28, backgroundColor: Colors.borderGlass, borderRadius: 16, justifyContent: 'center', paddingHorizontal: 2 }, isDark && { backgroundColor: '#0053B3' }]}>
+                        <View style={[{ width: 24, height: 24, borderRadius: 12, backgroundColor: '#F5F5F5' }, isDark && { transform: [{ translateX: 28 }] }]} />
                       </View>
                     ) : (
-                      <Text style={{ fontSize: 20, color: '#262D36', opacity: 0.5 }}>›</Text>
+                      <Text style={{ fontSize: 20, color: Colors.textPrimary, opacity: 0.5 }}>›</Text>
                     )}
                   </TouchableOpacity>
-                  {idx < 2 && <View style={{ height: 1, backgroundColor: '#F3F4F6', marginHorizontal: -16 }} />}
+                  {idx < 2 && <View style={{ height: 1, backgroundColor: Colors.bgPrimary, marginHorizontal: -16 }} />}
                 </View>
               ))}
             </View>
 
             {/* Support Block */}
-            <View style={{ backgroundColor: '#FCFCFC', borderRadius: 16, paddingHorizontal: 16, marginBottom: 20 }}>
-              {[
-                { icon: 'help-circle', label: 'Help Centre', color: '#0053B3' },
-                { icon: 'message-square', label: 'Support tickets', color: '#0053B3' },
-                { icon: 'settings', label: 'Settings', color: '#0053B3' },
-              ].map((item, idx) => (
+            <View style={{ backgroundColor: Colors.bgSecondary, borderRadius: 16, paddingHorizontal: 16, marginBottom: 20 }}>
+              {([ { key: 'helpCentre', icon: 'help-circle', color: '#0053B3' },
+                { key: 'supportTickets', icon: 'message-square', color: '#0053B3' },
+                { key: 'settings', icon: 'settings', color: '#0053B3' }, ] as any[]).map((item, idx) => (
                 <View key={idx}>
-                  <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, gap: 12 }} activeOpacity={0.7}>
-                    <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#F6F8FE', borderWidth: 1.5, borderColor: 'rgba(0, 83, 179, 0.2)', alignItems: 'center', justifyContent: 'center' }}>
+                  <TouchableOpacity onPress={item.toggle ? toggleTheme : item.onPress} style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, gap: 12 }} activeOpacity={0.7} disabled={!item.toggle && !item.onPress}>
+                    <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: Colors.iconBg, borderWidth: 1.5, borderColor: 'rgba(0, 83, 179, 0.2)', alignItems: 'center', justifyContent: 'center' }}>
                       <Feather name={item.icon as any} size={18} color={item.color} />
                     </View>
-                    <Text style={{ fontSize: 14, color: '#262D36', fontWeight: '500', flex: 1 }}>{item.label}</Text>
-                    <Text style={{ fontSize: 20, color: '#262D36', opacity: 0.5 }}>›</Text>
+                    <Text style={{ fontSize: 14, color: Colors.textPrimary, fontWeight: '500', flex: 1 }}>{t('profile.' + item.key)}</Text>
+                    <Text style={{ fontSize: 20, color: Colors.textPrimary, opacity: 0.5 }}>›</Text>
                   </TouchableOpacity>
-                  {idx < 2 && <View style={{ height: 1, backgroundColor: '#F3F4F6', marginHorizontal: -16 }} />}
+                  {idx < 2 && <View style={{ height: 1, backgroundColor: Colors.bgPrimary, marginHorizontal: -16 }} />}
                 </View>
               ))}
             </View>
@@ -1919,7 +1923,7 @@ function DriverHomeScreen({ onRideAccepted, onNavigateProfile, onNavigateHistory
                   </View>
                   <View style={{ flexDirection: 'column', gap: 4 }}>
                     <Text style={{ fontFamily: 'sans-serif', fontSize: 14, color: '#7C848D' }}>{t('driverHome.goodMorning') || 'Good Morning'}</Text>
-                    <Text style={{ fontFamily: 'sans-serif', fontSize: 20, color: '#262D36' }}>{user?.name?.split(' ')[0] || 'Driver'}</Text>
+                    <Text style={{ fontFamily: 'sans-serif', fontSize: 20, color: Colors.textPrimary }}>{user?.name?.split(' ')[0] || 'Driver'}</Text>
                   </View>
                 </TouchableOpacity>
 
@@ -1927,7 +1931,7 @@ function DriverHomeScreen({ onRideAccepted, onNavigateProfile, onNavigateHistory
                   <TouchableOpacity onPress={() => setShowEmergencyScreen(true)} style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#FEECEC', borderWidth: 1.5, borderColor: '#F71313', alignItems: 'center', justifyContent: 'center' }}>
                     <Feather name="alert-triangle" size={18} color="#F71313" />
                   </TouchableOpacity>
-                  <TouchableOpacity onPress={() => setShowNotificationScreen(true)} style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#F6F8FE', borderWidth: 1.2, borderColor: '#9098A2', alignItems: 'center', justifyContent: 'center' }}>
+                  <TouchableOpacity onPress={() => setShowNotificationScreen(true)} style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: Colors.iconBg, borderWidth: 1.2, borderColor: '#9098A2', alignItems: 'center', justifyContent: 'center' }}>
                     <Feather name="bell" size={18} color="#9098A2" />
                   </TouchableOpacity>
                 </View>
@@ -1937,7 +1941,7 @@ function DriverHomeScreen({ onRideAccepted, onNavigateProfile, onNavigateHistory
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                 <View style={{ flexDirection: 'column', gap: 4 }}>
                   <Text style={{ fontFamily: 'sans-serif', fontSize: 12, color: '#7C848D' }}>Status</Text>
-                  <Text style={{ fontFamily: 'sans-serif', fontSize: 20, color: '#262D36' }}>You're Online</Text>
+                  <Text style={{ fontFamily: 'sans-serif', fontSize: 20, color: Colors.textPrimary }}>You're Online</Text>
                   <Text style={{ fontFamily: 'sans-serif', fontSize: 14, color: '#7C848D' }}>Waiting for new ride requests.</Text>
                 </View>
                 <View style={{ justifyContent: 'center' }}>
@@ -1972,7 +1976,7 @@ function DriverHomeScreen({ onRideAccepted, onNavigateProfile, onNavigateHistory
             elevation: 5,
             zIndex: 10,
           }}>
-            <Text style={{ fontFamily: 'sans-serif', fontSize: 16, color: '#262D36', fontWeight: '500' }}>Waiting for rides</Text>
+            <Text style={{ fontFamily: 'sans-serif', fontSize: 16, color: Colors.textPrimary, fontWeight: '500' }}>Waiting for rides</Text>
             <View style={{ width: 24, height: 24, borderRadius: 12, borderWidth: 2, borderColor: '#DEE0E3', borderTopColor: '#0053B3', alignItems: 'center', justifyContent: 'center' }}>
                <ActivityIndicator size="small" color="#0053B3" style={{ transform: [{ scale: 0.8 }] }} />
             </View>
@@ -2019,7 +2023,7 @@ function DriverHomeScreen({ onRideAccepted, onNavigateProfile, onNavigateHistory
                   </View>
                   <View style={{ flexDirection: 'column', gap: 4 }}>
                     <Text style={{ fontFamily: 'sans-serif', fontSize: 14, color: '#7C848D' }}>{t('driverHome.goodMorning') || 'Good Morning'}</Text>
-                    <Text style={{ fontFamily: 'sans-serif', fontSize: 20, color: '#262D36' }}>{user?.name?.split(' ')[0] || 'Driver'}</Text>
+                    <Text style={{ fontFamily: 'sans-serif', fontSize: 20, color: Colors.textPrimary }}>{user?.name?.split(' ')[0] || 'Driver'}</Text>
                   </View>
                 </TouchableOpacity>
 
@@ -2027,7 +2031,7 @@ function DriverHomeScreen({ onRideAccepted, onNavigateProfile, onNavigateHistory
                   <TouchableOpacity onPress={() => setShowEmergencyScreen(true)} style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#FEECEC', borderWidth: 1.5, borderColor: '#F71313', alignItems: 'center', justifyContent: 'center' }}>
                     <Feather name="alert-triangle" size={18} color="#F71313" />
                   </TouchableOpacity>
-                  <TouchableOpacity onPress={() => setShowNotificationScreen(true)} style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#F6F8FE', borderWidth: 1.2, borderColor: '#9098A2', alignItems: 'center', justifyContent: 'center' }}>
+                  <TouchableOpacity onPress={() => setShowNotificationScreen(true)} style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: Colors.iconBg, borderWidth: 1.2, borderColor: '#9098A2', alignItems: 'center', justifyContent: 'center' }}>
                     <Feather name="bell" size={18} color="#9098A2" />
                   </TouchableOpacity>
                 </View>
@@ -2037,7 +2041,7 @@ function DriverHomeScreen({ onRideAccepted, onNavigateProfile, onNavigateHistory
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                 <View style={{ flexDirection: 'column', gap: 4 }}>
                   <Text style={{ fontFamily: 'sans-serif', fontSize: 12, color: '#7C848D' }}>Status</Text>
-                  <Text style={{ fontFamily: 'sans-serif', fontSize: 20, color: '#262D36' }}>You're Offline</Text>
+                  <Text style={{ fontFamily: 'sans-serif', fontSize: 20, color: Colors.textPrimary }}>You're Offline</Text>
                   <Text style={{ fontFamily: 'sans-serif', fontSize: 14, color: '#7C848D' }}>Go Online to Receive Trips</Text>
                 </View>
                 <View style={{ justifyContent: 'center' }}>
@@ -2060,7 +2064,7 @@ function DriverHomeScreen({ onRideAccepted, onNavigateProfile, onNavigateHistory
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
               <View style={{ flexDirection: 'column', gap: 8 }}>
                 <Text style={{ fontFamily: 'sans-serif', fontSize: 14, color: '#6F839A' }}>Today's Earnings</Text>
-                <Text style={{ fontFamily: 'sans-serif', fontSize: 28, fontWeight: '500', color: '#262D36' }}>₹ {getTodayEarnings()}</Text>
+                <Text style={{ fontFamily: 'sans-serif', fontSize: 28, fontWeight: '500', color: Colors.textPrimary }}>₹ {getTodayEarnings()}</Text>
               </View>
               <TouchableOpacity 
                 style={{ backgroundColor: '#F3F4F6', paddingHorizontal: 16, paddingVertical: 10, borderRadius: 20, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8 }}
@@ -2076,21 +2080,21 @@ function DriverHomeScreen({ onRideAccepted, onNavigateProfile, onNavigateHistory
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 24, gap: 10 }}>
               <View style={{ flex: 1, backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#DEE0E3', borderRadius: 12, paddingVertical: 12, alignItems: 'center', gap: 8 }}>
                 <Text style={{ fontFamily: 'sans-serif', fontSize: 14, color: '#C0C2C4' }}>Trips</Text>
-                <Text style={{ fontFamily: 'sans-serif', fontSize: 16, color: '#262D36' }}>{getTotalTrips()}</Text>
+                <Text style={{ fontFamily: 'sans-serif', fontSize: 16, color: Colors.textPrimary }}>{getTotalTrips()}</Text>
               </View>
               <View style={{ flex: 1, backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#DEE0E3', borderRadius: 12, paddingVertical: 12, alignItems: 'center', gap: 8 }}>
                 <Text style={{ fontFamily: 'sans-serif', fontSize: 14, color: '#C0C2C4' }}>Online hrs</Text>
-                <Text style={{ fontFamily: 'sans-serif', fontSize: 16, color: '#262D36' }}>{getTripHours()}h</Text>
+                <Text style={{ fontFamily: 'sans-serif', fontSize: 16, color: Colors.textPrimary }}>{getTripHours()}h</Text>
               </View>
               <View style={{ flex: 1, backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#DEE0E3', borderRadius: 12, paddingVertical: 12, alignItems: 'center', gap: 8 }}>
                 <Text style={{ fontFamily: 'sans-serif', fontSize: 14, color: '#C0C2C4' }}>Distance</Text>
-                <Text style={{ fontFamily: 'sans-serif', fontSize: 16, color: '#262D36' }}>{getTotalTrips() * 5} km</Text>
+                <Text style={{ fontFamily: 'sans-serif', fontSize: 16, color: Colors.textPrimary }}>{getTotalTrips() * 5} km</Text>
               </View>
             </View>
 
             {/* Offers Header */}
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-              <Text style={{ fontFamily: 'sans-serif', fontSize: 14, color: '#262D36' }}>All Offers</Text>
+              <Text style={{ fontFamily: 'sans-serif', fontSize: 14, color: Colors.textPrimary }}>All Offers</Text>
               <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
                 <Text style={{ fontFamily: 'sans-serif', fontSize: 12, color: '#0053B3' }}>View All</Text>
                 <Feather name="chevron-right" size={14} color="#0053B3" />
@@ -2100,13 +2104,13 @@ function DriverHomeScreen({ onRideAccepted, onNavigateProfile, onNavigateHistory
             {/* Offer Card */}
             <View style={{ backgroundColor: '#FCFCFC', borderWidth: 1, borderColor: '#DEE0E3', borderRadius: 12, padding: 12, marginBottom: 24 }}>
               <Text style={{ fontFamily: 'sans-serif', fontSize: 14, color: '#7C848D', letterSpacing: 0.5, marginBottom: 4 }}>Friday Full Offer</Text>
-              <Text style={{ fontFamily: 'sans-serif', fontSize: 12, color: '#262D36', letterSpacing: 0.5, marginBottom: 20 }}>12am - 12am</Text>
+              <Text style={{ fontFamily: 'sans-serif', fontSize: 12, color: Colors.textPrimary, letterSpacing: 0.5, marginBottom: 20 }}>12am - 12am</Text>
 
               {/* Targets */}
               <View style={{ flexDirection: 'row', alignItems: 'flex-start', marginBottom: 24 }}>
                 <View style={{ flex: 1 }}>
-                  <Text style={{ fontFamily: 'sans-serif', fontSize: 12, color: '#262D36', letterSpacing: 0.5 }}>Incentive</Text>
-                  <Text style={{ fontFamily: 'sans-serif', fontSize: 12, color: '#262D36', letterSpacing: 0.5, marginTop: 40 }}>Order</Text>
+                  <Text style={{ fontFamily: 'sans-serif', fontSize: 12, color: Colors.textPrimary, letterSpacing: 0.5 }}>Incentive</Text>
+                  <Text style={{ fontFamily: 'sans-serif', fontSize: 12, color: Colors.textPrimary, letterSpacing: 0.5, marginTop: 40 }}>Order</Text>
                 </View>
                 
                 <View style={{ flexDirection: 'row', gap: 24, flex: 3, justifyContent: 'space-around' }}>
@@ -2116,7 +2120,7 @@ function DriverHomeScreen({ onRideAccepted, onNavigateProfile, onNavigateHistory
                       <View style={{ width: 24, height: 24, borderRadius: 12, backgroundColor: '#9098A2', alignItems: 'center', justifyContent: 'center' }}>
                         <Feather name="check" size={14} color="#FCFCFC" />
                       </View>
-                      <Text style={{ fontFamily: 'sans-serif', fontSize: 12, color: '#262D36', letterSpacing: 0.5 }}>{target.orders}</Text>
+                      <Text style={{ fontFamily: 'sans-serif', fontSize: 12, color: Colors.textPrimary, letterSpacing: 0.5 }}>{target.orders}</Text>
                     </View>
                   ))}
                 </View>
@@ -2124,15 +2128,15 @@ function DriverHomeScreen({ onRideAccepted, onNavigateProfile, onNavigateHistory
 
               {/* Compulsory Login */}
               <View style={{ flexDirection: 'column', gap: 12 }}>
-                <Text style={{ fontFamily: 'sans-serif', fontSize: 12, color: '#262D36', letterSpacing: 0.5 }}>Compulsory login</Text>
+                <Text style={{ fontFamily: 'sans-serif', fontSize: 12, color: Colors.textPrimary, letterSpacing: 0.5 }}>Compulsory login</Text>
                 <View style={{ flexDirection: 'row', gap: 16 }}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#DEE0E3', padding: 8, borderRadius: 4, gap: 8 }}>
                     <Feather name="clock" size={16} color="#262D36" />
-                    <Text style={{ fontFamily: 'sans-serif', fontSize: 12, color: '#262D36', letterSpacing: 0.5 }}>7am - 10am</Text>
+                    <Text style={{ fontFamily: 'sans-serif', fontSize: 12, color: Colors.textPrimary, letterSpacing: 0.5 }}>7am - 10am</Text>
                   </View>
                   <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#DEE0E3', padding: 8, borderRadius: 4, gap: 8 }}>
                     <Feather name="clock" size={16} color="#262D36" />
-                    <Text style={{ fontFamily: 'sans-serif', fontSize: 12, color: '#262D36', letterSpacing: 0.5 }}>7pm - 10pm</Text>
+                    <Text style={{ fontFamily: 'sans-serif', fontSize: 12, color: Colors.textPrimary, letterSpacing: 0.5 }}>7pm - 10pm</Text>
                   </View>
                 </View>
               </View>
@@ -2150,7 +2154,7 @@ function DriverHomeScreen({ onRideAccepted, onNavigateProfile, onNavigateHistory
               <Text style={{ color: '#038CAB', fontSize: 12, letterSpacing: 0.5, marginBottom: 12 }}>₹ 141/day</Text>
 
               <TouchableOpacity style={{ backgroundColor: '#00A7CC', borderRadius: 4, paddingVertical: 4, paddingHorizontal: 12, alignSelf: 'flex-start' }}>
-                <Text style={{ color: '#262D36', fontSize: 10, letterSpacing: 0.5 }}>Know more</Text>
+                <Text style={{ color: Colors.textPrimary, fontSize: 10, letterSpacing: 0.5 }}>Know more</Text>
               </TouchableOpacity>
 
               <View style={{ position: 'absolute', right: -20, top: 10, width: 175, height: 163, alignItems: 'center', justifyContent: 'center' }}>
@@ -2882,13 +2886,13 @@ function DriverActiveRideScreen({ ride, onClose }: { ride: any; onClose: () => v
           shadowRadius: 10,
           elevation: 10,
         }}>
-          <Text style={{ fontSize: 18, color: '#262D36', fontWeight: '600', marginBottom: 16 }}>{ride.user?.name || 'Customer'}</Text>
+          <Text style={{ fontSize: 18, color: Colors.textPrimary, fontWeight: '600', marginBottom: 16 }}>{ride.user?.name || 'Customer'}</Text>
           
           <View style={{ flexDirection: 'row', alignItems: 'flex-start', marginBottom: 20 }}>
             <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: '#2ecc71', marginTop: 6, marginRight: 12 }} />
             <View style={{ flex: 1 }}>
                <Text style={{ fontSize: 12, color: '#7C848D', marginBottom: 4 }}>Pickup Location</Text>
-               <Text style={{ fontSize: 14, color: '#262D36', fontWeight: '500' }}>{ride.pickup?.address}</Text>
+               <Text style={{ fontSize: 14, color: Colors.textPrimary, fontWeight: '500' }}>{ride.pickup?.address}</Text>
             </View>
           </View>
 
@@ -2910,22 +2914,22 @@ function DriverActiveRideScreen({ ride, onClose }: { ride: any; onClose: () => v
 
           <View style={{ flexDirection: 'row', justifyContent: 'space-around', marginBottom: 24 }}>
             <TouchableOpacity style={{ alignItems: 'center' }}>
-              <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: '#F6F8FE', alignItems: 'center', justifyContent: 'center', marginBottom: 8 }}>
+              <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: Colors.iconBg, alignItems: 'center', justifyContent: 'center', marginBottom: 8 }}>
                  <Feather name="phone-call" size={20} color="#0053B3" />
               </View>
-              <Text style={{ fontSize: 12, color: '#262D36' }}>Call</Text>
+              <Text style={{ fontSize: 12, color: Colors.textPrimary }}>Call</Text>
             </TouchableOpacity>
             <TouchableOpacity style={{ alignItems: 'center' }}>
-              <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: '#F6F8FE', alignItems: 'center', justifyContent: 'center', marginBottom: 8 }}>
+              <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: Colors.iconBg, alignItems: 'center', justifyContent: 'center', marginBottom: 8 }}>
                  <Feather name="message-square" size={20} color="#0053B3" />
               </View>
-              <Text style={{ fontSize: 12, color: '#262D36' }}>Chat</Text>
+              <Text style={{ fontSize: 12, color: Colors.textPrimary }}>Chat</Text>
             </TouchableOpacity>
             <TouchableOpacity style={{ alignItems: 'center' }}>
               <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: '#FEECEC', alignItems: 'center', justifyContent: 'center', marginBottom: 8 }}>
                  <Feather name="x" size={20} color="#F71313" />
               </View>
-              <Text style={{ fontSize: 12, color: '#262D36' }}>Cancel</Text>
+              <Text style={{ fontSize: 12, color: Colors.textPrimary }}>Cancel</Text>
             </TouchableOpacity>
           </View>
 
