@@ -34,7 +34,7 @@ const Bookings = () => {
     <div className="space-y-8 animate-fade-in">
       {/* Top Header */}
       <div>
-        <h2 className="text-2xl font-bold text-white tracking-tight">Booking Registry</h2>
+        <h2 className="text-2xl font-bold text-[var(--text-primary)] tracking-tight">Booking Registry</h2>
         <p className="text-sm text-[var(--text-muted)] mt-1">Audit complete trip logs, active rides, fare breakdowns, and route maps</p>
       </div>
 
@@ -56,13 +56,13 @@ const Bookings = () => {
           <tbody>
             {bookings.map((booking) => (
               <tr key={booking._id}>
-                <td className="font-mono text-xs font-semibold text-indigo-400">
+                <td className="font-mono text-xs font-semibold text-indigo-600">
                   {booking.bookingId}
                 </td>
-                <td className="text-sm font-semibold text-white">
+                <td className="text-sm font-semibold text-[var(--text-primary)]">
                   {booking.customer?.name}
                 </td>
-                <td className="text-sm text-white">
+                <td className="text-sm text-[var(--text-primary)]">
                   {booking.driver?.name ? (
                     <div>
                       <div>{booking.driver.name}</div>
@@ -73,20 +73,20 @@ const Bookings = () => {
                   )}
                 </td>
                 <td>
-                  <span className="text-xs font-semibold uppercase px-2 py-0.5 bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 rounded">
+                  <span className="text-xs font-semibold uppercase px-2 py-0.5 bg-indigo-100 border border-indigo-200 text-indigo-700 rounded">
                     {booking.vehicleType}
                   </span>
                 </td>
-                <td className="text-sm font-bold text-white">
+                <td className="text-sm font-bold text-[var(--text-primary)]">
                   ₹{booking.fare?.totalFare || 0}
                 </td>
                 <td>
                   <span className={`text-xs font-semibold uppercase px-2.5 py-1 rounded-full border ${
                     booking.status === 'completed'
-                      ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
+                      ? 'bg-emerald-100 border-emerald-200 text-emerald-700'
                       : booking.status === 'cancelled'
-                      ? 'bg-rose-500/10 border-rose-500/20 text-rose-400'
-                      : 'bg-indigo-500/10 border-indigo-500/20 text-indigo-400'
+                      ? 'bg-rose-100 border-rose-200 text-rose-700'
+                      : 'bg-indigo-100 border-indigo-200 text-indigo-700'
                   }`}>
                     {booking.status}
                   </span>
@@ -131,76 +131,76 @@ const Bookings = () => {
               Close
             </button>
 
-            <h3 className="text-xl font-bold text-white mb-6">Booking Details Audit</h3>
+            <h3 className="text-xl font-bold text-[var(--text-primary)] mb-6">Booking Details Audit</h3>
             
             <div className="space-y-6">
               {/* Pickup & Drop Details */}
               <div className="space-y-4">
                 <div className="flex gap-3">
-                  <MapPin className="text-emerald-400 w-5 h-5 flex-shrink-0 mt-0.5" />
+                  <MapPin className="text-emerald-600 w-5 h-5 flex-shrink-0 mt-0.5" />
                   <div>
                     <h5 className="text-xs font-semibold text-[var(--text-muted)] uppercase">Pickup Address</h5>
-                    <p className="text-sm text-white font-medium">{selectedBooking.pickup?.address}</p>
+                    <p className="text-sm text-[var(--text-primary)] font-medium">{selectedBooking.pickup?.address}</p>
                   </div>
                 </div>
                 
                 <div className="flex gap-3">
-                  <MapPin className="text-rose-400 w-5 h-5 flex-shrink-0 mt-0.5" />
+                  <MapPin className="text-rose-600 w-5 h-5 flex-shrink-0 mt-0.5" />
                   <div>
                     <h5 className="text-xs font-semibold text-[var(--text-muted)] uppercase">Dropoff Address</h5>
-                    <p className="text-sm text-white font-medium">{selectedBooking.drop?.address}</p>
+                    <p className="text-sm text-[var(--text-primary)] font-medium">{selectedBooking.drop?.address}</p>
                   </div>
                 </div>
               </div>
 
               {/* Ride info summary */}
-              <div className="grid grid-cols-2 gap-4 p-4 bg-slate-900/40 border border-[var(--border-glass)] rounded-xl">
+              <div className="grid grid-cols-2 gap-4 p-4 bg-[var(--bg-tertiary)] border border-[var(--border-glass)] rounded-xl">
                 <div>
                   <span className="text-xs text-[var(--text-muted)]">Distance Route</span>
-                  <div className="text-sm font-bold text-white mt-0.5">{selectedBooking.route?.distance} km</div>
+                  <div className="text-sm font-bold text-[var(--text-primary)] mt-0.5">{selectedBooking.route?.distance} km</div>
                 </div>
                 <div>
                   <span className="text-xs text-[var(--text-muted)]">Trip Duration</span>
-                  <div className="text-sm font-bold text-white mt-0.5">{selectedBooking.route?.duration} mins</div>
+                  <div className="text-sm font-bold text-[var(--text-primary)] mt-0.5">{selectedBooking.route?.duration} mins</div>
                 </div>
                 <div>
                   <span className="text-xs text-[var(--text-muted)]">Vehicle Type</span>
-                  <div className="text-sm font-bold text-white mt-0.5 uppercase">{selectedBooking.vehicleType}</div>
+                  <div className="text-sm font-bold text-[var(--text-primary)] mt-0.5 uppercase">{selectedBooking.vehicleType}</div>
                 </div>
                 <div>
                   <span className="text-xs text-[var(--text-muted)]">Payment Mode</span>
-                  <div className="text-sm font-bold text-white mt-0.5 uppercase">{selectedBooking.paymentMethod}</div>
+                  <div className="text-sm font-bold text-[var(--text-primary)] mt-0.5 uppercase">{selectedBooking.paymentMethod}</div>
                 </div>
               </div>
 
               {/* Fare Breakdown */}
               <div className="border-t border-[var(--border-glass)] pt-4 space-y-2">
-                <h4 className="font-semibold text-white text-sm mb-3">Fare breakdown invoice</h4>
+                <h4 className="font-semibold text-[var(--text-primary)] text-sm mb-3">Fare breakdown invoice</h4>
                 <div className="flex justify-between text-xs text-[var(--text-muted)]">
                   <span>Base Booking Rate:</span>
-                  <span className="text-white">₹{selectedBooking.fare?.baseFare || 0}</span>
+                  <span className="text-[var(--text-primary)]">₹{selectedBooking.fare?.baseFare || 0}</span>
                 </div>
                 <div className="flex justify-between text-xs text-[var(--text-muted)]">
                   <span>Distance Charge:</span>
-                  <span className="text-white">₹{selectedBooking.fare?.distanceCharge || 0}</span>
+                  <span className="text-[var(--text-primary)]">₹{selectedBooking.fare?.distanceCharge || 0}</span>
                 </div>
                 <div className="flex justify-between text-xs text-[var(--text-muted)]">
                   <span>Duration Charge:</span>
-                  <span className="text-white">₹{selectedBooking.fare?.timeCharge || 0}</span>
+                  <span className="text-[var(--text-primary)]">₹{selectedBooking.fare?.timeCharge || 0}</span>
                 </div>
                 <div className="flex justify-between text-xs text-[var(--text-muted)]">
                   <span>Surge Multiplier ({selectedBooking.fare?.surgeMultiplier || 1}x):</span>
-                  <span className="text-white">₹{selectedBooking.fare?.surgeAmount || 0}</span>
+                  <span className="text-[var(--text-primary)]">₹{selectedBooking.fare?.surgeAmount || 0}</span>
                 </div>
                 <div className="flex justify-between text-xs text-[var(--text-muted)]">
                   <span>Promo discounts:</span>
-                  <span className="text-emerald-400">-₹{selectedBooking.fare?.discount || 0}</span>
+                  <span className="text-emerald-600">-₹{selectedBooking.fare?.discount || 0}</span>
                 </div>
                 <div className="flex justify-between text-xs text-[var(--text-muted)]">
                   <span>Taxes (5%):</span>
-                  <span className="text-white">₹{selectedBooking.fare?.tax || 0}</span>
+                  <span className="text-[var(--text-primary)]">₹{selectedBooking.fare?.tax || 0}</span>
                 </div>
-                <div className="flex justify-between text-sm font-bold text-white pt-2 border-t border-[var(--border-glass)]">
+                <div className="flex justify-between text-sm font-bold text-[var(--text-primary)] pt-2 border-t border-[var(--border-glass)]">
                   <span>Grand Total Fare:</span>
                   <span>₹{selectedBooking.fare?.totalFare || 0}</span>
                 </div>
