@@ -394,7 +394,6 @@ const getMapData = async (req, res, next) => {
 const PlatformSettings = require('../models/PlatformSettings');
 const AdBanner = require('../models/AdBanner');
 const NotificationMessage = require('../models/NotificationMessage');
-const FareConfig = require('../models/FareConfig');
 
 // Settings
 const getSettings = async (req, res, next) => {
