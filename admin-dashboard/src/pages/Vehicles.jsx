@@ -33,23 +33,42 @@ export default function Vehicles() {
             <thead className="table-header">
               <tr>
                 <th className="p-4">Driver Name</th>
-                <th className="p-4">Phone</th>
                 <th className="p-4">Vehicle Details</th>
+                <th className="p-4">Board Type</th>
+                <th className="p-4">Expiry Dates</th>
                 <th className="p-4">Status</th>
                 <th className="p-4">Actions</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan="5" className="p-4 text-center">Loading vehicles...</td></tr>
+                <tr><td colSpan="6" className="p-4 text-center">Loading vehicles...</td></tr>
               ) : vehicles.map((v) => (
                 <tr key={v.driverId} className="table-row">
-                  <td className="p-4 font-medium">{v.driverName}</td>
-                  <td className="p-4">{v.driverPhone}</td>
+                  <td className="p-4 font-medium">
+                    <div>{v.driverName}</div>
+                    <div className="text-xs text-[var(--text-muted)] mt-1">{v.driverPhone}</div>
+                  </td>
                   <td className="p-4">
                     <div className="flex items-center gap-2">
                       <Car className="w-4 h-4 text-[var(--accent-color)]" />
-                      <span>{v.vehicle?.make} {v.vehicle?.model} ({v.vehicle?.plateNumber})</span>
+                      <span className="font-semibold tracking-wider">{v.plateNumber || 'N/A'}</span>
+                    </div>
+                    <div className="text-xs text-[var(--text-muted)] mt-1">
+                      {v.make && v.model ? `${v.make} ${v.model}` : 'N/A'}
+                    </div>
+                  </td>
+                  <td className="p-4">
+                    {v.plateType ? (
+                      <span className={`px-2 py-1 rounded text-xs font-semibold ${v.plateType === 'yellow' ? 'bg-yellow-500/20 text-yellow-500 border border-yellow-500/30' : 'bg-gray-200 text-gray-800 border border-gray-300'}`}>
+                        {v.plateType.charAt(0).toUpperCase() + v.plateType.slice(1)} Board
+                      </span>
+                    ) : 'N/A'}
+                  </td>
+                  <td className="p-4">
+                    <div className="text-xs space-y-1">
+                      <div><span className="text-[var(--text-muted)] font-medium">Ins:</span> {v.insuranceExpiry ? new Date(v.insuranceExpiry).toLocaleDateString() : 'N/A'}</div>
+                      <div><span className="text-[var(--text-muted)] font-medium">FC:</span> {v.fcExpiry ? new Date(v.fcExpiry).toLocaleDateString() : 'N/A'}</div>
                     </div>
                   </td>
                   <td className="p-4">
