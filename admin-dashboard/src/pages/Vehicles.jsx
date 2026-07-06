@@ -2,6 +2,34 @@ import React, { useState, useEffect } from 'react';
 import api from '../services/api';
 import { Car, CheckCircle, XCircle } from 'lucide-react';
 
+const getDocumentStatus = (vehicle) => {
+  if (!vehicle.insuranceExpiry && !vehicle.fcExpiry) return { text: 'Unknown', color: 'bg-gray-100 text-gray-700 border-gray-300' };
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const thirtyDaysFromNow = new Date(today);
+  thirtyDaysFromNow.setDate(today.getDate() + 30);
+
+  const dates = [
+    vehicle.insuranceExpiry ? new Date(vehicle.insuranceExpiry) : null,
+    vehicle.fcExpiry ? new Date(vehicle.fcExpiry) : null
+  ].filter(Boolean);
+
+  let isExpired = false;
+  let isExpiringSoon = false;
+
+  dates.forEach(d => {
+    if (d < today) isExpired = true;
+    else if (d <= thirtyDaysFromNow) isExpiringSoon = true;
+  });
+
+  if (isExpired) return { text: 'Expired', color: 'bg-red-100 text-red-700 border-red-200' };
+  if (isExpiringSoon) return { text: 'Expiring in 30 Days', color: 'bg-yellow-100 text-yellow-700 border-yellow-200' };
+  return { text: 'Live', color: 'bg-emerald-100 text-emerald-700 border-emerald-200' };
+};
+
+
 export default function Vehicles() {
   const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -72,8 +100,8 @@ export default function Vehicles() {
                     </div>
                   </td>
                   <td className="p-4">
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${v.approvalStatus === 'approved' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
-                      {v.approvalStatus}
+                    <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${getDocumentStatus(v).color}`}>
+                      {getDocumentStatus(v).text}
                     </span>
                   </td>
                   <td className="p-4 flex gap-2">
