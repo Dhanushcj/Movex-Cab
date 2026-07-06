@@ -1,0 +1,909 @@
+Created At: 2026-07-04T04:56:05Z
+Completed At: 2026-07-04T04:56:06Z
+File Path: `file:///d:/Cab%20Application/customer-app/App.tsx`
+Total Lines: 5347
+Total Bytes: 200753
+Showing lines 1 to 800
+The following code has been modified to include a line number before every line, in the format: <line_number>: <original_line>. Please note that any changes targeting the original code should remove the line number, colon, and leading space.
+1: import React, { useState, useEffect, useRef } from 'react';
+2: import messaging from '@react-native-firebase/messaging';
+3: import * as Notifications from 'expo-notifications';
+4: 
+5: import { StatusBar } from 'expo-status-bar';
+6: import { 
+7:   StyleSheet, 
+8:   Text, 
+9:   View, 
+10:   TextInput, 
+11:   TouchableOpacity, 
+12:   ScrollView, 
+13:   ActivityIndicator,
+14:   Alert,
+15:   KeyboardAvoidingView,
+16:   Platform,
+17:   Modal,
+18:   FlatList,
+19:   Keyboard,
+20:   Switch,
+21:   Animated,
+22:   Image,
+23:   SafeAreaView
+24: } from 'react-native';
+25: import MapView, { Marker, PROVIDER_GOOGLE, UrlTile, Polyline, AnimatedRegion } from 'react-native-maps';
+26: import { AuthProvider, useAuth } from './src/context/AuthContext';
+27: import { LocationProvider, useLocation } from './src/context/LocationContext';
+28: import { SocketProvider, useSocket } from './src/context/SocketContext';
+29: import { LanguageProvider, useLanguage } from './src/context/LanguageContext';
+30: import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
+31: import * as Location from 'expo-location';
+32: import Colors from './src/constants/colors';
+33: import * as DocumentPicker from 'expo-document-picker';
+34: import DateTimePicker from '@react-native-community/datetimepicker';
+35: import SlideToStartScreen from './src/components/SlideToStartScreen';
+36: import TripCompletedPaymentSheet from './src/components/TripCompletedPaymentSheet';
+37: import CustomerInRideOptions from './src/components/CustomerInRideOptions';
+38: import CustomerBookedRideSheet from './src/
+<truncated 36161 bytes>
+ter', justifyContent: 'flex-end', height: 44, width: 32 }}>
+770:                     <View style={[styles.pickerPinOuter, { backgroundColor: Colors.danger }]}>
+771:                       <View style={styles.pickerPinInner} />
+772:                     </View>
+773:                     <View style={[styles.pickerPinStem, { backgroundColor: Colors.danger }]} />
+774:                     <View style={styles.pickerPinShadow} />
+775:                   </View>
+776:                 </Marker>
+777:               )}
+778:               {selectedVehicle?.routeDetails?.polyline && (
+779:                 <Polyline key="route-polyline" coordinates={decodePolyline(selectedVehicle.routeDetails.polyline)} strokeColor={Colors.accent} strokeWidth={4} lineCap="round" />
+780:               )}
+781:               {nearbyDrivers.map((d, i) => (
+782:                 <Marker key={`driver-${d._id || i}`} coordinate={{ latitude: d.currentLocation.coordinates[1], longitude: d.currentLocation.coordinates[0] }}>
+783:                   <View style={styles.nearbyVehicleMarker}>
+784:                     <Text style={{ fontSize: 14 }}>{getVehicleEmoji(d.vehicle?.type)}</Text>
+785:                   </View>
+786:                 </Marker>
+787:               ))}
+788:             </MapView>
+789: 
+790:             {/* Transparent overlay to open picker */}
+791:             <TouchableOpacity
+792:               style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, zIndex: 5 }}
+793:               activeOpacity={0.9}
+794:               onPress={() => setPickerMode('pickup')}
+795:             />
+796: 
+797:             {/* Floating top header on map */}
+798:             <View style={{
+799:               position: 'absolute', top: 0, left: 0, right: 0,
+800:               backgroundColor: '#FCFCFC', borderWidth: 1, borderColor: '#DEE0E3',
+The above content does NOT show the entire file contents. If you need to view any lines of the file which were not shown to complete your task, call this tool again to view those lines.
+
+
+---NEXT CHUNK---
+
+Created At: 2026-07-04T04:56:10Z
+Completed At: 2026-07-04T04:56:12Z
+File Path: `file:///d:/Cab%20Application/customer-app/App.tsx`
+Total Lines: 5347
+Total Bytes: 200753
+Showing lines 790 to 900
+The following code has been modified to include a line number before every line, in the format: <line_number>: <original_line>. Please note that any changes targeting the original code should remove the line number, colon, and leading space.
+790:             {/* Transparent overlay to open picker */}
+791:             <TouchableOpacity
+792:               style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, zIndex: 5 }}
+793:               activeOpacity={0.9}
+794:               onPress={() => setPickerMode('pickup')}
+795:             />
+796: 
+797:             {/* Floating top header on map */}
+798:             <View style={{
+799:               position: 'absolute', top: 0, left: 0, right: 0,
+800:               backgroundColor: '#FCFCFC', borderWidth: 1, borderColor: '#DEE0E3',
+801:               borderBottomLeftRadius: 32, borderBottomRightRadius: 32,
+802:               paddingTop: Platform.OS === 'ios' ? 60 : 40, paddingBottom: 20, zIndex: 10,
+803:               shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 10, elevation: 5
+804:             }}>
+805:               <View style={{ paddingHorizontal: 16 }}>
+806:                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+807:                   <TouchableOpacity onPress={() => handleTabPress('account')} style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+808:                     <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: Colors.bgTertiary, overflow: 'hidden', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: Colors.borderGlass }}>
+809:                       <Text style={{ fontSize: 18, fontWeight: '700', color: Colors.accent }}>{formatInitials(user?.name || 'U')}</Text>
+810:                 
+<truncated 4001 bytes>
+4:                   <View style={[styles.homeRouteRow, { marginTop: 0 }]}>
+875:                     <View style={styles.homeDotRed} />
+876:                     <Text style={styles.homeRouteAddr} numberOfLines={1}>{dropAddr}</Text>
+877:                   </View>
+878:                 </View>
+879:                 <Text style={styles.estimatesTitle}>
+880:                   Choose a ride  {selectedVehicle?.routeDetails?.distance ? `· ${selectedVehicle.routeDetails.distance} km` : ''}
+881:                 </Text>
+882:                 <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.estimatesScroll}>
+883:                   {estimates.map((est, idx) => (
+884:                     <TouchableOpacity
+885:                       key={idx}
+886:                       style={[styles.estimatesCard, selectedVehicle?.vehicleType === est.vehicleType && styles.estimatesCardActive]}
+887:                       onPress={() => setSelectedVehicle(est)}
+888:                       activeOpacity={0.8}
+889:                     >
+890:                       <Text style={styles.estEmoji}>{getVehicleEmoji(est.vehicleType)}</Text>
+891:                       <Text style={[styles.estType, selectedVehicle?.vehicleType === est.vehicleType && styles.estTypeActive]}>
+892:                         {est.vehicleType.toUpperCase()}
+893:                       </Text>
+894:                       <Text style={[styles.estFare, selectedVehicle?.vehicleType === est.vehicleType && styles.estFareActive]}>
+895:                         {'\u20B9'}{est.fareDetails.totalFare}
+896:                       </Text>
+897:                       <Text style={styles.estTime}>{est.routeDetails.duration.toFixed(0)} min</Text>
+898:                     </TouchableOpacity>
+899:                   ))}
+900:                 </ScrollView>
+The above content does NOT show the entire file contents. If you need to view any lines of the file which were not shown to complete your task, call this tool again to view those lines.
+
+
+---NEXT CHUNK---
+
+Created At: 2026-07-04T04:56:31Z
+Completed At: 2026-07-04T04:56:32Z
+File Path: `file:///d:/Cab%20Application/customer-app/App.tsx`
+Total Lines: 5347
+Total Bytes: 200753
+Showing lines 1750 to 1850
+The following code has been modified to include a line number before every line, in the format: <line_number>: <original_line>. Please note that any changes targeting the original code should remove the line number, colon, and leading space.
+1750:   useEffect(() => {
+1751:     if (isOnline && !incomingRequest) {
+1752:       scanAnim.setValue(0);
+1753:       Animated.loop(
+1754:         Animated.timing(scanAnim, {
+1755:           toValue: 1,
+1756:           duration: 2000,
+1757:           useNativeDriver: false,
+1758:         })
+1759:       ).start();
+1760:     } else {
+1761:       scanAnim.stopAnimation();
+1762:       scanAnim.setValue(0);
+1763:     }
+1764:   }, [isOnline, incomingRequest, scanAnim]);
+1765: 
+1766:   useEffect(() => {
+1767:     if (!socket || !connected || !user) return;
+1768: 
+1769:     if (isOnline) {
+1770:       socket.emit('driver:online', {
+1771:         driverId: user._id,
+1772:         location: {
+1773:           type: 'Point',
+1774:           coordinates: location ? [location.coords.longitude, location.coords.latitude] : [80.2707, 13.0827]
+1775:         },
+1776:         vehicleType: user.vehicle?.type
+1777:       });
+1778: 
+1779:       const interval = setInterval(() => {
+1780:         if (location) {
+1781:           socket.emit('location:update', {
+1782:             driverId: user._id,
+1783:             location: {
+1784:               type: 'Point',
+1785:               coordinates: [location.coords.longitude, location.coords.latitude]
+1786:             }
+1787:           });
+1788:           // Also update the database so the driver shows up in GeoJSON queries
+1789:           API.put('/drivers/location', {
+1790:             latitude: location.coords.latitude,
+1791:             longitude: location.coords.longitude
+1792:           }).catch(() => {});
+1793:  
+<truncated 134 bytes>
+payload);
+1798:       });
+1799: 
+1800:       socket.on('ride:expired', () => {
+1801:         setIncomingRequest(null);
+1802:       });
+1803: 
+1804:       return () => {
+1805:         clearInterval(interval);
+1806:         socket.off('ride:incoming');
+1807:         socket.off('ride:expired');
+1808:       };
+1809:     } else {
+1810:       socket.emit('driver:offline', { driverId: user._id });
+1811:     }
+1812:   }, [socket, connected, isOnline, user, location]);
+1813: 
+1814:   const toggleOnline = async (value: boolean) => {
+1815:     const success = await updateOnlineStatus(value);
+1816:     if (success) {
+1817:       setIsOnline(value);
+1818:     }
+1819:   };
+1820: 
+1821:   const handleAcceptRide = async () => {
+1822:     if (!incomingRequest || !socket) return;
+1823:     try {
+1824:       const response = await API.put(`/bookings/${incomingRequest.bookingId}/accept`, {});
+1825:       if (response.data.success) {
+1826:         socket.emit('ride:accept', {
+1827:           bookingId: incomingRequest.bookingId,
+1828:           driverId: user._id,
+1829:           driverInfo: {
+1830:             name: user.name,
+1831:             phone: user.phone,
+1832:             vehicle: user.vehicle
+1833:           }
+1834:         });
+1835:         const currentRide = response.data.data;
+1836:         setIncomingRequest(null);
+1837:         onRideAccepted(currentRide);
+1838:       }
+1839:     } catch (error: any) {
+1840:       Alert.alert('Error', error.response?.data?.message || 'Failed to accept ride');
+1841:       setIncomingRequest(null);
+1842:     }
+1843:   };
+1844: 
+1845:   const handleRejectRide = () => {
+1846:     if (incomingRequest && socket) {
+1847:       socket.emit('ride:reject', {
+1848:         bookingId: incomingRequest.bookingId,
+1849:         driverId: user._id
+1850:       });
+The above content does NOT show the entire file contents. If you need to view any lines of the file which were not shown to complete your task, call this tool again to view those lines.
+
+
+---NEXT CHUNK---
+
+Created At: 2026-07-04T04:56:36Z
+Completed At: 2026-07-04T04:56:36Z
+File Path: `file:///d:/Cab%20Application/customer-app/App.tsx`
+Total Lines: 5347
+Total Bytes: 200753
+Showing lines 1850 to 2000
+The following code has been modified to include a line number before every line, in the format: <line_number>: <original_line>. Please note that any changes targeting the original code should remove the line number, colon, and leading space.
+1850:       });
+1851:       setIncomingRequest(null);
+1852:     }
+1853:   };
+1854: 
+1855:   return (
+1856:     <View style={styles.container}>
+1857:       <EmergencyScreen visible={showEmergencyScreen} onClose={() => setShowEmergencyScreen(false)} />
+1858:       <NotificationScreen visible={showNotificationScreen} onClose={() => setShowNotificationScreen(false)} />
+1859:       {isOnline ? (
+1860:         <>
+1861:           {location && (
+1862:             <View style={{ flex: 1, width: '100%', height: '100%', position: 'absolute' }}>
+1863:               <MapView provider={PROVIDER_GOOGLE}
+1864:                 style={StyleSheet.absoluteFill}
+1865:                 customMapStyle={mapStyle}
+1866:                 showsUserLocation={true}
+1867:                 showsMyLocationButton={true}
+1868:                 initialRegion={{
+1869:                   latitude: location.coords.latitude,
+1870:                   longitude: location.coords.longitude,
+1871:                   latitudeDelta: 0.03,
+1872:                   longitudeDelta: 0.03
+1873:                 }}
+1874:               >
+1875: </MapView>
+1876:               
+1877:               {/* Radar Effect Overlay removed */}
+1878:             </View>
+1879:           )}
+1880:           
+1881:           {/* Top Header Card for Online Mode */}
+1882:           <View style={{
+1883:             position: 'absolute',
+1884:             top: 0,
+1885:             left: 0,
+1886:             right: 0,
+1887:             backgroundColor: '#FCFCFC',
+1888:             borderWidth: 1,
+1889:             borderColor: '#DE
+<truncated 5534 bytes>
+      <Text style={{ color: '#FCFCFC', fontSize: 14 }}>Home</Text>
+1969:             </TouchableOpacity>
+1970:             <TouchableOpacity style={{ padding: 8 }}>
+1971:               <Feather name="award" size={24} color="#9098A2" />
+1972:             </TouchableOpacity>
+1973:             <TouchableOpacity style={{ padding: 8 }}>
+1974:               <Feather name="credit-card" size={24} color="#9098A2" />
+1975:             </TouchableOpacity>
+1976:             <TouchableOpacity style={{ padding: 8 }} onPress={onNavigateHistory}>
+1977:               <Feather name="clock" size={24} color="#9098A2" />
+1978:             </TouchableOpacity>
+1979:           </View>
+1980:         </>
+1981:       ) : (
+1982:         /* OFFLINE DASHBOARD */
+1983:         <View style={{ flex: 1, backgroundColor: '#F3F4F6' }}>
+1984:           
+1985:           {/* Top Header Card */}
+1986:           <View style={{
+1987:             backgroundColor: '#FCFCFC',
+1988:             borderWidth: 1,
+1989:             borderColor: '#DEE0E3',
+1990:             borderBottomLeftRadius: 32,
+1991:             borderBottomRightRadius: 32,
+1992:             paddingTop: Platform.OS === 'ios' ? 80 : 60,
+1993:             paddingBottom: 25,
+1994:             zIndex: 10,
+1995:           }}>
+1996:             <View style={{ paddingHorizontal: 16 }}>
+1997:               {/* Profile & Greeting Row */}
+1998:               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+1999:                 <TouchableOpacity onPress={onNavigateProfile} style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+2000:                   <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: Colors.bgTertiary, overflow: 'hidden', alignItems: 'center', justifyContent: 'center' }}>
+The above content does NOT show the entire file contents. If you need to view any lines of the file which were not shown to complete your task, call this tool again to view those lines.
+
+
+---NEXT CHUNK---
+
+Created At: 2026-07-04T04:56:57Z
+Completed At: 2026-07-04T04:56:57Z
+File Path: `file:///d:/Cab%20Application/customer-app/App.tsx`
+Total Lines: 5347
+Total Bytes: 200753
+Showing lines 1224 to 1350
+The following code has been modified to include a line number before every line, in the format: <line_number>: <original_line>. Please note that any changes targeting the original code should remove the line number, colon, and leading space.
+1224: function TrackingScreen({ ride, onClose }: { ride: any; onClose: () => void }) {
+1225:   const { socket } = useSocket();
+1226:   const { location } = useLocation();
+1227:   const mapRef = useRef<MapView>(null);
+1228: 
+1229:   const [rideStatus, setRideStatus] = useState(ride.status);
+1230:   const [driverLoc, setDriverLoc] = useState<number[] | null>(
+1231:     ride.driverLocation ? ride.driverLocation.coordinates : null
+1232:   );
+1233:   const [rating, setRating] = useState(5);
+1234:   const [review, setReview] = useState('');
+1235:   const [submittingRating, setSubmittingRating] = useState(false);
+1236:   const [cancelling, setCancelling] = useState(false);
+1237:   const [driverInfo, setDriverInfo] = useState<any>({
+1238:     name: ride.driver?.name || null,
+1239:     phone: ride.driver?.phone || null,
+1240:     vehicle: ride.driver?.vehicle || null
+1241:   });
+1242: 
+1243:   // ── Customer-side Navigation State ────────────────────────────────────────
+1244:   const [navStepIndex, setNavStepIndex]   = useState(0);
+1245:   const [distToTurn, setDistToTurn]       = useState(0);
+1246:   const [remainingDist, setRemainingDist] = useState((ride.route?.distance || 0) * 1000);
+1247:   const [remainingETA, setRemainingETA]   = useState(Math.ceil(ride.route?.duration || 0));
+1248:   const [routeProgress, setRouteProgress] = useState(0);
+1249:   const [custHeading, setCustHeading]     = useState(0);
+1250: 
+1251:   const polylinePoints = React.useMemo(
+1252:     () => (ride.r
+<truncated 2291 bytes>
+   socket.on('booking:status', (data: any) => {
+1310:       setRideStatus(data.status);
+1311:       if (data.status === 'cancelled') {
+1312:         Alert.alert('Trip Cancelled', data.reason || 'Your ride was cancelled by the counterpart.');
+1313:         onClose();
+1314:       }
+1315:     });
+1316: 
+1317:     socket.on('driver:location', (data: any) => {
+1318:       setDriverLoc(data.location.coordinates);
+1319:     });
+1320: 
+1321:     socket.on('ride:driverArrived', () => { setRideStatus('arrived'); });
+1322:     socket.on('ride:started',       () => { setRideStatus('in_progress'); });
+1323:     socket.on('ride:completed',     () => { setRideStatus('completed'); });
+1324: 
+1325:     return () => {
+1326:       socket.off('ride:accepted');
+1327:       socket.off('booking:status');
+1328:       socket.off('driver:location');
+1329:       socket.off('ride:driverArrived');
+1330:       socket.off('ride:started');
+1331:       socket.off('ride:completed');
+1332:     };
+1333:   }, [socket, ride]);
+1334: 
+1335:   // ── Customer live navigation (fires when GPS updates & trip is active) ────
+1336:   useEffect(() => {
+1337:     if (!location || rideStatus !== 'in_progress') return;
+1338: 
+1339:     const { latitude, longitude, heading } = location.coords;
+1340:     if (heading !== null && heading >= 0) setCustHeading(heading);
+1341: 
+1342:     if (steps.length > 0) {
+1343:       const nav = getActiveNavStep(steps, latitude, longitude);
+1344:       setNavStepIndex(nav.stepIndex);
+1345:       setDistToTurn(nav.distToTurn);
+1346:       setRemainingDist(nav.remainingDist);
+1347:       setRemainingETA(nav.remainingETA);
+1348:     } else if (polylinePoints.length > 0) {
+1349:       // Fallback: nearest polyline point → remaining distance
+1350:       let nearestIdx = 0, nearestDist = Infinity;
+The above content does NOT show the entire file contents. If you need to view any lines of the file which were not shown to complete your task, call this tool again to view those lines.
+
+
+---NEXT CHUNK---
+
+Created At: 2026-07-04T04:57:02Z
+Completed At: 2026-07-04T04:57:02Z
+File Path: `file:///d:/Cab%20Application/customer-app/App.tsx`
+Total Lines: 5347
+Total Bytes: 200753
+Showing lines 1350 to 1550
+The following code has been modified to include a line number before every line, in the format: <line_number>: <original_line>. Please note that any changes targeting the original code should remove the line number, colon, and leading space.
+1350:       let nearestIdx = 0, nearestDist = Infinity;
+1351:       polylinePoints.forEach((pt: any, i: number) => {
+1352:         const d = haversineDistance(latitude, longitude, pt.latitude, pt.longitude);
+1353:         if (d < nearestDist) { nearestDist = d; nearestIdx = i; }
+1354:       });
+1355: 
+1356:       let rem = 0;
+1357:       for (let i = nearestIdx; i < polylinePoints.length - 1; i++) {
+1358:         rem += haversineDistance(
+1359:           polylinePoints[i].latitude, polylinePoints[i].longitude,
+1360:           polylinePoints[i + 1].latitude, polylinePoints[i + 1].longitude
+1361:         );
+1362:       }
+1363:       setRemainingDist(rem);
+1364:       setRemainingETA(Math.ceil((rem / 1000 / 30) * 60));
+1365: 
+1366:       // Distance to next turn (bearing change > 25°)
+1367:       let turnDist = 0, foundTurn = false;
+1368:       for (let i = nearestIdx; i < polylinePoints.length - 2 && !foundTurn; i++) {
+1369:         const b1 = computeBearing(
+1370:           polylinePoints[i].latitude, polylinePoints[i].longitude,
+1371:           polylinePoints[i + 1].latitude, polylinePoints[i + 1].longitude
+1372:         );
+1373:         const b2 = computeBearing(
+1374:           polylinePoints[i + 1].latitude, polylinePoints[i + 1].longitude,
+1375:           polylinePoints[i + 2].latitude, polylinePoints[i + 2].longitude
+1376:         );
+1377:         const diff = Math.abs(b2 - b1) % 360;
+1378:         const angle = diff > 180 ? 360 - diff : diff;
+1379:         turnDist += haversineDistance(
+1380:           polylinePoints[i].latitude, polylinePoints[i]
+<truncated 5531 bytes>
+     <View style={styles.custNavPin}>
+1507:               <View style={styles.custNavPinInner} />
+1508:             </View>
+1509:           </Marker>
+1510:         )}
+1511: 
+1512:         {/* Pickup marker (hidden during navigation to reduce clutter) */}
+1513:         {rideStatus !== 'in_progress' && (
+1514:           <Marker
+1515:             coordinate={{
+1516:               latitude:  ride.pickup.location.coordinates[1],
+1517:               longitude: ride.pickup.location.coordinates[0],
+1518:             }}
+1519:             anchor={{ x: 0.5, y: 0.5 }}
+1520:           >
+1521:             <View style={styles.olaPin}><View style={styles.olaPinInner} /></View>
+1522:           </Marker>
+1523:         )}
+1524: 
+1525:         {/* Drop / destination marker */}
+1526:         <Marker
+1527:           coordinate={{
+1528:             latitude:  ride.drop.location.coordinates[1],
+1529:             longitude: ride.drop.location.coordinates[0],
+1530:           }}
+1531:           pinColor="red"
+1532:           title="Your Destination"
+1533:         />
+1534: 
+1535:         {/* Animated driver position */}
+1536:         {driverLoc && (
+1537:           <Marker.Animated coordinate={animatedDriverLoc as any} title="Driver">
+1538:             <View style={styles.nearbyVehicleMarker}>
+1539:               <Text style={{ fontSize: 18 }}>
+1540:                 {ride.vehicleType === 'bike' ? '🏍️' : ride.vehicleType === 'auto' ? '🛺' : '🚗'}
+1541:               </Text>
+1542:             </View>
+1543:           </Marker.Animated>
+1544:         )}
+1545: 
+1546:         {/* Route polyline */}
+1547:         {polylinePoints.length > 0 && (
+1548:           <Polyline
+1549:             coordinates={polylinePoints}
+1550:             strokeColor={rideStatus === 'in_progress' ? Colors.accentCyan : Colors.accent}
+The above content does NOT show the entire file contents. If you need to view any lines of the file which were not shown to complete your task, call this tool again to view those lines.
+
+
+---NEXT CHUNK---
+
+Created At: 2026-07-04T04:57:07Z
+Completed At: 2026-07-04T04:57:07Z
+File Path: `file:///d:/Cab%20Application/customer-app/App.tsx`
+Total Lines: 5347
+Total Bytes: 200753
+Showing lines 1550 to 1700
+The following code has been modified to include a line number before every line, in the format: <line_number>: <original_line>. Please note that any changes targeting the original code should remove the line number, colon, and leading space.
+1550:             strokeColor={rideStatus === 'in_progress' ? Colors.accentCyan : Colors.accent}
+1551:             strokeWidth={rideStatus === 'in_progress' ? 6 : 4}
+1552:             lineCap="round"
+1553:             lineJoin="round"
+1554:           />
+1555:         )}
+1556:       </MapView>
+1557: 
+1558:       {/* ── CUSTOMER NAVIGATION HUD (in_progress only) ── */}
+1559:       {rideStatus === 'in_progress' && (
+1560:         <View style={styles.custNavHudWrapper} pointerEvents="none">
+1561: 
+1562:           {/* Ride-in-progress banner above turn card */}
+1563:           <View style={styles.custNavBanner}>
+1564:             <View style={styles.custNavBannerDot} />
+1565:             <Text style={styles.custNavBannerText}>You're on your way</Text>
+1566:             <Text style={styles.custNavBannerSub}>  ·  {formatDistance(remainingDist)} remaining</Text>
+1567:           </View>
+1568: 
+1569:           {/* Turn instruction card */}
+1570:           <View style={styles.custNavHudCard}>
+1571:             <View style={styles.custNavArrowBox}>
+1572:               <Text style={styles.custNavArrowIcon}>{maneuver.icon}</Text>
+1573:             </View>
+1574:             <View style={styles.navInfoCol}>
+1575:               <Text style={styles.custNavDistText}>In {formatDistance(distToTurn)}</Text>
+1576:               <Text style={styles.custNavManeuverText} numberOfLines={1}>{maneuver.label}</Text>
+1577:               <Text style={styles.custNavStreetText} numberOfLines={1}>{nextStreet}</Text>
+1578:             </View>
+1579:           </View>
+1580: 
+1581: 
+<truncated 3975 bytes>
+            placeholder="Leave comments (optional)..."
+1654:               placeholderTextColor={Colors.textSecondary}
+1655:               style={[styles.revampInput, { marginTop: 15, height: 60, textAlignVertical: 'top' }]}
+1656:               value={review}
+1657:               onChangeText={setReview}
+1658:               multiline
+1659:             />
+1660:             <TouchableOpacity style={[styles.premiumButton, { marginTop: 15 }]} onPress={handleRate}>
+1661:               {submittingRating ? <ActivityIndicator color="#fff" /> : <Text style={styles.premiumButtonText}>Submit Feedback</Text>}
+1662:             </TouchableOpacity>
+1663:           </View>
+1664:         )}
+1665:       </View>
+1666:       )}
+1667:     </View>
+1668:   );
+1669: }
+1670: 
+1671: 
+1672: Notifications.setNotificationHandler({
+1673:   handleNotification: async () => ({
+1674:     shouldShowAlert: true,
+1675:     shouldPlaySound: true,
+1676:     shouldSetBadge: false,
+1677:     shouldShowBanner: true,
+1678:     shouldShowList: true,
+1679:   }),
+1680: });
+1681: 
+1682: export default function App() {
+1683:   return (
+1684:     <LanguageProvider>
+1685:       <AuthProvider>
+1686:         <LocationProvider>
+1687:           <SocketProvider>
+1688:             <NavigationRoot />
+1689:           </SocketProvider>
+1690:         </LocationProvider>
+1691:       </AuthProvider>
+1692:     </LanguageProvider>
+1693:   );
+1694: }
+1695: 
+1696: // --- ADMIN SCREENS ---
+1697: // --- DRIVER SCREENS ---
+1698: function DriverHomeScreen({ onRideAccepted, onNavigateProfile, onNavigateHistory, onNavigateWallet }: { onRideAccepted: (ride: any) => void; onNavigateProfile: () => void; onNavigateHistory: () => void; onNavigateWallet: () => void; }) {
+1699:   const { user, updateOnlineStatus, logout } = useAuth();
+1700:   const { t } = useLanguage();
+The above content does NOT show the entire file contents. If you need to view any lines of the file which were not shown to complete your task, call this tool again to view those lines.
+
+
+---NEXT CHUNK---
+
+Created At: 2026-07-04T04:57:12Z
+Completed At: 2026-07-04T04:57:12Z
+File Path: `file:///d:/Cab%20Application/customer-app/App.tsx`
+Total Lines: 5347
+Total Bytes: 200753
+Showing lines 2375 to 2550
+The following code has been modified to include a line number before every line, in the format: <line_number>: <original_line>. Please note that any changes targeting the original code should remove the line number, colon, and leading space.
+2375: function DriverActiveRideScreen({ ride, onClose }: { ride: any; onClose: () => void }) {
+2376:   const { location } = useLocation();
+2377:   const { socket } = useSocket();
+2378:   
+2379:   const [rideData, setRideData] = useState(ride);
+2380:   const [rideStatus, setRideStatus] = useState(ride.status);
+2381:   const [otp, setOtp] = useState('');
+2382:   const [isOtpVerified, setIsOtpVerified] = useState(false);
+2383:   const [loading, setLoading] = useState(false);
+2384:   const mapRef = useRef<MapView>(null);
+2385: 
+2386:   useEffect(() => {
+2387:     if (!socket) return;
+2388:     const handlePaymentUpdate = (data: any) => {
+2389:       setRideData((prev: any) => ({
+2390:         ...prev,
+2391:         paymentMethod: data.paymentMethod,
+2392:         tipAmount: data.tipAmount
+2393:       }));
+2394:     };
+2395:     socket.on('booking:payment_updated', handlePaymentUpdate);
+2396:     return () => {
+2397:       socket.off('booking:payment_updated', handlePaymentUpdate);
+2398:     };
+2399:   }, [socket]);
+2400: 
+2401:   // Navigation state
+2402:   const [navStepIndex, setNavStepIndex]       = useState(0);
+2403:   const [distToTurn, setDistToTurn]           = useState(0);
+2404:   const [remainingDist, setRemainingDist]     = useState((rideData.route?.distance || 0) * 1000);
+2405:   const [remainingETA, setRemainingETA]       = useState(rideData.route?.duration || 0);
+2406:   const [driverHeading, setDriverHeading]     = useState(0);
+2407:   const [routeProgress, setRouteProgress]     = useState(0); // 0–1
+2408: 
+2409:   // Decoded polyline poi
+<truncated 4955 bytes>
+───────
+2517:   useEffect(() => {
+2518:     if (rideStatus === 'in_progress' && mapRef.current) {
+2519:       setTimeout(() => {
+2520:         const lat = location?.coords.latitude  ?? ride.pickup.location.coordinates[1];
+2521:         const lng = location?.coords.longitude ?? ride.pickup.location.coordinates[0];
+2522:         mapRef.current?.animateCamera(
+2523:           { pitch: 60, heading: 0, zoom: 18, center: { latitude: lat, longitude: lng } },
+2524:           { duration: 2000 }
+2525:         );
+2526:       }, 300);
+2527:     }
+2528:   }, [rideStatus]);
+2529: 
+2530:   // ── Current step info ─────────────────────────────────────────────────────
+2531:   const currentStep = steps[navStepIndex] || null;
+2532:   const maneuver    = getManeuverIcon(
+2533:     currentStep?.maneuver?.type     || 'straight',
+2534:     currentStep?.maneuver?.modifier || 'straight'
+2535:   );
+2536:   const nextStreet = currentStep?.name || ride.drop?.address || 'Destination';
+2537: 
+2538:   // ── Status handlers ───────────────────────────────────────────────────────
+2539:   const handleArrived = async () => {
+2540:     setLoading(true);
+2541:     try {
+2542:       const response = await API.put(`/bookings/${ride._id}/arrived`, {});
+2543:       if (response.data.success) {
+2544:         setRideStatus('arrived');
+2545:         if (socket) socket.emit('ride:driverArrived', { bookingId: ride._id });
+2546:       }
+2547:     } catch (e: any) {
+2548:       Alert.alert('Error', e.response?.data?.message || 'Failed to update status');
+2549:     } finally { setLoading(false); }
+2550:   };
+The above content does NOT show the entire file contents. If you need to view any lines of the file which were not shown to complete your task, call this tool again to view those lines.
+
+
+---NEXT CHUNK---
+
+Created At: 2026-07-04T04:57:17Z
+Completed At: 2026-07-04T04:57:17Z
+File Path: `file:///d:/Cab%20Application/customer-app/App.tsx`
+Total Lines: 5347
+Total Bytes: 200753
+Showing lines 2550 to 2750
+The following code has been modified to include a line number before every line, in the format: <line_number>: <original_line>. Please note that any changes targeting the original code should remove the line number, colon, and leading space.
+2550:   };
+2551: 
+2552:   const handleStartTrip = async (providedOtp?: string) => {
+2553:     const finalOtp = typeof providedOtp === 'string' ? providedOtp : otp;
+2554:     if (!finalOtp) return Alert.alert('OTP Required', 'Please enter verification OTP from rider');
+2555:     setLoading(true);
+2556:     try {
+2557:       const response = await API.put(`/bookings/${ride._id}/start`, { otp: finalOtp });
+2558:       if (response.data.success) {
+2559:         setRideStatus('in_progress');
+2560:         if (socket) socket.emit('ride:started', { bookingId: ride._id });
+2561:       }
+2562:     } catch (e: any) {
+2563:       Alert.alert('Error', 'Invalid OTP verification code');
+2564:     } finally { setLoading(false); }
+2565:   };
+2566: 
+2567:   const handleCompleteTrip = async () => {
+2568:     setLoading(true);
+2569:     try {
+2570:       const response = await API.put(`/bookings/${rideData._id}/complete`, {});
+2571:       if (response.data.success) {
+2572:         setRideStatus('completed');
+2573:         
+2574:         if (response.data.isWalletNegative) {
+2575:           Alert.alert(
+2576:             'Insufficient Balance',
+2577:             `Your wallet balance is ₹${response.data.walletBalance}. You cannot accept new rides until you add funds.`
+2578:           );
+2579:         }
+2580: 
+2581:         if (socket) socket.emit('ride:completed', {
+2582:           bookingId: rideData._id,
+2583:           driverId: rideData.driver,
+2584:           fare: response.data.data.fare.finalFare || rideData.fare.totalFare
+2585:         });
+2586:         
+258
+<truncated 5298 bytes>
+     onComplete={onClose}
+2702:         />
+2703:       </View>
+2704:     );
+2705:   }
+2706: 
+2707:   return (
+2708:     <View style={styles.container}>
+2709:       {/* ── MAP ── */}
+2710:       <MapView provider={PROVIDER_GOOGLE}
+2711:         ref={mapRef}
+2712:         style={styles.map}
+2713:         customMapStyle={rideStatus === 'in_progress' ? LIGHT_MAP_STYLE : mapStyle}
+2714:         initialRegion={{
+2715:           latitude:      ride.pickup.location.coordinates[1],
+2716:           longitude:     ride.pickup.location.coordinates[0],
+2717:           latitudeDelta:  0.03,
+2718:           longitudeDelta: 0.03,
+2719:         }}
+2720:       >
+2721: {/* Driver position */}
+2722:         {location && (
+2723:           <Marker
+2724:             coordinate={{ latitude: location.coords.latitude, longitude: location.coords.longitude }}
+2725:             anchor={{ x: 0.5, y: 0.5 }}
+2726:           >
+2727:             <View style={styles.navDriverPin}>
+2728:               <View style={styles.navDriverPinInner} />
+2729:             </View>
+2730:           </Marker>
+2731:         )}
+2732: 
+2733:         {/* Pickup marker */}
+2734:         <Marker
+2735:           coordinate={{
+2736:             latitude:  ride.pickup.location.coordinates[1],
+2737:             longitude: ride.pickup.location.coordinates[0],
+2738:           }}
+2739:           anchor={{ x: 0.5, y: 0.5 }}
+2740:         >
+2741:           <View style={styles.olaPin}><View style={styles.olaPinInner} /></View>
+2742:         </Marker>
+2743: 
+2744:         {/* Drop marker */}
+2745:         {rideStatus !== 'accepted' && (
+2746:           <Marker
+2747:             coordinate={{
+2748:               latitude:  ride.drop.location.coordinates[1],
+2749:               longitude: ride.drop.location.coordinates[0],
+2750:             }}
+The above content does NOT show the entire file contents. If you need to view any lines of the file which were not shown to complete your task, call this tool again to view those lines.
+
+
+---NEXT CHUNK---
+
+Created At: 2026-07-04T04:57:25Z
+Completed At: 2026-07-04T04:57:25Z
+File Path: `file:///d:/Cab%20Application/customer-app/App.tsx`
+Total Lines: 5347
+Total Bytes: 200753
+Showing lines 1500 to 1668
+The following code has been modified to include a line number before every line, in the format: <line_number>: <original_line>. Please note that any changes targeting the original code should remove the line number, colon, and leading space.
+1500: {/* Customer live position (only when navigating) */}
+1501:         {location && rideStatus === 'in_progress' && (
+1502:           <Marker
+1503:             coordinate={{ latitude: location.coords.latitude, longitude: location.coords.longitude }}
+1504:             anchor={{ x: 0.5, y: 0.5 }}
+1505:           >
+1506:             <View style={styles.custNavPin}>
+1507:               <View style={styles.custNavPinInner} />
+1508:             </View>
+1509:           </Marker>
+1510:         )}
+1511: 
+1512:         {/* Pickup marker (hidden during navigation to reduce clutter) */}
+1513:         {rideStatus !== 'in_progress' && (
+1514:           <Marker
+1515:             coordinate={{
+1516:               latitude:  ride.pickup.location.coordinates[1],
+1517:               longitude: ride.pickup.location.coordinates[0],
+1518:             }}
+1519:             anchor={{ x: 0.5, y: 0.5 }}
+1520:           >
+1521:             <View style={styles.olaPin}><View style={styles.olaPinInner} /></View>
+1522:           </Marker>
+1523:         )}
+1524: 
+1525:         {/* Drop / destination marker */}
+1526:         <Marker
+1527:           coordinate={{
+1528:             latitude:  ride.drop.location.coordinates[1],
+1529:             longitude: ride.drop.location.coordinates[0],
+1530:           }}
+1531:           pinColor="red"
+1532:           title="Your Destination"
+1533:         />
+1534: 
+1535:         {/* Animated driver position */}
+1536:         {driverLoc && (
+1537:           <Marker.Animated coordinate={animatedDriverLoc as any} title="Driver">
+1538:          
+<truncated 4976 bytes>
+e._id}
+1633:             initialPaymentMethod={ride.paymentMethod}
+1634:             driverName={driverInfo?.name}
+1635:             vehiclePlate={driverInfo?.vehicle?.plateNumber || ride.vehicleType?.toUpperCase()}
+1636:             fare={ride.fare?.totalFare || 0}
+1637:           />
+1638:         )}
+1639: 
+1640:         {/* ── Completed / Rating ── */}
+1641:         {rideStatus === 'completed' && (
+1642:           <View style={styles.ratingSection}>
+1643:             <Text style={styles.ratingTitleText}>How was your MoveX trip?</Text>
+1644:             <Text style={styles.ratingSubText}>Rate your journey experience below</Text>
+1645:             <View style={styles.starsWrapper}>
+1646:               {[1, 2, 3, 4, 5].map((star) => (
+1647:                 <TouchableOpacity key={star} onPress={() => setRating(star)}>
+1648:                   <Text style={[styles.starEmoji, rating >= star && { color: Colors.warning }]}>★</Text>
+1649:                 </TouchableOpacity>
+1650:               ))}
+1651:             </View>
+1652:             <TextInput
+1653:               placeholder="Leave comments (optional)..."
+1654:               placeholderTextColor={Colors.textSecondary}
+1655:               style={[styles.revampInput, { marginTop: 15, height: 60, textAlignVertical: 'top' }]}
+1656:               value={review}
+1657:               onChangeText={setReview}
+1658:               multiline
+1659:             />
+1660:             <TouchableOpacity style={[styles.premiumButton, { marginTop: 15 }]} onPress={handleRate}>
+1661:               {submittingRating ? <ActivityIndicator color="#fff" /> : <Text style={styles.premiumButtonText}>Submit Feedback</Text>}
+1662:             </TouchableOpacity>
+1663:           </View>
+1664:         )}
+1665:       </View>
+1666:       )}
+1667:     </View>
+1668:   );
+The above content does NOT show the entire file contents. If you need to view any lines of the file which were not shown to complete your task, call this tool again to view those lines.
+
+
+---NEXT CHUNK---
+
+Created At: 2026-07-04T05:01:21Z
+Completed At: 2026-07-04T05:01:21Z
+File Path: `file:///d:/Cab%20Application/customer-app/App.tsx`
+Total Lines: 21
+Total Bytes: 475
+Showing lines 1 to 21
+The following code has been modified to include a line number before every line, in the format: <line_number>: <original_line>. Please note that any changes targeting the original code should remove the line number, colon, and leading space.
+1: import { StatusBar } from 'expo-status-bar';
+2: import { StyleSheet, Text, View } from 'react-native';
+3: 
+4: export default function App() {
+5:   return (
+6:     <View style={styles.container}>
+7:       <Text>Open up App.tsx to start working on your app!</Text>
+8:       <StatusBar style="auto" />
+9:     </View>
+10:   );
+11: }
+12: 
+13: const styles = StyleSheet.create({
+14:   container: {
+15:     flex: 1,
+16:     backgroundColor: '#fff',
+17:     alignItems: 'center',
+18:     justifyContent: 'center',
+19:   },
+20: });
+21: 
+The above content shows the entire, complete file contents of the requested file.
