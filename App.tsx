@@ -1700,14 +1700,16 @@ Notifications.setNotificationHandler({
 export default function App() {
   return (
     <LanguageProvider>
-      <AuthProvider>
-        <LocationProvider>
-          <SocketProvider>
-            <NavigationRoot />
-          </SocketProvider>
-        </LocationProvider>
-      </AuthProvider>
-    </LanguageProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            <LocationProvider>
+              <SocketProvider>
+                <NavigationRoot />
+              </SocketProvider>
+            </LocationProvider>
+          </AuthProvider>
+        </ThemeProvider>
+      </LanguageProvider>
   );
 }
 
