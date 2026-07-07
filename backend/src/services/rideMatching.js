@@ -2,6 +2,7 @@ const Driver = require('../models/Driver');
 const Booking = require('../models/Booking');
 const { getOnlineDrivers, getIO } = require('../config/socket');
 const { calculateHaversineDistance } = require('./routingService');
+const { sendNotification } = require('./notificationService');
 
 /**
  * Find nearby active drivers for a ride request and dispatch booking notifications.
@@ -143,6 +144,15 @@ const dispatchRequestsSequentially = async (booking, driverList, index) => {
 
   // Emit to driver socket
   io.to(socketDriver.socketId).emit('ride:incoming', bookingPayload);
+
+  // Send push notification to driver (so it appears when app is closed)
+  if (driver.fcmToken) {
+    sendNotification(driver.fcmToken, {
+      title: 'New Ride Request!',
+      body: `Pickup: ${currentBooking.pickup.address.substring(0, 30)}...`,
+      data: { bookingId: currentBooking._id }
+    }).catch(console.error);
+  }
 
   // Set timeout to wait for acceptance
   const timeoutSec = parseInt(process.env.DRIVER_REQUEST_TIMEOUT_SEC || '30');

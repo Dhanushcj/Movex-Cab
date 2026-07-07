@@ -20,6 +20,11 @@ const adBannerSchema = new mongoose.Schema({
   },
   linkUrl: {
     type: String
+  },
+  position: {
+    type: String,
+    enum: ['banner1', 'banner2'],
+    default: 'banner1'
   }
 }, {
   timestamps: true

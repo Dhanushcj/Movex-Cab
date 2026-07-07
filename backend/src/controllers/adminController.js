@@ -6,6 +6,7 @@ const FareConfig = require('../models/FareConfig');
 const Offer = require('../models/Offer');
 const Complaint = require('../models/Complaint');
 const Payout = require('../models/Payout');
+const { sendMulticastNotification } = require('../services/notificationService');
 
 /**
  * Get core Admin Dashboard stats & KPIs
@@ -481,6 +482,26 @@ const getNotifications = async (req, res, next) => {
 const createNotification = async (req, res, next) => {
   try {
     const notification = await NotificationMessage.create(req.body);
+    
+    // Trigger Push Notification
+    let tokens = [];
+    if (notification.targetAudience === 'customer' || notification.targetAudience === 'both') {
+      const customers = await User.find({ fcmToken: { $exists: true, $ne: null, $ne: '' } }).select('fcmToken');
+      tokens = tokens.concat(customers.map(c => c.fcmToken));
+    }
+    if (notification.targetAudience === 'driver' || notification.targetAudience === 'both') {
+      const drivers = await Driver.find({ fcmToken: { $exists: true, $ne: null, $ne: '' } }).select('fcmToken');
+      tokens = tokens.concat(drivers.map(d => d.fcmToken));
+    }
+    
+    if (tokens.length > 0) {
+      await sendMulticastNotification(tokens, {
+        title: notification.title,
+        body: notification.message,
+        data: { type: 'admin_notification', id: notification._id.toString() }
+      });
+    }
+
     res.json({ success: true, data: notification });
   } catch (err) { next(err); }
 };

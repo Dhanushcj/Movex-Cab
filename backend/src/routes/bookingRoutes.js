@@ -13,7 +13,8 @@ const {
   payTrip,
   cancelBooking,
   getBooking,
-  updatePaymentPreferences
+  updatePaymentPreferences,
+  verifyOTP
 } = require('../controllers/bookingController');
 
 router.use(protect);
@@ -23,6 +24,7 @@ router.post('/', validate(bookingRequestSchema), createBooking);
 router.get('/:id', getBooking);
 router.put('/:id/accept', acceptBooking);
 router.put('/:id/arrived', driverArrived);
+router.post('/:id/verify-otp', verifyOTP);
 router.put('/:id/start', startTrip);
 router.put('/:id/complete', completeTrip);
 router.put('/:id/pay', payTrip);

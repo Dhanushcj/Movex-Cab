@@ -6,7 +6,7 @@ export default function Banners() {
   const [banners, setBanners] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
-  const [form, setForm] = useState({ title: '', imageUrl: '', targetAudience: 'both', isActive: true, linkUrl: '' });
+  const [form, setForm] = useState({ title: '', imageUrl: '', targetAudience: 'both', isActive: true, linkUrl: '', position: 'banner1' });
   const [editingId, setEditingId] = useState(null);
 
   const fetchBanners = async () => {
@@ -32,7 +32,7 @@ export default function Banners() {
       }
       setShowModal(false);
       setEditingId(null);
-      setForm({ title: '', imageUrl: '', targetAudience: 'both', isActive: true, linkUrl: '' });
+      setForm({ title: '', imageUrl: '', targetAudience: 'both', isActive: true, linkUrl: '', position: 'banner1' });
       fetchBanners();
     } catch (err) {
       console.error(err);
@@ -41,7 +41,7 @@ export default function Banners() {
   };
 
   const handleEdit = (b) => {
-    setForm({ title: b.title, imageUrl: b.imageUrl, targetAudience: b.targetAudience, isActive: b.isActive, linkUrl: b.linkUrl || '' });
+    setForm({ title: b.title, imageUrl: b.imageUrl, targetAudience: b.targetAudience, isActive: b.isActive, linkUrl: b.linkUrl || '', position: b.position || 'banner1' });
     setEditingId(b._id);
     setShowModal(true);
   };
@@ -65,7 +65,7 @@ export default function Banners() {
           <h2 className="text-2xl font-bold text-white tracking-tight">Ad Banners</h2>
           <p className="text-sm text-[var(--text-muted)] mt-1">Manage promotional banners for customers and drivers.</p>
         </div>
-        <button onClick={() => { setEditingId(null); setForm({ title: '', imageUrl: '', targetAudience: 'both', isActive: true, linkUrl: '' }); setShowModal(true); }} className="btn-primary">
+        <button onClick={() => { setEditingId(null); setForm({ title: '', imageUrl: '', targetAudience: 'both', isActive: true, linkUrl: '', position: 'banner1' }); setShowModal(true); }} className="btn-primary">
           <Plus className="w-4 h-4 mr-2" /> Add Banner
         </button>
       </div>
@@ -83,6 +83,7 @@ export default function Banners() {
                   </span>
                 </div>
                 <p className="text-sm text-[var(--text-muted)] mb-2">Audience: {b.targetAudience}</p>
+                <p className="text-sm text-[var(--text-muted)] mb-2">Position: {b.position === 'banner2' ? 'Banner 2 (Bottom)' : 'Banner 1 (Top)'}</p>
                 {b.linkUrl && <p className="text-xs text-blue-400 truncate mb-4">{b.linkUrl}</p>}
               </div>
               <div className="flex justify-end gap-2 border-t border-[var(--border-glass)] pt-4 mt-2">
@@ -118,6 +119,13 @@ export default function Banners() {
                   <option value="both">Both</option>
                   <option value="customer">Customer App</option>
                   <option value="driver">Driver App</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-[var(--text-muted)] uppercase">Position</label>
+                <select value={form.position} onChange={e => setForm({...form, position: e.target.value})} className="glass-input mt-1 w-full">
+                  <option value="banner1">Banner 1 (Top)</option>
+                  <option value="banner2">Banner 2 (Bottom)</option>
                 </select>
               </div>
               <div>

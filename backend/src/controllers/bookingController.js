@@ -208,6 +208,26 @@ const driverArrived = async (req, res, next) => {
 };
 
 /**
+ * Verify OTP
+ * POST /api/bookings/:id/verify-otp
+ */
+const verifyOTP = async (req, res, next) => {
+  const { otp } = req.body;
+  try {
+    const booking = await Booking.findById(req.params.id);
+    if (!booking) return res.status(404).json({ success: false, message: 'Booking not found' });
+
+    if (booking.rideOTP !== otp) {
+      return res.status(400).json({ success: false, message: 'Invalid OTP verification code' });
+    }
+
+    res.json({ success: true, message: 'OTP verified successfully' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
  * Start Trip (Verify OTP)
  * PUT /api/bookings/:id/start
  */
@@ -535,5 +555,6 @@ module.exports = {
   payTrip,
   cancelBooking,
   getBooking,
-  updatePaymentPreferences
+  updatePaymentPreferences,
+  verifyOTP
 };

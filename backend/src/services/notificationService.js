@@ -16,6 +16,18 @@ const sendNotification = async (token, { title, body, data = {} }) => {
     try {
       const message = {
         notification: { title, body },
+        android: {
+          notification: {
+            sound: 'default'
+          }
+        },
+        apns: {
+          payload: {
+            aps: {
+              sound: 'default'
+            }
+          }
+        },
         data: typeof data === 'object' ? Object.keys(data).reduce((acc, key) => {
           acc[key] = String(data[key]);
           return acc;
@@ -43,6 +55,18 @@ const sendMulticastNotification = async (tokens = [], { title, body, data = {} }
     try {
       const message = {
         notification: { title, body },
+        android: {
+          notification: {
+            sound: 'default'
+          }
+        },
+        apns: {
+          payload: {
+            aps: {
+              sound: 'default'
+            }
+          }
+        },
         data: typeof data === 'object' ? Object.keys(data).reduce((acc, key) => {
           acc[key] = String(data[key]);
           return acc;
