@@ -16,6 +16,8 @@ const adminRoutes = require('./src/routes/adminRoutes');
 const { startCron } = require('./src/jobs/expiryNotifications');
 const uploadRoutes = require('./src/routes/uploadRoutes');
 const publicRoutes = require('./src/routes/publicRoutes');
+const paymentRoutes = require('./src/routes/paymentRoutes');
+const fareRoutes = require('./src/routes/fareRoutes');
 
 const app = express();
 const server = http.createServer(app);
