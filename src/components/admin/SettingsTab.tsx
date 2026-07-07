@@ -1,9 +1,13 @@
+import { useTheme } from '../../context/ThemeContext';
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import Colors from '../../constants/colors';
 import { Feather } from '@expo/vector-icons';
 
 export default function SettingsTab() {
+    const { isDark } = useTheme();
+    const styles = getStyles(Colors);
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.card}>
@@ -19,7 +23,7 @@ export default function SettingsTab() {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (Colors: any) => StyleSheet.create({
   container: { padding: 16 },
   card: { backgroundColor: Colors.bgSecondary, padding: 20, borderRadius: 12, borderWidth: 1, borderColor: Colors.border },
   header: { flexDirection: 'row', alignItems: 'center', marginBottom: 16 },

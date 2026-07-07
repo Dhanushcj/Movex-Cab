@@ -20,7 +20,8 @@ import {
   Switch,
   Animated,
   Image,
-  SafeAreaView
+  SafeAreaView,
+  Linking
 } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE, UrlTile, Polyline, AnimatedRegion } from 'react-native-maps';
 import { AuthProvider, useAuth } from './src/context/AuthContext';
@@ -52,6 +53,7 @@ import CustomerWalletScreen from './src/components/CustomerWalletScreen';
 import EmergencyScreen from './src/components/EmergencyScreen';
 import NotificationScreen from './src/components/NotificationScreen';
 import CustomerQRScannerScreen from './src/components/CustomerQRScannerScreen';
+import SupportTicketScreen from './src/components/SupportTicketScreen';
 const LIGHT_MAP_STYLE = [
   {
     "elementType": "geometry",
@@ -72,7 +74,7 @@ const LIGHT_MAP_STYLE = [
   {
     "featureType": "poi",
     "elementType": "geometry",
-    "stylers": [{ "color": "#eeeeee" }]
+    "stylers": [{ "color": Colors.borderGlass }]
   },
   {
     "featureType": "poi",
@@ -82,7 +84,7 @@ const LIGHT_MAP_STYLE = [
   {
     "featureType": "road",
     "elementType": "geometry",
-    "stylers": [{ "color": "#ffffff" }]
+    "stylers": [{ "color": Colors.bgSecondary }]
   },
   {
     "featureType": "road.highway",
@@ -391,20 +393,20 @@ function LocationPickerScreen({
           <TouchableOpacity onPress={onBack} style={styles.pickerBackBtn} activeOpacity={0.7}>
             <Feather name="arrow-left" size={22} color={Colors.textPrimary} />
           </TouchableOpacity>
-          <Text style={styles.pickerHeaderTitle}>Plan Your Route</Text>
+          <Text style={styles.pickerHeaderTitle}>{t('home.planRoute') || 'Plan Your Route'}</Text>
         </View>
 
         <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
           <View style={styles.pickerAddressDot} />
           <TouchableOpacity 
-            style={{ flex: 1, backgroundColor: activeField === 'pickup' ? Colors.bgSecondary : '#f9f9f9', paddingHorizontal: 12, paddingVertical: 4, borderRadius: 8, borderWidth: 1, borderColor: activeField === 'pickup' ? Colors.success : 'transparent', flexDirection: 'row', alignItems: 'center', minHeight: 46 }}
+            style={{ flex: 1, backgroundColor: activeField === 'pickup' ? Colors.bgSecondary : Colors.bgPrimary, paddingHorizontal: 12, paddingVertical: 4, borderRadius: 8, borderWidth: 1, borderColor: activeField === 'pickup' ? Colors.success : 'transparent', flexDirection: 'row', alignItems: 'center', minHeight: 46 }}
             onPress={() => handleFieldSwitch('pickup')}
             activeOpacity={0.8}
           >
              {activeField === 'pickup' ? (
                 <TextInput
                   style={{ flex: 1, fontSize: 15, color: Colors.textPrimary }}
-                  placeholder="Search pickup location..."
+                  placeholder={t('home.searchPickup') || 'Search pickup location...'}
                   placeholderTextColor={Colors.textMuted}
                   value={searchQuery}
                   onChangeText={handleSearch}
@@ -412,7 +414,7 @@ function LocationPickerScreen({
                 />
              ) : (
                 <Text style={{ flex: 1, fontSize: 15, color: pickupData.address ? Colors.textPrimary : Colors.textMuted }} numberOfLines={1}>
-                  {pickupData.address || 'Set Pickup Location'}
+                  {pickupData.address || t('home.setPickup') || 'Set Pickup Location'}
                 </Text>
              )}
           </TouchableOpacity>
@@ -421,14 +423,14 @@ function LocationPickerScreen({
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           <View style={[styles.pickerAddressDot, { backgroundColor: Colors.danger, borderRadius: 2 }]} />
           <TouchableOpacity 
-            style={{ flex: 1, backgroundColor: activeField === 'drop' ? Colors.bgSecondary : '#f9f9f9', paddingHorizontal: 12, paddingVertical: 4, borderRadius: 8, borderWidth: 1, borderColor: activeField === 'drop' ? Colors.danger : 'transparent', flexDirection: 'row', alignItems: 'center', minHeight: 46 }}
+            style={{ flex: 1, backgroundColor: activeField === 'drop' ? Colors.bgSecondary : Colors.bgPrimary, paddingHorizontal: 12, paddingVertical: 4, borderRadius: 8, borderWidth: 1, borderColor: activeField === 'drop' ? Colors.danger : 'transparent', flexDirection: 'row', alignItems: 'center', minHeight: 46 }}
             onPress={() => handleFieldSwitch('drop')}
             activeOpacity={0.8}
           >
              {activeField === 'drop' ? (
                 <TextInput
                   style={{ flex: 1, fontSize: 15, color: Colors.textPrimary }}
-                  placeholder="Search drop location..."
+                  placeholder={t('home.searchDrop') || 'Search drop location...'}
                   placeholderTextColor={Colors.textMuted}
                   value={searchQuery}
                   onChangeText={handleSearch}
@@ -436,7 +438,7 @@ function LocationPickerScreen({
                 />
              ) : (
                 <Text style={{ flex: 1, fontSize: 15, color: dropData.address ? Colors.textPrimary : Colors.textMuted }} numberOfLines={1}>
-                  {dropData.address || 'Where to?'}
+                  {dropData.address || t('home.whereTo') || 'Where to?'}
                 </Text>
              )}
           </TouchableOpacity>
@@ -444,7 +446,7 @@ function LocationPickerScreen({
 
         {/* Search Results Dropdown */}
         {searchResults.length > 0 && (
-          <View style={{ position: 'absolute', top: 180, left: 20, right: 20, backgroundColor: Colors.bgSecondary, borderRadius: 10, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 10, elevation: 5, maxHeight: 250, zIndex: 20 }}>
+          <View style={{ position: 'absolute', top: 180, left: 20, right: 20, backgroundColor: Colors.bgSecondary, borderRadius: 10, shadowColor: Colors.textPrimary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 10, elevation: 5, maxHeight: 250, zIndex: 20 }}>
             <ScrollView keyboardShouldPersistTaps="handled">
               {searchResults.map((item, index) => (
                 <TouchableOpacity key={index} style={{ padding: 15, borderBottomWidth: 1, borderBottomColor: Colors.border, flexDirection: 'row', alignItems: 'center' }} onPress={() => onSelectResult(item)}>
@@ -483,7 +485,7 @@ function LocationPickerScreen({
         {/* Fixed center crosshair pin — does NOT move, map scrolls under it */}
         <View style={styles.pickerCrosshairWrapper} pointerEvents="none">
           {isGeocoding && (
-            <View style={{ position: 'absolute', top: -30, backgroundColor: Colors.bgSecondary, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.2, shadowRadius: 4, elevation: 4 }}>
+            <View style={{ position: 'absolute', top: -30, backgroundColor: Colors.bgSecondary, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, shadowColor: Colors.textPrimary, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.2, shadowRadius: 4, elevation: 4 }}>
               <Text style={{ fontSize: 12, fontWeight: '600', color: Colors.textSecondary }}>Finding address...</Text>
             </View>
           )}
@@ -516,11 +518,10 @@ function LocationPickerScreen({
         )}
       </View>
 
-      {/* Confirm button */}
       <View style={styles.pickerFooter}>
         <TouchableOpacity style={styles.pickerConfirmBtn} onPress={handleConfirm} activeOpacity={0.85}>
           <Text style={styles.pickerConfirmText}>
-            {activeField === 'pickup' ? 'Confirm Pickup Location' : 'Confirm Drop Location'}
+            {activeField === 'pickup' ? (t('app.ConfirmPickupLocation') || 'Confirm Pickup Location') : (t('home.confirmDrop') || 'Confirm Drop Location')}
           </Text>
         </TouchableOpacity>
       </View>
@@ -557,6 +558,7 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage }:
   const [showWalletModal, setShowWalletModal] = useState(false);
   const [showEmergencyScreen, setShowEmergencyScreen] = useState(false);
   const [showNotificationScreen, setShowNotificationScreen] = useState(false);
+  const [showSupportTicketScreen, setShowSupportTicketScreen] = useState(false);
 
   // ── Profile fields ─────────────────────────────────────────────────────────
   const [profileName, setProfileName] = useState(user?.name || '');
@@ -566,6 +568,38 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage }:
   const [loadingWallet, setLoadingWallet] = useState(false);
   const [myRides, setMyRides] = useState<any[]>([]);
   const [loadingRides, setLoadingRides] = useState(false);
+  const [activeTripFilter, setActiveTripFilter] = useState<'All' | 'Completed' | 'Cancelled'>('All');
+  const [tripSearchQuery, setTripSearchQuery] = useState('');
+
+  // ── Banners ────────────────────────────────────────────────────────────────
+  const [banner1List, setBanner1List] = useState<any[]>([]);
+  const [banner2List, setBanner2List] = useState<any[]>([]);
+  const [banner1Index, setBanner1Index] = useState(0);
+
+  useEffect(() => {
+    const fetchBanners = async () => {
+      try {
+        const res = await API.get('/public/banners?targetAudience=customer');
+        if (res.data && res.data.success) {
+          const banners = res.data.data;
+          setBanner1List(banners.filter((b: any) => b.position === 'banner1' || !b.position));
+          setBanner2List(banners.filter((b: any) => b.position === 'banner2'));
+        }
+      } catch (err) {
+        console.warn('Failed to fetch banners', err);
+      }
+    };
+    fetchBanners();
+  }, []);
+
+  useEffect(() => {
+    if (banner1List.length > 1) {
+      const interval = setInterval(() => {
+        setBanner1Index((prev) => (prev + 1) % banner1List.length);
+      }, 5000);
+      return () => clearInterval(interval);
+    }
+  }, [banner1List]);
 
   // ── Nearby drivers ─────────────────────────────────────────────────────────
   const [nearbyDrivers, setNearbyDrivers] = useState<any[]>([]);
@@ -736,6 +770,7 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage }:
     <View style={styles.homeContainer}>
       <EmergencyScreen visible={showEmergencyScreen} onClose={() => setShowEmergencyScreen(false)} />
       <NotificationScreen visible={showNotificationScreen} onClose={() => setShowNotificationScreen(false)} />
+      <SupportTicketScreen visible={showSupportTicketScreen} onClose={() => setShowSupportTicketScreen(false)} />
 
       {/* ─────────────────── HOME TAB ─────────────────── */}
       {activeTab === 'home' && (
@@ -769,7 +804,7 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage }:
                         opacity: searchAnim.interpolate({ inputRange: [0, 1], outputRange: [1, 0] })
                       }} />
                     )}
-                    <View style={{ width: 16, height: 16, borderRadius: 8, backgroundColor: Colors.accent, borderWidth: 2.5, borderColor: '#fff', shadowColor: Colors.accent, shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.5, shadowRadius: 5, elevation: 6 }} />
+                    <View style={{ width: 16, height: 16, borderRadius: 8, backgroundColor: Colors.accent, borderWidth: 2.5, borderColor: Colors.bgSecondary, shadowColor: Colors.accent, shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.5, shadowRadius: 5, elevation: 6 }} />
                   </View>
                 </Marker>
               )}
@@ -809,7 +844,7 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage }:
               backgroundColor: '#FCFCFC', borderWidth: 1, borderColor: '#DEE0E3',
               borderBottomLeftRadius: 32, borderBottomRightRadius: 32,
               paddingTop: Platform.OS === 'ios' ? 60 : 40, paddingBottom: 20, zIndex: 10,
-              shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 10, elevation: 5
+              shadowColor: Colors.textPrimary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 10, elevation: 5
             }}>
               <View style={{ paddingHorizontal: 16 }}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -818,7 +853,7 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage }:
                       <Text style={{ fontSize: 18, fontWeight: '700', color: Colors.accent }}>{formatInitials(user?.name || 'U')}</Text>
                     </View>
                     <View style={{ flexDirection: 'column', gap: 4 }}>
-                      <Text style={{ fontFamily: 'sans-serif', fontSize: 14, color: '#7C848D' }}>{new Date().getHours() < 12 ? 'Good Morning' : new Date().getHours() < 17 ? 'Good Afternoon' : 'Good Evening'}</Text>
+                      <Text style={{ fontFamily: 'sans-serif', fontSize: 14, color: Colors.textMuted }}>{new Date().getHours() < 12 ? 'Good Morning' : new Date().getHours() < 17 ? 'Good Afternoon' : 'Good Evening'}</Text>
                       <Text style={{ fontFamily: 'sans-serif', fontSize: 20, color: Colors.textPrimary, fontWeight: 'bold' }}>{user?.name?.split(' ')[0] || 'Rider'}</Text>
                     </View>
                   </TouchableOpacity>
@@ -856,7 +891,7 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage }:
                 <Feather name="search" size={16} color={Colors.accent} />
               </View>
               <Text style={dropAddr ? styles.homeSearchTextFilled : styles.homeSearchText}>
-                {dropAddr || 'Where do you want to go?'}
+                {dropAddr || t('home.whereDoYouWantToGo') || 'Where do you want to go?'}
               </Text>
               {dropAddr && (
                 <TouchableOpacity onPress={() => { setDropAddr(''); setDropCoords(null); setEstimates([]); }} style={{ padding: 6 }}>
@@ -908,7 +943,7 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage }:
                   ))}
                 </ScrollView>
                 <TouchableOpacity style={styles.premiumBookBtn} onPress={handleBookRide} disabled={bookingRide}>
-                  {bookingRide ? <ActivityIndicator color="#fff" /> : (
+                  {bookingRide ? <ActivityIndicator color={Colors.bgSecondary} /> : (
                     <Text style={styles.premiumBookBtnText}>Book {selectedVehicle?.vehicleType?.toUpperCase()}</Text>
                   )}
                 </TouchableOpacity>
@@ -919,12 +954,12 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage }:
               <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 100 }}>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 20 }}>
                   {[
-                    { icon: '\uD83D\uDE97', label: 'Cab' },
-                    { icon: '\uD83C\uDFCD\uFE0F', label: 'Bike' },
-                    { icon: '\uD83D\uDEFA', label: 'Auto' },
-                    { icon: '\u2708\uFE0F', label: 'Tour' },
-                    { icon: '\uD83D\uDE98', label: 'Rental' },
-                    { icon: '\uD83C\uDFD9\uFE0F', label: 'Intercity' },
+                    { icon: '\uD83D\uDE97', label: t('home.serviceCab') || 'Cab' },
+                    { icon: '\uD83C\uDFCD\uFE0F', label: t('home.serviceBike') || 'Bike' },
+                    { icon: '\uD83D\uDEFA', label: t('home.serviceAuto') || 'Auto' },
+                    { icon: '\u2708\uFE0F', label: t('home.serviceTour') || 'Tour' },
+                    { icon: '\uD83D\uDE98', label: t('home.serviceRental') || 'Rental' },
+                    { icon: '\uD83C\uDFD9\uFE0F', label: t('home.serviceIntercity') || 'Intercity' },
                   ].map((s, i) => (
                     <TouchableOpacity key={i} style={styles.homeServiceChip} activeOpacity={0.8} onPress={() => setPickerMode('drop')}>
                       <Text style={{ fontSize: 24 }}>{s.icon}</Text>
@@ -933,30 +968,58 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage }:
                   ))}
                 </ScrollView>
 
-                <TouchableOpacity style={styles.promoBanner1} activeOpacity={0.9}>
-                  <View>
-                    <Text style={styles.promoBannerTag}>LIMITED OFFER</Text>
-                    <Text style={styles.promoBannerTitle}>FIRST RIDE FREE</Text>
-                    <Text style={styles.promoBannerSub}>Offer detected for new users.</Text>
-                    <View style={styles.promoBannerBtn}>
-                      <Text style={styles.promoBannerBtnText}>Tap here to apply {'\u2192'}</Text>
+                {/* Banner 1 (Top) - Auto swiping carousel */}
+                {banner1List.length > 0 ? (
+                  <TouchableOpacity 
+                    style={[styles.promoBanner1, { padding: 0, overflow: 'hidden' }]} 
+                    activeOpacity={0.9} 
+                    onPress={() => banner1List[banner1Index]?.linkUrl ? Linking.openURL(banner1List[banner1Index].linkUrl) : null}
+                  >
+                    <Image 
+                      source={{ uri: banner1List[banner1Index]?.imageUrl }} 
+                      style={{ width: '100%', height: '100%', resizeMode: 'cover' }} 
+                    />
+                  </TouchableOpacity>
+                ) : (
+                  <TouchableOpacity style={styles.promoBanner1} activeOpacity={0.9}>
+                    <View>
+                      <Text style={styles.promoBannerTag}>{t('home.limitedOffer') || 'LIMITED OFFER'}</Text>
+                      <Text style={styles.promoBannerTitle}>{t('home.firstRideFree') || 'FIRST RIDE FREE'}</Text>
+                      <Text style={styles.promoBannerSub}>{t('home.offerNewUsers') || 'Offer detected for new users.'}</Text>
+                      <View style={styles.promoBannerBtn}>
+                        <Text style={styles.promoBannerBtnText}>{t('home.tapToApply') || 'Tap here to apply'} {'\u2192'}</Text>
+                      </View>
                     </View>
-                  </View>
-                  <Text style={{ fontSize: 48, position: 'absolute', right: 16, bottom: 16, opacity: 0.6 }}>{'\uD83D\uDE80'}</Text>
-                </TouchableOpacity>
+                    <Text style={{ fontSize: 48, position: 'absolute', right: 16, bottom: 16, opacity: 0.6 }}>{'\uD83D\uDE80'}</Text>
+                  </TouchableOpacity>
+                )}
 
-                <TouchableOpacity style={styles.promoBanner2} activeOpacity={0.9} onPress={() => setPickerMode('drop')}>
-                  <View style={{ flex: 1 }}>
-                    <Text style={styles.promoBanner2Title}>Tap the search bar above</Text>
-                    <Text style={styles.promoBanner2Sub}>and enter your destination</Text>
-                    <Text style={{ fontSize: 28, marginTop: 8 }}>{'\uD83D\uDDFA\uFE0F'} {'\u27A1'} {'\uD83D\uDCCD'}</Text>
-                  </View>
-                  <Text style={{ fontSize: 52, opacity: 0.8 }}>{'\uD83D\uDCF1'}</Text>
-                </TouchableOpacity>
+                {/* Banner 2 (Bottom) */}
+                {banner2List.length > 0 ? (
+                  <TouchableOpacity 
+                    style={[styles.promoBanner2, { padding: 0, overflow: 'hidden' }]} 
+                    activeOpacity={0.9} 
+                    onPress={() => banner2List[0]?.linkUrl ? Linking.openURL(banner2List[0].linkUrl) : setPickerMode('drop')}
+                  >
+                    <Image 
+                      source={{ uri: banner2List[0]?.imageUrl }} 
+                      style={{ width: '100%', height: '100%', resizeMode: 'cover' }} 
+                    />
+                  </TouchableOpacity>
+                ) : (
+                  <TouchableOpacity style={styles.promoBanner2} activeOpacity={0.9} onPress={() => setPickerMode('drop')}>
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.promoBanner2Title}>{t('home.tapSearchBar') || 'Tap the search bar above'}</Text>
+                      <Text style={styles.promoBanner2Sub}>{t('home.enterDestination') || 'and enter your destination'}</Text>
+                      <Text style={{ fontSize: 28, marginTop: 8 }}>{'\uD83D\uDDFA\uFE0F'} {'\u27A1'} {'\uD83D\uDCCD'}</Text>
+                    </View>
+                    <Text style={{ fontSize: 52, opacity: 0.8 }}>{'\uD83D\uDCF1'}</Text>
+                  </TouchableOpacity>
+                )}
 
                 <View style={styles.homeTaglineRow}>
                   <Text style={styles.homeTagline}>#goMoveX</Text>
-                  <Text style={styles.homeTaglineSub}>Your city, your ride.</Text>
+                  <Text style={styles.homeTaglineSub}>{t('home.yourCityYourRide') || 'Your city, your ride.'}</Text>
                 </View>
               </ScrollView>
             )}
@@ -982,7 +1045,7 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage }:
             </TouchableOpacity>
 
             {/* Profile Card */}
-            <TouchableOpacity onPress={onNavigateProfileEdit} style={{ backgroundColor: '#0053B3', borderRadius: 16, padding: 16, marginBottom: 20, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 10, elevation: 5 }} activeOpacity={0.9}>
+            <TouchableOpacity onPress={onNavigateProfileEdit} style={{ backgroundColor: '#0053B3', borderRadius: 16, padding: 16, marginBottom: 20, shadowColor: Colors.textPrimary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 10, elevation: 5 }} activeOpacity={0.9}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
                 <View style={{ width: 60, height: 60, borderRadius: 30, backgroundColor: '#005FCC', alignItems: 'center', justifyContent: 'center', borderWidth: 2.1, borderColor: '#FCFCFC' }}>
                   <Feather name="user" size={28} color="#FCFCFC" />
@@ -1022,7 +1085,7 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage }:
                     <Text style={{ fontSize: 14, color: Colors.textPrimary, fontWeight: '400', flex: 1 }}>{t('profile.' + item.key)}</Text>
                     {item.toggle ? (
                       <View style={[{ width: 56, height: 28, backgroundColor: '#DEE0E3', borderRadius: 16 }, isDark && { backgroundColor: '#22282F' }]}>
-                        <View style={[{ position: 'absolute', top: -3, width: 34, height: 34, borderRadius: 17, backgroundColor: '#A1A3A6', left: -3, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.2, shadowRadius: 2, elevation: 3 }, isDark && { backgroundColor: '#0053B3', left: 25 }]} />
+                        <View style={[{ position: 'absolute', top: -3, width: 34, height: 34, borderRadius: 17, backgroundColor: Colors.textMuted, left: -3, shadowColor: Colors.textPrimary, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.2, shadowRadius: 2, elevation: 3 }, isDark && { backgroundColor: '#0053B3', left: 25 }]} />
                       </View>
                     ) : (
                       <Feather name="chevron-right" size={24} color={Colors.textPrimary} style={{ opacity: 1 }} />
@@ -1036,7 +1099,7 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage }:
             {/* Support Block */}
             <View style={{ backgroundColor: Colors.bgSecondary, borderRadius: 16, paddingHorizontal: 16, marginBottom: 20 }}>
               {([ { key: 'helpCentre', icon: 'help-circle', color: '#0053B3' },
-                { key: 'supportTickets', icon: 'message-square', color: '#0053B3' },
+                { key: 'supportTickets', icon: 'message-square', color: '#0053B3', onPress: () => setShowSupportTicketScreen(true) },
                 { key: 'settings', icon: 'settings', color: '#0053B3' }, ] as any[]).map((item, idx) => (
                 <View key={idx}>
                   <TouchableOpacity onPress={item.toggle ? toggleTheme : item.onPress} style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, gap: 12 }} activeOpacity={0.7} disabled={!item.toggle && !item.onPress}>
@@ -1063,8 +1126,35 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage }:
       {/* ─────────────────── TRIPS TAB ─────────────────── */}
       {activeTab === 'trips' && (
         <View style={styles.custTabPage}>
-          <View style={styles.custTabHeader}>
-            <Text style={styles.custTabTitle}>My Trips</Text>
+          <View style={{ marginTop: Platform.OS === 'ios' ? 40 : 60, paddingHorizontal: 16, marginBottom: 20 }}>
+            <Text style={{ fontSize: 16, color: Colors.textPrimary, fontWeight: '400' }}>Ride History</Text>
+          </View>
+          <View style={{ flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: '#DEE0E3', borderRadius: 16, paddingHorizontal: 12, height: 48, marginHorizontal: 16, marginBottom: 24, gap: 8, backgroundColor: Colors.bgPrimary }}>
+            <Feather name="search" size={16} color={Colors.textMuted} />
+            <TextInput
+              style={{ flex: 1, fontSize: 12, color: Colors.textPrimary }}
+              placeholder="search by location or date"
+              placeholderTextColor={Colors.textMuted}
+              value={tripSearchQuery}
+              onChangeText={setTripSearchQuery}
+            />
+          </View>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 16, marginBottom: 20 }}>
+            {['All', 'Completed', 'Cancelled'].map((filter) => {
+              const isActive = activeTripFilter === filter;
+              return (
+                <TouchableOpacity 
+                  key={filter} 
+                  style={[{ height: 32, borderRadius: 12, paddingHorizontal: 16, alignItems: 'center', justifyContent: 'center' }, isActive ? { backgroundColor: '#0053B3' } : { backgroundColor: '#DEE0E3' }]}
+                  onPress={() => setActiveTripFilter(filter as any)}
+                  activeOpacity={0.8}
+                >
+                  <Text style={[{ fontSize: 14, fontWeight: '400' }, isActive ? { color: '#FCFCFC' } : { color: Colors.textSecondary }]}>
+                    {filter}
+                  </Text>
+                </TouchableOpacity>
+              )
+            })}
           </View>
           {loadingRides ? (
             <View style={styles.ridesLoader}>
@@ -1073,7 +1163,17 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage }:
             </View>
           ) : (
             <FlatList
-              data={myRides}
+              data={myRides.filter(item => {
+                if (activeTripFilter !== 'All' && item.status !== activeTripFilter.toLowerCase()) return false;
+                if (tripSearchQuery) {
+                  const q = tripSearchQuery.toLowerCase();
+                  const pickup = (item.pickup?.address || '').toLowerCase();
+                  const drop = (item.dropoff?.address || item.drop?.address || '').toLowerCase();
+                  const dateStr = formatTripDate(item.createdAt).toLowerCase();
+                  if (!pickup.includes(q) && !drop.includes(q) && !dateStr.includes(q)) return false;
+                }
+                return true;
+              })}
               keyExtractor={(item) => item._id}
               contentContainerStyle={[styles.ridesList, { paddingBottom: 100 }]}
               ListEmptyComponent={
@@ -1107,7 +1207,7 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage }:
                     <View style={styles.custRideRouteLine} />
                     <View style={styles.custRideRouteRow}>
                       <View style={styles.custRideDotRed} />
-                      <Text style={styles.addressLineText} numberOfLines={1}>{item.drop?.address}</Text>
+                      <Text style={styles.addressLineText} numberOfLines={1}>{item.dropoff?.address || item.drop?.address}</Text>
                     </View>
                   </View>
                   <View style={styles.rideFooter}>
@@ -1124,9 +1224,6 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage }:
       {/* ─────────────────── SERVICES TAB ─────────────────── */}
       {activeTab === 'services' && (
         <View style={styles.custTabPage}>
-          <View style={styles.custTabHeader}>
-            <Text style={styles.custTabTitle}>Services</Text>
-          </View>
           <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 120 }}>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 14 }}>
               {[
@@ -1155,12 +1252,12 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage }:
 
       {/* ─────────────────── BOTTOM TAB BAR (REDESIGNED) ─────────────────── */}
       {!(activeTab === 'home' && !!dropAddr) && (
-        <View style={{ flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', paddingVertical: 12, position: 'absolute', bottom: 16, left: 16, right: 16, borderRadius: 20, backgroundColor: Colors.bgSecondary, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 10, elevation: 5 }}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', paddingVertical: 12, position: 'absolute', bottom: 16, left: 16, right: 16, borderRadius: 20, backgroundColor: Colors.bgSecondary, shadowColor: Colors.textPrimary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 10, elevation: 5 }}>
         {([
-          { key: 'home',     icon: 'home',  label: 'Home' },
-          { key: 'services', icon: 'grid',  label: 'Services' },
-          { key: 'wallet',   icon: 'credit-card', label: 'Wallet' },
-          { key: 'trips',    icon: 'clock', label: 'Trips' },
+          { key: 'home',     icon: 'home',  label: t('home.tabHome') || 'Home' },
+          { key: 'services', icon: 'grid',  label: t('home.tabServices') || 'Services' },
+          { key: 'wallet',   icon: 'credit-card', label: t('home.tabWallet') || 'Wallet' },
+          { key: 'trips',    icon: 'clock', label: t('home.tabTrips') || 'Trips' },
         ] as { key: TabName; icon: string; label: string }[]).map((tab) => (
           <TouchableOpacity
             key={tab.key}
@@ -1208,7 +1305,7 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage }:
                 ))}
               </View>
               <TouchableOpacity style={[styles.premiumBookBtn, { marginTop: 8 }]} onPress={handleTopup} disabled={loadingWallet}>
-                {loadingWallet ? <ActivityIndicator color="#fff" /> : <Text style={styles.premiumBookBtnText}>Add Money</Text>}
+                {loadingWallet ? <ActivityIndicator color={Colors.bgSecondary} /> : <Text style={styles.premiumBookBtnText}>Add Money</Text>}
               </TouchableOpacity>
             </ScrollView>
           </View>
@@ -1632,7 +1729,7 @@ function TrackingScreen({ ride, onClose }: { ride: any; onClose: () => void }) {
               onPress={handleCancelRide}
               disabled={cancelling}
             >
-              {cancelling ? <ActivityIndicator color="#fff" /> : <Text style={styles.premiumButtonText}>Cancel Request</Text>}
+              {cancelling ? <ActivityIndicator color={Colors.bgSecondary} /> : <Text style={styles.premiumButtonText}>Cancel Request</Text>}
             </TouchableOpacity>
           </View>
         )}
@@ -1669,7 +1766,7 @@ function TrackingScreen({ ride, onClose }: { ride: any; onClose: () => void }) {
               multiline
             />
             <TouchableOpacity style={[styles.premiumButton, { marginTop: 15 }]} onPress={handleRate}>
-              {submittingRating ? <ActivityIndicator color="#fff" /> : <Text style={styles.premiumButtonText}>Submit Feedback</Text>}
+              {submittingRating ? <ActivityIndicator color={Colors.bgSecondary} /> : <Text style={styles.premiumButtonText}>Submit Feedback</Text>}
             </TouchableOpacity>
           </View>
         )}
@@ -1917,7 +2014,7 @@ function DriverHomeScreen({ onRideAccepted, onNavigateProfile, onNavigateHistory
                     <Image source={require('./assets/icon.png')} style={{ width: 48, height: 48 }} />
                   </View>
                   <View style={{ flexDirection: 'column', gap: 4 }}>
-                    <Text style={{ fontFamily: 'sans-serif', fontSize: 14, color: '#7C848D' }}>{t('driverHome.goodMorning') || 'Good Morning'}</Text>
+                    <Text style={{ fontFamily: 'sans-serif', fontSize: 14, color: Colors.textMuted }}>{t('driverHome.goodMorning') || 'Good Morning'}</Text>
                     <Text style={{ fontFamily: 'sans-serif', fontSize: 20, color: Colors.textPrimary }}>{user?.name?.split(' ')[0] || 'Driver'}</Text>
                   </View>
                 </TouchableOpacity>
@@ -1935,9 +2032,9 @@ function DriverHomeScreen({ onRideAccepted, onNavigateProfile, onNavigateHistory
               {/* Status & Online Toggle Row */}
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                 <View style={{ flexDirection: 'column', gap: 4 }}>
-                  <Text style={{ fontFamily: 'sans-serif', fontSize: 12, color: '#7C848D' }}>Status</Text>
+                  <Text style={{ fontFamily: 'sans-serif', fontSize: 12, color: Colors.textMuted }}>Status</Text>
                   <Text style={{ fontFamily: 'sans-serif', fontSize: 20, color: Colors.textPrimary }}>You're Online</Text>
-                  <Text style={{ fontFamily: 'sans-serif', fontSize: 14, color: '#7C848D' }}>Waiting for new ride requests.</Text>
+                  <Text style={{ fontFamily: 'sans-serif', fontSize: 14, color: Colors.textMuted }}>Waiting for new ride requests.</Text>
                 </View>
                 <View style={{ justifyContent: 'center' }}>
                   <Switch 
@@ -1964,7 +2061,7 @@ function DriverHomeScreen({ onRideAccepted, onNavigateProfile, onNavigateHistory
             flexDirection: 'row',
             alignItems: 'center',
             gap: 12,
-            shadowColor: '#000',
+            shadowColor: Colors.textPrimary,
             shadowOffset: { width: 0, height: 4 },
             shadowOpacity: 0.1,
             shadowRadius: 10,
@@ -1978,7 +2075,7 @@ function DriverHomeScreen({ onRideAccepted, onNavigateProfile, onNavigateHistory
           </View>
 
           {/* Bottom Navigation */}
-          <View style={{ flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', paddingVertical: 12, position: 'absolute', bottom: 16, left: 16, right: 16, borderRadius: 20, backgroundColor: Colors.bgSecondary, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 10, elevation: 5, zIndex: 10 }}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', paddingVertical: 12, position: 'absolute', bottom: 16, left: 16, right: 16, borderRadius: 20, backgroundColor: Colors.bgSecondary, shadowColor: Colors.textPrimary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 10, elevation: 5, zIndex: 10 }}>
             <TouchableOpacity style={{ backgroundColor: '#0053B3', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 16, flexDirection: 'row', alignItems: 'center', gap: 6 }}>
               <Feather name="home" size={18} color="#FCFCFC" />
               <Text style={{ color: '#FCFCFC', fontSize: 14 }}>Home</Text>
@@ -2017,7 +2114,7 @@ function DriverHomeScreen({ onRideAccepted, onNavigateProfile, onNavigateHistory
                     <Image source={require('./assets/icon.png')} style={{ width: 48, height: 48 }} />
                   </View>
                   <View style={{ flexDirection: 'column', gap: 4 }}>
-                    <Text style={{ fontFamily: 'sans-serif', fontSize: 14, color: '#7C848D' }}>{t('driverHome.goodMorning') || 'Good Morning'}</Text>
+                    <Text style={{ fontFamily: 'sans-serif', fontSize: 14, color: Colors.textMuted }}>{t('driverHome.goodMorning') || 'Good Morning'}</Text>
                     <Text style={{ fontFamily: 'sans-serif', fontSize: 20, color: Colors.textPrimary }}>{user?.name?.split(' ')[0] || 'Driver'}</Text>
                   </View>
                 </TouchableOpacity>
@@ -2035,9 +2132,9 @@ function DriverHomeScreen({ onRideAccepted, onNavigateProfile, onNavigateHistory
               {/* Status & Online Toggle Row */}
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                 <View style={{ flexDirection: 'column', gap: 4 }}>
-                  <Text style={{ fontFamily: 'sans-serif', fontSize: 12, color: '#7C848D' }}>Status</Text>
+                  <Text style={{ fontFamily: 'sans-serif', fontSize: 12, color: Colors.textMuted }}>Status</Text>
                   <Text style={{ fontFamily: 'sans-serif', fontSize: 20, color: Colors.textPrimary }}>You're Offline</Text>
-                  <Text style={{ fontFamily: 'sans-serif', fontSize: 14, color: '#7C848D' }}>Go Online to Receive Trips</Text>
+                  <Text style={{ fontFamily: 'sans-serif', fontSize: 14, color: Colors.textMuted }}>Go Online to Receive Trips</Text>
                 </View>
                 <View style={{ justifyContent: 'center' }}>
                   <Switch 
@@ -2065,7 +2162,7 @@ function DriverHomeScreen({ onRideAccepted, onNavigateProfile, onNavigateHistory
                 style={{ backgroundColor: Colors.bgPrimary, paddingHorizontal: 16, paddingVertical: 10, borderRadius: 20, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8 }}
               >
                 <Feather name="briefcase" size={18} color={earningsData?.walletBalance < 0 ? '#DC2626' : '#0053B3'} />
-                <Text style={{ fontSize: 16, fontWeight: '600', color: earningsData?.walletBalance < 0 ? '#DC2626' : '#1F2937' }}>
+                <Text style={{ fontSize: 16, fontWeight: '600', color: earningsData?.walletBalance < 0 ? '#DC2626' : Colors.textPrimary }}>
                   ₹ {earningsData?.walletBalance !== undefined ? earningsData.walletBalance.toFixed(2) : '0.00'}
                 </Text>
               </TouchableOpacity>
@@ -2098,7 +2195,7 @@ function DriverHomeScreen({ onRideAccepted, onNavigateProfile, onNavigateHistory
 
             {/* Offer Card */}
             <View style={{ backgroundColor: '#FCFCFC', borderWidth: 1, borderColor: '#DEE0E3', borderRadius: 12, padding: 12, marginBottom: 24 }}>
-              <Text style={{ fontFamily: 'sans-serif', fontSize: 14, color: '#7C848D', letterSpacing: 0.5, marginBottom: 4 }}>Friday Full Offer</Text>
+              <Text style={{ fontFamily: 'sans-serif', fontSize: 14, color: Colors.textMuted, letterSpacing: 0.5, marginBottom: 4 }}>Friday Full Offer</Text>
               <Text style={{ fontFamily: 'sans-serif', fontSize: 12, color: Colors.textPrimary, letterSpacing: 0.5, marginBottom: 20 }}>12am - 12am</Text>
 
               {/* Targets */}
@@ -2126,11 +2223,11 @@ function DriverHomeScreen({ onRideAccepted, onNavigateProfile, onNavigateHistory
                 <Text style={{ fontFamily: 'sans-serif', fontSize: 12, color: Colors.textPrimary, letterSpacing: 0.5 }}>Compulsory login</Text>
                 <View style={{ flexDirection: 'row', gap: 16 }}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#DEE0E3', padding: 8, borderRadius: 4, gap: 8 }}>
-                    <Feather name="clock" size={16} color="#262D36" />
+                    <Feather name="clock" size={16} color={Colors.textPrimary} />
                     <Text style={{ fontFamily: 'sans-serif', fontSize: 12, color: Colors.textPrimary, letterSpacing: 0.5 }}>7am - 10am</Text>
                   </View>
                   <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#DEE0E3', padding: 8, borderRadius: 4, gap: 8 }}>
-                    <Feather name="clock" size={16} color="#262D36" />
+                    <Feather name="clock" size={16} color={Colors.textPrimary} />
                     <Text style={{ fontFamily: 'sans-serif', fontSize: 12, color: Colors.textPrimary, letterSpacing: 0.5 }}>7pm - 10pm</Text>
                   </View>
                 </View>
@@ -2139,8 +2236,8 @@ function DriverHomeScreen({ onRideAccepted, onNavigateProfile, onNavigateHistory
 
             {/* EV Banner Card */}
             <View style={{ backgroundColor: '#1A1919', borderRadius: 12, height: 162, padding: 16, overflow: 'hidden', position: 'relative', marginBottom: 16 }}>
-              <View style={{ backgroundColor: '#000', paddingHorizontal: 4, paddingVertical: 2, borderRadius: 4, alignSelf: 'flex-start', marginBottom: 12 }}>
-                <Text style={{ color: '#EEEEEE', fontSize: 8, letterSpacing: 1, textTransform: 'uppercase' }}>ATHER</Text>
+              <View style={{ backgroundColor: Colors.textPrimary, paddingHorizontal: 4, paddingVertical: 2, borderRadius: 4, alignSelf: 'flex-start', marginBottom: 12 }}>
+                <Text style={{ color: Colors.borderGlass, fontSize: 8, letterSpacing: 1, textTransform: 'uppercase' }}>ATHER</Text>
               </View>
               <Text style={{ color: '#BCBEC0', fontSize: 16, letterSpacing: 0.5 }}>Rent EV.</Text>
               <Text style={{ color: '#00A7CC', fontSize: 18, letterSpacing: 0.5, marginBottom: 12, fontWeight: 'bold' }}>Earn More.</Text>
@@ -2163,7 +2260,7 @@ function DriverHomeScreen({ onRideAccepted, onNavigateProfile, onNavigateHistory
                 <Text style={{ fontSize: 16, fontWeight: '700', color: '#0369A1', marginBottom: 4 }}>Get Driver Insurance</Text>
                 <Text style={{ fontSize: 12, color: '#0284C7', marginBottom: 10 }}>Protect yourself and your vehicle starting at ₹199/month.</Text>
                 <TouchableOpacity style={{ backgroundColor: '#0284C7', alignSelf: 'flex-start', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 4 }}>
-                  <Text style={{ color: '#FFF', fontSize: 12, fontWeight: '600' }}>Apply Now</Text>
+                  <Text style={{ color: Colors.bgSecondary, fontSize: 12, fontWeight: '600' }}>Apply Now</Text>
                 </TouchableOpacity>
               </View>
               <View style={{ width: 60, height: 60, backgroundColor: '#BAE6FD', borderRadius: 30, alignItems: 'center', justifyContent: 'center' }}>
@@ -2177,7 +2274,7 @@ function DriverHomeScreen({ onRideAccepted, onNavigateProfile, onNavigateHistory
                 <Text style={{ fontSize: 16, fontWeight: '700', color: '#B45309', marginBottom: 4 }}>Car Maintenance Offer</Text>
                 <Text style={{ fontSize: 12, color: '#D97706', marginBottom: 10 }}>Flat 20% off on full service at partner garages this weekend.</Text>
                 <TouchableOpacity style={{ backgroundColor: '#D97706', alignSelf: 'flex-start', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 4 }}>
-                  <Text style={{ color: '#FFF', fontSize: 12, fontWeight: '600' }}>Claim Offer</Text>
+                  <Text style={{ color: Colors.bgSecondary, fontSize: 12, fontWeight: '600' }}>Claim Offer</Text>
                 </TouchableOpacity>
               </View>
               <View style={{ width: 60, height: 60, backgroundColor: '#FDE68A', borderRadius: 30, alignItems: 'center', justifyContent: 'center' }}>
@@ -2188,7 +2285,7 @@ function DriverHomeScreen({ onRideAccepted, onNavigateProfile, onNavigateHistory
           </ScrollView>
 
           {/* Bottom Navigation */}
-          <View style={{ flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', paddingVertical: 12, position: 'absolute', bottom: 16, left: 16, right: 16, borderRadius: 20, backgroundColor: Colors.bgSecondary, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 10, elevation: 5 }}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', paddingVertical: 12, position: 'absolute', bottom: 16, left: 16, right: 16, borderRadius: 20, backgroundColor: Colors.bgSecondary, shadowColor: Colors.textPrimary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 10, elevation: 5 }}>
             <TouchableOpacity style={{ backgroundColor: '#0053B3', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 16, flexDirection: 'row', alignItems: 'center', gap: 6 }}>
               <Feather name="home" size={18} color="#FCFCFC" />
               <Text style={{ color: '#FCFCFC', fontSize: 14 }}>Home</Text>
@@ -2667,16 +2764,30 @@ function DriverActiveRideScreen({ ride, onClose }: { ride: any; onClose: () => v
         </MapView>
         <SlideToStartScreen 
            onStart={handleStartTrip}
-           onVerify={() => {
-             setIsOtpVerified(true);
-             if (mapRef.current && ride.drop) {
-               mapRef.current.fitToCoordinates([
-                 { latitude: ride.pickup.location.coordinates[1], longitude: ride.pickup.location.coordinates[0] },
-                 { latitude: ride.drop.location.coordinates[1], longitude: ride.drop.location.coordinates[0] }
-               ], { edgePadding: { top: 50, right: 50, bottom: 400, left: 50 }, animated: true });
+           onVerify={async (providedOtp) => {
+             try {
+               setLoading(true);
+               const response = await API.post(`/bookings/${ride._id}/verify-otp`, { otp: providedOtp });
+               if (response.data.success) {
+                 setIsOtpVerified(true);
+                 if (mapRef.current && ride.drop) {
+                   mapRef.current.fitToCoordinates([
+                     { latitude: ride.pickup.location.coordinates[1], longitude: ride.pickup.location.coordinates[0] },
+                     { latitude: ride.drop.location.coordinates[1], longitude: ride.drop.location.coordinates[0] }
+                   ], { edgePadding: { top: 50, right: 50, bottom: 400, left: 50 }, animated: true });
+                 }
+                 return true;
+               }
+             } catch (e: any) {
+               Alert.alert('Error', 'Invalid OTP verification code');
+             } finally {
+               setLoading(false);
              }
+             return false;
            }}
            pickupAddress={ride.pickup?.address || 'Pickup location'}
+           customerName={ride.customer?.name}
+           customerPhone={ride.customer?.phoneNumber}
         />
       </View>
     );
@@ -2832,13 +2943,13 @@ function DriverActiveRideScreen({ ride, onClose }: { ride: any; onClose: () => v
       {/* ── Heading to pickup top bar ── */}
       {rideStatus === 'accepted' && (
         <View style={{ position: 'absolute', top: Platform.OS === 'ios' ? 60 : 40, left: 16, right: 16, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-           <TouchableOpacity style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: Colors.bgSecondary, alignItems: 'center', justifyContent: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 4 }}>
-              <Feather name="menu" size={20} color="#262D36" />
+           <TouchableOpacity style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: Colors.bgSecondary, alignItems: 'center', justifyContent: 'center', shadowColor: Colors.textPrimary, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 4 }}>
+              <Feather name="menu" size={20} color={Colors.textPrimary} />
            </TouchableOpacity>
            <View style={{ backgroundColor: '#0053B3', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20 }}>
-              <Text style={{ color: '#FFFFFF', fontSize: 14, fontWeight: '600' }}>Heading to pickup</Text>
+              <Text style={{ color: Colors.bgSecondary, fontSize: 14, fontWeight: '600' }}>Heading to pickup</Text>
            </View>
-           <TouchableOpacity style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: Colors.bgSecondary, alignItems: 'center', justifyContent: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 4 }}>
+           <TouchableOpacity style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: Colors.bgSecondary, alignItems: 'center', justifyContent: 'center', shadowColor: Colors.textPrimary, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 4 }}>
               <Feather name="alert-circle" size={20} color="#F71313" />
            </TouchableOpacity>
         </View>
@@ -2875,7 +2986,7 @@ function DriverActiveRideScreen({ ride, onClose }: { ride: any; onClose: () => v
           borderTopRightRadius: 24,
           padding: 24,
           paddingBottom: Platform.OS === 'ios' ? 40 : 24,
-          shadowColor: '#000',
+          shadowColor: Colors.textPrimary,
           shadowOffset: { width: 0, height: -4 },
           shadowOpacity: 0.1,
           shadowRadius: 10,
@@ -2886,25 +2997,25 @@ function DriverActiveRideScreen({ ride, onClose }: { ride: any; onClose: () => v
           <View style={{ flexDirection: 'row', alignItems: 'flex-start', marginBottom: 20 }}>
             <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: '#2ecc71', marginTop: 6, marginRight: 12 }} />
             <View style={{ flex: 1 }}>
-               <Text style={{ fontSize: 12, color: '#7C848D', marginBottom: 4 }}>Pickup Location</Text>
+               <Text style={{ fontSize: 12, color: Colors.textMuted, marginBottom: 4 }}>Pickup Location</Text>
                <Text style={{ fontSize: 14, color: Colors.textPrimary, fontWeight: '500' }}>{ride.pickup?.address}</Text>
             </View>
           </View>
 
           <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 24, paddingLeft: 22 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 24 }}>
-              <Feather name="map-pin" size={14} color="#7C848D" style={{ marginRight: 6 }} />
-              <Text style={{ fontSize: 12, color: '#7C848D' }}>{ride.route?.distance ? (ride.route.distance / 2).toFixed(1) : '1.8'} km away</Text>
+              <Feather name="map-pin" size={14} color={Colors.textMuted} style={{ marginRight: 6 }} />
+              <Text style={{ fontSize: 12, color: Colors.textMuted }}>{ride.route?.distance ? (ride.route.distance / 2).toFixed(1) : '1.8'} km away</Text>
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Feather name="clock" size={14} color="#7C848D" style={{ marginRight: 6 }} />
-              <Text style={{ fontSize: 12, color: '#7C848D' }}>{ride.route?.duration ? Math.ceil(ride.route.duration / 2) : 4} mins</Text>
+              <Feather name="clock" size={14} color={Colors.textMuted} style={{ marginRight: 6 }} />
+              <Text style={{ fontSize: 12, color: Colors.textMuted }}>{ride.route?.duration ? Math.ceil(ride.route.duration / 2) : 4} mins</Text>
             </View>
           </View>
 
           <TouchableOpacity style={{ backgroundColor: '#0053B3', borderRadius: 12, paddingVertical: 14, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', marginBottom: 24 }}>
-            <Feather name="navigation" size={18} color="#FFFFFF" style={{ marginRight: 8, transform: [{ rotate: '45deg' }] }} />
-            <Text style={{ color: '#FFFFFF', fontSize: 16, fontWeight: '500' }}>Map Navigation</Text>
+            <Feather name="navigation" size={18} color={Colors.bgSecondary} style={{ marginRight: 8, transform: [{ rotate: '45deg' }] }} />
+            <Text style={{ color: Colors.bgSecondary, fontSize: 16, fontWeight: '500' }}>Map Navigation</Text>
           </TouchableOpacity>
 
           <View style={{ flexDirection: 'row', justifyContent: 'space-around', marginBottom: 24 }}>
@@ -2934,9 +3045,9 @@ function DriverActiveRideScreen({ ride, onClose }: { ride: any; onClose: () => v
             disabled={loading}
           >
             <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#0053B3', alignItems: 'center', justifyContent: 'center' }}>
-              {loading ? <ActivityIndicator size="small" color="#fff" /> : <Feather name="chevron-right" size={24} color="#FFFFFF" />}
+              {loading ? <ActivityIndicator size="small" color={Colors.bgSecondary} /> : <Feather name="chevron-right" size={24} color={Colors.bgSecondary} />}
             </View>
-            <Text style={{ flex: 1, textAlign: 'center', fontSize: 14, color: '#7C848D', fontWeight: '500', paddingRight: 40 }}>Arrived at location</Text>
+            <Text style={{ flex: 1, textAlign: 'center', fontSize: 14, color: Colors.textMuted, fontWeight: '500', paddingRight: 40 }}>Arrived at location</Text>
           </TouchableOpacity>
         </View>
       ) : (
@@ -2959,7 +3070,7 @@ function DriverActiveRideScreen({ ride, onClose }: { ride: any; onClose: () => v
               </View>
               <TouchableOpacity style={styles.navCompleteBtn} onPress={handleCompleteTrip} disabled={loading}>
                 {loading
-                  ? <ActivityIndicator color="#fff" />
+                  ? <ActivityIndicator color={Colors.bgSecondary} />
                   : <Text style={styles.premiumButtonText}>Complete Trip</Text>
                 }
               </TouchableOpacity>
@@ -2980,7 +3091,7 @@ function DriverActiveRideScreen({ ride, onClose }: { ride: any; onClose: () => v
                 />
               </View>
               <TouchableOpacity style={styles.premiumButton} onPress={() => handleStartTrip()} disabled={loading}>
-                {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.premiumButtonText}>Verify & Start Trip</Text>}
+                {loading ? <ActivityIndicator color={Colors.bgSecondary} /> : <Text style={styles.premiumButtonText}>Verify & Start Trip</Text>}
               </TouchableOpacity>
             </View>
           )}
@@ -3004,7 +3115,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center'
   },
   loadingText: {
-    color: '#fff',
+    color: Colors.bgSecondary,
     marginTop: 12,
     fontSize: 15,
     fontWeight: '600',
@@ -3031,7 +3142,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.bgSecondary,
     borderWidth: 1,
     borderColor: Colors.borderGlass,
-    shadowColor: '#000',
+    shadowColor: Colors.textPrimary,
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.4,
     shadowRadius: 20,
@@ -3102,7 +3213,7 @@ const styles = StyleSheet.create({
     marginTop: 8
   },
   premiumButtonText: {
-    color: '#fff',
+    color: Colors.bgSecondary,
     fontWeight: '700',
     fontSize: 16,
     letterSpacing: 0.5
@@ -3140,7 +3251,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     borderWidth: 1,
     borderColor: Colors.borderGlass,
-    shadowColor: '#000',
+    shadowColor: Colors.textPrimary,
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.3,
     shadowRadius: 12,
@@ -3152,7 +3263,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     borderWidth: 2,
     borderColor: Colors.accent,
-    shadowColor: '#000',
+    shadowColor: Colors.textPrimary,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
@@ -3170,9 +3281,9 @@ const styles = StyleSheet.create({
     width: 12,
     height: 12,
     borderRadius: 6,
-    backgroundColor: '#000000',
+    backgroundColor: Colors.textPrimary,
     borderWidth: 2,
-    borderColor: '#ffffff'
+    borderColor: Colors.bgSecondary
   },
   radarContainer: {
     position: 'absolute',
@@ -3233,7 +3344,7 @@ const styles = StyleSheet.create({
     paddingBottom: Platform.OS === 'ios' ? 40 : 24,
     borderTopWidth: 1,
     borderTopColor: Colors.borderGlass,
-    shadowColor: '#000',
+    shadowColor: Colors.textPrimary,
     shadowOffset: { width: 0, height: -10 },
     shadowOpacity: 0.4,
     shadowRadius: 15,
@@ -3380,7 +3491,7 @@ const styles = StyleSheet.create({
     marginTop: 16
   },
   premiumBookBtnText: {
-    color: '#fff',
+    color: Colors.bgSecondary,
     fontWeight: '700',
     fontSize: 16,
     letterSpacing: 0.5
@@ -3397,7 +3508,7 @@ const styles = StyleSheet.create({
     paddingBottom: Platform.OS === 'ios' ? 40 : 24,
     borderTopWidth: 1,
     borderTopColor: Colors.borderGlass,
-    shadowColor: '#000',
+    shadowColor: Colors.textPrimary,
     shadowOffset: { width: 0, height: -10 },
     shadowOpacity: 0.4,
     shadowRadius: 15,
@@ -3459,7 +3570,7 @@ const styles = StyleSheet.create({
     paddingBottom: Platform.OS === 'ios' ? 40 : 24,
     borderTopWidth: 1,
     borderTopColor: Colors.borderGlass,
-    shadowColor: '#000',
+    shadowColor: Colors.textPrimary,
     shadowOffset: { width: 0, height: -10 },
     shadowOpacity: 0.4,
     shadowRadius: 15,
@@ -3524,7 +3635,7 @@ const styles = StyleSheet.create({
     borderColor: Colors.borderGlass,
     borderRadius: 24,
     padding: 24,
-    shadowColor: '#000',
+    shadowColor: Colors.textPrimary,
     shadowOffset: { width: 0, height: 12 },
     shadowOpacity: 0.5,
     shadowRadius: 24,
@@ -3615,7 +3726,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 24,
     padding: 24,
     paddingBottom: Platform.OS === 'ios' ? 40 : 24,
-    shadowColor: '#000',
+    shadowColor: Colors.textPrimary,
     shadowOffset: { width: 0, height: -4 },
     shadowOpacity: 0.1,
     shadowRadius: 10,
@@ -3730,7 +3841,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   incomingAcceptBtnTextLight: {
-    color: '#FFFFFF',
+    color: Colors.bgSecondary,
     fontSize: 16,
     fontWeight: '500',
   },
@@ -3746,7 +3857,7 @@ const styles = StyleSheet.create({
     paddingBottom: Platform.OS === 'ios' ? 40 : 24,
     borderTopWidth: 1,
     borderTopColor: Colors.borderGlass,
-    shadowColor: '#000',
+    shadowColor: Colors.textPrimary,
     shadowOffset: { width: 0, height: -10 },
     shadowOpacity: 0.4,
     shadowRadius: 15,
@@ -3874,7 +3985,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
-    shadowColor: '#000',
+    shadowColor: Colors.textPrimary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 6,
@@ -3899,14 +4010,14 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 16,
     borderRadius: 20,
-    shadowColor: '#000',
+    shadowColor: Colors.textPrimary,
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.3,
     shadowRadius: 10,
     elevation: 8,
   },
   sosButtonText: {
-    color: '#fff',
+    color: Colors.bgSecondary,
     fontSize: 13,
     fontWeight: '800',
   },
@@ -3932,7 +4043,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     justifyContent: 'space-between',
     zIndex: 10,
-    shadowColor: '#000',
+    shadowColor: Colors.textPrimary,
     shadowOffset: { width: 4, height: 0 },
     shadowOpacity: 0.25,
     shadowRadius: 10,
@@ -4105,7 +4216,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   modalSubmitBtnText: {
-    color: '#fff',
+    color: Colors.bgSecondary,
     fontSize: 15,
     fontWeight: '700',
   },
@@ -4330,7 +4441,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     paddingVertical: 14,
     paddingHorizontal: 16,
-    shadowColor: '#000',
+    shadowColor: Colors.textPrimary,
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.35,
     shadowRadius: 16,
@@ -4354,7 +4465,7 @@ const styles = StyleSheet.create({
   /** Large turn-direction icon (↑ → ← etc.) */
   navArrowIcon: {
     fontSize: 36,
-    color: '#FFFFFF',
+    color: Colors.bgSecondary,
     fontWeight: '700',
   },
 
@@ -4367,7 +4478,7 @@ const styles = StyleSheet.create({
   navDistText: {
     fontSize: 24,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: Colors.bgSecondary,
     letterSpacing: -0.3,
   },
 
@@ -4393,7 +4504,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     paddingHorizontal: 14,
     paddingVertical: 10,
-    shadowColor: '#000',
+    shadowColor: Colors.textPrimary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.12,
     shadowRadius: 8,
@@ -4438,7 +4549,7 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     paddingHorizontal: 16,
     paddingVertical: 14,
-    shadowColor: '#000',
+    shadowColor: Colors.textPrimary,
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.15,
     shadowRadius: 12,
@@ -4489,7 +4600,7 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 6,
     borderWidth: 3,
-    borderColor: '#FFFFFF',
+    borderColor: Colors.bgSecondary,
   },
 
   navDriverPinInner: {
@@ -4575,7 +4686,7 @@ const styles = StyleSheet.create({
   custNavBannerText: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: Colors.bgSecondary,
   },
 
   custNavBannerSub: {
@@ -4592,7 +4703,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     paddingVertical: 14,
     paddingHorizontal: 16,
-    shadowColor: '#000',
+    shadowColor: Colors.textPrimary,
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.3,
     shadowRadius: 14,
@@ -4614,13 +4725,13 @@ const styles = StyleSheet.create({
 
   custNavArrowIcon: {
     fontSize: 32,
-    color: '#FFFFFF',
+    color: Colors.bgSecondary,
   },
 
   custNavDistText: {
     fontSize: 22,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: Colors.bgSecondary,
     letterSpacing: -0.2,
   },
 
@@ -4644,7 +4755,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     paddingHorizontal: 14,
     paddingVertical: 10,
-    shadowColor: '#000',
+    shadowColor: Colors.textPrimary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
@@ -4679,7 +4790,7 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 6,
     borderWidth: 3,
-    borderColor: '#FFFFFF',
+    borderColor: Colors.bgSecondary,
   },
 
   custNavPinInner: {
@@ -4702,7 +4813,7 @@ const styles = StyleSheet.create({
     paddingBottom: Platform.OS === 'ios' ? 34 : 20,
     borderTopWidth: 1,
     borderTopColor: Colors.borderGlass,
-    shadowColor: '#000',
+    shadowColor: Colors.textPrimary,
     shadowOffset: { width: 0, height: -8 },
     shadowOpacity: 0.3,
     shadowRadius: 12,
@@ -4794,7 +4905,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: 14,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 8, elevation: 4,
+    shadowColor: Colors.textPrimary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 8, elevation: 4,
     zIndex: 10,
   },
   pickerAddressDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: Colors.success, marginRight: 12 },
@@ -4814,7 +4925,7 @@ const styles = StyleSheet.create({
     position: 'absolute', bottom: 90, right: 20,
     width: 44, height: 44, borderRadius: 22, backgroundColor: Colors.bgSecondary,
     alignItems: 'center', justifyContent: 'center',
-    shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 8, elevation: 4,
+    shadowColor: Colors.textPrimary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 8, elevation: 4,
   },
   
   pickerFooter: {
@@ -4823,7 +4934,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1, borderTopColor: Colors.borderGlass,
   },
   pickerConfirmBtn: { backgroundColor: '#1A1A1A', borderRadius: 8, paddingVertical: 16, alignItems: 'center' },
-  pickerConfirmText: { color: '#fff', fontSize: 16, fontWeight: '700' },
+  pickerConfirmText: { color: Colors.bgSecondary, fontSize: 16, fontWeight: '700' },
 
   // ─── New Home Screen Styles ───────────────────────────────────────────────
   homeContainer: { flex: 1, backgroundColor: Colors.bgPrimary },
@@ -4833,7 +4944,7 @@ const styles = StyleSheet.create({
     position: 'absolute', bottom: 12, left: 16, right: 16,
     backgroundColor: Colors.bgSecondary, borderRadius: 24,
     flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 8, elevation: 4,
+    shadowColor: Colors.textPrimary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 8, elevation: 4,
   },
   homePickupDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: Colors.success, marginRight: 12 },
   homePickupText: { flex: 1, fontSize: 14, color: Colors.textPrimary, fontWeight: '600' },
@@ -4854,7 +4965,7 @@ const styles = StyleSheet.create({
 
   // Home Quick Services
   homeServicesRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 },
-  homeServiceChip: { alignItems: 'center', padding: 12, backgroundColor: '#F8F9FA', borderRadius: 16, width: '22%' },
+  homeServiceChip: { alignItems: 'center', padding: 12, backgroundColor: Colors.bgPrimary, borderRadius: 16, width: '22%' },
   homeServiceLabel: { fontSize: 12, fontWeight: '600', color: Colors.textPrimary, marginTop: 6 },
   
   // Promos
@@ -4863,7 +4974,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden', position: 'relative',
   },
   promoBannerTag: { color: Colors.warning, fontSize: 10, fontWeight: '800', letterSpacing: 1, marginBottom: 4 },
-  promoBannerTitle: { color: '#fff', fontSize: 22, fontWeight: '800' },
+  promoBannerTitle: { color: Colors.bgSecondary, fontSize: 22, fontWeight: '800' },
   promoBannerSub: { color: 'rgba(255,255,255,0.7)', fontSize: 13, marginTop: 4, marginBottom: 16 },
   promoBannerBtn: { alignSelf: 'flex-start', backgroundColor: Colors.bgSecondary, paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20 },
   promoBannerBtnText: { color: '#0A2540', fontWeight: '700', fontSize: 12 },
@@ -4892,7 +5003,7 @@ const styles = StyleSheet.create({
 
   // Estimates panel in Home
   homeEstimatesPanel: { flex: 1 },
-  homeEstimatesRoute: { marginBottom: 16, backgroundColor: '#F8F9FA', padding: 12, borderRadius: 12 },
+  homeEstimatesRoute: { marginBottom: 16, backgroundColor: Colors.bgPrimary, padding: 12, borderRadius: 12 },
   homeRouteRow: { flexDirection: 'row', alignItems: 'center' },
   homeDotGreen: { width: 8, height: 8, borderRadius: 4, backgroundColor: Colors.success, marginRight: 12 },
   homeDotRed: { width: 8, height: 8, borderRadius: 4, backgroundColor: Colors.danger, marginRight: 12 },
@@ -4908,7 +5019,7 @@ const styles = StyleSheet.create({
     zIndex: 9999
   },
   overlayTitle: {
-    color: '#fff',
+    color: Colors.bgSecondary,
     fontSize: 22,
     fontWeight: '800',
     marginTop: 20,
@@ -4949,7 +5060,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     paddingHorizontal: 16,
     paddingVertical: 12,
-    shadowColor: '#000',
+    shadowColor: Colors.textPrimary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.12,
     shadowRadius: 14,
@@ -4971,7 +5082,7 @@ const styles = StyleSheet.create({
     elevation: 6,
   },
   custAvatarText: {
-    color: '#fff',
+    color: Colors.bgSecondary,
     fontSize: 16,
     fontWeight: '800',
   },
@@ -5033,7 +5144,7 @@ const styles = StyleSheet.create({
   // ─── Customer Tab Pages ───────────────────────────────────────────────────
   custTabPage: {
     flex: 1,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: Colors.bgPrimary,
     paddingTop: Platform.OS === 'ios' ? 54 : 36,
   },
   custTabHeader: {
@@ -5042,8 +5153,8 @@ const styles = StyleSheet.create({
     paddingTop: 8,
     backgroundColor: Colors.bgSecondary,
     borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
-    shadowColor: '#000',
+    borderBottomColor: Colors.bgPrimary,
+    shadowColor: Colors.textPrimary,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.04,
     shadowRadius: 6,
@@ -5065,13 +5176,13 @@ const styles = StyleSheet.create({
     marginTop: 20,
     borderRadius: 20,
     padding: 18,
-    shadowColor: '#000',
+    shadowColor: Colors.textPrimary,
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.07,
     shadowRadius: 12,
     elevation: 4,
     borderWidth: 1,
-    borderColor: '#F3F4F6',
+    borderColor: Colors.bgPrimary,
     marginBottom: 16,
   },
   custProfileAvatarLarge: {
@@ -5089,7 +5200,7 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   custProfileAvatarText: {
-    color: '#fff',
+    color: Colors.bgSecondary,
     fontSize: 22,
     fontWeight: '800',
   },
@@ -5165,7 +5276,7 @@ const styles = StyleSheet.create({
   custWalletCardBal: {
     fontSize: 22,
     fontWeight: '800',
-    color: '#fff',
+    color: Colors.bgSecondary,
     letterSpacing: -0.5,
   },
   custTopupBtn: {
@@ -5173,7 +5284,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingHorizontal: 18,
     paddingVertical: 9,
-    shadowColor: '#000',
+    shadowColor: Colors.textPrimary,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -5191,14 +5302,14 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     borderRadius: 20,
     marginBottom: 16,
-    shadowColor: '#000',
+    shadowColor: Colors.textPrimary,
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.06,
     shadowRadius: 10,
     elevation: 3,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: '#F3F4F6',
+    borderColor: Colors.bgPrimary,
   },
   custMenuItem: {
     flexDirection: 'row',
@@ -5209,7 +5320,7 @@ const styles = StyleSheet.create({
   },
   custMenuItemBorder: {
     borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
+    borderBottomColor: Colors.bgPrimary,
   },
   custMenuIconWrap: {
     width: 38,
@@ -5232,13 +5343,13 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 20,
     marginBottom: 16,
-    shadowColor: '#000',
+    shadowColor: Colors.textPrimary,
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.06,
     shadowRadius: 10,
     elevation: 3,
     borderWidth: 1,
-    borderColor: '#F3F4F6',
+    borderColor: Colors.bgPrimary,
   },
   custEditCardTitle: {
     fontSize: 16,
@@ -5274,13 +5385,13 @@ const styles = StyleSheet.create({
     marginBottom: 14,
     borderRadius: 18,
     padding: 16,
-    shadowColor: '#000',
+    shadowColor: Colors.textPrimary,
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.07,
     shadowRadius: 10,
     elevation: 3,
     borderWidth: 1,
-    borderColor: '#F3F4F6',
+    borderColor: Colors.bgPrimary,
   },
   custRideHeader: {
     flexDirection: 'row',
@@ -5310,7 +5421,7 @@ const styles = StyleSheet.create({
     padding: 12,
     marginBottom: 10,
     borderWidth: 1,
-    borderColor: '#F3F4F6',
+    borderColor: Colors.bgPrimary,
   },
   custRideRouteRow: {
     flexDirection: 'row',
@@ -5344,13 +5455,13 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     padding: 18,
     alignItems: 'center',
-    shadowColor: '#000',
+    shadowColor: Colors.textPrimary,
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.07,
     shadowRadius: 10,
     elevation: 3,
     borderWidth: 1,
-    borderColor: '#F3F4F6',
+    borderColor: Colors.bgPrimary,
   },
   custServiceLabel: {
     fontSize: 14,

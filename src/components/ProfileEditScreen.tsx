@@ -1,3 +1,4 @@
+import { useTheme } from '../context/ThemeContext';
 import Colors from '../constants/colors';
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView, TextInput, Platform, KeyboardAvoidingView, Alert } from 'react-native';
@@ -6,6 +7,8 @@ import { Feather } from '@expo/vector-icons';
 
 export default function ProfileEditScreen({ onBack, onSave }: { onBack: () => void, onSave: () => void }) {
   const { user, updateProfile } = useAuth();
+  const { isDark } = useTheme();
+  const styles = getStyles(Colors);
 
   const [name, setName] = useState(user?.name || 'Sabari A');
   const [oldPassword, setOldPassword] = useState('');
@@ -59,7 +62,7 @@ export default function ProfileEditScreen({ onBack, onSave }: { onBack: () => vo
           {/* Header */}
           <View style={styles.header}>
             <TouchableOpacity onPress={onBack} style={styles.backButton}>
-              <Feather name="chevron-left" size={24} color="#262D36" />
+              <Feather name="chevron-left" size={24} color={Colors.textPrimary} />
             </TouchableOpacity>
             <Text style={styles.headerTitle}>Profile</Text>
             <View style={{ width: 40 }} />
@@ -84,26 +87,26 @@ export default function ProfileEditScreen({ onBack, onSave }: { onBack: () => vo
           <Text style={styles.sectionTitle}>{user?.role === 'driver' ? 'Driver details' : 'Personal details'}</Text>
           <View style={styles.cardBlock}>
             <View style={styles.inputWrapper}>
-              <TextInput style={styles.input} value={name} onChangeText={setName} placeholder="Full Name" placeholderTextColor="#7C848D" />
+              <TextInput style={styles.input} value={name} onChangeText={setName} placeholder="Full Name" placeholderTextColor={Colors.textMuted} />
             </View>
             <View style={styles.inputWrapper}>
-              <TextInput style={styles.input} value={phone} onChangeText={setPhone} keyboardType="phone-pad" placeholder="Mobile Number" placeholderTextColor="#7C848D" />
+              <TextInput style={styles.input} value={phone} onChangeText={setPhone} keyboardType="phone-pad" placeholder="Mobile Number" placeholderTextColor={Colors.textMuted} />
             </View>
             <TouchableOpacity style={styles.bankHeader} onPress={() => setChangePasswordExpanded(!changePasswordExpanded)} activeOpacity={0.8}>
               <Text style={styles.sectionTitle}>Change Password</Text>
-              <Feather name={changePasswordExpanded ? 'chevron-down' : 'chevron-right'} size={24} color="#262D36" />
+              <Feather name={changePasswordExpanded ? 'chevron-down' : 'chevron-right'} size={24} color={Colors.textPrimary} />
             </TouchableOpacity>
 
             {changePasswordExpanded && (
               <View style={[styles.cardBlock, { marginTop: -10, paddingTop: 10, backgroundColor: 'transparent' }]}>
                 <View style={styles.inputWrapper}>
-                  <TextInput style={styles.input} value={oldPassword} onChangeText={setOldPassword} placeholder="Old Password" placeholderTextColor="#7C848D" secureTextEntry />
+                  <TextInput style={styles.input} value={oldPassword} onChangeText={setOldPassword} placeholder="Old Password" placeholderTextColor={Colors.textMuted} secureTextEntry />
                 </View>
                 <View style={styles.inputWrapper}>
-                  <TextInput style={styles.input} value={newPassword} onChangeText={setNewPassword} placeholder="New Password" placeholderTextColor="#7C848D" secureTextEntry />
+                  <TextInput style={styles.input} value={newPassword} onChangeText={setNewPassword} placeholder="New Password" placeholderTextColor={Colors.textMuted} secureTextEntry />
                 </View>
                 <View style={styles.inputWrapper}>
-                  <TextInput style={styles.input} value={confirmNewPassword} onChangeText={setConfirmNewPassword} placeholder="Confirm New Password" placeholderTextColor="#7C848D" secureTextEntry />
+                  <TextInput style={styles.input} value={confirmNewPassword} onChangeText={setConfirmNewPassword} placeholder="Confirm New Password" placeholderTextColor={Colors.textMuted} secureTextEntry />
                 </View>
               </View>
             )}
@@ -111,13 +114,13 @@ export default function ProfileEditScreen({ onBack, onSave }: { onBack: () => vo
             {user?.role === 'driver' && (
               <>
                 <View style={styles.inputWrapper}>
-                  <TextInput style={styles.input} value={city} onChangeText={setCity} placeholder="City" placeholderTextColor="#7C848D" />
+                  <TextInput style={styles.input} value={city} onChangeText={setCity} placeholder="City" placeholderTextColor={Colors.textMuted} />
                 </View>
                 <View style={styles.inputWrapper}>
-                  <TextInput style={styles.input} value={vehicleType} onChangeText={setVehicleType} placeholder="Vehicle Type" placeholderTextColor="#7C848D" />
+                  <TextInput style={styles.input} value={vehicleType} onChangeText={setVehicleType} placeholder="Vehicle Type" placeholderTextColor={Colors.textMuted} />
                 </View>
                 <View style={styles.inputWrapper}>
-                  <TextInput style={styles.input} value={plate} onChangeText={setPlate} placeholder="Plate Number" placeholderTextColor="#7C848D" />
+                  <TextInput style={styles.input} value={plate} onChangeText={setPlate} placeholder="Plate Number" placeholderTextColor={Colors.textMuted} />
                 </View>
               </>
             )}
@@ -128,7 +131,7 @@ export default function ProfileEditScreen({ onBack, onSave }: { onBack: () => vo
             <>
               <TouchableOpacity style={styles.bankHeader} onPress={() => setBankExpanded(!bankExpanded)} activeOpacity={0.8}>
                 <Text style={styles.sectionTitle}>Bank details</Text>
-                <Feather name={bankExpanded ? 'chevron-down' : 'chevron-right'} size={24} color="#262D36" />
+                <Feather name={bankExpanded ? 'chevron-down' : 'chevron-right'} size={24} color={Colors.textPrimary} />
               </TouchableOpacity>
 
               {/* Bank details card */}
@@ -159,7 +162,7 @@ export default function ProfileEditScreen({ onBack, onSave }: { onBack: () => vo
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (Colors: any) => StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: Colors.bgPrimary
@@ -186,7 +189,7 @@ const styles = StyleSheet.create({
   },
   backButtonIcon: {
     fontSize: 18,
-    color: '#262D36'
+    color: Colors.textPrimary
   },
   headerTitle: {
     fontSize: 16,
@@ -255,7 +258,7 @@ const styles = StyleSheet.create({
   },
   input: {
     fontSize: 14,
-    color: '#262D36'
+    color: Colors.textPrimary
   },
   bankHeader: {
     flexDirection: 'row',
@@ -265,7 +268,7 @@ const styles = StyleSheet.create({
   },
   bankDetailText: {
     fontSize: 14,
-    color: '#7C848D',
+    color: Colors.textMuted,
     marginBottom: 4
   },
   footerContainer: {

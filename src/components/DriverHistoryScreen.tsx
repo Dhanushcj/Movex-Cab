@@ -1,3 +1,4 @@
+import { useTheme } from '../context/ThemeContext';
 import Colors from '../constants/colors';
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView, TextInput, Platform, ActivityIndicator } from 'react-native';
@@ -7,6 +8,8 @@ import API from '../services/api';
 type FilterType = 'All' | 'Completed' | 'Cancelled';
 
 export default function DriverHistoryScreen({ onNavigateHome }: { onNavigateHome: () => void }) {
+  const { isDark } = useTheme();
+  const styles = getStyles(Colors);
   const [activeFilter, setActiveFilter] = useState<FilterType>('All');
   const [historyData, setHistoryData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -64,11 +67,11 @@ export default function DriverHistoryScreen({ onNavigateHome }: { onNavigateHome
 
         {/* Search Bar */}
         <View style={styles.searchBar}>
-          <Feather name="search" size={16} color="#7C848D" />
+          <Feather name="search" size={16} color={Colors.textMuted} />
           <TextInput
             style={styles.searchInput}
             placeholder="search by location or date"
-            placeholderTextColor="#7C848D"
+            placeholderTextColor={Colors.textMuted}
           />
         </View>
 
@@ -98,7 +101,7 @@ export default function DriverHistoryScreen({ onNavigateHome }: { onNavigateHome
           ) : historyData.length === 0 ? (
             <View style={{ alignItems: 'center', marginTop: 40 }}>
               <Feather name="inbox" size={40} color="#DEE0E3" />
-              <Text style={{ marginTop: 12, color: '#7C848D', fontWeight: '600' }}>No history found</Text>
+              <Text style={{ marginTop: 12, color: Colors.textMuted, fontWeight: '600' }}>No history found</Text>
             </View>
           ) : (
             historyData
@@ -141,7 +144,7 @@ export default function DriverHistoryScreen({ onNavigateHome }: { onNavigateHome
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (Colors: any) => StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: Colors.bgPrimary
@@ -176,7 +179,7 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: 12,
-    color: '#262D36'
+    color: Colors.textPrimary
   },
   filterRow: {
     flexDirection: 'row',
@@ -227,11 +230,11 @@ const styles = StyleSheet.create({
   },
   routeText: {
     fontSize: 14,
-    color: '#262D36'
+    color: Colors.textPrimary
   },
   timeText: {
     fontSize: 12,
-    color: '#7C848D'
+    color: Colors.textMuted
   },
   cardRight: {
     alignItems: 'flex-end',
@@ -258,7 +261,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     borderRadius: 30,
     backgroundColor: Colors.bgSecondary,
-    shadowColor: '#000',
+    shadowColor: Colors.textPrimary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 10,

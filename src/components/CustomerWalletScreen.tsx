@@ -1,3 +1,4 @@
+import { useTheme } from '../context/ThemeContext';
 import Colors from '../constants/colors';
 import React, { useState } from 'react';
 import {
@@ -15,6 +16,7 @@ import {
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 
 interface CustomerWalletScreenProps {
   onBack: () => void;
@@ -23,6 +25,10 @@ interface CustomerWalletScreenProps {
 }
 
 export default function CustomerWalletScreen({ onBack, onNavigateHome, onNavigateHistory }: CustomerWalletScreenProps) {
+    const { isDark } = useTheme();
+    const { t } = useLanguage();
+    const styles = getStyles(Colors);
+
   const { user, updateUserWallet } = useAuth();
   
   // Modal state
@@ -102,8 +108,8 @@ export default function CustomerWalletScreen({ onBack, onNavigateHome, onNavigat
         {/* Pocket Balance Card */}
         <View style={styles.balanceCard}>
           <View style={styles.balanceRow}>
-            <Text style={styles.balanceLabel}>Available Balance</Text>
-            <Text style={[styles.balanceValue, balance < 0 && { color: '#DC2626' }]}>₹{balance.toFixed(0)}</Text>
+            <Text style={styles.balanceLabel}>{t('wallet.availableBalance')}</Text>
+            <Text style={[styles.balanceValue, balance < 0 && { color: Colors.danger }]}>₹{balance.toFixed(0)}</Text>
           </View>
         </View>
 
@@ -113,16 +119,16 @@ export default function CustomerWalletScreen({ onBack, onNavigateHome, onNavigat
             style={styles.withdrawBtn}
             onPress={() => { setAmount(''); setShowWithdrawModal(true); }}
           >
-            <Feather name="external-link" size={18} color="#0053B3" />
-            <Text style={styles.withdrawBtnText}>Withdraw</Text>
+            <Feather name="external-link" size={18} color={Colors.accent} />
+            <Text style={styles.withdrawBtnText}>{t('wallet.withdraw')}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.addMoneyBtn}
             onPress={() => { setAmount(''); setShowAddModal(true); }}
           >
-            <Feather name="plus" size={18} color="#FCFCFC" />
-            <Text style={styles.addMoneyBtnText}>Add Money</Text>
+            <Feather name="plus" size={18} color={Colors.white} />
+            <Text style={styles.addMoneyBtnText}>{t('wallet.addMoney')}</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -132,15 +138,15 @@ export default function CustomerWalletScreen({ onBack, onNavigateHome, onNavigat
         <View style={styles.modalBackdrop}>
           <View style={styles.modalContent}>
             <View style={styles.modalHandle} />
-            <Text style={styles.modalTitle}>Add Money to Wallet</Text>
-            <Text style={styles.modalSub}>Enter the amount you want to add</Text>
+            <Text style={styles.modalTitle}>{t('wallet.addMoneyTitle')}</Text>
+            <Text style={styles.modalSub}>{t('wallet.addMoneySub')}</Text>
 
             <View style={styles.modalInputRow}>
               <Text style={styles.modalCurrency}>₹</Text>
               <TextInput
                 style={styles.modalInput}
                 placeholder="0"
-                placeholderTextColor="#9CA3AF"
+                placeholderTextColor={Colors.textMuted}
                 value={amount}
                 onChangeText={setAmount}
                 keyboardType="numeric"
@@ -162,7 +168,7 @@ export default function CustomerWalletScreen({ onBack, onNavigateHome, onNavigat
             </View>
 
             {/* Payment Methods */}
-            <Text style={{ marginTop: 20, marginBottom: 12, fontSize: 14, color: '#262D36', fontWeight: '600' }}>Select Payment Method</Text>
+            <Text style={{ marginTop: 20, marginBottom: 12, fontSize: 14, color: Colors.textPrimary, fontWeight: '600' }}>{t('wallet.selectPaymentMethod')}</Text>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 24 }}>
               {['gpay', 'phonepe', 'paytm'].map((method) => (
                 <TouchableOpacity
@@ -172,9 +178,9 @@ export default function CustomerWalletScreen({ onBack, onNavigateHome, onNavigat
                     marginHorizontal: 4,
                     paddingVertical: 12,
                     borderWidth: 1,
-                    borderColor: paymentMethod === method ? '#0053B3' : '#E5E7EB',
+                    borderColor: paymentMethod === method ? Colors.accent : Colors.borderGlass,
                     borderRadius: 8,
-                    backgroundColor: paymentMethod === method ? '#EBF4FF' : '#FFFFFF',
+                    backgroundColor: paymentMethod === method ? Colors.accentGlow : Colors.bgSecondary,
                     alignItems: 'center'
                   }}
                   onPress={() => setPaymentMethod(method)}
@@ -183,7 +189,7 @@ export default function CustomerWalletScreen({ onBack, onNavigateHome, onNavigat
                   <Text style={{ 
                     fontSize: 13, 
                     fontWeight: '600', 
-                    color: paymentMethod === method ? '#0053B3' : '#4B5563'
+                    color: paymentMethod === method ? Colors.accent : Colors.textSecondary
                   }}>
                     {method === 'gpay' ? 'GPay' : method === 'phonepe' ? 'PhonePe' : 'Paytm'}
                   </Text>
@@ -192,10 +198,10 @@ export default function CustomerWalletScreen({ onBack, onNavigateHome, onNavigat
             </View>
 
             <TouchableOpacity style={styles.modalPrimaryBtn} onPress={handleAddMoney} disabled={processing}>
-              {processing ? <ActivityIndicator color="#fff" /> : <Text style={styles.modalPrimaryBtnText}>Add Money</Text>}
+              {processing ? <ActivityIndicator color={Colors.bgSecondary} /> : <Text style={styles.modalPrimaryBtnText}>{t('wallet.addMoney')}</Text>}
             </TouchableOpacity>
             <TouchableOpacity style={styles.modalCancelBtn} onPress={() => setShowAddModal(false)}>
-              <Text style={styles.modalCancelBtnText}>Cancel</Text>
+              <Text style={styles.modalCancelBtnText}>{t('wallet.cancel')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -206,9 +212,9 @@ export default function CustomerWalletScreen({ onBack, onNavigateHome, onNavigat
         <View style={styles.modalBackdrop}>
           <View style={styles.modalContent}>
             <View style={styles.modalHandle} />
-            <Text style={styles.modalTitle}>Withdraw from Wallet</Text>
+            <Text style={styles.modalTitle}>{t('wallet.withdrawTitle')}</Text>
             <Text style={styles.modalSub}>
-              Available: ₹{balance.toFixed(0)}
+              {t('wallet.available')} ₹{balance.toFixed(0)}
             </Text>
 
             <View style={styles.modalInputRow}>
@@ -216,7 +222,7 @@ export default function CustomerWalletScreen({ onBack, onNavigateHome, onNavigat
               <TextInput
                 style={styles.modalInput}
                 placeholder="0"
-                placeholderTextColor="#9CA3AF"
+                placeholderTextColor={Colors.textMuted}
                 value={amount}
                 onChangeText={setAmount}
                 keyboardType="numeric"
@@ -228,14 +234,14 @@ export default function CustomerWalletScreen({ onBack, onNavigateHome, onNavigat
               style={[styles.quickBtn, { alignSelf: 'flex-start', marginBottom: 20 }]}
               onPress={() => setAmount(String(Math.floor(balance)))}
             >
-              <Text style={styles.quickBtnText}>Max: ₹{Math.floor(balance)}</Text>
+              <Text style={styles.quickBtnText}>{t('wallet.max')} ₹{Math.floor(balance)}</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={[styles.modalPrimaryBtn, { backgroundColor: '#262D36' }]} onPress={handleWithdraw} disabled={processing}>
-              {processing ? <ActivityIndicator color="#fff" /> : <Text style={styles.modalPrimaryBtnText}>Withdraw</Text>}
+            <TouchableOpacity style={[styles.modalPrimaryBtn, { backgroundColor: Colors.textPrimary }]} onPress={handleWithdraw} disabled={processing}>
+              {processing ? <ActivityIndicator color={Colors.bgSecondary} /> : <Text style={styles.modalPrimaryBtnText}>{t('wallet.withdraw')}</Text>}
             </TouchableOpacity>
             <TouchableOpacity style={styles.modalCancelBtn} onPress={() => setShowWithdrawModal(false)}>
-              <Text style={styles.modalCancelBtnText}>Cancel</Text>
+              <Text style={styles.modalCancelBtnText}>{t('wallet.cancel')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -244,14 +250,14 @@ export default function CustomerWalletScreen({ onBack, onNavigateHome, onNavigat
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (Colors: any) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.bgPrimary,
   },
   // ── Header ──
   header: {
-    backgroundColor: '#0053B3',
+    backgroundColor: Colors.accent,
     paddingTop: Platform.OS === 'ios' ? 50 : StatusBar.currentHeight ? StatusBar.currentHeight + 10 : 44,
     paddingBottom: 50,
     borderBottomLeftRadius: 32,
@@ -267,7 +273,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 24,
-    backgroundColor: '#0069E0',
+    backgroundColor: 'rgba(255,255,255,0.2)',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -290,7 +296,7 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     gap: 32,
     marginBottom: 20,
-    shadowColor: '#000',
+    shadowColor: Colors.textPrimary,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
     shadowRadius: 8,
@@ -303,12 +309,12 @@ const styles = StyleSheet.create({
   },
   balanceLabel: {
     fontSize: 16,
-    color: '#7C848D',
+    color: Colors.textMuted,
     fontWeight: '400',
   },
   balanceValue: {
     fontSize: 20,
-    color: '#262D36',
+    color: Colors.textPrimary,
     fontWeight: '700',
   },
 
@@ -329,14 +335,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     gap: 12,
     borderWidth: 1,
-    borderColor: '#0053B3',
+    borderColor: Colors.accent,
     borderRadius: 12,
     width: 136,
     height: 40,
   },
   withdrawBtnText: {
     fontSize: 14,
-    color: '#0053B3',
+    color: Colors.accent,
     fontWeight: '400',
     textAlign: 'center',
   },
@@ -347,14 +353,14 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 12,
     gap: 12,
-    backgroundColor: '#0053B3',
+    backgroundColor: Colors.accent,
     borderRadius: 12,
     width: 142,
     height: 40,
   },
   addMoneyBtnText: {
     fontSize: 14,
-    color: '#FCFCFC',
+    color: Colors.white,
     fontWeight: '400',
     textAlign: 'center',
   },
@@ -376,7 +382,7 @@ const styles = StyleSheet.create({
   modalHandle: {
     width: 40,
     height: 4,
-    backgroundColor: '#E5E7EB',
+    backgroundColor: Colors.borderGlass,
     borderRadius: 2,
     alignSelf: 'center',
     marginBottom: 24,
@@ -384,12 +390,12 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#1F2937',
+    color: Colors.textPrimary,
     marginBottom: 6,
   },
   modalSub: {
     fontSize: 14,
-    color: '#6B7280',
+    color: Colors.textSecondary,
     marginBottom: 24,
   },
   modalInputRow: {
@@ -405,14 +411,14 @@ const styles = StyleSheet.create({
   modalCurrency: {
     fontSize: 24,
     fontWeight: '600',
-    color: '#1F2937',
+    color: Colors.textPrimary,
     marginRight: 8,
   },
   modalInput: {
     flex: 1,
     fontSize: 24,
     fontWeight: '500',
-    color: '#1F2937',
+    color: Colors.textPrimary,
   },
   quickSelectRow: {
     flexDirection: 'row',
@@ -428,19 +434,19 @@ const styles = StyleSheet.create({
     borderColor: Colors.borderGlass,
   },
   quickBtnActive: {
-    backgroundColor: '#0053B3',
-    borderColor: '#0053B3',
+    backgroundColor: Colors.accent,
+    borderColor: Colors.accent,
   },
   quickBtnText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#4B5563',
+    color: Colors.textSecondary,
   },
   quickBtnTextActive: {
-    color: '#FFFFFF',
+    color: Colors.bgSecondary,
   },
   modalPrimaryBtn: {
-    backgroundColor: '#0053B3',
+    backgroundColor: Colors.accent,
     borderRadius: 12,
     height: 52,
     alignItems: 'center',
@@ -448,7 +454,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   modalPrimaryBtnText: {
-    color: '#FFFFFF',
+    color: Colors.bgSecondary,
     fontSize: 16,
     fontWeight: '600',
   },
@@ -458,7 +464,7 @@ const styles = StyleSheet.create({
     height: 44,
   },
   modalCancelBtnText: {
-    color: '#6B7280',
+    color: Colors.textSecondary,
     fontSize: 15,
     fontWeight: '500',
   },

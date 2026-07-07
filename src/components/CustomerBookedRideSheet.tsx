@@ -1,3 +1,4 @@
+import { useTheme } from '../context/ThemeContext';
 import Colors from '../constants/colors';
 import React, { useEffect, useRef } from 'react';
 import {
@@ -30,6 +31,9 @@ export default function CustomerBookedRideSheet({
   onMessage,
   rideStatus,
 }: CustomerBookedRideSheetProps) {
+    const { isDark } = useTheme();
+    const styles = getStyles(Colors);
+
   const slideAnim  = useRef(new Animated.Value(300)).current;
   const pulseAnim  = useRef(new Animated.Value(1)).current;
   const fadeAnim   = useRef(new Animated.Value(0)).current;
@@ -177,11 +181,11 @@ export default function CustomerBookedRideSheet({
         {/* Action buttons */}
         <View style={styles.actionsRow}>
           <TouchableOpacity style={styles.actionBtnSmall} onPress={onCall}>
-            <Feather name="phone" size={20} color="#262D36" />
+            <Feather name="phone" size={20} color={Colors.textPrimary} />
             <Text style={styles.actionBtnLabel}>Call</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.actionBtnSmall} onPress={onMessage}>
-            <Feather name="message-circle" size={20} color="#262D36" />
+            <Feather name="message-circle" size={20} color={Colors.textPrimary} />
             <Text style={styles.actionBtnLabel}>Chat</Text>
           </TouchableOpacity>
           <TouchableOpacity style={[styles.actionBtnSmall, styles.cancelBtn]} onPress={onCancel}>
@@ -271,11 +275,11 @@ export default function CustomerBookedRideSheet({
       {/* Action Buttons */}
       <View style={styles.actionsRow}>
         <TouchableOpacity style={styles.actionBtn} onPress={onCall}>
-          <Feather name="phone" size={20} color="#262D36" />
+          <Feather name="phone" size={20} color={Colors.textPrimary} />
           <Text style={styles.actionBtnLabel}>Call</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.actionBtn} onPress={onMessage}>
-          <Feather name="message-circle" size={20} color="#262D36" />
+          <Feather name="message-circle" size={20} color={Colors.textPrimary} />
           <Text style={styles.actionBtnLabel}>Chat</Text>
         </TouchableOpacity>
         <TouchableOpacity style={[styles.actionBtn, styles.cancelBtn]} onPress={onCancel}>
@@ -287,7 +291,7 @@ export default function CustomerBookedRideSheet({
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (Colors: any) => StyleSheet.create({
 
   // ─── On-the-way sheet ────────────────────────────────────────────────────
   sheet: {
@@ -301,7 +305,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 12,
     paddingBottom: Platform.OS === 'ios' ? 36 : 24,
-    shadowColor: '#000',
+    shadowColor: Colors.textPrimary,
     shadowOffset: { width: 0, height: -6 },
     shadowOpacity: 0.12,
     shadowRadius: 20,
@@ -311,7 +315,7 @@ const styles = StyleSheet.create({
   handle: {
     width: 40,
     height: 4,
-    backgroundColor: '#E5E7EB',
+    backgroundColor: Colors.borderGlass,
     borderRadius: 2,
     alignSelf: 'center',
     marginBottom: 16,
@@ -348,7 +352,7 @@ const styles = StyleSheet.create({
     padding: 14,
     marginBottom: 14,
     borderWidth: 1,
-    borderColor: '#F3F4F6',
+    borderColor: Colors.bgPrimary,
   },
   avatarWrap: { position: 'relative', marginRight: 14 },
   avatar: {
@@ -369,14 +373,14 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     backgroundColor: '#22C55E',
     borderWidth: 2,
-    borderColor: '#fff',
+    borderColor: Colors.bgSecondary,
   },
   driverMeta: { flex: 1 },
   driverName: { fontSize: 16, fontWeight: '700', color: '#111827', marginBottom: 2 },
-  vehicleText: { fontSize: 13, color: '#6B7280', marginBottom: 6 },
+  vehicleText: { fontSize: 13, color: Colors.textSecondary, marginBottom: 6 },
   plateWrap: {
     alignSelf: 'flex-start',
-    backgroundColor: '#E5E7EB',
+    backgroundColor: Colors.borderGlass,
     borderRadius: 6,
     paddingHorizontal: 8,
     paddingVertical: 3,
@@ -414,7 +418,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     marginBottom: 14,
     borderWidth: 1,
-    borderColor: '#F3F4F6',
+    borderColor: Colors.bgPrimary,
   },
   routeRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   routeDot: { width: 10, height: 10, borderRadius: 5, backgroundColor: '#6366F1' },
@@ -429,12 +433,12 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     marginBottom: 14,
     borderWidth: 1,
-    borderColor: '#F3F4F6',
+    borderColor: Colors.bgPrimary,
   },
   statItem: { flex: 1, alignItems: 'center' },
-  statDivider: { width: 1, backgroundColor: '#E5E7EB', marginVertical: 4 },
+  statDivider: { width: 1, backgroundColor: Colors.borderGlass, marginVertical: 4 },
   statValue: { fontSize: 15, fontWeight: '700', color: '#111827' },
-  statLabel: { fontSize: 11, color: '#9CA3AF', marginTop: 2, fontWeight: '500' },
+  statLabel: { fontSize: 11, color: Colors.textMuted, marginTop: 2, fontWeight: '500' },
 
   actionsRow: { flexDirection: 'row', gap: 12 },
   actionBtn: {
@@ -465,7 +469,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FEF2F2',
     borderColor: '#FECACA',
   },
-  actionBtnLabel: { fontSize: 14, fontWeight: '600', color: '#262D36' },
+  actionBtnLabel: { fontSize: 14, fontWeight: '600', color: Colors.textPrimary },
 
   // ─── ARRIVED overlay ─────────────────────────────────────────────────────
   arrivedOverlay: {
@@ -479,7 +483,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 22,
     paddingTop: 14,
     paddingBottom: Platform.OS === 'ios' ? 40 : 28,
-    shadowColor: '#000',
+    shadowColor: Colors.textPrimary,
     shadowOffset: { width: 0, height: -10 },
     shadowOpacity: 0.2,
     shadowRadius: 28,
@@ -531,7 +535,7 @@ const styles = StyleSheet.create({
   },
   arrivedSubtitle: {
     fontSize: 14,
-    color: '#6B7280',
+    color: Colors.textSecondary,
     fontWeight: '500',
     textAlign: 'center',
   },
@@ -544,7 +548,7 @@ const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 14,
     borderWidth: 1,
-    borderColor: '#F3F4F6',
+    borderColor: Colors.bgPrimary,
     gap: 14,
   },
   arrivedAvatarWrap: { position: 'relative' },
@@ -565,13 +569,13 @@ const styles = StyleSheet.create({
     borderRadius: 7,
     backgroundColor: '#22C55E',
     borderWidth: 2.5,
-    borderColor: '#fff',
+    borderColor: Colors.bgSecondary,
   },
   arrivedDriverName: { fontSize: 17, fontWeight: '700', color: '#111827', marginBottom: 2 },
-  arrivedVehicleText: { fontSize: 13, color: '#6B7280', marginBottom: 6 },
+  arrivedVehicleText: { fontSize: 13, color: Colors.textSecondary, marginBottom: 6 },
   plateBadge: {
     alignSelf: 'flex-start',
-    backgroundColor: '#1F2937',
+    backgroundColor: Colors.textPrimary,
     borderRadius: 6,
     paddingHorizontal: 10,
     paddingVertical: 3,
@@ -615,7 +619,7 @@ const styles = StyleSheet.create({
   arrivedOtpValue: {
     fontSize: 22,
     fontWeight: '900',
-    color: '#fff',
+    color: Colors.bgSecondary,
     letterSpacing: 4,
   },
 
@@ -626,9 +630,9 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: '#F3F4F6',
+    borderColor: Colors.bgPrimary,
   },
   arrivedStatItem: { flex: 1, alignItems: 'center', gap: 4 },
   arrivedStatVal: { fontSize: 14, fontWeight: '700', color: '#111827' },
-  arrivedStatLabel: { fontSize: 11, color: '#9CA3AF', fontWeight: '500' },
+  arrivedStatLabel: { fontSize: 11, color: Colors.textMuted, fontWeight: '500' },
 });

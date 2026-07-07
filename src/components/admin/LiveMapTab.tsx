@@ -1,3 +1,4 @@
+import { useTheme } from '../../context/ThemeContext';
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
@@ -6,6 +7,9 @@ import API from '../../services/api';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 
 export default function LiveMapTab() {
+    const { isDark } = useTheme();
+    const styles = getStyles(Colors);
+
   const [onlineDrivers, setOnlineDrivers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -63,7 +67,7 @@ export default function LiveMapTab() {
               description={driver.isAvailable ? 'Available' : 'On Trip'}
             >
               <View style={[styles.markerBadge, { backgroundColor: driver.isAvailable ? Colors.success : Colors.warning }]}>
-                <MaterialCommunityIcons name="car-side" size={16} color="#fff" />
+                <MaterialCommunityIcons name="car-side" size={16} color={Colors.bgSecondary} />
               </View>
             </Marker>
           );
@@ -73,7 +77,7 @@ export default function LiveMapTab() {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (Colors: any) => StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.bgPrimary },
   map: { width: '100%', height: '100%' },
   overlay: {
@@ -84,7 +88,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.bgSecondary,
     padding: 12,
     borderRadius: 12,
-    shadowColor: '#000',
+    shadowColor: Colors.textPrimary,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
     shadowRadius: 4,
@@ -105,8 +109,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: '#fff',
-    shadowColor: '#000',
+    borderColor: Colors.bgSecondary,
+    shadowColor: Colors.textPrimary,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 2,

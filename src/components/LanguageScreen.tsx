@@ -1,9 +1,12 @@
+import { useTheme } from '../context/ThemeContext';
 import Colors from '../constants/colors';
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Platform } from 'react-native';
 import { useLanguage } from '../context/LanguageContext';
 
 export default function LanguageScreen({ onBack }: { onBack: () => void }) {
+  const { isDark } = useTheme();
+  const styles = getStyles(Colors);
   const { language, setLanguage } = useLanguage();
   const [selectedLang, setSelectedLang] = useState<'en' | 'ta'>(language);
 
@@ -71,7 +74,7 @@ export default function LanguageScreen({ onBack }: { onBack: () => void }) {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (Colors: any) => StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: Colors.bgPrimary
@@ -97,15 +100,15 @@ const styles = StyleSheet.create({
   },
   backButtonIcon: {
     fontSize: 18,
-    color: '#262D36'
+    color: Colors.textPrimary
   },
   headerTitle: {
     fontSize: 16,
-    color: '#262D36'
+    color: Colors.textPrimary
   },
   subtitle: {
     fontSize: 16,
-    color: '#262D36',
+    color: Colors.textPrimary,
     textAlign: 'center',
     marginBottom: 28
   },
@@ -148,7 +151,7 @@ const styles = StyleSheet.create({
   iconTextTa: {
     fontSize: 16,
     fontWeight: '500',
-    color: '#7C848D'
+    color: Colors.textMuted
   },
   textBox: {
     flex: 1
@@ -157,10 +160,10 @@ const styles = StyleSheet.create({
     fontSize: 16
   },
   langTextActive: {
-    color: '#FFFFFF'
+    color: Colors.bgSecondary
   },
   langTextInactive: {
-    color: '#7C848D'
+    color: Colors.textMuted
   },
   footerContainer: {
     flexDirection: 'row',
@@ -193,7 +196,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center'
   },
   applyText: {
-    color: '#FFFFFF',
+    color: Colors.bgSecondary,
     fontSize: 14
   }
 });

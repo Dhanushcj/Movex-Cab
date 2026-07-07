@@ -1,3 +1,4 @@
+import { useTheme } from '../../context/ThemeContext';
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, ActivityIndicator, Alert } from 'react-native';
 import Colors from '../../constants/colors';
@@ -5,6 +6,9 @@ import API from '../../services/api';
 import { Feather } from '@expo/vector-icons';
 
 export default function PaymentsTab() {
+    const { isDark } = useTheme();
+    const styles = getStyles(Colors);
+
   const [payments, setPayments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -66,7 +70,7 @@ export default function PaymentsTab() {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (Colors: any) => StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.bgPrimary },
   card: { backgroundColor: Colors.bgSecondary, padding: 16, borderRadius: 12, marginBottom: 12, borderWidth: 1, borderColor: Colors.border },
   cardHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },

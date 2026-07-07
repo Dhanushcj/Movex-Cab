@@ -1,3 +1,4 @@
+import { useTheme } from '../context/ThemeContext';
 import Colors from '../constants/colors';
 import React, { useState, useEffect, useCallback } from 'react';
 import {
@@ -24,6 +25,9 @@ interface DriverWalletScreenProps {
 }
 
 export default function DriverWalletScreen({ onBack, onNavigateHome, onNavigateHistory }: DriverWalletScreenProps) {
+    const { isDark } = useTheme();
+    const styles = getStyles(Colors);
+
   const [walletData, setWalletData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -185,12 +189,12 @@ export default function DriverWalletScreen({ onBack, onNavigateHome, onNavigateH
         {/* Customer Tips Balance Row */}
         <TouchableOpacity style={styles.tipsRow} activeOpacity={0.7}>
           <View style={styles.tipsRowLeft}>
-            <MaterialCommunityIcons name="cash-multiple" size={22} color="#262D36" />
+            <MaterialCommunityIcons name="cash-multiple" size={22} color={Colors.textPrimary} />
             <Text style={styles.tipsLabel}>Customer tips balance</Text>
           </View>
           <View style={styles.tipsRowRight}>
             <Text style={styles.tipsAmount}>₹{totalTips}</Text>
-            <Feather name="chevron-right" size={20} color="#262D36" />
+            <Feather name="chevron-right" size={20} color={Colors.textPrimary} />
           </View>
         </TouchableOpacity>
 
@@ -207,7 +211,7 @@ export default function DriverWalletScreen({ onBack, onNavigateHome, onNavigateH
           <View style={styles.serviceCard}>
             <View style={styles.serviceCardContent}>
               <View style={styles.serviceCardHeader}>
-                <MaterialCommunityIcons name="cash-multiple" size={22} color="#262D36" />
+                <MaterialCommunityIcons name="cash-multiple" size={22} color={Colors.textPrimary} />
                 <Text style={styles.serviceCardTitle}>Payout</Text>
               </View>
               <Text style={styles.serviceCardSub}>{weekStart} - {weekEnd}</Text>
@@ -218,7 +222,7 @@ export default function DriverWalletScreen({ onBack, onNavigateHome, onNavigateH
           <View style={styles.serviceCard}>
             <View style={styles.serviceCardContent}>
               <View style={styles.serviceCardHeader}>
-                <MaterialCommunityIcons name="cash-multiple" size={22} color="#262D36" />
+                <MaterialCommunityIcons name="cash-multiple" size={22} color={Colors.textPrimary} />
                 <Text style={styles.serviceCardTitle}>Deduction{'\n'}Statement</Text>
               </View>
               <Text style={styles.serviceCardSub}>{weekStart} - {weekEnd}</Text>
@@ -230,7 +234,7 @@ export default function DriverWalletScreen({ onBack, onNavigateHome, onNavigateH
         <View style={[styles.serviceCard, { marginHorizontal: 16, marginBottom: 120 }]}>
           <View style={styles.serviceCardContent}>
             <View style={styles.serviceCardHeader}>
-              <MaterialCommunityIcons name="cash-multiple" size={22} color="#262D36" />
+              <MaterialCommunityIcons name="cash-multiple" size={22} color={Colors.textPrimary} />
               <Text style={styles.serviceCardTitle}>Customer tips{'\n'}Statement</Text>
             </View>
           </View>
@@ -267,7 +271,7 @@ export default function DriverWalletScreen({ onBack, onNavigateHome, onNavigateH
               <TextInput
                 style={styles.modalInput}
                 placeholder="0"
-                placeholderTextColor="#9CA3AF"
+                placeholderTextColor={Colors.textMuted}
                 value={amount}
                 onChangeText={setAmount}
                 keyboardType="numeric"
@@ -289,7 +293,7 @@ export default function DriverWalletScreen({ onBack, onNavigateHome, onNavigateH
             </View>
 
             <TouchableOpacity style={styles.modalPrimaryBtn} onPress={handleAddMoney} disabled={processing}>
-              {processing ? <ActivityIndicator color="#fff" /> : <Text style={styles.modalPrimaryBtnText}>Add Money</Text>}
+              {processing ? <ActivityIndicator color={Colors.bgSecondary} /> : <Text style={styles.modalPrimaryBtnText}>Add Money</Text>}
             </TouchableOpacity>
             <TouchableOpacity style={styles.modalCancelBtn} onPress={() => setShowAddModal(false)}>
               <Text style={styles.modalCancelBtnText}>Cancel</Text>
@@ -313,7 +317,7 @@ export default function DriverWalletScreen({ onBack, onNavigateHome, onNavigateH
               <TextInput
                 style={styles.modalInput}
                 placeholder="0"
-                placeholderTextColor="#9CA3AF"
+                placeholderTextColor={Colors.textMuted}
                 value={amount}
                 onChangeText={setAmount}
                 keyboardType="numeric"
@@ -328,8 +332,8 @@ export default function DriverWalletScreen({ onBack, onNavigateHome, onNavigateH
               <Text style={styles.quickBtnText}>Max: ₹{Math.floor(availableLimit)}</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={[styles.modalPrimaryBtn, { backgroundColor: '#262D36' }]} onPress={handleWithdraw} disabled={processing}>
-              {processing ? <ActivityIndicator color="#fff" /> : <Text style={styles.modalPrimaryBtnText}>Withdraw</Text>}
+            <TouchableOpacity style={[styles.modalPrimaryBtn, { backgroundColor: Colors.textPrimary }]} onPress={handleWithdraw} disabled={processing}>
+              {processing ? <ActivityIndicator color={Colors.bgSecondary} /> : <Text style={styles.modalPrimaryBtnText}>Withdraw</Text>}
             </TouchableOpacity>
             <TouchableOpacity style={styles.modalCancelBtn} onPress={() => setShowWithdrawModal(false)}>
               <Text style={styles.modalCancelBtnText}>Cancel</Text>
@@ -341,7 +345,7 @@ export default function DriverWalletScreen({ onBack, onNavigateHome, onNavigateH
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (Colors: any) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.bgPrimary,
@@ -416,7 +420,7 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     gap: 32,
     marginBottom: 20,
-    shadowColor: '#000',
+    shadowColor: Colors.textPrimary,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
     shadowRadius: 8,
@@ -429,12 +433,12 @@ const styles = StyleSheet.create({
   },
   balanceLabel: {
     fontSize: 16,
-    color: '#7C848D',
+    color: Colors.textMuted,
     fontWeight: '400',
   },
   balanceValue: {
     fontSize: 16,
-    color: '#262D36',
+    color: Colors.textPrimary,
     fontWeight: '500',
   },
 
@@ -503,7 +507,7 @@ const styles = StyleSheet.create({
   },
   tipsLabel: {
     fontSize: 16,
-    color: '#262D36',
+    color: Colors.textPrimary,
     fontWeight: '400',
   },
   tipsRowRight: {
@@ -513,7 +517,7 @@ const styles = StyleSheet.create({
   },
   tipsAmount: {
     fontSize: 16,
-    color: '#262D36',
+    color: Colors.textPrimary,
     fontWeight: '400',
   },
 
@@ -533,7 +537,7 @@ const styles = StyleSheet.create({
   },
   moreText: {
     fontSize: 14,
-    color: '#7C848D',
+    color: Colors.textMuted,
     fontWeight: '400',
   },
 
@@ -549,7 +553,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.bgSecondary,
     borderRadius: 12,
     height: 108,
-    shadowColor: '#000',
+    shadowColor: Colors.textPrimary,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.04,
     shadowRadius: 4,
@@ -566,13 +570,13 @@ const styles = StyleSheet.create({
   },
   serviceCardTitle: {
     fontSize: 14,
-    color: '#262D36',
+    color: Colors.textPrimary,
     fontWeight: '400',
     lineHeight: 19,
   },
   serviceCardSub: {
     fontSize: 14,
-    color: '#7C848D',
+    color: Colors.textMuted,
     fontWeight: '400',
   },
 
@@ -588,7 +592,7 @@ const styles = StyleSheet.create({
     right: 16,
     borderRadius: 20,
     backgroundColor: Colors.bgSecondary,
-    shadowColor: '#000',
+    shadowColor: Colors.textPrimary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 10,
@@ -629,7 +633,7 @@ const styles = StyleSheet.create({
   modalHandle: {
     width: 40,
     height: 4,
-    backgroundColor: '#E5E7EB',
+    backgroundColor: Colors.borderGlass,
     borderRadius: 2,
     alignSelf: 'center',
     marginBottom: 24,
@@ -637,12 +641,12 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#1F2937',
+    color: Colors.textPrimary,
     marginBottom: 6,
   },
   modalSub: {
     fontSize: 14,
-    color: '#6B7280',
+    color: Colors.textSecondary,
     marginBottom: 24,
   },
   modalInputRow: {
@@ -658,14 +662,14 @@ const styles = StyleSheet.create({
   modalCurrency: {
     fontSize: 24,
     fontWeight: '600',
-    color: '#1F2937',
+    color: Colors.textPrimary,
     marginRight: 8,
   },
   modalInput: {
     flex: 1,
     fontSize: 24,
     fontWeight: '500',
-    color: '#1F2937',
+    color: Colors.textPrimary,
   },
   quickSelectRow: {
     flexDirection: 'row',
@@ -687,10 +691,10 @@ const styles = StyleSheet.create({
   quickBtnText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#4B5563',
+    color: Colors.textSecondary,
   },
   quickBtnTextActive: {
-    color: '#FFFFFF',
+    color: Colors.bgSecondary,
   },
   modalPrimaryBtn: {
     backgroundColor: '#0053B3',
@@ -701,7 +705,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   modalPrimaryBtnText: {
-    color: '#FFFFFF',
+    color: Colors.bgSecondary,
     fontSize: 16,
     fontWeight: '600',
   },
@@ -711,7 +715,7 @@ const styles = StyleSheet.create({
     height: 44,
   },
   modalCancelBtnText: {
-    color: '#6B7280',
+    color: Colors.textSecondary,
     fontSize: 15,
     fontWeight: '500',
   },

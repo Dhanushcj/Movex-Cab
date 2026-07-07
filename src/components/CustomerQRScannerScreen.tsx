@@ -1,3 +1,4 @@
+import { useTheme } from '../context/ThemeContext';
 import Colors from '../constants/colors';
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert, Animated } from 'react-native';
@@ -7,6 +8,9 @@ import CustomerPaymentOptionsSheet from './CustomerPaymentOptionsSheet';
 import API from '../services/api';
 
 export default function CustomerQRScannerScreen({ ride, onPaymentComplete, onClose }: any) {
+    const { isDark } = useTheme();
+    const styles = getStyles(Colors);
+
   const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
   const [qrData, setQrData] = useState<any>(null);
@@ -73,7 +77,7 @@ export default function CustomerQRScannerScreen({ ride, onPaymentComplete, onClo
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={onClose} style={styles.backBtn}>
-          <Feather name="chevron-left" size={24} color="#262D36" />
+          <Feather name="chevron-left" size={24} color={Colors.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Scan to Pay</Text>
         <View style={{ width: 24 }} />
@@ -113,7 +117,7 @@ export default function CustomerQRScannerScreen({ ride, onPaymentComplete, onClo
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (Colors: any) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.bgPrimary
@@ -127,7 +131,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     backgroundColor: Colors.bgSecondary,
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB'
+    borderBottomColor: Colors.borderGlass
   },
   backBtn: {
     padding: 8,
@@ -136,7 +140,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#262D36'
+    color: Colors.textPrimary
   },
   scannerContainer: {
     flex: 1,
@@ -160,7 +164,7 @@ const styles = StyleSheet.create({
     borderRadius: 20
   },
   scanText: {
-    color: '#fff',
+    color: Colors.bgSecondary,
     marginTop: 20,
     fontSize: 14,
     fontWeight: '500'
@@ -169,7 +173,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 100,
     fontSize: 16,
-    color: '#4B5563',
+    color: Colors.textSecondary,
     paddingHorizontal: 20
   },
   permissionBtn: {
@@ -181,7 +185,7 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   permissionBtnText: {
-    color: '#fff',
+    color: Colors.bgSecondary,
     fontWeight: '600',
     fontSize: 16
   }

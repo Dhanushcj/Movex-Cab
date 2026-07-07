@@ -1,3 +1,4 @@
+import { useTheme } from '../../context/ThemeContext';
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, ActivityIndicator, Alert } from 'react-native';
 import Colors from '../../constants/colors';
@@ -5,6 +6,9 @@ import API from '../../services/api';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 
 export default function VehiclesTab() {
+    const { isDark } = useTheme();
+    const styles = getStyles(Colors);
+
   const [vehicles, setVehicles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -62,7 +66,7 @@ export default function VehiclesTab() {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (Colors: any) => StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.bgPrimary },
   card: { backgroundColor: Colors.bgSecondary, padding: 16, borderRadius: 12, marginBottom: 12, borderWidth: 1, borderColor: Colors.border },
   cardHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
@@ -70,9 +74,9 @@ const styles = StyleSheet.create({
   info: { flex: 1 },
   title: { fontSize: 16, fontWeight: 'bold', color: Colors.textPrimary },
   subtitle: { fontSize: 14, color: Colors.textSecondary },
-  badge: { backgroundColor: '#E2E8F0', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 4 },
+  badge: { backgroundColor: Colors.borderGlass, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 4 },
   badgeText: { fontSize: 12, fontWeight: 'bold', color: Colors.textSecondary, textTransform: 'uppercase' },
-  plateRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#F8F9FA', padding: 12, borderRadius: 8 },
+  plateRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: Colors.bgPrimary, padding: 12, borderRadius: 8 },
   plateNumber: { fontSize: 16, fontWeight: 'bold', color: '#1E293B', letterSpacing: 1 },
   colorText: { fontSize: 14, color: Colors.textSecondary, textTransform: 'capitalize' },
   emptyText: { textAlign: 'center', color: Colors.textMuted, marginTop: 40 }

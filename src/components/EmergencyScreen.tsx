@@ -1,3 +1,4 @@
+import { useTheme } from '../context/ThemeContext';
 import Colors from '../constants/colors';
 import React from 'react';
 import {
@@ -18,6 +19,9 @@ interface EmergencyScreenProps {
 }
 
 export default function EmergencyScreen({ visible, onClose }: EmergencyScreenProps) {
+    const { isDark } = useTheme();
+    const styles = getStyles(Colors);
+
   return (
     <Modal visible={visible} animationType="slide" transparent={false} onRequestClose={onClose}>
       <View style={styles.container}>
@@ -26,7 +30,7 @@ export default function EmergencyScreen({ visible, onClose }: EmergencyScreenPro
         
         <View style={styles.header}>
           <TouchableOpacity style={styles.backBtn} onPress={onClose}>
-            <Feather name="chevron-left" size={24} color="#000000" />
+            <Feather name="chevron-left" size={24} color={Colors.textPrimary} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Emergency</Text>
           <View style={{ width: 40 }} />
@@ -57,7 +61,7 @@ export default function EmergencyScreen({ visible, onClose }: EmergencyScreenPro
               <Text style={styles.actionTitle}>Call ambulance</Text>
               <Text style={styles.actionSubTitle}>For medical emergencies</Text>
             </View>
-            <Feather name="chevron-right" size={20} color="#262D36" />
+            <Feather name="chevron-right" size={20} color={Colors.textPrimary} />
           </TouchableOpacity>
 
           
@@ -69,7 +73,7 @@ export default function EmergencyScreen({ visible, onClose }: EmergencyScreenPro
               <Text style={styles.actionTitle}>Call Police</Text>
               <Text style={styles.actionSubTitle}>Report a crime</Text>
             </View>
-            <Feather name="chevron-right" size={20} color="#262D36" />
+            <Feather name="chevron-right" size={20} color={Colors.textPrimary} />
           </TouchableOpacity>
 
           
@@ -81,7 +85,7 @@ export default function EmergencyScreen({ visible, onClose }: EmergencyScreenPro
               <Text style={styles.actionTitle}>Call accident help</Text>
               <Text style={styles.actionSubTitle}>Talk to our emergency team</Text>
             </View>
-            <Feather name="chevron-right" size={20} color="#262D36" />
+            <Feather name="chevron-right" size={20} color={Colors.textPrimary} />
           </TouchableOpacity>
 
           
@@ -93,7 +97,7 @@ export default function EmergencyScreen({ visible, onClose }: EmergencyScreenPro
               <Text style={styles.actionTitle}>Insurance card</Text>
               <Text style={styles.actionSubTitle}>View your insurance details</Text>
             </View>
-            <Feather name="chevron-right" size={20} color="#262D36" />
+            <Feather name="chevron-right" size={20} color={Colors.textPrimary} />
           </TouchableOpacity>
         </View>
       </View>
@@ -101,7 +105,7 @@ export default function EmergencyScreen({ visible, onClose }: EmergencyScreenPro
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (Colors: any) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.bgPrimary,
@@ -159,7 +163,7 @@ const styles = StyleSheet.create({
   },
   sosSubTitle: {
     fontSize: 14,
-    color: '#7C848D',
+    color: Colors.textMuted,
     textAlign: 'center',
     lineHeight: 20,
   },
@@ -190,12 +194,12 @@ const styles = StyleSheet.create({
   },
   actionTitle: {
     fontSize: 14,
-    color: '#262D36',
+    color: Colors.textPrimary,
     fontWeight: '500',
     marginBottom: 4,
   },
   actionSubTitle: {
     fontSize: 14,
-    color: '#7C848D',
+    color: Colors.textMuted,
   },
 });

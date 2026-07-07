@@ -1,3 +1,4 @@
+import { useTheme } from '../context/ThemeContext';
 import Colors from '../constants/colors';
 import React, { useRef, useMemo } from 'react';
 import {
@@ -28,6 +29,9 @@ export default function TripCompletedPaymentSheet({
   onComplete,
   driverId,
 }: TripCompletedPaymentSheetProps) {
+    const { isDark } = useTheme();
+    const styles = getStyles(Colors);
+
   const slideAnim = useRef(new Animated.Value(600)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
@@ -91,7 +95,7 @@ export default function TripCompletedPaymentSheet({
         {/* Top action bar */}
         <View style={styles.topBar}>
           <TouchableOpacity style={styles.topBarBtn}>
-            <Feather name="sliders" size={20} color="#262D36" />
+            <Feather name="sliders" size={20} color={Colors.textPrimary} />
           </TouchableOpacity>
           <TouchableOpacity style={styles.topBarBtnDanger}>
             <Feather name="alert-circle" size={20} color="#DC2626" />
@@ -158,8 +162,8 @@ export default function TripCompletedPaymentSheet({
                 <QRCode
                   value={qrValue}
                   size={160}
-                  backgroundColor="#FFFFFF"
-                  color="#000000"
+                  backgroundColor={Colors.bgSecondary}
+                  color={Colors.textPrimary}
                 />
               </View>
               <View style={styles.paymentLogosRow}>
@@ -184,7 +188,7 @@ export default function TripCompletedPaymentSheet({
           <View style={{ marginTop: 24, marginBottom: 40 }}>
             {ride.status === 'payment_pending' ? (
               <TouchableOpacity 
-                style={[styles.nextOrderBtn, { backgroundColor: '#9CA3AF' }]} 
+                style={[styles.nextOrderBtn, { backgroundColor: Colors.textMuted }]} 
                 disabled={true}
               >
                 <Text style={styles.nextOrderBtnText}>Waiting for Customer...</Text>
@@ -201,7 +205,7 @@ export default function TripCompletedPaymentSheet({
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (Colors: any) => StyleSheet.create({
   fullScreen: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: Colors.bgPrimary,
@@ -228,7 +232,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.bgSecondary,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
+    shadowColor: Colors.textPrimary,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.08,
     shadowRadius: 4,
@@ -276,7 +280,7 @@ const styles = StyleSheet.create({
   collectedTitle: {
     fontSize: 20,
     fontWeight: '500',
-    color: '#262D36',
+    color: Colors.textPrimary,
     marginBottom: 12,
   },
   collectedAmount: {
@@ -288,7 +292,7 @@ const styles = StyleSheet.create({
   // Divider
   divider: {
     height: 1,
-    backgroundColor: '#E5E7EB',
+    backgroundColor: Colors.borderGlass,
     marginHorizontal: 24,
     marginBottom: 24,
   },
@@ -301,7 +305,7 @@ const styles = StyleSheet.create({
   tripDetailsTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#262D36',
+    color: Colors.textPrimary,
     marginBottom: 20,
   },
   tripRow: {
@@ -312,7 +316,7 @@ const styles = StyleSheet.create({
   },
   tripRowLabel: {
     fontSize: 15,
-    color: '#7C848D',
+    color: Colors.textMuted,
     fontWeight: '400',
     textDecorationLine: 'underline',
     textDecorationStyle: 'dotted',
@@ -320,7 +324,7 @@ const styles = StyleSheet.create({
   },
   tripRowValue: {
     fontSize: 15,
-    color: '#262D36',
+    color: Colors.textPrimary,
     fontWeight: '500',
   },
 
@@ -333,12 +337,12 @@ const styles = StyleSheet.create({
   qrSectionTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#1F2937',
+    color: Colors.textPrimary,
     marginBottom: 8,
   },
   qrSubtitle: {
     fontSize: 14,
-    color: '#6B7280',
+    color: Colors.textSecondary,
     textAlign: 'center',
     marginBottom: 16,
   },
@@ -349,7 +353,7 @@ const styles = StyleSheet.create({
     padding: 16,
     backgroundColor: Colors.bgSecondary,
     borderRadius: 16,
-    shadowColor: '#000',
+    shadowColor: Colors.textPrimary,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
     shadowRadius: 8,
@@ -380,7 +384,7 @@ const styles = StyleSheet.create({
   paymentLogoCred: {
     fontSize: 13,
     fontWeight: '800',
-    color: '#1F2937',
+    color: Colors.textPrimary,
     letterSpacing: 1,
   },
 
@@ -399,7 +403,7 @@ const styles = StyleSheet.create({
     elevation: 6,
   },
   nextOrderBtnText: {
-    color: '#FFFFFF',
+    color: Colors.bgSecondary,
     fontSize: 17,
     fontWeight: '600',
   },

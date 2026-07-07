@@ -1,3 +1,4 @@
+import { useTheme } from '../context/ThemeContext';
 import React, { useState, useRef } from 'react';
 import {
   View,
@@ -19,11 +20,16 @@ const OTP_LENGTH = 4;
 
 interface SlideToStartScreenProps {
   onStart: (otp: string) => void;
-  onVerify?: () => void;
+  onVerify?: (otp: string) => Promise<boolean> | void;
   pickupAddress: string;
+  customerName?: string;
+  customerPhone?: string;
 }
 
-export default function SlideToStartScreen({ onStart, onVerify, pickupAddress }: SlideToStartScreenProps) {
+export default function SlideToStartScreen({ onStart, onVerify, pickupAddress, customerName, customerPhone }: SlideToStartScreenProps) {
+    const { isDark } = useTheme();
+    const styles = getStyles(Colors);
+
   const [otp, setOtp] = useState('');
   const [isVerified, setIsVerified] = useState(false);
   const inputRef = useRef<TextInput>(null);
@@ -104,15 +110,18 @@ export default function SlideToStartScreen({ onStart, onVerify, pickupAddress }:
         {/* Header Section */}
         <View style={styles.headerSection}>
           <View style={styles.successBadge}>
-            <Feather name="check" size={28} color="#FFF" />
+            <Feather name="check" size={28} color={Colors.bgSecondary} />
           </View>
           <Text style={styles.arrivedTitle}>You have Arrived</Text>
-          <Text style={styles.arrivedSubtitle}>Waiting for customer</Text>
+          <Text style={styles.arrivedSubtitle}>Waiting for {customerName || 'customer'}</Text>
+          {customerPhone && (
+            <Text style={styles.customerPhoneText}>{customerPhone}</Text>
+          )}
         </View>
 
         {/* Location Row */}
         <View style={styles.locationRow}>
-          <Feather name="map-pin" size={18} color="#4B5563" />
+          <Feather name="map-pin" size={18} color={Colors.textSecondary} />
           <Text style={styles.locationText} numberOfLines={1}>
             {pickupAddress}
           </Text>
@@ -132,7 +141,7 @@ export default function SlideToStartScreen({ onStart, onVerify, pickupAddress }:
 
         {/* Waiting Time */}
         <View style={styles.waitingTimeRow}>
-          <Feather name="clock" size={14} color="#6B7280" />
+          <Feather name="clock" size={14} color={Colors.textSecondary} />
           <Text style={styles.waitingTimeText}>Waiting Time 4 mins</Text>
         </View>
 
@@ -189,9 +198,13 @@ export default function SlideToStartScreen({ onStart, onVerify, pickupAddress }:
             <TouchableOpacity 
               style={[styles.validateBtn, isOtpComplete ? styles.validateBtnActive : {}]}
               disabled={!isOtpComplete}
-              onPress={() => {
-                setIsVerified(true);
-                if (onVerify) onVerify();
+              onPress={async () => {
+                if (onVerify) {
+                  const success = await onVerify(otp);
+                  if (success !== false) setIsVerified(true);
+                } else {
+                  setIsVerified(true);
+                }
               }}
             >
               <Text style={styles.validateBtnText}>Validate OTP</Text>
@@ -215,7 +228,7 @@ export default function SlideToStartScreen({ onStart, onVerify, pickupAddress }:
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (Colors: any) => StyleSheet.create({
   overlayContainer: {
     ...StyleSheet.absoluteFillObject,
     justifyContent: 'flex-end',
@@ -232,7 +245,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingTop: 12,
     paddingBottom: Platform.OS === 'ios' ? 40 : 28,
-    shadowColor: '#000',
+    shadowColor: Colors.textPrimary,
     shadowOffset: { width: 0, height: -6 },
     shadowOpacity: 0.15,
     shadowRadius: 20,
@@ -241,7 +254,7 @@ const styles = StyleSheet.create({
   handle: {
     width: 40,
     height: 4,
-    backgroundColor: '#E5E7EB',
+    backgroundColor: Colors.borderGlass,
     borderRadius: 2,
     alignSelf: 'center',
     marginBottom: 20,
@@ -262,13 +275,19 @@ const styles = StyleSheet.create({
   arrivedTitle: {
     fontSize: 20,
     fontWeight: '600',
-    color: '#1F2937',
+    color: Colors.textPrimary,
     marginBottom: 6,
   },
   arrivedSubtitle: {
     fontSize: 14,
-    color: '#6B7280',
+    color: Colors.textSecondary,
     fontWeight: '500',
+    marginBottom: 4,
+  },
+  customerPhoneText: {
+    fontSize: 14,
+    color: Colors.accent,
+    fontWeight: '600',
   },
   locationRow: {
     flexDirection: 'row',
@@ -279,7 +298,7 @@ const styles = StyleSheet.create({
   },
   locationText: {
     fontSize: 14,
-    color: '#6B7280',
+    color: Colors.textSecondary,
     fontWeight: '400',
     maxWidth: '85%',
   },
@@ -315,7 +334,7 @@ const styles = StyleSheet.create({
   },
   waitingTimeText: {
     fontSize: 13,
-    color: '#6B7280',
+    color: Colors.textSecondary,
     fontWeight: '500',
   },
 
@@ -387,7 +406,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   validateBtn: {
-    backgroundColor: '#E5E7EB',
+    backgroundColor: Colors.borderGlass,
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
@@ -397,7 +416,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#0053B3',
   },
   validateBtnText: {
-    color: '#FFFFFF',
+    color: Colors.bgSecondary,
     fontSize: 16,
     fontWeight: '600',
   }

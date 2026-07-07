@@ -1,3 +1,4 @@
+import { useTheme } from '../context/ThemeContext';
 import Colors from '../constants/colors';
 import React, { useRef } from 'react';
 import { View, Animated, PanResponder, StyleSheet, Text, Dimensions } from 'react-native';
@@ -14,6 +15,9 @@ export default function VerticalSwipeButton({
   onSwipeComplete,
   label = 'Start Ride',
 }: SwipeButtonProps) {
+    const { isDark } = useTheme();
+    const styles = getStyles(Colors);
+
   const TRACK_HEIGHT = 56;
   const THUMB_SIZE = 48;
   const TRACK_WIDTH = SCREEN_WIDTH - 48;
@@ -77,13 +81,13 @@ export default function VerticalSwipeButton({
         ]}
         {...panResponder.panHandlers}
       >
-        <Feather name="chevron-right" size={24} color="#FFFFFF" />
+        <Feather name="chevron-right" size={24} color={Colors.bgSecondary} />
       </Animated.View>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (Colors: any) => StyleSheet.create({
   container: {
     borderRadius: 30,
     backgroundColor: Colors.bgPrimary,
@@ -98,7 +102,7 @@ const styles = StyleSheet.create({
   trackLabel: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#9CA3AF',
+    color: Colors.textMuted,
     marginLeft: 40,
   },
   thumb: {
@@ -108,7 +112,7 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
+    shadowColor: Colors.textPrimary,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
     shadowRadius: 4,

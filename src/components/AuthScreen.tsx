@@ -1,3 +1,4 @@
+import { useTheme } from '../context/ThemeContext';
 import React, { useState } from 'react';
 import { 
   StyleSheet, 
@@ -17,6 +18,8 @@ import { useAuth } from '../context/AuthContext';
 import Colors from '../constants/colors';
 
 export default function AuthScreen({ onNavigateRegister }: { onNavigateRegister: (data: any) => void }) {
+  const { isDark } = useTheme();
+  const styles = getStyles(Colors);
   const { loginWithEmail, registerWithEmail, loginWithGoogle, completeGoogleRegistration, loginDriver, loginAdmin, loginWithPassword, checkEmailVerification, resendVerificationEmail, resetPassword } = useAuth();
   
   const [mode, setMode] = useState<'login' | 'register' | 'verify_email' | 'forgot_password'>('login');
@@ -215,8 +218,8 @@ export default function AuthScreen({ onNavigateRegister }: { onNavigateRegister:
           
           {mode === 'verify_email' && (
             <View style={{ paddingVertical: 20 }}>
-              <Text style={{ fontSize: 15, color: '#7C848D', textAlign: 'center', marginBottom: 24, lineHeight: 22 }}>
-                We've sent a verification link to <Text style={{fontWeight: 'bold', color: '#262D36'}}>{email}</Text>. Please check your inbox (and spam folder) and click the link to continue.
+              <Text style={{ fontSize: 15, color: Colors.textMuted, textAlign: 'center', marginBottom: 24, lineHeight: 22 }}>
+                We've sent a verification link to <Text style={{fontWeight: 'bold', color: Colors.textPrimary}}>{email}</Text>. Please check your inbox (and spam folder) and click the link to continue.
               </Text>
               
               <TouchableOpacity 
@@ -236,7 +239,7 @@ export default function AuthScreen({ onNavigateRegister }: { onNavigateRegister:
                 }}
                 disabled={loading}
               >
-                {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.continueButtonText}>I have verified my email</Text>}
+                {loading ? <ActivityIndicator color={Colors.bgSecondary} /> : <Text style={styles.continueButtonText}>I have verified my email</Text>}
               </TouchableOpacity>
 
               <TouchableOpacity 
@@ -267,7 +270,7 @@ export default function AuthScreen({ onNavigateRegister }: { onNavigateRegister:
               <View style={styles.inputBox}>
                 <TextInput
                   placeholder="Enter your name"
-                  placeholderTextColor="#7C848D"
+                  placeholderTextColor={Colors.textMuted}
                   style={styles.inputText}
                   value={name}
                   onChangeText={setName}
@@ -281,7 +284,7 @@ export default function AuthScreen({ onNavigateRegister }: { onNavigateRegister:
             <View style={[styles.inputBox, isGoogleRegister && { backgroundColor: '#f0f0f0' }]}>
               <TextInput
                 placeholder="Enter email"
-                placeholderTextColor="#7C848D"
+                placeholderTextColor={Colors.textMuted}
                 keyboardType="email-address"
                 autoCapitalize="none"
                 style={styles.inputText}
@@ -298,7 +301,7 @@ export default function AuthScreen({ onNavigateRegister }: { onNavigateRegister:
               <View style={styles.inputBox}>
                 <TextInput
                   placeholder="Enter mobile number"
-                  placeholderTextColor="#7C848D"
+                  placeholderTextColor={Colors.textMuted}
                   keyboardType="phone-pad"
                   style={styles.inputText}
                   value={phone}
@@ -314,7 +317,7 @@ export default function AuthScreen({ onNavigateRegister }: { onNavigateRegister:
               <View style={styles.inputBox}>
                 <TextInput
                   placeholder="Enter password"
-                  placeholderTextColor="#7C848D"
+                  placeholderTextColor={Colors.textMuted}
                   secureTextEntry
                   style={styles.inputText}
                   value={password}
@@ -335,7 +338,7 @@ export default function AuthScreen({ onNavigateRegister }: { onNavigateRegister:
               <View style={styles.inputBox}>
                 <TextInput
                   placeholder="Confirm password"
-                  placeholderTextColor="#7C848D"
+                  placeholderTextColor={Colors.textMuted}
                   secureTextEntry
                   style={styles.inputText}
                   value={confirmPassword}
@@ -350,7 +353,7 @@ export default function AuthScreen({ onNavigateRegister }: { onNavigateRegister:
               <View style={styles.inputWrapper}>
                 <Text style={styles.inputLabel}>Date of Birth</Text>
                 <TouchableOpacity onPress={() => setShowDobPicker(true)} style={styles.inputBox} activeOpacity={0.7}>
-                  <Text style={{ flex: 1, fontFamily: 'sans-serif', fontSize: 14, color: dob ? '#262D36' : '#7C848D' }}>
+                  <Text style={{ flex: 1, fontFamily: 'sans-serif', fontSize: 14, color: dob ? Colors.textPrimary : Colors.textMuted }}>
                     {dob ? `${dob.split('-')[2]}-${dob.split('-')[1]}-${dob.split('-')[0]}` : "DD-MM-YYYY"}
                   </Text>
                 </TouchableOpacity>
@@ -392,7 +395,7 @@ export default function AuthScreen({ onNavigateRegister }: { onNavigateRegister:
 
           {mode === 'register' && role === 'driver' && (
             <View style={{ marginVertical: 20, alignItems: 'center' }}>
-              <Text style={{ color: '#7C848D', textAlign: 'center', marginBottom: 15, fontSize: 14 }}>
+              <Text style={{ color: Colors.textMuted, textAlign: 'center', marginBottom: 15, fontSize: 14 }}>
                 Driver registration requires document verification.
               </Text>
               <TouchableOpacity 
@@ -413,7 +416,7 @@ export default function AuthScreen({ onNavigateRegister }: { onNavigateRegister:
               activeOpacity={0.8}
             >
               {loading ? (
-                <ActivityIndicator color="#fff" />
+                <ActivityIndicator color={Colors.bgSecondary} />
               ) : (
                 <Text style={styles.continueButtonText}>{mode === 'login' ? 'Login' : 'Complete Registration'}</Text>
               )}
@@ -434,7 +437,7 @@ export default function AuthScreen({ onNavigateRegister }: { onNavigateRegister:
 
           {mode === 'forgot_password' && (
             <View style={{ marginTop: 10 }}>
-              <Text style={{ fontSize: 14, color: '#7C848D', textAlign: 'center', marginBottom: 20, lineHeight: 22 }}>
+              <Text style={{ fontSize: 14, color: Colors.textMuted, textAlign: 'center', marginBottom: 20, lineHeight: 22 }}>
                 Enter your email address above and we'll send you a link to reset your password.
               </Text>
               <TouchableOpacity 
@@ -457,10 +460,10 @@ export default function AuthScreen({ onNavigateRegister }: { onNavigateRegister:
                 disabled={loading}
                 activeOpacity={0.8}
               >
-                {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.continueButtonText}>Send Reset Link</Text>}
+                {loading ? <ActivityIndicator color={Colors.bgSecondary} /> : <Text style={styles.continueButtonText}>Send Reset Link</Text>}
               </TouchableOpacity>
               <TouchableOpacity style={{ marginTop: 20, alignItems: 'center' }} onPress={() => setMode('login')}>
-                <Text style={{ color: '#7C848D', fontWeight: '600' }}>Back to Login</Text>
+                <Text style={{ color: Colors.textMuted, fontWeight: '600' }}>Back to Login</Text>
               </TouchableOpacity>
             </View>
           )}
@@ -492,7 +495,7 @@ export default function AuthScreen({ onNavigateRegister }: { onNavigateRegister:
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (Colors: any) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.bgPrimary,
@@ -547,20 +550,20 @@ const styles = StyleSheet.create({
     fontFamily: 'sans-serif', // 'Outfit' fallback
     fontWeight: '400',
     fontSize: 20,
-    color: '#262D36',
+    color: Colors.textPrimary,
     marginBottom: 8,
   },
   subtitleText: {
     fontFamily: 'sans-serif',
     fontWeight: '400',
     fontSize: 14,
-    color: '#7C848D',
+    color: Colors.textMuted,
     lineHeight: 20,
   },
   authTabs: {
     flexDirection: 'row',
     marginBottom: 24,
-    backgroundColor: '#E2E8F0',
+    backgroundColor: Colors.borderGlass,
     borderRadius: 24,
     padding: 4,
     width: 280,
@@ -574,7 +577,7 @@ const styles = StyleSheet.create({
   },
   authTabActive: {
     backgroundColor: Colors.bgSecondary,
-    shadowColor: '#000',
+    shadowColor: Colors.textPrimary,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -601,7 +604,7 @@ const styles = StyleSheet.create({
     fontFamily: 'sans-serif',
     fontWeight: '400',
     fontSize: 14,
-    color: '#262D36',
+    color: Colors.textPrimary,
     marginLeft: 4,
   },
   inputBox: {
@@ -619,7 +622,7 @@ const styles = StyleSheet.create({
     fontFamily: 'sans-serif',
     fontWeight: '400',
     fontSize: 14,
-    color: '#7C848D',
+    color: Colors.textMuted,
   },
   divider: {
     width: 1,
@@ -632,7 +635,7 @@ const styles = StyleSheet.create({
     height: '100%',
     fontFamily: 'sans-serif',
     fontSize: 14,
-    color: '#262D36',
+    color: Colors.textPrimary,
   },
   genderRow: {
     flexDirection: 'row',
@@ -654,7 +657,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 83, 179, 0.05)'
   },
   genderBtnText: {
-    color: '#7C848D',
+    color: Colors.textMuted,
     fontWeight: '600',
     fontSize: 14
   },
@@ -690,7 +693,7 @@ const styles = StyleSheet.create({
     fontFamily: 'sans-serif',
     fontWeight: '400',
     fontSize: 10,
-    color: '#262D36',
+    color: Colors.textPrimary,
     textAlign: 'center',
     paddingHorizontal: 20,
     opacity: 0.7,

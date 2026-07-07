@@ -1,3 +1,4 @@
+import { useTheme } from '../../context/ThemeContext';
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, Alert } from 'react-native';
 import Colors from '../../constants/colors';
@@ -5,6 +6,9 @@ import API from '../../services/api';
 import { Feather } from '@expo/vector-icons';
 
 export default function CustomersTab() {
+    const { isDark } = useTheme();
+    const styles = getStyles(Colors);
+
   const [customers, setCustomers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -59,12 +63,12 @@ export default function CustomersTab() {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (Colors: any) => StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.bgPrimary },
   card: { backgroundColor: Colors.bgSecondary, padding: 16, borderRadius: 12, marginBottom: 12, borderWidth: 1, borderColor: Colors.border },
   cardHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
   avatar: { width: 40, height: 40, borderRadius: 20, backgroundColor: Colors.accent, justifyContent: 'center', alignItems: 'center', marginRight: 12 },
-  avatarText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
+  avatarText: { color: Colors.bgSecondary, fontWeight: 'bold', fontSize: 16 },
   info: { flex: 1 },
   name: { fontSize: 16, fontWeight: 'bold', color: Colors.textPrimary },
   contact: { fontSize: 14, color: Colors.textSecondary },

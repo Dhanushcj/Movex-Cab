@@ -1,3 +1,4 @@
+import { useTheme } from '../context/ThemeContext';
 import React, { useState, useEffect } from 'react';
 import { 
   StyleSheet, 
@@ -25,6 +26,8 @@ import ComplaintsTab from './admin/ComplaintsTab';
 import SettingsTab from './admin/SettingsTab';
 
 export default function AdminDashboardScreen({ onNavigateLogout }: { onNavigateLogout?: () => void }) {
+  const { isDark } = useTheme();
+  const styles = getStyles(Colors);
   const { user, logout } = useAuth();
   const [activeModule, setActiveModule] = useState<
     'overview' | 'drivers' | 'vehicles' | 'customers' | 'rides' | 'map' | 'payments' | 'payouts' | 'complaints' | 'settings'
@@ -130,7 +133,7 @@ export default function AdminDashboardScreen({ onNavigateLogout }: { onNavigateL
             <View style={styles.sidebarHeader}>
               <Text style={styles.sidebarTitle}>MoveX Admin</Text>
               <TouchableOpacity onPress={() => setIsSidebarOpen(false)}>
-                <Feather name="x" size={24} color="#fff" />
+                <Feather name="x" size={24} color={Colors.bgSecondary} />
               </TouchableOpacity>
             </View>
             <ScrollView style={{ flex: 1 }}>
@@ -154,7 +157,7 @@ export default function AdminDashboardScreen({ onNavigateLogout }: { onNavigateL
                     setIsSidebarOpen(false);
                   }}
                 >
-                  <Feather name={item.icon} size={20} color={activeModule === item.id ? Colors.accent : '#fff'} />
+                  <Feather name={item.icon} size={20} color={activeModule === item.id ? Colors.accent : Colors.bgSecondary} />
                   <Text style={[styles.sidebarItemText, activeModule === item.id && styles.sidebarItemTextActive]}>
                     {item.label}
                   </Text>
@@ -287,7 +290,7 @@ export default function AdminDashboardScreen({ onNavigateLogout }: { onNavigateL
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (Colors: any) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.bgPrimary,
@@ -325,7 +328,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#0053B3',
     zIndex: 100,
     paddingTop: 50,
-    shadowColor: '#000',
+    shadowColor: Colors.textPrimary,
     shadowOffset: { width: 4, height: 0 },
     shadowOpacity: 0.3,
     shadowRadius: 10,
@@ -339,7 +342,7 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   sidebarTitle: {
-    color: '#fff',
+    color: Colors.bgSecondary,
     fontSize: 20,
     fontWeight: '800',
   },
@@ -356,7 +359,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.bgSecondary,
   },
   sidebarItemText: {
-    color: '#fff',
+    color: Colors.bgSecondary,
     fontSize: 16,
     fontWeight: '600',
   },
@@ -378,7 +381,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.bgSecondary,
     padding: 16,
     borderRadius: 16,
-    shadowColor: '#000',
+    shadowColor: Colors.textPrimary,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 8,
@@ -426,7 +429,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 16,
     marginBottom: 16,
-    shadowColor: '#000',
+    shadowColor: Colors.textPrimary,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 8,
@@ -511,7 +514,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.success,
   },
   approveBtnText: {
-    color: '#fff',
+    color: Colors.bgSecondary,
     fontWeight: '600',
   },
 });

@@ -1,3 +1,4 @@
+import { useTheme } from '../context/ThemeContext';
 import Colors from '../constants/colors';
 import React, { useRef, useState } from 'react';
 import { 
@@ -33,6 +34,9 @@ const SLIDES_DATA = [
 ];
 
 export default function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
+    const { isDark } = useTheme();
+    const styles = getStyles(Colors);
+
   const scrollViewRef = useRef<ScrollView>(null);
   const [activeIndex, setActiveIndex] = useState(0);
 
@@ -126,7 +130,7 @@ export default function OnboardingScreen({ onComplete }: OnboardingScreenProps) 
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (Colors: any) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.bgPrimary,

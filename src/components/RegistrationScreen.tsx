@@ -1,3 +1,4 @@
+import { useTheme } from '../context/ThemeContext';
 import React, { useState } from 'react';
 import { 
   StyleSheet, 
@@ -37,13 +38,16 @@ const TAMIL_NADU_DISTRICTS = [
 ];
 
 const CustomDropdown = ({ label, options, selectedValue, onSelect, placeholder }: any) => {
+    const { isDark } = useTheme();
+    const styles = getStyles(Colors);
+
   const [modalVisible, setModalVisible] = useState(false);
 
   return (
     <View style={styles.inputWrapper}>
       <Text style={styles.inputLabel}>{label}</Text>
       <TouchableOpacity style={styles.inputBox} onPress={() => setModalVisible(true)} activeOpacity={0.8}>
-        <Text style={[{ fontFamily: 'sans-serif', fontSize: 14, color: '#262D36', flex: 1 }, !selectedValue && { color: '#7C848D' }]}>
+        <Text style={[{ fontFamily: 'sans-serif', fontSize: 14, color: Colors.textPrimary, flex: 1 }, !selectedValue && { color: Colors.textMuted }]}>
           {selectedValue || placeholder}
         </Text>
       </TouchableOpacity>
@@ -77,6 +81,8 @@ const CustomDropdown = ({ label, options, selectedValue, onSelect, placeholder }
 };
 
 export default function RegistrationScreen({ onBack, prefillData = null, isCorrection = false }: { onBack: () => void, prefillData?: any, isCorrection?: boolean }) {
+  const { isDark } = useTheme();
+  const styles = getStyles(Colors);
   const { registerDriverProfile, resubmitDriverProfile } = useAuth();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -139,6 +145,9 @@ export default function RegistrationScreen({ onBack, prefillData = null, isCorre
   };
 
   const nextStep = () => {
+    const { isDark } = useTheme();
+    const styles = getStyles(Colors);
+
     if (step === 1) {
       if (!name || !phone || !password || !selectedState || !city || !vehicleType || !vehicleMake || !vehicleModel || !vehicleColor || !plateNumber || !plateType) {
         return Alert.alert('Error', 'Please fill all mandatory fields in Step 1');
@@ -213,9 +222,12 @@ export default function RegistrationScreen({ onBack, prefillData = null, isCorre
   };
 
   const handleVehicleTypeChange = (type: string) => {
+    const { isDark } = useTheme();
+    const styles = getStyles(Colors);
+
     setVehicleType(type);
     if (type === 'bike') {
-      setPlateType('white');
+      setPlateType(Colors.bgSecondary);
     } else if (type === 'auto') {
       setPlateType('yellow');
     }
@@ -232,13 +244,16 @@ export default function RegistrationScreen({ onBack, prefillData = null, isCorre
   );
 
   const renderPlateRadio = () => {
-    const options = ['white', 'yellow'];
+    const { isDark } = useTheme();
+    const styles = getStyles(Colors);
+
+    const options = [Colors.bgSecondary, 'yellow'];
     return (
       <View style={styles.radioGroup}>
         {options.map(opt => {
           let disabled = false;
           if (vehicleType === 'bike' && opt === 'yellow') disabled = true;
-          if (vehicleType === 'auto' && opt === 'white') disabled = true;
+          if (vehicleType === 'auto' && opt === Colors.bgSecondary) disabled = true;
           
           return (
             <TouchableOpacity 
@@ -310,7 +325,7 @@ export default function RegistrationScreen({ onBack, prefillData = null, isCorre
             <View style={styles.inputWrapper}>
               <Text style={styles.inputLabel}>Full Name</Text>
               <View style={styles.inputBox}>
-                <TextInput style={styles.inputText} placeholder="Name" placeholderTextColor="#7C848D" value={name} onChangeText={setName} />
+                <TextInput style={styles.inputText} placeholder="Name" placeholderTextColor={Colors.textMuted} value={name} onChangeText={setName} />
               </View>
             </View>
 
@@ -319,21 +334,21 @@ export default function RegistrationScreen({ onBack, prefillData = null, isCorre
               <View style={styles.inputBox}>
                 <Text style={styles.countryCode}>IN +91</Text>
                 <View style={styles.divider} />
-                <TextInput style={styles.inputText} placeholder="Mobile Number" placeholderTextColor="#7C848D" keyboardType="phone-pad" value={phone} onChangeText={setPhone} />
+                <TextInput style={styles.inputText} placeholder="Mobile Number" placeholderTextColor={Colors.textMuted} keyboardType="phone-pad" value={phone} onChangeText={setPhone} />
               </View>
             </View>
 
             <View style={styles.inputWrapper}>
               <Text style={styles.inputLabel}>Password</Text>
               <View style={styles.inputBox}>
-                <TextInput style={styles.inputText} placeholder="Password" placeholderTextColor="#7C848D" secureTextEntry value={password} onChangeText={setPassword} />
+                <TextInput style={styles.inputText} placeholder="Password" placeholderTextColor={Colors.textMuted} secureTextEntry value={password} onChangeText={setPassword} />
               </View>
             </View>
 
             <View style={styles.inputWrapper}>
               <Text style={styles.inputLabel}>Email Address (Optional)</Text>
               <View style={styles.inputBox}>
-                <TextInput style={styles.inputText} placeholder="Enter mail" placeholderTextColor="#7C848D" keyboardType="email-address" value={email} onChangeText={setEmail} />
+                <TextInput style={styles.inputText} placeholder="Enter mail" placeholderTextColor={Colors.textMuted} keyboardType="email-address" value={email} onChangeText={setEmail} />
               </View>
             </View>
 
@@ -448,7 +463,7 @@ export default function RegistrationScreen({ onBack, prefillData = null, isCorre
             </TouchableOpacity>
           ) : (
             <TouchableOpacity style={styles.navBtnPrimary} onPress={submitRegistration} disabled={loading}>
-              {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.navBtnPrimaryText}>{prefillData ? 'Submit Correction' : 'Submit Application'}</Text>}
+              {loading ? <ActivityIndicator color={Colors.bgSecondary} /> : <Text style={styles.navBtnPrimaryText}>{prefillData ? 'Submit Correction' : 'Submit Application'}</Text>}
             </TouchableOpacity>
           )}
         </View>
@@ -457,7 +472,7 @@ export default function RegistrationScreen({ onBack, prefillData = null, isCorre
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (Colors: any) => StyleSheet.create({
   screenContainer: {
     flex: 1,
     backgroundColor: Colors.bgPrimary
@@ -508,7 +523,7 @@ const styles = StyleSheet.create({
   stepTextTop: {
     fontFamily: 'sans-serif',
     fontSize: 14,
-    color: '#262D36',
+    color: Colors.textPrimary,
     marginBottom: 8
   },
   progressBarBg: {
@@ -540,7 +555,7 @@ const styles = StyleSheet.create({
     fontFamily: 'sans-serif',
     fontWeight: '400',
     fontSize: 14,
-    color: '#262D36',
+    color: Colors.textPrimary,
     marginLeft: 4,
   },
   inputBox: {
@@ -558,7 +573,7 @@ const styles = StyleSheet.create({
     fontFamily: 'sans-serif',
     fontWeight: '400',
     fontSize: 14,
-    color: '#7C848D',
+    color: Colors.textMuted,
   },
   divider: {
     width: 1,
@@ -571,7 +586,7 @@ const styles = StyleSheet.create({
     height: '100%',
     fontFamily: 'sans-serif',
     fontSize: 14,
-    color: '#262D36',
+    color: Colors.textPrimary,
   },
   sectionTitle: {
     color: Colors.textPrimary,
@@ -622,7 +637,7 @@ const styles = StyleSheet.create({
     fontWeight: '600'
   },
   radioTextSelected: {
-    color: '#fff'
+    color: Colors.bgSecondary
   },
   dateBtn: {
     backgroundColor: Colors.bgSecondary,
@@ -694,7 +709,7 @@ const styles = StyleSheet.create({
     elevation: 4
   },
   navBtnPrimaryText: {
-    color: '#fff',
+    color: Colors.bgSecondary,
     fontWeight: '700',
     fontSize: 16
   },
@@ -709,7 +724,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     maxHeight: '80%',
     padding: 20,
-    shadowColor: '#000',
+    shadowColor: Colors.textPrimary,
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.2,
     shadowRadius: 20,

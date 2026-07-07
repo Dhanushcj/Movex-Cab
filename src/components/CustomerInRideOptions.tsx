@@ -1,3 +1,4 @@
+import { useTheme } from '../context/ThemeContext';
 import Colors from '../constants/colors';
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
@@ -19,6 +20,9 @@ export default function CustomerInRideOptions({
   vehiclePlate,
   fare
 }: CustomerInRideOptionsProps) {
+    const { isDark } = useTheme();
+    const styles = getStyles(Colors);
+
   const [paymentMethod, setPaymentMethod] = useState(initialPaymentMethod || 'cash');
   const [tip, setTip] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -82,7 +86,7 @@ export default function CustomerInRideOptions({
           onPress={() => handleUpdate('cash', tip)}
           disabled={loading}
         >
-          <Feather name="dollar-sign" size={18} color={paymentMethod === 'cash' ? '#0053B3' : '#6B7280'} />
+          <Feather name="dollar-sign" size={18} color={paymentMethod === 'cash' ? '#0053B3' : Colors.textSecondary} />
           <Text style={[styles.payOptionText, paymentMethod === 'cash' && styles.payOptionTextActive]}>Cash</Text>
         </TouchableOpacity>
         
@@ -91,7 +95,7 @@ export default function CustomerInRideOptions({
           onPress={() => handleUpdate('qr', tip)}
           disabled={loading}
         >
-          <MaterialCommunityIcons name="qrcode-scan" size={18} color={paymentMethod === 'qr' ? '#0053B3' : '#6B7280'} />
+          <MaterialCommunityIcons name="qrcode-scan" size={18} color={paymentMethod === 'qr' ? '#0053B3' : Colors.textSecondary} />
           <Text style={[styles.payOptionText, paymentMethod === 'qr' && styles.payOptionTextActive]}>QR / Online</Text>
         </TouchableOpacity>
       </View>
@@ -116,7 +120,7 @@ export default function CustomerInRideOptions({
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (Colors: any) => StyleSheet.create({
   container: {
     paddingVertical: 12,
   },
@@ -139,11 +143,11 @@ const styles = StyleSheet.create({
   driverName: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1F2937',
+    color: Colors.textPrimary,
   },
   vehiclePlate: {
     fontSize: 13,
-    color: '#6B7280',
+    color: Colors.textSecondary,
     marginTop: 2,
     fontWeight: '500',
   },
@@ -156,19 +160,19 @@ const styles = StyleSheet.create({
   },
   fareLabel: {
     fontSize: 10,
-    color: '#6B7280',
+    color: Colors.textSecondary,
     fontWeight: '700',
     letterSpacing: 0.5,
   },
   fareVal: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1F2937',
+    color: Colors.textPrimary,
     marginTop: 2,
   },
   divider: {
     height: 1,
-    backgroundColor: '#E5E7EB',
+    backgroundColor: Colors.borderGlass,
     marginBottom: 16,
   },
   sectionTitle: {
@@ -201,7 +205,7 @@ const styles = StyleSheet.create({
   payOptionText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#6B7280',
+    color: Colors.textSecondary,
   },
   payOptionTextActive: {
     color: '#0053B3',
@@ -231,9 +235,9 @@ const styles = StyleSheet.create({
   tipText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#4B5563',
+    color: Colors.textSecondary,
   },
   tipTextActive: {
-    color: '#FFFFFF',
+    color: Colors.bgSecondary,
   },
 });

@@ -23,6 +23,10 @@ export default {
         "googleMaps": {
           "apiKey": process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY
         }
+      },
+      "notification": {
+        "icon": "./assets/icon.png",
+        "color": "#0053B3"
       }
     },
     "web": {

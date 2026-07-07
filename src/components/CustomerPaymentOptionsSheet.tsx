@@ -1,9 +1,13 @@
+import { useTheme } from '../context/ThemeContext';
 import Colors from '../constants/colors';
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 export default function CustomerPaymentOptionsSheet({ amount, onSelect, processing, onCancel }: any) {
+    const { isDark } = useTheme();
+    const styles = getStyles(Colors);
+
   return (
     <View style={styles.sheetContainer}>
       <Text style={styles.title}>Payment Details</Text>
@@ -42,7 +46,7 @@ export default function CustomerPaymentOptionsSheet({ amount, onSelect, processi
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (Colors: any) => StyleSheet.create({
   sheetContainer: {
     position: 'absolute',
     bottom: 0,
@@ -53,28 +57,28 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 24,
     padding: 24,
     elevation: 20,
-    shadowColor: '#000',
+    shadowColor: Colors.textPrimary,
     shadowOffset: { width: 0, height: -4 },
     shadowOpacity: 0.1,
     shadowRadius: 12,
   },
   title: {
     fontSize: 16,
-    color: '#6B7280',
+    color: Colors.textSecondary,
     textAlign: 'center',
     marginBottom: 8
   },
   amount: {
     fontSize: 32,
     fontWeight: '700',
-    color: '#262D36',
+    color: Colors.textPrimary,
     textAlign: 'center',
     marginBottom: 24
   },
   subtitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#262D36',
+    color: Colors.textPrimary,
     marginBottom: 16
   },
   optionsRow: {
@@ -96,7 +100,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
     fontSize: 13,
     fontWeight: '600',
-    color: '#4B5563'
+    color: Colors.textSecondary
   },
   processingContainer: {
     flexDirection: 'row',
