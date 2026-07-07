@@ -971,7 +971,7 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage }:
                 {/* Banner 1 (Top) - Auto swiping carousel */}
                 {banner1List.length > 0 ? (
                   <TouchableOpacity 
-                    style={[styles.promoBanner1, { padding: 0, overflow: 'hidden' }]} 
+                    style={[styles.promoBanner1, { padding: 0, overflow: 'hidden', height: 160 }]} 
                     activeOpacity={0.9} 
                     onPress={() => banner1List[banner1Index]?.linkUrl ? Linking.openURL(banner1List[banner1Index].linkUrl) : null}
                   >
@@ -997,7 +997,7 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage }:
                 {/* Banner 2 (Bottom) */}
                 {banner2List.length > 0 ? (
                   <TouchableOpacity 
-                    style={[styles.promoBanner2, { padding: 0, overflow: 'hidden' }]} 
+                    style={[styles.promoBanner2, { padding: 0, overflow: 'hidden', height: 120 }]} 
                     activeOpacity={0.9} 
                     onPress={() => banner2List[0]?.linkUrl ? Linking.openURL(banner2List[0].linkUrl) : setPickerMode('drop')}
                   >
