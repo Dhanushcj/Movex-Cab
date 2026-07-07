@@ -88,13 +88,11 @@ const Dashboard = () => {
       change: `${stats?.users?.pendingDrivers || 0} pending`,
       isPositive: false
     }
-  ];
-
-  return (
+    return (
     <div className="space-y-8 animate-fade-in">
       {/* Top Header */}
       <div>
-        <h2 className="text-2xl font-bold text-white tracking-tight">Overview Dashboard</h2>
+        <h2 className="text-2xl font-bold text-[var(--text-primary)] tracking-tight">Overview Dashboard</h2>
         <p className="text-sm text-[var(--text-muted)] mt-1">Real-time status updates, earnings summary, and performance metrics</p>
       </div>
 
@@ -109,7 +107,7 @@ const Dashboard = () => {
                   <span className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">
                     {card.title}
                   </span>
-                  <h3 className="text-2xl font-bold text-white mt-1">{card.value}</h3>
+                  <h3 className="text-2xl font-bold text-[var(--text-primary)] mt-1">{card.value}</h3>
                 </div>
                 <div className={`p-3 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400`}>
                   <Icon className="w-5 h-5" />
@@ -134,7 +132,7 @@ const Dashboard = () => {
         <div className="glass-card p-6 lg:col-span-2">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h3 className="text-lg font-bold text-white">Revenue Performance</h3>
+              <h3 className="text-lg font-bold text-[var(--text-primary)]">Revenue Performance</h3>
               <p className="text-xs text-[var(--text-muted)]">Daily gross revenue vs commission</p>
             </div>
             <div className="flex gap-4 text-xs font-semibold">
@@ -160,10 +158,10 @@ const Dashboard = () => {
                     <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.05)" />
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(0, 0, 0, 0.05)" />
                 <XAxis dataKey="name" stroke="var(--text-muted)" fontSize={11} tickLine={false} />
                 <YAxis stroke="var(--text-muted)" fontSize={11} tickLine={false} />
-                <Tooltip contentStyle={{ background: '#131a2e', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '8px' }} />
+                <Tooltip contentStyle={{ background: '#ffffff', border: '1px solid rgba(0, 0, 0, 0.1)', borderRadius: '8px', color: '#000' }} />
                 <Area type="monotone" dataKey="Revenue" stroke="#6366f1" strokeWidth={2} fillOpacity={1} fill="url(#colorRev)" />
                 <Area type="monotone" dataKey="Commission" stroke="#10b981" strokeWidth={2} fillOpacity={1} fill="url(#colorComm)" />
               </AreaChart>
@@ -174,17 +172,17 @@ const Dashboard = () => {
         {/* Vehicles distribution chart */}
         <div className="glass-card p-6">
           <div>
-            <h3 className="text-lg font-bold text-white">Active Fleets</h3>
+            <h3 className="text-lg font-bold text-[var(--text-primary)]">Active Fleets</h3>
             <p className="text-xs text-[var(--text-muted)] mb-6">Distribution across vehicle classes</p>
           </div>
 
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={vehicleDistribution} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.05)" />
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(0, 0, 0, 0.05)" />
                 <XAxis dataKey="name" stroke="var(--text-muted)" fontSize={11} tickLine={false} />
                 <YAxis stroke="var(--text-muted)" fontSize={11} tickLine={false} />
-                <Tooltip contentStyle={{ background: '#131a2e', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '8px' }} />
+                <Tooltip contentStyle={{ background: '#ffffff', border: '1px solid rgba(0, 0, 0, 0.1)', borderRadius: '8px', color: '#000' }} />
                 <Bar dataKey="count" fill="#6366f1" radius={[4, 4, 0, 0]} barSize={25} />
               </BarChart>
             </ResponsiveContainer>

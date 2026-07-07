@@ -11,11 +11,11 @@ const Header = () => {
     <header className="h-20 border-b border-[var(--border-glass)] px-8 flex items-center justify-between sticky top-0 bg-white/80 backdrop-blur-md z-20">
       {/* Search bar */}
       <div className="relative w-80">
-        <Search className="absolute left-3 top-3.5 text-[var(--text-muted)] w-4 h-4" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] w-4 h-4" />
         <input
           type="text"
           placeholder="Quick search bookings, users, drivers..."
-          className="glass-input pl-10 pr-4 py-2.5 w-full text-sm"
+          className="glass-input !pl-10 pr-4 py-2.5 w-full text-sm"
         />
       </div>
 
