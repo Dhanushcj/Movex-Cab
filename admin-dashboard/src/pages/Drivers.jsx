@@ -14,11 +14,11 @@ const Drivers = () => {
     employeeId: '',
     vehicle: { make: '', model: '', year: '', plateNumber: '', color: '', type: 'bike' },
     documents: {
-      drivingLicense: { expiryDate: '' },
-      vehicleRC: { expiryDate: '' },
-      insurance: { expiryDate: '' },
-      permit: { expiryDate: '' },
-      fitnessCertificate: { expiryDate: '' }
+      drivingLicense: { expiryDate: '', number: '' },
+      vehicleRC: { expiryDate: '', number: '' },
+      insurance: { expiryDate: '', number: '' },
+      permit: { expiryDate: '', number: '' },
+      fitnessCertificate: { expiryDate: '', number: '' }
     }
   });
 
@@ -35,11 +35,26 @@ const Drivers = () => {
         type: driver.vehicle?.type || 'bike' 
       },
       documents: {
-        drivingLicense: { expiryDate: driver.documents?.drivingLicense?.expiryDate ? new Date(driver.documents.drivingLicense.expiryDate).toISOString().split('T')[0] : '' },
-        vehicleRC: { expiryDate: driver.documents?.vehicleRC?.expiryDate ? new Date(driver.documents.vehicleRC.expiryDate).toISOString().split('T')[0] : '' },
-        insurance: { expiryDate: driver.documents?.insurance?.expiryDate ? new Date(driver.documents.insurance.expiryDate).toISOString().split('T')[0] : '' },
-        permit: { expiryDate: driver.documents?.permit?.expiryDate ? new Date(driver.documents.permit.expiryDate).toISOString().split('T')[0] : '' },
-        fitnessCertificate: { expiryDate: driver.documents?.fitnessCertificate?.expiryDate ? new Date(driver.documents.fitnessCertificate.expiryDate).toISOString().split('T')[0] : '' }
+        drivingLicense: { 
+          expiryDate: driver.documents?.drivingLicense?.expiryDate ? new Date(driver.documents.drivingLicense.expiryDate).toISOString().split('T')[0] : '',
+          number: driver.documents?.drivingLicense?.number || ''
+        },
+        vehicleRC: { 
+          expiryDate: driver.documents?.vehicleRC?.expiryDate ? new Date(driver.documents.vehicleRC.expiryDate).toISOString().split('T')[0] : '',
+          number: driver.documents?.vehicleRC?.number || ''
+        },
+        insurance: { 
+          expiryDate: driver.documents?.insurance?.expiryDate ? new Date(driver.documents.insurance.expiryDate).toISOString().split('T')[0] : '',
+          number: driver.documents?.insurance?.number || ''
+        },
+        permit: { 
+          expiryDate: driver.documents?.permit?.expiryDate ? new Date(driver.documents.permit.expiryDate).toISOString().split('T')[0] : '',
+          number: driver.documents?.permit?.number || ''
+        },
+        fitnessCertificate: { 
+          expiryDate: driver.documents?.fitnessCertificate?.expiryDate ? new Date(driver.documents.fitnessCertificate.expiryDate).toISOString().split('T')[0] : '',
+          number: driver.documents?.fitnessCertificate?.number || ''
+        }
       }
     });
   };
@@ -254,12 +269,12 @@ const Drivers = () => {
                 <label className="text-xs font-semibold text-[var(--text-muted)] uppercase mb-2 block">Employee ID</label>
                 <input 
                   type="text" 
-                  className="glass-input w-full"
-                  placeholder="e.g. DRV-1001"
+                  className="glass-input w-full bg-white/5 opacity-70 cursor-not-allowed"
+                  placeholder="Auto-generated upon approval"
                   value={editForm.employeeId}
-                  onChange={(e) => setEditForm({...editForm, employeeId: e.target.value})}
+                  disabled
                 />
-                <p className="text-[10px] text-[var(--text-muted)] mt-1">Leave blank to auto-generate upon approval.</p>
+                <p className="text-[10px] text-[var(--text-muted)] mt-1">This ID is generated automatically upon approval and cannot be changed.</p>
               </div>
 
               {/* Vehicle Details */}
@@ -299,54 +314,89 @@ const Drivers = () => {
                 </div>
               </div>
 
-              {/* Documents Expiry */}
+              {/* Documents Expiry & Details */}
               <div className="p-4 bg-[var(--bg-tertiary)] border border-[var(--border-glass)] rounded-xl">
-                <h5 className="text-sm font-semibold text-[var(--text-primary)] mb-4">Document Expirations</h5>
+                <h5 className="text-sm font-semibold text-[var(--text-primary)] mb-4">Document Details & Expirations</h5>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Driving License */}
-                  <div className="p-3 bg-indigo-100/50 rounded-lg border border-[var(--border-glass)]">
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-xs font-semibold text-[var(--text-muted)] uppercase">License Expiry</span>
+                  <div className="p-3 bg-indigo-100/50 rounded-lg border border-[var(--border-glass)] space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs font-semibold text-[var(--text-muted)] uppercase">Driving License</span>
                       {selectedDriver.documents?.drivingLicense?.url && (
                         <a href={`https://movex-cab.onrender.com${selectedDriver.documents.drivingLicense.url}`} target="_blank" rel="noreferrer" className="text-xs text-indigo-700 flex items-center hover:underline">
                           <ExternalLink className="w-3 h-3 mr-1" /> View Image
                         </a>
                       )}
                     </div>
-                    <input type="date" className="glass-input w-full" value={editForm.documents.drivingLicense.expiryDate} onChange={(e) => setEditForm({...editForm, documents: {...editForm.documents, drivingLicense: { expiryDate: e.target.value }}})} />
+                    <div>
+                      <label className="text-[10px] uppercase text-[var(--text-muted)] block mb-1">Doc Number</label>
+                      <input type="text" className="glass-input w-full py-1.5 text-sm" placeholder="License Number" value={editForm.documents.drivingLicense.number} onChange={(e) => setEditForm({...editForm, documents: {...editForm.documents, drivingLicense: { ...editForm.documents.drivingLicense, number: e.target.value }}})} />
+                    </div>
+                    <div>
+                      <label className="text-[10px] uppercase text-[var(--text-muted)] block mb-1">Expiry Date</label>
+                      <input type="date" className="glass-input w-full py-1.5 text-sm" value={editForm.documents.drivingLicense.expiryDate} onChange={(e) => setEditForm({...editForm, documents: {...editForm.documents, drivingLicense: { ...editForm.documents.drivingLicense, expiryDate: e.target.value }}})} />
+                    </div>
                   </div>
                   {/* Vehicle RC */}
-                  <div className="p-3 bg-indigo-100/50 rounded-lg border border-[var(--border-glass)]">
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-xs font-semibold text-[var(--text-muted)] uppercase">RC Expiry</span>
+                  <div className="p-3 bg-indigo-100/50 rounded-lg border border-[var(--border-glass)] space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs font-semibold text-[var(--text-muted)] uppercase">Vehicle RC</span>
                       {selectedDriver.documents?.vehicleRC?.url && (
                         <a href={`https://movex-cab.onrender.com${selectedDriver.documents.vehicleRC.url}`} target="_blank" rel="noreferrer" className="text-xs text-indigo-700 flex items-center hover:underline">
                           <ExternalLink className="w-3 h-3 mr-1" /> View Image
                         </a>
                       )}
                     </div>
-                    <input type="date" className="glass-input w-full" value={editForm.documents.vehicleRC.expiryDate} onChange={(e) => setEditForm({...editForm, documents: {...editForm.documents, vehicleRC: { expiryDate: e.target.value }}})} />
+                    <div>
+                      <label className="text-[10px] uppercase text-[var(--text-muted)] block mb-1">Doc Number</label>
+                      <input type="text" className="glass-input w-full py-1.5 text-sm" placeholder="RC Number" value={editForm.documents.vehicleRC.number} onChange={(e) => setEditForm({...editForm, documents: {...editForm.documents, vehicleRC: { ...editForm.documents.vehicleRC, number: e.target.value }}})} />
+                    </div>
+                    <div>
+                      <label className="text-[10px] uppercase text-[var(--text-muted)] block mb-1">Expiry Date</label>
+                      <input type="date" className="glass-input w-full py-1.5 text-sm" value={editForm.documents.vehicleRC.expiryDate} onChange={(e) => setEditForm({...editForm, documents: {...editForm.documents, vehicleRC: { ...editForm.documents.vehicleRC, expiryDate: e.target.value }}})} />
+                    </div>
                   </div>
                   {/* Insurance */}
-                  <div className="p-3 bg-indigo-100/50 rounded-lg border border-[var(--border-glass)]">
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-xs font-semibold text-[var(--text-muted)] uppercase">Insurance Expiry</span>
+                  <div className="p-3 bg-indigo-100/50 rounded-lg border border-[var(--border-glass)] space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs font-semibold text-[var(--text-muted)] uppercase">Insurance</span>
                     </div>
-                    <input type="date" className="glass-input w-full" value={editForm.documents.insurance.expiryDate} onChange={(e) => setEditForm({...editForm, documents: {...editForm.documents, insurance: { expiryDate: e.target.value }}})} />
+                    <div>
+                      <label className="text-[10px] uppercase text-[var(--text-muted)] block mb-1">Doc Number</label>
+                      <input type="text" className="glass-input w-full py-1.5 text-sm" placeholder="Policy Number" value={editForm.documents.insurance.number} onChange={(e) => setEditForm({...editForm, documents: {...editForm.documents, insurance: { ...editForm.documents.insurance, number: e.target.value }}})} />
+                    </div>
+                    <div>
+                      <label className="text-[10px] uppercase text-[var(--text-muted)] block mb-1">Expiry Date</label>
+                      <input type="date" className="glass-input w-full py-1.5 text-sm" value={editForm.documents.insurance.expiryDate} onChange={(e) => setEditForm({...editForm, documents: {...editForm.documents, insurance: { ...editForm.documents.insurance, expiryDate: e.target.value }}})} />
+                    </div>
                   </div>
                   {/* Permit */}
-                  <div className="p-3 bg-indigo-100/50 rounded-lg border border-[var(--border-glass)]">
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-xs font-semibold text-[var(--text-muted)] uppercase">Permit Expiry</span>
+                  <div className="p-3 bg-indigo-100/50 rounded-lg border border-[var(--border-glass)] space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs font-semibold text-[var(--text-muted)] uppercase">Permit</span>
                     </div>
-                    <input type="date" className="glass-input w-full" value={editForm.documents.permit.expiryDate} onChange={(e) => setEditForm({...editForm, documents: {...editForm.documents, permit: { expiryDate: e.target.value }}})} />
+                    <div>
+                      <label className="text-[10px] uppercase text-[var(--text-muted)] block mb-1">Doc Number</label>
+                      <input type="text" className="glass-input w-full py-1.5 text-sm" placeholder="Permit Number" value={editForm.documents.permit.number} onChange={(e) => setEditForm({...editForm, documents: {...editForm.documents, permit: { ...editForm.documents.permit, number: e.target.value }}})} />
+                    </div>
+                    <div>
+                      <label className="text-[10px] uppercase text-[var(--text-muted)] block mb-1">Expiry Date</label>
+                      <input type="date" className="glass-input w-full py-1.5 text-sm" value={editForm.documents.permit.expiryDate} onChange={(e) => setEditForm({...editForm, documents: {...editForm.documents, permit: { ...editForm.documents.permit, expiryDate: e.target.value }}})} />
+                    </div>
                   </div>
                   {/* FC */}
-                  <div className="p-3 bg-indigo-100/50 rounded-lg border border-[var(--border-glass)]">
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-xs font-semibold text-[var(--text-muted)] uppercase">FC Expiry</span>
+                  <div className="p-3 bg-indigo-100/50 rounded-lg border border-[var(--border-glass)] space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs font-semibold text-[var(--text-muted)] uppercase">Fitness Certificate (FC)</span>
                     </div>
-                    <input type="date" className="glass-input w-full" value={editForm.documents.fitnessCertificate.expiryDate} onChange={(e) => setEditForm({...editForm, documents: {...editForm.documents, fitnessCertificate: { expiryDate: e.target.value }}})} />
+                    <div>
+                      <label className="text-[10px] uppercase text-[var(--text-muted)] block mb-1">Doc Number</label>
+                      <input type="text" className="glass-input w-full py-1.5 text-sm" placeholder="FC Number" value={editForm.documents.fitnessCertificate.number} onChange={(e) => setEditForm({...editForm, documents: {...editForm.documents, fitnessCertificate: { ...editForm.documents.fitnessCertificate, number: e.target.value }}})} />
+                    </div>
+                    <div>
+                      <label className="text-[10px] uppercase text-[var(--text-muted)] block mb-1">Expiry Date</label>
+                      <input type="date" className="glass-input w-full py-1.5 text-sm" value={editForm.documents.fitnessCertificate.expiryDate} onChange={(e) => setEditForm({...editForm, documents: {...editForm.documents, fitnessCertificate: { ...editForm.documents.fitnessCertificate, expiryDate: e.target.value }}})} />
+                    </div>
                   </div>
                 </div>
               </div>

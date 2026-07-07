@@ -28,14 +28,14 @@ const calculateFare = async ({ vehicleType, distance, duration, promoCode, userI
   }
 
   // 2. Base calculations
-  const baseFare = config.baseFare;
-  const distanceCharge = Number((distance * config.perKmCharge).toFixed(2));
-  const timeCharge = Number((duration * config.perMinCharge).toFixed(2));
-  const subtotal = Number((baseFare + distanceCharge + timeCharge).toFixed(2));
+  const baseFare = Math.round(config.baseFare);
+  const distanceCharge = Math.round(distance * config.perKmCharge);
+  const timeCharge = Math.round(duration * config.perMinCharge);
+  const subtotal = Math.round(baseFare + distanceCharge + timeCharge);
 
   // 3. Surge multiplier (if active)
   const surgeMultiplier = config.surgeMultiplier || 1.0;
-  const surgeAmount = Number((subtotal * (surgeMultiplier - 1)).toFixed(2));
+  const surgeAmount = Math.round(subtotal * (surgeMultiplier - 1));
 
   // 4. Base total
   let discountableTotal = subtotal + surgeAmount;
@@ -57,9 +57,9 @@ const calculateFare = async ({ vehicleType, distance, duration, promoCode, userI
       if (!offer.usageLimit || offer.usedCount < offer.usageLimit) {
         if (userUsageCount < offer.perUserLimit) {
           if (offer.discountType === 'flat') {
-            discount = offer.discountValue;
+            discount = Math.round(offer.discountValue);
           } else if (offer.discountType === 'percentage') {
-            discount = Number((discountableTotal * (offer.discountValue / 100)).toFixed(2));
+            discount = Math.round(discountableTotal * (offer.discountValue / 100));
             if (offer.maxDiscount && discount > offer.maxDiscount) {
               discount = offer.maxDiscount;
             }
@@ -73,10 +73,10 @@ const calculateFare = async ({ vehicleType, distance, duration, promoCode, userI
   // 6. Tax calculations (GST / VAT)
   const taxRate = parseFloat(process.env.TAX_RATE || '0.05'); // default 5%
   const taxableAmount = Math.max(0, discountableTotal - discount);
-  const tax = Number((taxableAmount * taxRate).toFixed(2));
+  const tax = Math.round(taxableAmount * taxRate);
 
   // 7. Total final fare
-  let totalFare = Number((taxableAmount + tax).toFixed(2));
+  let totalFare = Math.round(taxableAmount + tax);
 
   // Enforce minimum fare
   if (totalFare < config.minFare) {

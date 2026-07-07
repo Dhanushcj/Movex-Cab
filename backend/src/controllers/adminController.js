@@ -148,16 +148,30 @@ const updateDriverStatus = async (req, res, next) => {
     if (correctionFields) updateObj.correctionFields = correctionFields;
     if (isBlocked !== undefined) updateObj.isBlocked = isBlocked;
     
-    // Explicit updates for employee ID and nested vehicle/docs from the admin
-    if (employeeId) updateObj.employeeId = employeeId;
+    // Explicit updates for nested vehicle/docs from the admin
     if (vehicle) updateObj.vehicle = vehicle;
     
     if (documents) {
-      if (documents.drivingLicense?.expiryDate) updateObj['documents.drivingLicense.expiryDate'] = documents.drivingLicense.expiryDate;
-      if (documents.vehicleRC?.expiryDate) updateObj['documents.vehicleRC.expiryDate'] = documents.vehicleRC.expiryDate;
-      if (documents.insurance?.expiryDate) updateObj['documents.insurance.expiryDate'] = documents.insurance.expiryDate;
-      if (documents.permit?.expiryDate) updateObj['documents.permit.expiryDate'] = documents.permit.expiryDate;
-      if (documents.fitnessCertificate?.expiryDate) updateObj['documents.fitnessCertificate.expiryDate'] = documents.fitnessCertificate.expiryDate;
+      if (documents.drivingLicense) {
+        if (documents.drivingLicense.expiryDate) updateObj['documents.drivingLicense.expiryDate'] = documents.drivingLicense.expiryDate;
+        if (documents.drivingLicense.number !== undefined) updateObj['documents.drivingLicense.number'] = documents.drivingLicense.number;
+      }
+      if (documents.vehicleRC) {
+        if (documents.vehicleRC.expiryDate) updateObj['documents.vehicleRC.expiryDate'] = documents.vehicleRC.expiryDate;
+        if (documents.vehicleRC.number !== undefined) updateObj['documents.vehicleRC.number'] = documents.vehicleRC.number;
+      }
+      if (documents.insurance) {
+        if (documents.insurance.expiryDate) updateObj['documents.insurance.expiryDate'] = documents.insurance.expiryDate;
+        if (documents.insurance.number !== undefined) updateObj['documents.insurance.number'] = documents.insurance.number;
+      }
+      if (documents.permit) {
+        if (documents.permit.expiryDate) updateObj['documents.permit.expiryDate'] = documents.permit.expiryDate;
+        if (documents.permit.number !== undefined) updateObj['documents.permit.number'] = documents.permit.number;
+      }
+      if (documents.fitnessCertificate) {
+        if (documents.fitnessCertificate.expiryDate) updateObj['documents.fitnessCertificate.expiryDate'] = documents.fitnessCertificate.expiryDate;
+        if (documents.fitnessCertificate.number !== undefined) updateObj['documents.fitnessCertificate.number'] = documents.fitnessCertificate.number;
+      }
     }
 
     // Auto-generate employee ID if approved and not set
