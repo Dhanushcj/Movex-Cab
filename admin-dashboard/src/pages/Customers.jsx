@@ -53,7 +53,7 @@ const Customers = () => {
       {/* Top Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-white tracking-tight">Riders / Customers</h2>
+          <h2 className="text-2xl font-bold text-[var(--text-primary)] tracking-tight">Riders / Customers</h2>
           <p className="text-sm text-[var(--text-muted)] mt-1">Manage user profiles, transaction wallets, and suspension list</p>
         </div>
         
@@ -93,18 +93,18 @@ const Customers = () => {
                       {customer.name[0]}
                     </div>
                     <div>
-                      <h4 className="font-semibold text-white text-sm">{customer.name}</h4>
+                      <h4 className="font-semibold text-[var(--text-primary)] text-sm">{customer.name}</h4>
                       <p className="text-xs text-[var(--text-muted)]">{customer.phone}</p>
                     </div>
                   </div>
                 </td>
-                <td className="text-sm text-white">
+                <td className="text-sm text-[var(--text-primary)]">
                   {customer.email || <span className="text-[var(--text-muted)] italic">No email</span>}
                 </td>
-                <td className="text-sm font-semibold text-white">
+                <td className="text-sm font-semibold text-[var(--text-primary)]">
                   ₹{customer.wallet?.balance || 0}
                 </td>
-                <td className="text-sm text-white">
+                <td className="text-sm text-[var(--text-primary)]">
                   {customer.totalRides || 0}
                 </td>
                 <td className="text-xs text-[var(--text-muted)]">
