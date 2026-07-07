@@ -88,7 +88,9 @@ const Dashboard = () => {
       change: `${stats?.users?.pendingDrivers || 0} pending`,
       isPositive: false
     }
-    return (
+  ];
+
+  return (
     <div className="space-y-8 animate-fade-in">
       {/* Top Header */}
       <div>
