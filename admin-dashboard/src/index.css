@@ -136,6 +136,27 @@ body {
   border-collapse: separate;
   border-spacing: 0 8px;
 }
+
+.premium-table th, .premium-table td {
+  padding: 16px 20px;
+  text-align: left;
+}
+
+.premium-table th {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding-bottom: 12px;
+}
+
+.premium-table td {
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border-glass);
+  border-bottom: 1px solid var(--border-glass);
+}
+
 .premium-table td:first-child {
   border-left: 1px solid var(--border-glass);
   border-top-left-radius: var(--radius-md);

@@ -137,7 +137,7 @@ const Drivers = () => {
       {/* Top Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-white tracking-tight">Driver Management</h2>
+          <h2 className="text-2xl font-bold text-[var(--text-primary)] tracking-tight">Driver Management</h2>
           <p className="text-sm text-[var(--text-muted)] mt-1">Verify documents, approve accounts, and audit taxi vehicles</p>
         </div>
       </div>
@@ -160,13 +160,13 @@ const Drivers = () => {
               <tr key={driver._id}>
                 <td>
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center font-bold text-indigo-400">
+                    <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center font-bold text-indigo-700">
                       {driver.name[0]}
                     </div>
                     <div>
-                      <h4 className="font-semibold text-white text-sm">{driver.name}</h4>
+                      <h4 className="font-semibold text-[var(--text-primary)] text-sm">{driver.name}</h4>
                       <p className="text-xs text-[var(--text-muted)]">
-                        {driver.phone} {driver.employeeId && <span className="ml-1 text-indigo-400 font-bold">• {driver.employeeId}</span>}
+                        {driver.phone} {driver.employeeId && <span className="ml-1 text-indigo-700 font-bold">• {driver.employeeId}</span>}
                       </p>
                     </div>
                   </div>
@@ -175,7 +175,7 @@ const Drivers = () => {
                   <span className="text-xs font-semibold uppercase px-2 py-0.5 bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 rounded">
                     {driver.vehicle?.type}
                   </span>
-                  <div className="text-xs text-white mt-1">
+                  <div className="text-xs text-[var(--text-primary)] mt-1">
                     {driver.vehicle?.make} {driver.vehicle?.model} • <span className="text-[var(--text-muted)]">{driver.vehicle?.plateNumber}</span>
                   </div>
                 </td>
@@ -194,7 +194,7 @@ const Drivers = () => {
                   <span className={`w-2.5 h-2.5 rounded-full inline-block mr-2 ${driver.isOnline ? 'bg-emerald-500 shadow-lg shadow-emerald-500/50' : 'bg-slate-700'}`} />
                   <span className="text-sm">{driver.isOnline ? 'Online' : 'Offline'}</span>
                 </td>
-                <td className="font-semibold text-white text-sm">
+                <td className="font-semibold text-[var(--text-primary)] text-sm">
                   ₹{driver.earnings?.total || 0}
                 </td>
                 <td className="text-right">
@@ -236,14 +236,14 @@ const Drivers = () => {
               <X className="w-5 h-5 text-[var(--text-muted)]" />
             </button>
 
-            <h3 className="text-xl font-bold text-white mb-6">Driver Management & Audit</h3>
+            <h3 className="text-xl font-bold text-[var(--text-primary)] mb-6">Driver Management & Audit</h3>
             
-            <div className="flex gap-4 items-center p-4 bg-slate-900/50 rounded-xl mb-6 border border-[var(--border-glass)]">
-              <div className="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center font-bold text-indigo-400 text-lg">
+            <div className="flex gap-4 items-center p-4 bg-[var(--bg-tertiary)] rounded-xl mb-6 border border-[var(--border-glass)]">
+              <div className="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center font-bold text-indigo-700 text-lg">
                 {selectedDriver.name[0]}
               </div>
               <div>
-                <h4 className="font-bold text-white">{selectedDriver.name}</h4>
+                <h4 className="font-bold text-[var(--text-primary)]">{selectedDriver.name}</h4>
                 <p className="text-sm text-[var(--text-muted)]">{selectedDriver.phone}</p>
               </div>
             </div>
@@ -263,8 +263,8 @@ const Drivers = () => {
               </div>
 
               {/* Vehicle Details */}
-              <div className="p-4 bg-slate-900/40 border border-[var(--border-glass)] rounded-xl">
-                <h5 className="text-sm font-semibold text-white mb-4">Vehicle Details</h5>
+              <div className="p-4 bg-[var(--bg-tertiary)] border border-[var(--border-glass)] rounded-xl">
+                <h5 className="text-sm font-semibold text-[var(--text-primary)] mb-4">Vehicle Details</h5>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   <div>
                     <label className="text-xs font-semibold text-[var(--text-muted)] uppercase mb-1 block">Make</label>
@@ -300,15 +300,15 @@ const Drivers = () => {
               </div>
 
               {/* Documents Expiry */}
-              <div className="p-4 bg-slate-900/40 border border-[var(--border-glass)] rounded-xl">
-                <h5 className="text-sm font-semibold text-white mb-4">Document Expirations</h5>
+              <div className="p-4 bg-[var(--bg-tertiary)] border border-[var(--border-glass)] rounded-xl">
+                <h5 className="text-sm font-semibold text-[var(--text-primary)] mb-4">Document Expirations</h5>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Driving License */}
-                  <div className="p-3 bg-slate-800/50 rounded-lg border border-[var(--border-glass)]">
+                  <div className="p-3 bg-indigo-100/50 rounded-lg border border-[var(--border-glass)]">
                     <div className="flex justify-between items-center mb-2">
                       <span className="text-xs font-semibold text-[var(--text-muted)] uppercase">License Expiry</span>
                       {selectedDriver.documents?.drivingLicense?.url && (
-                        <a href={`https://movex-cab.onrender.com${selectedDriver.documents.drivingLicense.url}`} target="_blank" rel="noreferrer" className="text-xs text-indigo-400 flex items-center hover:underline">
+                        <a href={`https://movex-cab.onrender.com${selectedDriver.documents.drivingLicense.url}`} target="_blank" rel="noreferrer" className="text-xs text-indigo-700 flex items-center hover:underline">
                           <ExternalLink className="w-3 h-3 mr-1" /> View Image
                         </a>
                       )}
@@ -316,11 +316,11 @@ const Drivers = () => {
                     <input type="date" className="glass-input w-full" value={editForm.documents.drivingLicense.expiryDate} onChange={(e) => setEditForm({...editForm, documents: {...editForm.documents, drivingLicense: { expiryDate: e.target.value }}})} />
                   </div>
                   {/* Vehicle RC */}
-                  <div className="p-3 bg-slate-800/50 rounded-lg border border-[var(--border-glass)]">
+                  <div className="p-3 bg-indigo-100/50 rounded-lg border border-[var(--border-glass)]">
                     <div className="flex justify-between items-center mb-2">
                       <span className="text-xs font-semibold text-[var(--text-muted)] uppercase">RC Expiry</span>
                       {selectedDriver.documents?.vehicleRC?.url && (
-                        <a href={`https://movex-cab.onrender.com${selectedDriver.documents.vehicleRC.url}`} target="_blank" rel="noreferrer" className="text-xs text-indigo-400 flex items-center hover:underline">
+                        <a href={`https://movex-cab.onrender.com${selectedDriver.documents.vehicleRC.url}`} target="_blank" rel="noreferrer" className="text-xs text-indigo-700 flex items-center hover:underline">
                           <ExternalLink className="w-3 h-3 mr-1" /> View Image
                         </a>
                       )}
@@ -328,21 +328,21 @@ const Drivers = () => {
                     <input type="date" className="glass-input w-full" value={editForm.documents.vehicleRC.expiryDate} onChange={(e) => setEditForm({...editForm, documents: {...editForm.documents, vehicleRC: { expiryDate: e.target.value }}})} />
                   </div>
                   {/* Insurance */}
-                  <div className="p-3 bg-slate-800/50 rounded-lg border border-[var(--border-glass)]">
+                  <div className="p-3 bg-indigo-100/50 rounded-lg border border-[var(--border-glass)]">
                     <div className="flex justify-between items-center mb-2">
                       <span className="text-xs font-semibold text-[var(--text-muted)] uppercase">Insurance Expiry</span>
                     </div>
                     <input type="date" className="glass-input w-full" value={editForm.documents.insurance.expiryDate} onChange={(e) => setEditForm({...editForm, documents: {...editForm.documents, insurance: { expiryDate: e.target.value }}})} />
                   </div>
                   {/* Permit */}
-                  <div className="p-3 bg-slate-800/50 rounded-lg border border-[var(--border-glass)]">
+                  <div className="p-3 bg-indigo-100/50 rounded-lg border border-[var(--border-glass)]">
                     <div className="flex justify-between items-center mb-2">
                       <span className="text-xs font-semibold text-[var(--text-muted)] uppercase">Permit Expiry</span>
                     </div>
                     <input type="date" className="glass-input w-full" value={editForm.documents.permit.expiryDate} onChange={(e) => setEditForm({...editForm, documents: {...editForm.documents, permit: { expiryDate: e.target.value }}})} />
                   </div>
                   {/* FC */}
-                  <div className="p-3 bg-slate-800/50 rounded-lg border border-[var(--border-glass)]">
+                  <div className="p-3 bg-indigo-100/50 rounded-lg border border-[var(--border-glass)]">
                     <div className="flex justify-between items-center mb-2">
                       <span className="text-xs font-semibold text-[var(--text-muted)] uppercase">FC Expiry</span>
                     </div>
