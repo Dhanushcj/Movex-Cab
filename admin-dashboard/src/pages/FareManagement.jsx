@@ -91,7 +91,8 @@ const FareManagement = () => {
   }
 
   return (
-    <div className="space-y-8 animate-fade-in">
+    <>
+      <div className="space-y-8 animate-fade-in">
       {/* Top Header */}
       <div className="flex justify-between items-start">
         <div>
@@ -168,6 +169,8 @@ const FareManagement = () => {
             </div>
           </div>
         ))}
+      </div>
+
       </div>
 
       {/* Edit modal sheet */}
@@ -284,7 +287,7 @@ const FareManagement = () => {
           </form>
         </div>
       )}
-    </div>
+    </>
   );
 };
 

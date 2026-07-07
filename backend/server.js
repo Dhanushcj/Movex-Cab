@@ -12,9 +12,10 @@ const authRoutes = require('./src/routes/authRoutes');
 const userRoutes = require('./src/routes/userRoutes');
 const driverRoutes = require('./src/routes/driverRoutes');
 const bookingRoutes = require('./src/routes/bookingRoutes');
-const paymentRoutes = require('./src/routes/paymentRoutes');
+const ratingRoutes = require('./src/routes/ratingRoutes');
 const adminRoutes = require('./src/routes/adminRoutes');
-const fareRoutes = require('./src/routes/fareRoutes');
+const complaintRoutes = require('./src/routes/complaintRoutes');
+const { startCron } = require('./src/jobs/expiryNotifications');
 const uploadRoutes = require('./src/routes/uploadRoutes');
 const publicRoutes = require('./src/routes/publicRoutes');
 
@@ -62,6 +63,9 @@ app.get('/api/health', (req, res) => {
 
 // Error handling middleware
 app.use(errorHandler);
+
+// Start Cron Jobs
+startCron();
 
 // Start server
 const PORT = process.env.PORT || 5000;

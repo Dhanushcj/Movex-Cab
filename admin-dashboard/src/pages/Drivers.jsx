@@ -8,6 +8,41 @@ const Drivers = () => {
   const [selectedDriver, setSelectedDriver] = useState(null);
   const [rejectReason, setRejectReason] = useState('');
   const [processing, setProcessing] = useState(false);
+  
+  // Edit Form State
+  const [editForm, setEditForm] = useState({
+    employeeId: '',
+    vehicle: { make: '', model: '', year: '', plateNumber: '', color: '', type: 'bike' },
+    documents: {
+      drivingLicense: { expiryDate: '' },
+      vehicleRC: { expiryDate: '' },
+      insurance: { expiryDate: '' },
+      permit: { expiryDate: '' },
+      fitnessCertificate: { expiryDate: '' }
+    }
+  });
+
+  const handleEditClick = (driver) => {
+    setSelectedDriver(driver);
+    setEditForm({
+      employeeId: driver.employeeId || '',
+      vehicle: { 
+        make: driver.vehicle?.make || '', 
+        model: driver.vehicle?.model || '', 
+        year: driver.vehicle?.year || '', 
+        plateNumber: driver.vehicle?.plateNumber || '', 
+        color: driver.vehicle?.color || '', 
+        type: driver.vehicle?.type || 'bike' 
+      },
+      documents: {
+        drivingLicense: { expiryDate: driver.documents?.drivingLicense?.expiryDate ? new Date(driver.documents.drivingLicense.expiryDate).toISOString().split('T')[0] : '' },
+        vehicleRC: { expiryDate: driver.documents?.vehicleRC?.expiryDate ? new Date(driver.documents.vehicleRC.expiryDate).toISOString().split('T')[0] : '' },
+        insurance: { expiryDate: driver.documents?.insurance?.expiryDate ? new Date(driver.documents.insurance.expiryDate).toISOString().split('T')[0] : '' },
+        permit: { expiryDate: driver.documents?.permit?.expiryDate ? new Date(driver.documents.permit.expiryDate).toISOString().split('T')[0] : '' },
+        fitnessCertificate: { expiryDate: driver.documents?.fitnessCertificate?.expiryDate ? new Date(driver.documents.fitnessCertificate.expiryDate).toISOString().split('T')[0] : '' }
+      }
+    });
+  };
 
   const fetchDrivers = async () => {
     try {
@@ -28,12 +63,32 @@ const Drivers = () => {
     setProcessing(true);
     try {
       await API.put(`/admin/drivers/${driverId}`, {
-        approvalStatus: 'approved'
+        approvalStatus: 'approved',
+        employeeId: editForm.employeeId,
+        vehicle: editForm.vehicle,
+        documents: editForm.documents
       });
       setSelectedDriver(null);
       fetchDrivers();
     } catch (err) {
       alert('Failed to approve driver');
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  const handleSaveEdits = async (driverId) => {
+    setProcessing(true);
+    try {
+      await API.put(`/admin/drivers/${driverId}`, {
+        employeeId: editForm.employeeId,
+        vehicle: editForm.vehicle,
+        documents: editForm.documents
+      });
+      setSelectedDriver(null);
+      fetchDrivers();
+    } catch (err) {
+      alert('Failed to save driver details');
     } finally {
       setProcessing(false);
     }
@@ -77,7 +132,8 @@ const Drivers = () => {
   }
 
   return (
-    <div className="space-y-8 animate-fade-in">
+    <>
+      <div className="space-y-8 animate-fade-in">
       {/* Top Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -109,7 +165,9 @@ const Drivers = () => {
                     </div>
                     <div>
                       <h4 className="font-semibold text-white text-sm">{driver.name}</h4>
-                      <p className="text-xs text-[var(--text-muted)]">{driver.phone}</p>
+                      <p className="text-xs text-[var(--text-muted)]">
+                        {driver.phone} {driver.employeeId && <span className="ml-1 text-indigo-400 font-bold">• {driver.employeeId}</span>}
+                      </p>
                     </div>
                   </div>
                 </td>
@@ -142,10 +200,10 @@ const Drivers = () => {
                 <td className="text-right">
                   <div className="flex justify-end gap-3">
                     <button
-                      onClick={() => setSelectedDriver(driver)}
+                      onClick={() => handleEditClick(driver)}
                       className="btn-secondary py-1.5 px-3 text-xs"
                     >
-                      Inspect Docs
+                      Manage & Audit
                     </button>
                     <button
                       onClick={() => handleToggleBlock(driver._id, driver.isBlocked)}
@@ -165,6 +223,8 @@ const Drivers = () => {
         </table>
       </div>
 
+      </div>
+
       {/* Inspection Modal */}
       {selectedDriver && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -176,7 +236,7 @@ const Drivers = () => {
               <X className="w-5 h-5 text-[var(--text-muted)]" />
             </button>
 
-            <h3 className="text-xl font-bold text-white mb-6">Driver Document Audit</h3>
+            <h3 className="text-xl font-bold text-white mb-6">Driver Management & Audit</h3>
             
             <div className="flex gap-4 items-center p-4 bg-slate-900/50 rounded-xl mb-6 border border-[var(--border-glass)]">
               <div className="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center font-bold text-indigo-400 text-lg">
@@ -184,42 +244,114 @@ const Drivers = () => {
               </div>
               <div>
                 <h4 className="font-bold text-white">{selectedDriver.name}</h4>
-                <p className="text-sm text-[var(--text-muted)]">{selectedDriver.phone} • Vehicle Type: {selectedDriver.vehicle?.type.toUpperCase()}</p>
+                <p className="text-sm text-[var(--text-muted)]">{selectedDriver.phone}</p>
               </div>
             </div>
 
-            {/* Documents preview grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-              {/* Driving License */}
-              <div className="p-4 bg-slate-900/40 border border-[var(--border-glass)] rounded-xl">
-                <h5 className="text-xs font-semibold text-[var(--text-muted)] uppercase mb-2">Driving License</h5>
-                <div className="text-sm font-semibold text-white mb-1">No: {selectedDriver.documents?.drivingLicense?.number || 'N/A'}</div>
-                <a 
-                  href={`https://movex-cab.onrender.com${selectedDriver.documents?.drivingLicense?.url}`}
-                  target="_blank" 
-                  rel="noreferrer"
-                  className="text-xs text-indigo-400 flex items-center gap-1 hover:underline mt-2"
-                >
-                  <ExternalLink className="w-3.5 h-3.5" /> View document image
-                </a>
+            <div className="space-y-6">
+              {/* Employee ID */}
+              <div>
+                <label className="text-xs font-semibold text-[var(--text-muted)] uppercase mb-2 block">Employee ID</label>
+                <input 
+                  type="text" 
+                  className="glass-input w-full"
+                  placeholder="e.g. DRV-1001"
+                  value={editForm.employeeId}
+                  onChange={(e) => setEditForm({...editForm, employeeId: e.target.value})}
+                />
+                <p className="text-[10px] text-[var(--text-muted)] mt-1">Leave blank to auto-generate upon approval.</p>
               </div>
 
-              {/* Vehicle RC */}
+              {/* Vehicle Details */}
               <div className="p-4 bg-slate-900/40 border border-[var(--border-glass)] rounded-xl">
-                <h5 className="text-xs font-semibold text-[var(--text-muted)] uppercase mb-2">Registration Certificate (RC)</h5>
-                <div className="text-sm font-semibold text-white mb-1">No: {selectedDriver.documents?.vehicleRC?.number || 'N/A'}</div>
-                <a 
-                  href={`https://movex-cab.onrender.com${selectedDriver.documents?.vehicleRC?.url}`}
-                  target="_blank" 
-                  rel="noreferrer"
-                  className="text-xs text-indigo-400 flex items-center gap-1 hover:underline mt-2"
-                >
-                  <ExternalLink className="w-3.5 h-3.5" /> View document image
-                </a>
+                <h5 className="text-sm font-semibold text-white mb-4">Vehicle Details</h5>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="text-xs font-semibold text-[var(--text-muted)] uppercase mb-1 block">Make</label>
+                    <input type="text" className="glass-input w-full" value={editForm.vehicle.make} onChange={(e) => setEditForm({...editForm, vehicle: {...editForm.vehicle, make: e.target.value}})} />
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-[var(--text-muted)] uppercase mb-1 block">Model</label>
+                    <input type="text" className="glass-input w-full" value={editForm.vehicle.model} onChange={(e) => setEditForm({...editForm, vehicle: {...editForm.vehicle, model: e.target.value}})} />
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-[var(--text-muted)] uppercase mb-1 block">Year</label>
+                    <input type="number" className="glass-input w-full" value={editForm.vehicle.year} onChange={(e) => setEditForm({...editForm, vehicle: {...editForm.vehicle, year: e.target.value}})} />
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-[var(--text-muted)] uppercase mb-1 block">Plate #</label>
+                    <input type="text" className="glass-input w-full uppercase" value={editForm.vehicle.plateNumber} onChange={(e) => setEditForm({...editForm, vehicle: {...editForm.vehicle, plateNumber: e.target.value.toUpperCase()}})} />
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-[var(--text-muted)] uppercase mb-1 block">Color</label>
+                    <input type="text" className="glass-input w-full" value={editForm.vehicle.color} onChange={(e) => setEditForm({...editForm, vehicle: {...editForm.vehicle, color: e.target.value}})} />
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-[var(--text-muted)] uppercase mb-1 block">Type</label>
+                    <select className="glass-input w-full" value={editForm.vehicle.type} onChange={(e) => setEditForm({...editForm, vehicle: {...editForm.vehicle, type: e.target.value}})}>
+                      <option value="bike">Bike</option>
+                      <option value="auto">Auto</option>
+                      <option value="mini">Mini</option>
+                      <option value="sedan">Sedan</option>
+                      <option value="suv">SUV</option>
+                    </select>
+                  </div>
+                </div>
               </div>
-            </div>
 
-            {selectedDriver.approvalStatus === 'pending' && (
+              {/* Documents Expiry */}
+              <div className="p-4 bg-slate-900/40 border border-[var(--border-glass)] rounded-xl">
+                <h5 className="text-sm font-semibold text-white mb-4">Document Expirations</h5>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Driving License */}
+                  <div className="p-3 bg-slate-800/50 rounded-lg border border-[var(--border-glass)]">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-xs font-semibold text-[var(--text-muted)] uppercase">License Expiry</span>
+                      {selectedDriver.documents?.drivingLicense?.url && (
+                        <a href={`https://movex-cab.onrender.com${selectedDriver.documents.drivingLicense.url}`} target="_blank" rel="noreferrer" className="text-xs text-indigo-400 flex items-center hover:underline">
+                          <ExternalLink className="w-3 h-3 mr-1" /> View Image
+                        </a>
+                      )}
+                    </div>
+                    <input type="date" className="glass-input w-full" value={editForm.documents.drivingLicense.expiryDate} onChange={(e) => setEditForm({...editForm, documents: {...editForm.documents, drivingLicense: { expiryDate: e.target.value }}})} />
+                  </div>
+                  {/* Vehicle RC */}
+                  <div className="p-3 bg-slate-800/50 rounded-lg border border-[var(--border-glass)]">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-xs font-semibold text-[var(--text-muted)] uppercase">RC Expiry</span>
+                      {selectedDriver.documents?.vehicleRC?.url && (
+                        <a href={`https://movex-cab.onrender.com${selectedDriver.documents.vehicleRC.url}`} target="_blank" rel="noreferrer" className="text-xs text-indigo-400 flex items-center hover:underline">
+                          <ExternalLink className="w-3 h-3 mr-1" /> View Image
+                        </a>
+                      )}
+                    </div>
+                    <input type="date" className="glass-input w-full" value={editForm.documents.vehicleRC.expiryDate} onChange={(e) => setEditForm({...editForm, documents: {...editForm.documents, vehicleRC: { expiryDate: e.target.value }}})} />
+                  </div>
+                  {/* Insurance */}
+                  <div className="p-3 bg-slate-800/50 rounded-lg border border-[var(--border-glass)]">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-xs font-semibold text-[var(--text-muted)] uppercase">Insurance Expiry</span>
+                    </div>
+                    <input type="date" className="glass-input w-full" value={editForm.documents.insurance.expiryDate} onChange={(e) => setEditForm({...editForm, documents: {...editForm.documents, insurance: { expiryDate: e.target.value }}})} />
+                  </div>
+                  {/* Permit */}
+                  <div className="p-3 bg-slate-800/50 rounded-lg border border-[var(--border-glass)]">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-xs font-semibold text-[var(--text-muted)] uppercase">Permit Expiry</span>
+                    </div>
+                    <input type="date" className="glass-input w-full" value={editForm.documents.permit.expiryDate} onChange={(e) => setEditForm({...editForm, documents: {...editForm.documents, permit: { expiryDate: e.target.value }}})} />
+                  </div>
+                  {/* FC */}
+                  <div className="p-3 bg-slate-800/50 rounded-lg border border-[var(--border-glass)]">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-xs font-semibold text-[var(--text-muted)] uppercase">FC Expiry</span>
+                    </div>
+                    <input type="date" className="glass-input w-full" value={editForm.documents.fitnessCertificate.expiryDate} onChange={(e) => setEditForm({...editForm, documents: {...editForm.documents, fitnessCertificate: { expiryDate: e.target.value }}})} />
+                  </div>
+                </div>
+              </div>
+
+            {selectedDriver.approvalStatus === 'pending' ? (
               <div className="space-y-6 pt-6 border-t border-[var(--border-glass)]">
                 <div className="flex flex-col gap-2">
                   <label className="text-xs font-semibold text-[var(--text-muted)] uppercase">Rejection Reason (If rejecting)</label>
@@ -245,15 +377,26 @@ const Drivers = () => {
                     disabled={processing}
                     className="btn-primary text-sm"
                   >
-                    Approve Driver
+                    Save & Approve Driver
                   </button>
                 </div>
               </div>
+            ) : (
+              <div className="pt-6 border-t border-[var(--border-glass)] flex justify-end">
+                <button
+                  onClick={() => handleSaveEdits(selectedDriver._id)}
+                  disabled={processing}
+                  className="btn-primary text-sm"
+                >
+                  Save Changes
+                </button>
+              </div>
             )}
+            </div>
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 };
 

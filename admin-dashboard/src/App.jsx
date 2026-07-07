@@ -7,7 +7,6 @@ import Customers from './pages/Customers';
 import Drivers from './pages/Drivers';
 import Bookings from './pages/Bookings';
 import FareManagement from './pages/FareManagement';
-import Vehicles from './pages/Vehicles';
 import LiveMap from './pages/LiveMap';
 import Payments from './pages/Payments';
 import Payouts from './pages/Payouts';
@@ -40,7 +39,6 @@ function App() {
         <Route path="/customers" element={<Customers />} />
         <Route path="/drivers" element={<Drivers />} />
         <Route path="/bookings" element={<Bookings />} />
-        <Route path="/vehicles" element={<Vehicles />} />
         <Route path="/map" element={<LiveMap />} />
         <Route path="/payments" element={<Payments />} />
         <Route path="/payouts" element={<Payouts />} />

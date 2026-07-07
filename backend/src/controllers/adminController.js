@@ -140,16 +140,42 @@ const getDrivers = async (req, res, next) => {
 };
 
 const updateDriverStatus = async (req, res, next) => {
-  const { approvalStatus, rejectionReason, correctionFields, isBlocked } = req.body;
+  const { approvalStatus, rejectionReason, correctionFields, isBlocked, employeeId, vehicle, documents } = req.body;
   try {
     const updateObj = {};
     if (approvalStatus) updateObj.approvalStatus = approvalStatus;
     if (rejectionReason) updateObj.rejectionReason = rejectionReason;
     if (correctionFields) updateObj.correctionFields = correctionFields;
     if (isBlocked !== undefined) updateObj.isBlocked = isBlocked;
+    
+    // Explicit updates for employee ID and nested vehicle/docs from the admin
+    if (employeeId) updateObj.employeeId = employeeId;
+    if (vehicle) updateObj.vehicle = vehicle;
+    
+    if (documents) {
+      if (documents.drivingLicense?.expiryDate) updateObj['documents.drivingLicense.expiryDate'] = documents.drivingLicense.expiryDate;
+      if (documents.vehicleRC?.expiryDate) updateObj['documents.vehicleRC.expiryDate'] = documents.vehicleRC.expiryDate;
+      if (documents.insurance?.expiryDate) updateObj['documents.insurance.expiryDate'] = documents.insurance.expiryDate;
+      if (documents.permit?.expiryDate) updateObj['documents.permit.expiryDate'] = documents.permit.expiryDate;
+      if (documents.fitnessCertificate?.expiryDate) updateObj['documents.fitnessCertificate.expiryDate'] = documents.fitnessCertificate.expiryDate;
+    }
 
-    // If approved, make verified: true on docs for convenience
+    // Auto-generate employee ID if approved and not set
     if (approvalStatus === 'approved') {
+      if (!employeeId) {
+        const driver = await Driver.findById(req.params.id);
+        if (!driver.employeeId) {
+          // generate sequential DRV-XXXX
+          const lastDriver = await Driver.findOne({ employeeId: { $exists: true } }).sort({ employeeId: -1 });
+          let nextIdNumber = 1001;
+          if (lastDriver && lastDriver.employeeId && lastDriver.employeeId.startsWith('DRV-')) {
+            const num = parseInt(lastDriver.employeeId.split('-')[1]);
+            if (!isNaN(num)) nextIdNumber = num + 1;
+          }
+          updateObj.employeeId = `DRV-${nextIdNumber}`;
+        }
+      }
+      // If approved, make verified: true on docs for convenience
       updateObj['documents.drivingLicense.verified'] = true;
       updateObj['documents.vehicleRC.verified'] = true;
       updateObj['documents.insurance.verified'] = true;

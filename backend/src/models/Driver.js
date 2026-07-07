@@ -14,6 +14,12 @@ const driverSchema = new mongoose.Schema({
     sparse: true,
     trim: true
   },
+  employeeId: {
+    type: String,
+    unique: true,
+    sparse: true,
+    index: true
+  },
   gender: {
     type: String,
     enum: ['male', 'female', 'other']
@@ -63,6 +69,7 @@ const driverSchema = new mongoose.Schema({
     vehicleRC: {
       url: String,
       number: String,
+      expiryDate: Date,
       verified: { type: Boolean, default: false }
     },
     insurance: {

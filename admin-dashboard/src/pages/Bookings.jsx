@@ -31,7 +31,8 @@ const Bookings = () => {
   }
 
   return (
-    <div className="space-y-8 animate-fade-in">
+    <>
+      <div className="space-y-8 animate-fade-in">
       {/* Top Header */}
       <div>
         <h2 className="text-2xl font-bold text-[var(--text-primary)] tracking-tight">Booking Registry</h2>
@@ -118,6 +119,8 @@ const Bookings = () => {
             )}
           </tbody>
         </table>
+      </div>
+
       </div>
 
       {/* Details Dialog */}
@@ -209,7 +212,7 @@ const Bookings = () => {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 };
 
