@@ -147,6 +147,7 @@ function NavigationRoot() {
           onNavigateProfileEdit={() => setActiveScreen('driverProfileEdit')} 
           onNavigateLanguage={() => setActiveScreen('customerLanguage')}
           onNavigatePassConfig={() => setActiveScreen('commutePassConfig')}
+          activePasses={activePasses}
         />
       )}
       {activeScreen === 'tracking' && user?.role === 'customer' && (
@@ -544,7 +545,7 @@ function LocationPickerScreen({
 }
 
 // 2. REVAMPED HOME / BOOKING SCREEN
-function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage, onNavigatePassConfig }: { onRideBooked: (ride: any) => void; onNavigateProfileEdit: () => void; onNavigateLanguage: () => void; onNavigatePassConfig: () => void; }) {
+function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage, onNavigatePassConfig, activePasses = [] }: { onRideBooked: (ride: any) => void; onNavigateProfileEdit: () => void; onNavigateLanguage: () => void; onNavigatePassConfig: () => void; activePasses?: any[]; }) {
   const { user, logout, updateUserWallet } = useAuth();
   const { t } = useLanguage();
   const { isDark, toggleTheme } = useTheme();
@@ -559,7 +560,6 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage, o
   const [selectedVehicle, setSelectedVehicle] = useState<any>(null);
   const [loadingEstimates, setLoadingEstimates] = useState(false);
   const [bookingRide, setBookingRide] = useState(false);
-  const [activePasses, setActivePasses] = useState<any[]>([]);
   const [passEstimate, setPassEstimate] = useState<any>(null);
   const [bookingMode, setBookingMode] = useState<'ride'|'pass'>('ride');
 
@@ -695,7 +695,7 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage, o
         setPassEstimate(null);
         setEstimates([]);
         API.get('/subscriptions').then(r => {
-          if (r.data.success) setActivePasses(r.data.data);
+          // if (r.data.success) setActivePasses(r.data.data);
         });
       }
     } catch (e: any) {
@@ -1180,6 +1180,24 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage, o
               <Text style={{ color: Colors.textPrimary, fontSize: 14, fontWeight: '400' }}>Upto ₹4,500 referral bonus</Text>
               <Text style={{ color: Colors.textMuted, fontSize: 12 }}>Refer your friend and earn</Text>
             </TouchableOpacity>
+
+                        {/* Active Passes Block */}
+            {activePasses.length > 0 && (
+              <View style={{ marginBottom: 20 }}>
+                <Text style={{ fontSize: 16, fontWeight: '700', color: Colors.textSecondary, marginBottom: 12 }}>Active Passes</Text>
+                {activePasses.map((pass: any) => (
+                  <View key={pass._id} style={{ backgroundColor: Colors.bgSecondary, padding: 16, borderRadius: 12, marginBottom: 12, borderWidth: 1, borderColor: Colors.border }}>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
+                      <Text style={{ fontSize: 16, fontWeight: '700', color: Colors.textPrimary, textTransform: 'capitalize' }}>{pass.vehicleType} Pass</Text>
+                      <Text style={{ color: Colors.success, fontSize: 12, fontWeight: '700' }}>ACTIVE</Text>
+                    </View>
+                    <Text style={{ color: Colors.textSecondary, fontSize: 12, marginBottom: 4 }}>Pickup: {pass.pickupTime}</Text>
+                    {pass.isReturnTrip && <Text style={{ color: Colors.textSecondary, fontSize: 12, marginBottom: 4 }}>Return: {pass.returnTime}</Text>}
+                    <Text style={{ color: Colors.accent, fontSize: 14, marginTop: 8 }}>{pass.totalRides - pass.ridesCompleted} rides remaining</Text>
+                  </View>
+                ))}
+              </View>
+            )}
 
             {/* Options Block */}
             <View style={{ backgroundColor: Colors.bgSecondary, borderRadius: 16, paddingHorizontal: 16, marginBottom: 20 }}>
