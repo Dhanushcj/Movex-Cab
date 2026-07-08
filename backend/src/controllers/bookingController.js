@@ -17,7 +17,10 @@ const estimateFare = async (req, res, next) => {
   const { pickup, drop, promoCode } = req.body; // pickup/drop: { address, coordinates: [lng, lat] }
   try {
     // 1. Get route geometry
-    const route = await getRouteDetails(pickup.coordinates, drop.coordinates);
+    let route = { distance: 0, duration: 0, polyline: '', steps: [] };
+    if (drop && drop.coordinates && drop.coordinates.length === 2 && !(drop.coordinates[0] === 0 && drop.coordinates[1] === 0)) {
+      route = await getRouteDetails(pickup.coordinates, drop.coordinates);
+    }
 
     // 2. Compute fare estimations across all types
     const vehicles = ['bike', 'auto', 'mini', 'sedan', 'suv'];
@@ -79,7 +82,10 @@ const createBooking = async (req, res, next) => {
     }
 
     // 1. Get route directions
-    const route = await getRouteDetails(pickup.coordinates, drop.coordinates);
+    let route = { distance: 0, duration: 0, polyline: '', steps: [] };
+    if (drop && drop.coordinates && drop.coordinates.length === 2 && !(drop.coordinates[0] === 0 && drop.coordinates[1] === 0)) {
+      route = await getRouteDetails(pickup.coordinates, drop.coordinates);
+    }
 
     // 2. Calculate fare (estimates, or use offered fare)
     const calculatedFare = await calculateFare({
@@ -109,10 +115,10 @@ const createBooking = async (req, res, next) => {
         address: pickup.address,
         location: { type: 'Point', coordinates: pickup.coordinates }
       },
-      drop: {
+      drop: drop && drop.address ? {
         address: drop.address,
         location: { type: 'Point', coordinates: drop.coordinates }
-      },
+      } : undefined,
       vehicleType,
       preferences: preferences || [],
       route,
