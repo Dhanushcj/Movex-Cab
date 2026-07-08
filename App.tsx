@@ -1431,6 +1431,18 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage, a
           </View>
         </View>
       </Modal>
+      {showPassConfig && (
+        <View style={StyleSheet.absoluteFill}>
+          <CommutePassConfigScreen 
+            onBack={() => setShowPassConfig(false)}
+            onPassPurchased={() => {
+              setShowPassConfig(false);
+              API.get('/subscriptions').catch(()=>{}); // silent trigger
+            }}
+            RenderLocationPicker={(props) => <LocationPickerScreen {...props} />}
+          />
+        </View>
+      )}
     </View>
   );
 }
