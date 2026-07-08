@@ -102,7 +102,8 @@ const LIGHT_MAP_STYLE = [
 // Navigation controller
 function NavigationRoot() {
   const { user, loading } = useAuth();
-  const [activeScreen, setActiveScreen] = useState<'onboarding' | 'login' | 'home' | 'tracking' | 'register' | 'driverProfile' | 'driverProfileEdit' | 'driverLanguage' | 'customerLanguage' | 'driverHistory' | 'driverWallet' | 'adminDashboard'>('onboarding');
+  const [activePasses, setActivePasses] = React.useState<any[]>([]);
+  const [activeScreen, setActiveScreen] = useState<'onboarding' | 'login' | 'home' | 'tracking' | 'register' | 'driverProfile' | 'driverProfileEdit' | 'driverLanguage' | 'customerLanguage' | 'driverHistory' | 'driverWallet' | 'adminDashboard' | 'commutePassConfig'>('onboarding');
   const [selectedRide, setSelectedRide] = useState<any>(null);
   const [driverRegData, setDriverRegData] = useState<any>(null);
   const [onboardingDone, setOnboardingDone] = useState(false);
@@ -115,6 +116,7 @@ function NavigationRoot() {
         setActiveScreen('register');
       } else {
         setActiveScreen('home');
+        API.get('/subscriptions').then(r => { if(r.data.success) setActivePasses(r.data.data); }).catch(()=>{});
       }
     } else {
       setActiveScreen(onboardingDone ? 'login' : 'onboarding');
@@ -719,11 +721,11 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage }:
     if (mode === 'pickup') {
       setPickupAddr(result.address);
       setPickupCoords(result.coordinates);
-      if (dropCoords && activeScreen !== 'commutePassConfig') getEstimates(result.coordinates, result.address, dropCoords, dropAddr);
+      if (dropCoords ) getEstimates(result.coordinates, result.address, dropCoords, dropAddr);
     } else {
       setDropAddr(result.address);
       setDropCoords(result.coordinates);
-      if (pickupCoords && activeScreen !== 'commutePassConfig') getEstimates(pickupCoords, pickupAddr, result.coordinates, result.address);
+      if (pickupCoords ) getEstimates(pickupCoords, pickupAddr, result.coordinates, result.address);
     }
   };
 
@@ -1051,7 +1053,7 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage }:
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 20 }}>
                   {[
                     { icon: '\uD83D\uDE97', label: t('home.serviceCab') || 'Cab', mode: 'ride' },
-                    { icon: '\uD83C\uDFAB', label: 'Pass', mode: 'pass' },
+                    
                     { icon: '\uD83C\uDFCD\uFE0F', label: t('home.serviceBike') || 'Bike', mode: 'ride' },
                     { icon: '\uD83D\uDEFA', label: t('home.serviceAuto') || 'Auto', mode: 'ride' },
                     { icon: '\u2708\uFE0F', label: t('home.serviceTour') || 'Tour', mode: 'ride' },

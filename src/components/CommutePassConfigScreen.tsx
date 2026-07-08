@@ -6,23 +6,16 @@ import API from '../services/api';
 
 interface CommutePassConfigScreenProps {
   onBack: () => void;
-  pickupAddr: string;
-  dropAddr: string;
-  pickupCoords: number[] | null;
-  dropCoords: number[] | null;
-  onPickLocation: (mode: 'pickup' | 'drop') => void;
   onPassPurchased: () => void;
+  RenderLocationPicker: (props: any) => React.ReactNode;
 }
 
-export default function CommutePassConfigScreen({
-  onBack,
-  pickupAddr,
-  dropAddr,
-  pickupCoords,
-  dropCoords,
-  onPickLocation,
-  onPassPurchased
-}: CommutePassConfigScreenProps) {
+export default function CommutePassConfigScreen({ onBack, onPassPurchased, RenderLocationPicker }: CommutePassConfigScreenProps) {
+  const [pickupAddr, setPickupAddr] = useState('');
+  const [dropAddr, setDropAddr] = useState('');
+  const [pickupCoords, setPickupCoords] = useState<number[] | null>(null);
+  const [dropCoords, setDropCoords] = useState<number[] | null>(null);
+  const [pickerMode, setPickerMode] = useState<'pickup' | 'drop' | null>(null);
   const [vehicleType, setVehicleType] = useState('mini');
   const [isReturnTrip, setIsReturnTrip] = useState(false);
   const [pickupTime, setPickupTime] = useState('09:00');
@@ -92,11 +85,11 @@ export default function CommutePassConfigScreen({
       <ScrollView style={styles.container} contentContainerStyle={{ padding: 16 }}>
         
         <Text style={styles.sectionTitle}>Route</Text>
-        <TouchableOpacity style={styles.locationBox} onPress={() => onPickLocation('pickup')}>
+        <TouchableOpacity style={styles.locationBox} onPress={() => setPickerMode('pickup')}>
           <View style={[styles.dot, { backgroundColor: Colors.accent }]} />
           <Text style={styles.locationText} numberOfLines={1}>{pickupAddr || 'Set Pickup Location'}</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.locationBox, { marginBottom: 24 }]} onPress={() => onPickLocation('drop')}>
+        <TouchableOpacity style={[styles.locationBox, { marginBottom: 24 }]} onPress={() => setPickerMode('drop')}>
           <View style={[styles.dot, { backgroundColor: Colors.accent }]} />
           <Text style={styles.locationText} numberOfLines={1}>{dropAddr || 'Set Drop Location'}</Text>
         </TouchableOpacity>
