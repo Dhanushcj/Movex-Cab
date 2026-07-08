@@ -146,6 +146,7 @@ function NavigationRoot() {
           }} 
           onNavigateProfileEdit={() => setActiveScreen('driverProfileEdit')} 
           onNavigateLanguage={() => setActiveScreen('customerLanguage')}
+          onNavigatePassConfig={() => setActiveScreen('commutePassConfig')}
         />
       )}
       {activeScreen === 'tracking' && user?.role === 'customer' && (
@@ -533,7 +534,7 @@ function LocationPickerScreen({
 }
 
 // 2. REVAMPED HOME / BOOKING SCREEN
-function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage }: { onRideBooked: (ride: any) => void; onNavigateProfileEdit: () => void; onNavigateLanguage: () => void; }) {
+function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage, onNavigatePassConfig }: { onRideBooked: (ride: any) => void; onNavigateProfileEdit: () => void; onNavigateLanguage: () => void; onNavigatePassConfig: () => void; }) {
   const { user, logout, updateUserWallet } = useAuth();
   const { t } = useLanguage();
   const { isDark, toggleTheme } = useTheme();
@@ -1172,7 +1173,8 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage }:
 
             {/* Options Block */}
             <View style={{ backgroundColor: Colors.bgSecondary, borderRadius: 16, paddingHorizontal: 16, marginBottom: 20 }}>
-              {([ { key: 'darkTheme', icon: 'moon', color: '#0053B3', toggle: true },
+              {([ { key: 'commutePass', label: 'Monthly Commute Pass', icon: 'calendar', color: '#0053B3', onPress: onNavigatePassConfig },
+                { key: 'darkTheme', icon: 'moon', color: '#0053B3', toggle: true },
                 { key: 'appLanguage', icon: 'globe', color: '#0053B3', onPress: onNavigateLanguage },
                 { key: 'alertSound', icon: 'volume-2', color: '#0053B3' }, ] as any[]).map((item, idx) => (
                 <View key={idx}>
@@ -1180,7 +1182,7 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage }:
                     <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: Colors.iconBg, borderWidth: 1.5, borderColor: '#0053B3', alignItems: 'center', justifyContent: 'center' }}>
                       <Feather name={item.icon as any} size={18} color={item.color} />
                     </View>
-                    <Text style={{ fontSize: 14, color: Colors.textPrimary, fontWeight: '400', flex: 1 }}>{t('profile.' + item.key)}</Text>
+                    <Text style={{ fontSize: 14, color: Colors.textPrimary, fontWeight: '400', flex: 1 }}>{item.label || t('profile.' + item.key)}</Text>
                     {item.toggle ? (
                       <View style={[{ width: 56, height: 28, backgroundColor: '#DEE0E3', borderRadius: 16 }, isDark && { backgroundColor: '#22282F' }]}>
                         <View style={[{ position: 'absolute', top: -3, width: 34, height: 34, borderRadius: 17, backgroundColor: Colors.textMuted, left: -3, shadowColor: Colors.textPrimary, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.2, shadowRadius: 2, elevation: 3 }, isDark && { backgroundColor: '#0053B3', left: 25 }]} />
@@ -1204,7 +1206,7 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage }:
                     <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: Colors.iconBg, borderWidth: 1.5, borderColor: '#0053B3', alignItems: 'center', justifyContent: 'center' }}>
                       <Feather name={item.icon as any} size={18} color={item.color} />
                     </View>
-                    <Text style={{ fontSize: 14, color: Colors.textPrimary, fontWeight: '400', flex: 1 }}>{t('profile.' + item.key)}</Text>
+                    <Text style={{ fontSize: 14, color: Colors.textPrimary, fontWeight: '400', flex: 1 }}>{item.label || t('profile.' + item.key)}</Text>
                     <Feather name="chevron-right" size={24} color={Colors.textPrimary} style={{ opacity: 1 }} />
                   </TouchableOpacity>
                   {idx < 2 && <View style={{ height: 1, backgroundColor: Colors.bgPrimary, marginHorizontal: -16 }} />}
