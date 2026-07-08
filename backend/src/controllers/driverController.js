@@ -56,7 +56,8 @@ const toggleStatus = async (req, res, next) => {
       }
 
       // Check Fee Engine
-      const feeResult = await DriverFeeEngine.evaluateOnLogin(driver._id, driver.vehicle.type, driver.city || 'Chennai');
+      const vehicleType = driver.vehicle?.type || 'bike';
+      const feeResult = await DriverFeeEngine.evaluateOnLogin(driver._id, vehicleType, driver.city || 'Chennai');
       if (feeResult.status === 'BLOCKED') {
         return res.status(402).json({
           success: false,

@@ -8,8 +8,11 @@ class DriverFeeEngine {
    * Returns { status, message } describing whether the driver can accept rides.
    */
   static async evaluateOnLogin(driverId, vehicleType, city) {
-    const tier = await FeeTier.findOne({ vehicleType, city, active: true });
-    if (!tier) throw new Error(`No active fee tier configured for ${vehicleType} in ${city}`);
+    let tier = await FeeTier.findOne({ vehicleType, city, active: true });
+    if (!tier) {
+      console.warn(`No active fee tier configured for ${vehicleType} in ${city}. Using default commission model.`);
+      tier = { feeModel: 'commission' };
+    }
 
     let wallet = await DriverWallet.findOne({ driverId });
     if (!wallet) wallet = await DriverWallet.create({ driverId });
