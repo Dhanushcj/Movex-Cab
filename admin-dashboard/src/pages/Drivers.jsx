@@ -211,9 +211,13 @@ const Drivers = () => {
               <tr key={driver._id}>
                 <td>
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center font-bold text-indigo-700">
-                      {driver.name[0]}
-                    </div>
+                    {driver.documents?.profilePhoto?.url ? (
+                      <img src={driver.documents.profilePhoto.url.startsWith('http') ? driver.documents.profilePhoto.url : `https://movex-cab.onrender.com${driver.documents.profilePhoto.url}`} className="w-10 h-10 rounded-full object-cover border border-indigo-200" alt={driver.name} />
+                    ) : (
+                      <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center font-bold text-indigo-700">
+                        {driver.name[0]}
+                      </div>
+                    )}
                     <div>
                       <h4 className="font-semibold text-[var(--text-primary)] text-sm">{driver.name}</h4>
                       <p className="text-xs text-[var(--text-muted)]">
@@ -359,6 +363,18 @@ const Drivers = () => {
               <div className="p-4 bg-[var(--bg-tertiary)] border border-[var(--border-glass)] rounded-xl">
                 <h5 className="text-sm font-semibold text-[var(--text-primary)] mb-4">Document Details & Expirations</h5>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Passport Size Photo */}
+                  {selectedDriver.documents?.profilePhoto?.url && (
+                    <div className="p-3 bg-indigo-100/50 rounded-lg border border-[var(--border-glass)] space-y-3 md:col-span-2">
+                      <div className="flex justify-between items-center">
+                        <span className="text-xs font-semibold text-[var(--text-muted)] uppercase">Passport Size Photo</span>
+                        <a href={`https://movex-cab.onrender.com${selectedDriver.documents.profilePhoto.url}`} target="_blank" rel="noreferrer" className="text-xs text-indigo-700 flex items-center hover:underline">
+                          <ExternalLink className="w-3 h-3 mr-1" /> View Image
+                        </a>
+                      </div>
+                      <img src={selectedDriver.documents.profilePhoto.url.startsWith('http') ? selectedDriver.documents.profilePhoto.url : `https://movex-cab.onrender.com${selectedDriver.documents.profilePhoto.url}`} className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-sm" alt="Profile" />
+                    </div>
+                  )}
                   {/* Driving License */}
                   <div className="p-3 bg-indigo-100/50 rounded-lg border border-[var(--border-glass)] space-y-3">
                     <div className="flex justify-between items-center">
