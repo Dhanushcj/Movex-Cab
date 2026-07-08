@@ -11,6 +11,12 @@ export default function Banners() {
   const [uploading, setUploading] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
 
+  const getImageUrl = (url) => {
+    if (!url) return '';
+    if (url.startsWith('http')) return url;
+    return `https://movex-cab.onrender.com${url}`;
+  };
+
   const fetchBanners = async () => {
     try {
       const res = await API.get('/admin/banners');
@@ -31,22 +37,16 @@ export default function Banners() {
 
       if (selectedFile) {
         setUploading(true);
-        // Get presigned URL
-        const uploadRes = await API.post('/upload/upload-url', {
-          filename: selectedFile.name,
-          fileType: selectedFile.type
-        });
-        
-        // Upload to S3
-        await fetch(uploadRes.data.uploadUrl, {
-          method: 'PUT',
+        const formData = new FormData();
+        formData.append('image', selectedFile);
+
+        const uploadRes = await API.post('/upload/image', formData, {
           headers: {
-            'Content-Type': selectedFile.type,
-          },
-          body: selectedFile,
+            'Content-Type': 'multipart/form-data'
+          }
         });
         
-        finalImageUrl = uploadRes.data.uploadUrl.split('?')[0];
+        finalImageUrl = uploadRes.data.imageUrl;
         setUploading(false);
       }
 
@@ -103,7 +103,7 @@ export default function Banners() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {banners.map(b => (
           <div key={b._id} className="glass-card overflow-hidden flex flex-col">
-            <img src={b.imageUrl} alt={b.title} className="w-full h-40 object-cover bg-gray-200 dark:bg-gray-800" />
+            <img src={getImageUrl(b.imageUrl)} alt={b.title} className="w-full h-40 object-cover bg-gray-200 dark:bg-gray-800" />
             <div className="p-4 flex-1 flex flex-col justify-between">
               <div>
                 <div className="flex justify-between items-start mb-2">

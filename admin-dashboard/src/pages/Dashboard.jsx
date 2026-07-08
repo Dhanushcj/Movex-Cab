@@ -48,13 +48,17 @@ const Dashboard = () => {
     );
   }
 
-  const revenueData = stats?.chartData?.revenueData || [];
+  const revenueData = (stats?.chartData?.revenueData || []).map(item => ({
+    ...item,
+    Revenue: Math.round(item.Revenue || 0),
+    Commission: Math.round(item.Commission || 0)
+  }));
   const vehicleDistribution = stats?.chartData?.vehicleDistribution || [];
 
   const cards = [
     {
       title: 'Total Revenue',
-      value: `₹${stats?.revenue?.total || 0}`,
+      value: `₹${Math.round(stats?.revenue?.total || 0)}`,
       desc: 'Overall earnings processed',
       icon: TrendingUp,
       color: 'indigo',
@@ -63,7 +67,7 @@ const Dashboard = () => {
     },
     {
       title: 'Platform Commission',
-      value: `₹${stats?.revenue?.commission || 0}`,
+      value: `₹${Math.round(stats?.revenue?.commission || 0)}`,
       desc: 'Platform share earnings (20%)',
       icon: TrendingUp,
       color: 'emerald',

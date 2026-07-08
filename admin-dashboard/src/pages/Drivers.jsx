@@ -9,6 +9,10 @@ const Drivers = () => {
   const [rejectReason, setRejectReason] = useState('');
   const [processing, setProcessing] = useState(false);
   
+  // Search & Filter
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  
   // Edit Form State
   const [editForm, setEditForm] = useState({
     employeeId: '',
@@ -138,6 +142,17 @@ const Drivers = () => {
     }
   };
 
+  const filteredDrivers = drivers.filter(driver => {
+    const matchesSearch = 
+      (driver.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (driver.phone || '').includes(searchTerm) ||
+      (driver.employeeId || '').toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesStatus = statusFilter === 'all' || driver.approvalStatus === statusFilter;
+    
+    return matchesSearch && matchesStatus;
+  });
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
@@ -150,10 +165,31 @@ const Drivers = () => {
     <>
       <div className="space-y-8 animate-fade-in">
       {/* Top Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold text-[var(--text-primary)] tracking-tight">Driver Management</h2>
           <p className="text-sm text-[var(--text-muted)] mt-1">Verify documents, approve accounts, and audit taxi vehicles</p>
+        </div>
+        
+        {/* Search & Filter */}
+        <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+          <input 
+            type="text" 
+            placeholder="Search name, phone, or ID..." 
+            className="glass-input w-full sm:w-64"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          <select 
+            className="glass-input w-full sm:w-40"
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+          >
+            <option value="all">All Status</option>
+            <option value="pending">Pending Verification</option>
+            <option value="approved">Approved</option>
+            <option value="rejected">Rejected</option>
+          </select>
         </div>
       </div>
 
@@ -171,7 +207,7 @@ const Drivers = () => {
             </tr>
           </thead>
           <tbody>
-            {drivers.map((driver) => (
+            {filteredDrivers.map((driver) => (
               <tr key={driver._id}>
                 <td>
                   <div className="flex items-center gap-3">
@@ -269,12 +305,17 @@ const Drivers = () => {
                 <label className="text-xs font-semibold text-[var(--text-muted)] uppercase mb-2 block">Employee ID</label>
                 <input 
                   type="text" 
-                  className="glass-input w-full bg-white/5 opacity-70 cursor-not-allowed"
-                  placeholder="Auto-generated upon approval"
+                  className={`glass-input w-full ${selectedDriver.approvalStatus !== 'pending' && selectedDriver.employeeId ? 'bg-white/5 opacity-70 cursor-not-allowed' : ''}`}
+                  placeholder="Leave empty to auto-generate"
                   value={editForm.employeeId}
-                  disabled
+                  onChange={(e) => setEditForm({...editForm, employeeId: e.target.value})}
+                  disabled={selectedDriver.approvalStatus !== 'pending' && !!selectedDriver.employeeId}
                 />
-                <p className="text-[10px] text-[var(--text-muted)] mt-1">This ID is generated automatically upon approval and cannot be changed.</p>
+                <p className="text-[10px] text-[var(--text-muted)] mt-1">
+                  {selectedDriver.approvalStatus === 'pending' || !selectedDriver.employeeId 
+                    ? "Leave empty to auto-generate upon approval."
+                    : "Employee ID cannot be changed after assignment."}
+                </p>
               </div>
 
               {/* Vehicle Details */}
