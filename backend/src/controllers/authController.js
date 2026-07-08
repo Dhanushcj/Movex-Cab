@@ -391,7 +391,8 @@ const firebaseLogin = async (req, res, next) => {
             phone: phone_number || phone || undefined,
             dob,
             gender,
-            approvalStatus: 'pending'
+            approvalStatus: 'pending',
+            vehicle: { type: 'bike' } // Default placeholder required by schema
           });
         } else {
           person = await User.create({
@@ -414,19 +415,19 @@ const firebaseLogin = async (req, res, next) => {
         });
       }
     } else {
-      // Update firebase UID if missing
-      if (!person.firebaseUid) {
-        person.firebaseUid = uid;
-        await person.save();
-      }
+      // Build update object to bypass full document validation on missing required fields
+      const updateData = {};
+      if (!person.firebaseUid) updateData.firebaseUid = uid;
+      if (fcmToken) updateData.fcmToken = fcmToken;
+      updateData.lastLogin = new Date();
+      
+      await Model.updateOne({ _id: person._id }, { $set: updateData });
+      
+      // Update local object for token generation
+      if (updateData.firebaseUid) person.firebaseUid = updateData.firebaseUid;
+      if (updateData.fcmToken) person.fcmToken = updateData.fcmToken;
+      person.lastLogin = updateData.lastLogin;
     }
-
-    if (fcmToken) {
-      person.fcmToken = fcmToken;
-    }
-
-    person.lastLogin = new Date();
-    await person.save();
 
     const actualRole = (person.role === 'admin') ? 'admin' : (role || person.role || 'customer');
     
