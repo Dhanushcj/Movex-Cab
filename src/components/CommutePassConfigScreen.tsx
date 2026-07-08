@@ -216,8 +216,8 @@ export default function CommutePassConfigScreen({ onBack, onPassPurchased, Rende
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: Colors.bgPrimary },
-  header: { flexDirection: 'row', alignItems: 'center', padding: 16, borderBottomWidth: 1, borderBottomColor: Colors.border },
-  backButton: { marginRight: 16 },
+  header: { flexDirection: 'row', alignItems: 'center', padding: 16, paddingTop: 20, borderBottomWidth: 1, borderBottomColor: Colors.border },
+  backButton: { width: 40, height: 40, borderRadius: 20, backgroundColor: Colors.borderGlass, alignItems: 'center', justifyContent: 'center', marginRight: 16 },
   headerTitle: { fontSize: 20, fontWeight: '700', color: Colors.textPrimary },
   container: { flex: 1 },
   sectionTitle: { fontSize: 16, fontWeight: '600', color: Colors.textSecondary, marginBottom: 12, marginTop: 8 },

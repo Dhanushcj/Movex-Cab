@@ -146,7 +146,7 @@ function NavigationRoot() {
           }} 
           onNavigateProfileEdit={() => setActiveScreen('driverProfileEdit')} 
           onNavigateLanguage={() => setActiveScreen('customerLanguage')}
-          onNavigatePassConfig={() => setActiveScreen('commutePassConfig')}
+
           activePasses={activePasses}
         />
       )}
@@ -211,16 +211,7 @@ function NavigationRoot() {
       {activeScreen === 'adminDashboard' && (
         <AdminDashboardScreen onNavigateLogout={() => setActiveScreen('login')} />
       )}
-      {activeScreen === 'commutePassConfig' && (
-        <CommutePassConfigScreen 
-          onBack={() => setActiveScreen('home')}
-          onPassPurchased={() => {
-            setActiveScreen('home');
-            API.get('/subscriptions').then(r => { if(r.data.success) setActivePasses(r.data.data); }).catch(()=>{});
-          }}
-          RenderLocationPicker={(props) => <LocationPickerScreen {...props} />}
-        />
-      )}
+      
       <StatusBar style="light" />
     </View>
   );
@@ -545,7 +536,7 @@ function LocationPickerScreen({
 }
 
 // 2. REVAMPED HOME / BOOKING SCREEN
-function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage, onNavigatePassConfig, activePasses = [] }: { onRideBooked: (ride: any) => void; onNavigateProfileEdit: () => void; onNavigateLanguage: () => void; onNavigatePassConfig: () => void; activePasses?: any[]; }) {
+function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage, activePasses = [] }: { onRideBooked: (ride: any) => void; onNavigateProfileEdit: () => void; onNavigateLanguage: () => void; activePasses?: any[]; }) {
   const { user, logout, updateUserWallet } = useAuth();
   const { t } = useLanguage();
   const { isDark, toggleTheme } = useTheme();
@@ -562,6 +553,7 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage, o
   const [bookingRide, setBookingRide] = useState(false);
   const [passEstimate, setPassEstimate] = useState<any>(null);
   const [bookingMode, setBookingMode] = useState<'ride'|'pass'>('ride');
+  const [showPassConfig, setShowPassConfig] = useState(false);
 
   // ── Picker state ──────────────────────────────────────────────────────────
   type PickerMode = null | 'pickup' | 'drop';
@@ -1201,7 +1193,7 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage, o
 
             {/* Options Block */}
             <View style={{ backgroundColor: Colors.bgSecondary, borderRadius: 16, paddingHorizontal: 16, marginBottom: 20 }}>
-              {([ { key: 'commutePass', label: 'Monthly Commute Pass', icon: 'calendar', color: '#0053B3', onPress: onNavigatePassConfig },
+              {([ { key: 'commutePass', label: 'Monthly Commute Pass', icon: 'calendar', color: '#0053B3', onPress: () => setShowPassConfig(true) },
                 { key: 'darkTheme', icon: 'moon', color: '#0053B3', toggle: true },
                 { key: 'appLanguage', icon: 'globe', color: '#0053B3', onPress: onNavigateLanguage },
                 { key: 'alertSound', icon: 'volume-2', color: '#0053B3' }, ] as any[]).map((item, idx) => (
