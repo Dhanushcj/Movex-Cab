@@ -210,6 +210,16 @@ function NavigationRoot() {
       {activeScreen === 'adminDashboard' && (
         <AdminDashboardScreen onNavigateLogout={() => setActiveScreen('login')} />
       )}
+      {activeScreen === 'commutePassConfig' && (
+        <CommutePassConfigScreen 
+          onBack={() => setActiveScreen('home')}
+          onPassPurchased={() => {
+            setActiveScreen('home');
+            API.get('/subscriptions').then(r => { if(r.data.success) setActivePasses(r.data.data); }).catch(()=>{});
+          }}
+          RenderLocationPicker={(props) => <LocationPickerScreen {...props} />}
+        />
+      )}
       <StatusBar style="light" />
     </View>
   );

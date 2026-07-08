@@ -75,8 +75,28 @@ export default function CommutePassConfigScreen({ onBack, onPassPurchased, Rende
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.header}>
+    <>
+      {pickerMode ? (
+        <RenderLocationPicker
+          initialPickup={pickupCoords ? { address: pickupAddr, coordinates: pickupCoords } : null}
+          initialDrop={dropCoords ? { address: dropAddr, coordinates: dropCoords } : null}
+          pickerMode={pickerMode}
+          onConfirm={(location: any) => {
+            if (pickerMode === 'pickup') {
+              setPickupAddr(location.address);
+              setPickupCoords(location.coordinates);
+            } else {
+              setDropAddr(location.address);
+              setDropCoords(location.coordinates);
+            }
+            setPickerMode(null);
+            setEstimate(null); // Reset estimate when locations change
+          }}
+          onBack={() => setPickerMode(null)}
+        />
+      ) : (
+        <SafeAreaView style={styles.safeArea}>
+          <View style={styles.header}>
         <TouchableOpacity onPress={onBack} style={styles.backButton}>
           <Feather name="chevron-left" size={24} color={Colors.textPrimary} />
         </TouchableOpacity>
@@ -188,7 +208,9 @@ export default function CommutePassConfigScreen({ onBack, onPassPurchased, Rende
         )}
 
       </ScrollView>
-    </SafeAreaView>
+        </SafeAreaView>
+      )}
+    </>
   );
 }
 
