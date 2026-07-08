@@ -30,10 +30,10 @@ const bookingSchema = new mongoose.Schema({
     }
   },
   drop: {
-    address: { type: String, required: true },
+    address: { type: String, required: false },
     location: {
       type: { type: String, enum: ['Point'], default: 'Point' },
-      coordinates: { type: [Number], required: true } // [lng, lat]
+      coordinates: { type: [Number], required: false } // [lng, lat]
     }
   },
   // Vehicle
