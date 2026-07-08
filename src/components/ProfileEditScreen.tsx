@@ -1,7 +1,7 @@
 import { useTheme } from '../context/ThemeContext';
 import Colors from '../constants/colors';
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView, TextInput, Platform, KeyboardAvoidingView, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView, TextInput, Platform, KeyboardAvoidingView, Alert, Image } from 'react-native';
 import { useAuth } from '../context/AuthContext';
 import { Feather } from '@expo/vector-icons';
 
@@ -16,6 +16,7 @@ export default function ProfileEditScreen({ onBack, onSave }: { onBack: () => vo
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
   const [changePasswordExpanded, setChangePasswordExpanded] = useState(false);
   const [phone, setPhone] = useState(user?.phone || '6382173293');
+  const [gender, setGender] = useState(user?.gender || '');
   const [city, setCity] = useState(user?.city || 'Krishnagiri');
   const [vehicleType, setVehicleType] = useState(user?.vehicle?.type || 'Car');
   const [plate, setPlate] = useState(user?.vehicle?.plateNumber || 'TNO2 BY 6518');
@@ -34,6 +35,7 @@ export default function ProfileEditScreen({ onBack, onSave }: { onBack: () => vo
       }
       
       const payload: any = { name, phone };
+      if (gender) payload.gender = gender.toLowerCase();
       if (user?.role === 'driver') {
         payload.city = city;
         payload.vehicleType = vehicleType;
@@ -73,7 +75,14 @@ export default function ProfileEditScreen({ onBack, onSave }: { onBack: () => vo
           <View style={styles.avatarContainer}>
             <View style={styles.avatarOuter}>
               <View style={styles.avatarInner}>
-                <Text style={{ fontSize: 40 }}>👤</Text>
+                {user?.documents?.profilePhoto?.url ? (
+                  <Image 
+                    source={{ uri: user.documents.profilePhoto.url.startsWith('http') ? user.documents.profilePhoto.url : `https://movex-cab.onrender.com${user.documents.profilePhoto.url}` }}
+                    style={{ width: 80, height: 80, borderRadius: 40 }}
+                  />
+                ) : (
+                  <Text style={{ fontSize: 40 }}>👤</Text>
+                )}
               </View>
               {/* Edit Icon Badge */}
               <View style={styles.editBadge}>
@@ -92,6 +101,18 @@ export default function ProfileEditScreen({ onBack, onSave }: { onBack: () => vo
             <View style={styles.inputWrapper}>
               <TextInput style={styles.input} value={phone} onChangeText={setPhone} keyboardType="phone-pad" placeholder="Mobile Number" placeholderTextColor={Colors.textMuted} />
             </View>
+            {user?.role === 'driver' && (
+              <View style={[styles.inputWrapper, user?.approvalStatus === 'approved' && { opacity: 0.6 }]}>
+                <TextInput 
+                  style={styles.input} 
+                  value={gender} 
+                  onChangeText={setGender} 
+                  placeholder="Gender (Male / Female / Other)" 
+                  placeholderTextColor={Colors.textMuted} 
+                  editable={user?.approvalStatus !== 'approved'}
+                />
+              </View>
+            )}
             <TouchableOpacity style={styles.bankHeader} onPress={() => setChangePasswordExpanded(!changePasswordExpanded)} activeOpacity={0.8}>
               <Text style={styles.sectionTitle}>Change Password</Text>
               <Feather name={changePasswordExpanded ? 'chevron-down' : 'chevron-right'} size={24} color={Colors.textPrimary} />

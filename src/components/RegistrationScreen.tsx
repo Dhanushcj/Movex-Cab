@@ -113,6 +113,8 @@ export default function RegistrationScreen({ onBack, prefillData = null, isCorre
   const [dlExpiry, setDlExpiry] = useState<Date | null>(prefillData?.documents?.drivingLicense?.expiryDate ? new Date(prefillData.documents.drivingLicense.expiryDate) : null);
   const [dlUrl, setDlUrl] = useState<any>(prefillData?.documents?.drivingLicense?.url || null);
 
+  const [profilePhotoUrl, setProfilePhotoUrl] = useState<any>(prefillData?.documents?.profilePhoto?.url || null);
+
   const [rcNumber, setRcNumber] = useState(prefillData?.documents?.vehicleRC?.number || '');
   const [rcUrl, setRcUrl] = useState<any>(prefillData?.documents?.vehicleRC?.url || null);
   const [insNumber, setInsNumber] = useState(prefillData?.documents?.insurance?.number || '');
@@ -145,15 +147,13 @@ export default function RegistrationScreen({ onBack, prefillData = null, isCorre
   };
 
   const nextStep = () => {
-    const { isDark } = useTheme();
-    const styles = getStyles(Colors);
-
     if (step === 1) {
       if (!name || !phone || !password || !selectedState || !city || !vehicleType || !vehicleMake || !vehicleModel || !vehicleColor || !plateNumber || !plateType) {
         return Alert.alert('Error', 'Please fill all mandatory fields in Step 1');
       }
       setStep(2);
     } else if (step === 2) {
+      if (!profilePhotoUrl) return Alert.alert('Error', 'Passport Size Photo is mandatory');
       if (!aadhaarNumber || !aadhaarUrl) return Alert.alert('Error', 'Aadhaar details are mandatory');
       if (!dlNumber || !dlUrl || !dlExpiry || !dlType) return Alert.alert('Error', 'Driving License details are mandatory');
       
@@ -195,6 +195,7 @@ export default function RegistrationScreen({ onBack, prefillData = null, isCorre
         plateType
       },
       documents: {
+        profilePhoto: { url: profilePhotoUrl },
         aadhaar: { number: aadhaarNumber, url: aadhaarUrl },
         pan: { number: panNumber, url: panUrl },
         drivingLicense: { number: dlNumber, url: dlUrl, expiryDate: dlExpiry, type: dlType },
@@ -222,12 +223,9 @@ export default function RegistrationScreen({ onBack, prefillData = null, isCorre
   };
 
   const handleVehicleTypeChange = (type: string) => {
-    const { isDark } = useTheme();
-    const styles = getStyles(Colors);
-
     setVehicleType(type);
     if (type === 'bike') {
-      setPlateType(Colors.bgSecondary);
+      setPlateType('white');
     } else if (type === 'auto') {
       setPlateType('yellow');
     }
@@ -244,16 +242,13 @@ export default function RegistrationScreen({ onBack, prefillData = null, isCorre
   );
 
   const renderPlateRadio = () => {
-    const { isDark } = useTheme();
-    const styles = getStyles(Colors);
-
-    const options = [Colors.bgSecondary, 'yellow'];
+    const options = ['white', 'yellow'];
     return (
       <View style={styles.radioGroup}>
         {options.map(opt => {
           let disabled = false;
           if (vehicleType === 'bike' && opt === 'yellow') disabled = true;
-          if (vehicleType === 'auto' && opt === Colors.bgSecondary) disabled = true;
+          if (vehicleType === 'auto' && opt === 'white') disabled = true;
           
           return (
             <TouchableOpacity 
@@ -262,7 +257,9 @@ export default function RegistrationScreen({ onBack, prefillData = null, isCorre
               onPress={() => !disabled && setPlateType(opt)}
               disabled={disabled}
             >
-              <Text style={[styles.radioText, plateType === opt && styles.radioTextSelected]}>{opt.toUpperCase()}</Text>
+              <Text style={[styles.radioText, plateType === opt && styles.radioTextSelected]}>
+                {opt.toUpperCase()}
+              </Text>
             </TouchableOpacity>
           );
         })}
@@ -417,6 +414,8 @@ export default function RegistrationScreen({ onBack, prefillData = null, isCorre
             
             {renderDate('License Expiry Date *', dlExpiry, 'dlExpiry', setDlExpiry)}
             {renderUpload('Driving License Document *', dlUrl, setDlUrl)}
+
+            {renderUpload('Passport Size Photo *', profilePhotoUrl, setProfilePhotoUrl)}
           </View>
         )}
 
@@ -463,7 +462,7 @@ export default function RegistrationScreen({ onBack, prefillData = null, isCorre
             </TouchableOpacity>
           ) : (
             <TouchableOpacity style={styles.navBtnPrimary} onPress={submitRegistration} disabled={loading}>
-              {loading ? <ActivityIndicator color={Colors.bgSecondary} /> : <Text style={styles.navBtnPrimaryText}>{prefillData ? 'Submit Correction' : 'Submit Application'}</Text>}
+              {loading ? <ActivityIndicator color={Colors.bgSecondary} /> : <Text style={styles.navBtnPrimaryText}>{isCorrection ? 'Submit Correction' : 'Submit Application'}</Text>}
             </TouchableOpacity>
           )}
         </View>

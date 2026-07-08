@@ -92,6 +92,22 @@ export default function SupportTicketScreen({ visible, onClose }: SupportTicketS
                         </View>
                         <Text style={styles.ticketType}>{ticket.type.replace('_', ' ')}</Text>
                         <Text style={styles.ticketDate}>{new Date(ticket.createdAt).toLocaleDateString()}</Text>
+                        
+                        {ticket.description && (
+                            <View style={styles.descriptionContainer}>
+                                <Text style={styles.ticketDescription}>{ticket.description}</Text>
+                            </View>
+                        )}
+
+                        {ticket.resolution && (
+                            <View style={styles.adminReplyContainer}>
+                                <View style={styles.adminReplyHeader}>
+                                    <Feather name="corner-down-right" size={14} color="#0053B3" />
+                                    <Text style={styles.adminReplyLabel}>Admin Reply</Text>
+                                </View>
+                                <Text style={styles.adminReplyText}>{ticket.resolution}</Text>
+                            </View>
+                        )}
                     </View>
                 ))}
             </View>
@@ -215,5 +231,44 @@ const getStyles = (Colors: any) => StyleSheet.create({
     fontFamily: 'Outfit',
     fontSize: 12,
     color: Colors.textSecondary,
+  },
+  descriptionContainer: {
+    marginTop: 10,
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: Colors.borderLight,
+  },
+  ticketDescription: {
+    fontFamily: 'Outfit',
+    fontSize: 14,
+    color: Colors.textPrimary,
+    lineHeight: 20,
+  },
+  adminReplyContainer: {
+    marginTop: 12,
+    backgroundColor: '#F0F7FF',
+    padding: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#D0E4FF',
+  },
+  adminReplyHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  adminReplyLabel: {
+    fontFamily: 'Outfit',
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#0053B3',
+    marginLeft: 6,
+    textTransform: 'uppercase',
+  },
+  adminReplyText: {
+    fontFamily: 'Outfit',
+    fontSize: 14,
+    color: '#003370',
+    lineHeight: 20,
   }
 });

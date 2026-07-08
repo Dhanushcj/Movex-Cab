@@ -1,12 +1,24 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView, Image } from 'react-native';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { Feather } from '@expo/vector-icons';
 import Colors from '../constants/colors';
 
-export default function ProfileScreen({ onBack, onEditProfile, onNavigateLanguage }: { onBack: () => void, onEditProfile?: () => void, onNavigateLanguage?: () => void }) {
+export default function ProfileScreen({ 
+  onBack, 
+  onEditProfile, 
+  onNavigateLanguage,
+  activePasses = [],
+  onOpenPassConfig
+}: { 
+  onBack: () => void, 
+  onEditProfile?: () => void, 
+  onNavigateLanguage?: () => void,
+  activePasses?: any[],
+  onOpenPassConfig?: () => void
+}) {
   const { user, logout } = useAuth();
   const { t } = useLanguage();
   const { isDark, toggleTheme } = useTheme();
@@ -55,7 +67,14 @@ export default function ProfileScreen({ onBack, onEditProfile, onNavigateLanguag
         <TouchableOpacity style={styles.profileCard} onPress={onEditProfile} activeOpacity={0.9}>
           <View style={styles.profileInfoRow}>
             <View style={styles.avatarCircle}>
-              <Text style={{ fontSize: 24 }}>👤</Text>
+              {user?.documents?.profilePhoto?.url ? (
+                <Image 
+                  source={{ uri: user.documents.profilePhoto.url.startsWith('http') ? user.documents.profilePhoto.url : `https://movex-cab.onrender.com${user.documents.profilePhoto.url}` }}
+                  style={{ width: 64, height: 64, borderRadius: 32 }}
+                />
+              ) : (
+                <Text style={{ fontSize: 24 }}>👤</Text>
+              )}
             </View>
             <View style={styles.profileDetails}>
               <Text style={styles.profileName}>{user?.name || 'Raja'}</Text>
@@ -75,8 +94,27 @@ export default function ProfileScreen({ onBack, onEditProfile, onNavigateLanguag
         </TouchableOpacity>
 
         {/* Referral Card */}
-        <View style={styles.referralCard}>
-          <Text style={styles.referralTitle}>{t('profile.referralTitle')}</Text>
+        {user?.role === 'customer' && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Commute Passes</Text>
+            {renderOptionRow('Monthly Commute Pass', false, onOpenPassConfig)}
+            
+            {activePasses.map(pass => (
+              <View key={pass._id} style={{ backgroundColor: Colors.bgSecondary, padding: 16, borderRadius: 12, marginTop: 12, borderWidth: 1, borderColor: Colors.border }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
+                  <Text style={{ fontSize: 16, fontWeight: '700', color: Colors.textPrimary, textTransform: 'capitalize' }}>{pass.vehicleType} Pass</Text>
+                  <Text style={{ color: Colors.success, fontSize: 12, fontWeight: '700' }}>ACTIVE</Text>
+                </View>
+                <Text style={{ color: Colors.textSecondary, fontSize: 12, marginBottom: 4 }}>Pickup: {pass.pickupTime}</Text>
+                {pass.isReturnTrip && <Text style={{ color: Colors.textSecondary, fontSize: 12, marginBottom: 4 }}>Return: {pass.returnTime}</Text>}
+                <Text style={{ color: Colors.accent, fontSize: 14, marginTop: 8 }}>{pass.totalRides - pass.ridesCompleted} rides remaining</Text>
+              </View>
+            ))}
+          </View>
+        )}
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>{t('profile.account')}</Text>
           <Text style={styles.referralSubtitle}>{t('profile.referralSub')}</Text>
         </View>
 
@@ -272,5 +310,14 @@ const getStyles = () => StyleSheet.create({
     color: '#F52F14',
     fontSize: 14,
     fontWeight: '500'
+  },
+  section: {
+    marginBottom: 24
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: Colors.textPrimary,
+    marginBottom: 12
   }
 });

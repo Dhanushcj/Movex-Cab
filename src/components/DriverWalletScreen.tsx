@@ -119,6 +119,8 @@ export default function DriverWalletScreen({ onBack, onNavigateHome, onNavigateH
   const weeklyEarnings = walletData?.weeklyEarnings ?? '0';
   const weekStart = walletData?.weekStart ?? '';
   const weekEnd = walletData?.weekEnd ?? '';
+  const feeStatus = walletData?.feeStatus || 'ACTIVE';
+  const pendingFeeAmount = walletData?.pendingFeeAmount || 0;
 
   return (
     <View style={styles.container}>
@@ -155,6 +157,24 @@ export default function DriverWalletScreen({ onBack, onNavigateHome, onNavigateH
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#0053B3']} />}
       >
+        {/* Fee Engine Status Banners */}
+        {feeStatus === 'GRACE_PERIOD' && (
+          <View style={styles.graceBanner}>
+            <Feather name="alert-triangle" size={18} color="#9A3412" />
+            <Text style={styles.graceText}>
+              Warning: You have a pending fee of ₹{pendingFeeAmount}. Please add money to avoid account blockage.
+            </Text>
+          </View>
+        )}
+        {feeStatus === 'BLOCKED' && (
+          <View style={styles.blockedBanner}>
+            <Feather name="x-circle" size={18} color="#991B1B" />
+            <Text style={styles.blockedText}>
+              Blocked: Your account is restricted due to a pending fee of ₹{pendingFeeAmount}. Add money to restore access.
+            </Text>
+          </View>
+        )}
+
         {/* Pocket Balance Card */}
         <View style={styles.balanceCard}>
           <View style={styles.balanceRow}>
@@ -670,6 +690,42 @@ const getStyles = (Colors: any) => StyleSheet.create({
     fontSize: 24,
     fontWeight: '500',
     color: Colors.textPrimary,
+  },
+  graceBanner: {
+    backgroundColor: '#FFEDD5',
+    borderColor: '#FDBA74',
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+    gap: 10,
+  },
+  graceText: {
+    color: '#9A3412',
+    fontSize: 13,
+    flex: 1,
+    lineHeight: 18,
+    fontWeight: '500',
+  },
+  blockedBanner: {
+    backgroundColor: '#FEE2E2',
+    borderColor: '#FCA5A5',
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+    gap: 10,
+  },
+  blockedText: {
+    color: '#991B1B',
+    fontSize: 13,
+    flex: 1,
+    lineHeight: 18,
+    fontWeight: '500',
   },
   quickSelectRow: {
     flexDirection: 'row',

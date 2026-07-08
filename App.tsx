@@ -45,6 +45,7 @@ import AuthScreen from './src/components/AuthScreen';
 import OnboardingScreen from './src/components/OnboardingScreen';
 import RegistrationScreen from './src/components/RegistrationScreen';
 import ProfileScreen from './src/components/ProfileScreen';
+import CommutePassConfigScreen from './src/components/CommutePassConfigScreen';
 import ProfileEditScreen from './src/components/ProfileEditScreen';
 import LanguageScreen from './src/components/LanguageScreen';
 import DriverHistoryScreen from './src/components/DriverHistoryScreen';
@@ -545,6 +546,9 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage }:
   const [selectedVehicle, setSelectedVehicle] = useState<any>(null);
   const [loadingEstimates, setLoadingEstimates] = useState(false);
   const [bookingRide, setBookingRide] = useState(false);
+  const [activePasses, setActivePasses] = useState<any[]>([]);
+  const [passEstimate, setPassEstimate] = useState<any>(null);
+  const [bookingMode, setBookingMode] = useState<'ride'|'pass'>('ride');
 
   // ── Picker state ──────────────────────────────────────────────────────────
   type PickerMode = null | 'pickup' | 'drop';
@@ -570,6 +574,7 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage }:
   const [loadingRides, setLoadingRides] = useState(false);
   const [activeTripFilter, setActiveTripFilter] = useState<'All' | 'Completed' | 'Cancelled'>('All');
   const [tripSearchQuery, setTripSearchQuery] = useState('');
+  const [offeredFare, setOfferedFare] = useState(0);
 
   // ── Banners ────────────────────────────────────────────────────────────────
   const [banner1List, setBanner1List] = useState<any[]>([]);
@@ -644,6 +649,49 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage }:
   }, [pickupCoords]);
 
   // ── Helpers ────────────────────────────────────────────────────────────────
+  const isVehicleDisabled = (type: string) => false;
+  
+  const handleEstimatePass = async (type: string) => {
+    if (!pickupCoords || !dropCoords) return;
+    try {
+      const res = await API.post('/subscriptions/estimate', {
+        pickup: { address: pickupAddr, coordinates: pickupCoords },
+        drop: { address: dropAddr, coordinates: dropCoords },
+        vehicleType: type
+      });
+      if (res.data.success) setPassEstimate(res.data.data);
+    } catch (e: any) {
+      Alert.alert('Error', e.response?.data?.message || 'Failed to estimate pass');
+    }
+  };
+
+  const handlePurchasePass = async () => {
+    if (!passEstimate || !selectedVehicle) return;
+    setBookingRide(true);
+    try {
+      const res = await API.post('/subscriptions/purchase', {
+        pickup: { address: pickupAddr, coordinates: pickupCoords },
+        drop: { address: dropAddr, coordinates: dropCoords },
+        vehicleType: selectedVehicle.vehicleType,
+        totalRides: passEstimate.totalRides,
+        pricePerRide: passEstimate.pricePerRide,
+        totalPrice: passEstimate.totalPrice
+      });
+      if (res.data.success) {
+        Alert.alert('Success', 'Commute Pass purchased successfully!');
+        setPassEstimate(null);
+        setEstimates([]);
+        API.get('/subscriptions').then(r => {
+          if (r.data.success) setActivePasses(r.data.data);
+        });
+      }
+    } catch (e: any) {
+      Alert.alert('Error', e.response?.data?.message || 'Failed to purchase pass');
+    } finally {
+      setBookingRide(false);
+    }
+  };
+
   const getEstimates = async (puCoords: number[], puAddr: string, drCoords: number[], drAddr: string) => {
     setLoadingEstimates(true);
     try {
@@ -654,7 +702,10 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage }:
       });
       if (res.data.success) {
         setEstimates(res.data.estimates);
-        setSelectedVehicle(res.data.estimates[0]);
+        const best = res.data.estimates[0];
+        setSelectedVehicle(best);
+        setOfferedFare(best.fareDetails.totalFare);
+        if (bookingMode === 'pass') handleEstimatePass(best.vehicleType);
       }
     } catch (e: any) {
       Alert.alert('Error', e.response?.data?.message || 'Failed to estimate fare');
@@ -668,11 +719,11 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage }:
     if (mode === 'pickup') {
       setPickupAddr(result.address);
       setPickupCoords(result.coordinates);
-      if (dropCoords) getEstimates(result.coordinates, result.address, dropCoords, dropAddr);
+      if (dropCoords && activeScreen !== 'commutePassConfig') getEstimates(result.coordinates, result.address, dropCoords, dropAddr);
     } else {
       setDropAddr(result.address);
       setDropCoords(result.coordinates);
-      if (pickupCoords) getEstimates(pickupCoords, pickupAddr, result.coordinates, result.address);
+      if (pickupCoords && activeScreen !== 'commutePassConfig') getEstimates(pickupCoords, pickupAddr, result.coordinates, result.address);
     }
   };
 
@@ -685,10 +736,29 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage }:
         drop: { address: dropAddr, coordinates: dropCoords },
         vehicleType: selectedVehicle.vehicleType,
         paymentMethod: 'cash',
+        fare: offeredFare
       });
       if (res.data.success) onRideBooked(res.data.data);
     } catch (e: any) {
       Alert.alert('Error', e.response?.data?.message || 'Failed to book ride');
+    } finally {
+      setBookingRide(false);
+    }
+  };
+
+  const handleBookPassRide = async (pass: any) => {
+    setBookingRide(true);
+    try {
+      const res = await API.post('/bookings', {
+        pickup: { address: pass.pickup.address, coordinates: pass.pickup.location.coordinates },
+        drop: { address: pass.drop.address, coordinates: pass.drop.location.coordinates },
+        vehicleType: pass.vehicleType,
+        paymentMethod: 'wallet',
+        subscriptionId: pass._id
+      });
+      if (res.data.success) onRideBooked(res.data.data);
+    } catch (e: any) { 
+      Alert.alert('Error', e.response?.data?.message || 'Failed to book via pass'); 
     } finally {
       setBookingRide(false);
     }
@@ -928,7 +998,13 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage }:
                     <TouchableOpacity
                       key={idx}
                       style={[styles.estimatesCard, selectedVehicle?.vehicleType === est.vehicleType && styles.estimatesCardActive]}
-                      onPress={() => setSelectedVehicle(est)}
+                      onPress={() => {
+                        if (!isVehicleDisabled(est.vehicleType)) {
+                          setSelectedVehicle(est);
+                          setOfferedFare(est.fareDetails.totalFare);
+                          if (bookingMode === 'pass') handleEstimatePass(est.vehicleType);
+                        }
+                      }}
                       activeOpacity={0.8}
                     >
                       <Text style={styles.estEmoji}>{getVehicleEmoji(est.vehicleType)}</Text>
@@ -942,7 +1018,27 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage }:
                     </TouchableOpacity>
                   ))}
                 </ScrollView>
-                <TouchableOpacity style={styles.premiumBookBtn} onPress={handleBookRide} disabled={bookingRide}>
+
+                {bookingMode === 'pass' && passEstimate && (
+                  <View style={{ padding: 16, backgroundColor: Colors.bgPrimary, borderRadius: 12, marginBottom: 12 }}>
+                    <Text style={{ fontSize: 16, color: Colors.textSecondary, marginBottom: 4 }}>Fixed flat rate for {passEstimate.totalRides} rides</Text>
+                    <Text style={{ fontSize: 24, fontWeight: '700', color: Colors.textPrimary, marginBottom: 8 }}>{'\u20B9'}{passEstimate.pricePerRide} / ride</Text>
+                  </View>
+                )}
+
+                {bookingMode === 'ride' && (
+                  <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 12 }}>
+                    <TouchableOpacity onPress={() => setOfferedFare(Math.max(10, offeredFare - 10))}><Feather name="minus-circle" size={24} color={Colors.accent} /></TouchableOpacity>
+                    <Text style={{ fontSize: 20, fontWeight: 'bold' }}>₹{offeredFare}</Text>
+                    <TouchableOpacity onPress={() => setOfferedFare(offeredFare + 10)}><Feather name="plus-circle" size={24} color={Colors.accent} /></TouchableOpacity>
+                  </View>
+                )}
+
+                <TouchableOpacity 
+                  style={[styles.premiumBookBtn, (bookingRide || isVehicleDisabled(selectedVehicle?.vehicleType)) && { opacity: 0.5 }]} 
+                  onPress={bookingMode === 'pass' ? handlePurchasePass : handleBookRide}
+                  disabled={bookingRide || isVehicleDisabled(selectedVehicle?.vehicleType)}
+                >
                   {bookingRide ? <ActivityIndicator color={Colors.bgSecondary} /> : (
                     <Text style={styles.premiumBookBtnText}>Book {selectedVehicle?.vehicleType?.toUpperCase()}</Text>
                   )}
@@ -954,14 +1050,14 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage }:
               <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 100 }}>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 20 }}>
                   {[
-                    { icon: '\uD83D\uDE97', label: t('home.serviceCab') || 'Cab' },
-                    { icon: '\uD83C\uDFCD\uFE0F', label: t('home.serviceBike') || 'Bike' },
-                    { icon: '\uD83D\uDEFA', label: t('home.serviceAuto') || 'Auto' },
-                    { icon: '\u2708\uFE0F', label: t('home.serviceTour') || 'Tour' },
-                    { icon: '\uD83D\uDE98', label: t('home.serviceRental') || 'Rental' },
-                    { icon: '\uD83C\uDFD9\uFE0F', label: t('home.serviceIntercity') || 'Intercity' },
+                    { icon: '\uD83D\uDE97', label: t('home.serviceCab') || 'Cab', mode: 'ride' },
+                    { icon: '\uD83C\uDFAB', label: 'Pass', mode: 'pass' },
+                    { icon: '\uD83C\uDFCD\uFE0F', label: t('home.serviceBike') || 'Bike', mode: 'ride' },
+                    { icon: '\uD83D\uDEFA', label: t('home.serviceAuto') || 'Auto', mode: 'ride' },
+                    { icon: '\u2708\uFE0F', label: t('home.serviceTour') || 'Tour', mode: 'ride' },
+                    { icon: '\uD83C\uDFD9\uFE0F', label: t('home.serviceIntercity') || 'Intercity', mode: 'ride' },
                   ].map((s, i) => (
-                    <TouchableOpacity key={i} style={styles.homeServiceChip} activeOpacity={0.8} onPress={() => setPickerMode('drop')}>
+                    <TouchableOpacity key={i} style={styles.homeServiceChip} activeOpacity={0.8} onPress={() => { setBookingMode(s.mode as any); setPickerMode('drop'); }}>
                       <Text style={{ fontSize: 24 }}>{s.icon}</Text>
                       <Text style={styles.homeServiceLabel} numberOfLines={1}>{s.label}</Text>
                     </TouchableOpacity>

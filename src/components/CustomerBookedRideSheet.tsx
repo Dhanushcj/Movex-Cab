@@ -9,6 +9,7 @@ import {
   Animated,
   Dimensions,
   Platform,
+  Image,
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 
@@ -213,7 +214,14 @@ export default function CustomerBookedRideSheet({
       <View style={styles.driverCard}>
         <View style={styles.avatarWrap}>
           <View style={styles.avatar}>
-            <Text style={styles.avatarEmoji}>👨🏻‍✈️</Text>
+            {driverInfo?.documents?.profilePhoto?.url ? (
+              <Image 
+                source={{ uri: driverInfo.documents.profilePhoto.url.startsWith('http') ? driverInfo.documents.profilePhoto.url : `https://movex-cab.onrender.com${driverInfo.documents.profilePhoto.url}` }}
+                style={{ width: '100%', height: '100%', borderRadius: 28 }}
+              />
+            ) : (
+              <Text style={styles.avatarEmoji}>👨🏻‍✈️</Text>
+            )}
           </View>
           <View style={styles.onlineDot} />
         </View>
