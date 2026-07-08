@@ -1056,10 +1056,10 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage, a
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 20 }}>
                   {[
                     { icon: '\uD83D\uDE97', label: t('home.serviceCab') || 'Cab', mode: 'ride' },
-                    
-                    { icon: '\uD83C\uDFCD\uFE0F', label: t('home.serviceBike') || 'Bike', mode: 'ride' },
+                      { icon: '\uD83C\uDFCD\uFE0F', label: t('home.serviceBike') || 'Bike', mode: 'ride' },
                     { icon: '\uD83D\uDEFA', label: t('home.serviceAuto') || 'Auto', mode: 'ride' },
                     { icon: '\u2708\uFE0F', label: t('home.serviceTour') || 'Tour', mode: 'ride' },
+                      { icon: '\uD83D\uDE98', label: t('home.serviceRental') || 'Rental', mode: 'ride' },
                     { icon: '\uD83C\uDFD9\uFE0F', label: t('home.serviceIntercity') || 'Intercity', mode: 'ride' },
                   ].map((s, i) => (
                     <TouchableOpacity key={i} style={styles.homeServiceChip} activeOpacity={0.8} onPress={() => { setBookingMode(s.mode as any); setPickerMode('drop'); }}>

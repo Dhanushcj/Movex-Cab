@@ -206,8 +206,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return { ...backendResponse, firebaseIdToken };
       }
       return backendResponse;
-    } catch (error) {
-      console.error('Google Sign-In failed:', error);
+    } catch (error: any) {
+      console.error('Google Sign-In failed:', error?.response?.data || error);
       throw error;
     }
   };
