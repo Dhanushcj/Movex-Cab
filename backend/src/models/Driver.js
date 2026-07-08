@@ -95,7 +95,7 @@ const driverSchema = new mongoose.Schema({
     permit: {
       url: String,
       number: String,
-      type: String,
+      type: { type: String },
       expiryDate: Date,
       verified: { type: Boolean, default: false }
     },
