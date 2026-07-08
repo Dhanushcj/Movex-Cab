@@ -733,16 +733,21 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage, a
   };
 
   const handleBookRide = async () => {
-    if (!selectedVehicle || !pickupCoords || !dropCoords) return;
+    if (!selectedVehicle || !pickupCoords) return;
     setBookingRide(true);
     try {
-      const res = await API.post('/bookings', {
+      const payload: any = {
         pickup: { address: pickupAddr, coordinates: pickupCoords },
-        drop: { address: dropAddr, coordinates: dropCoords },
         vehicleType: selectedVehicle.vehicleType,
         paymentMethod: 'cash',
         fare: offeredFare
-      });
+      };
+      if (dropCoords && dropCoords.length === 2) {
+        payload.drop = { address: dropAddr, coordinates: dropCoords };
+      } else {
+        payload.drop = { address: '', coordinates: [0, 0] };
+      }
+      const res = await API.post('/bookings', payload);
       if (res.data.success) onRideBooked(res.data.data);
     } catch (e: any) {
       Alert.alert('Error', e.response?.data?.message || 'Failed to book ride');
@@ -776,6 +781,31 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage, a
       if (res.data.success) setMyRides(res.data.data);
     } catch {}
     finally { setLoadingRides(false); }
+  };
+
+  const handleCancelHistoryRide = (rideId: string) => {
+    Alert.alert(
+      'Cancel Ride',
+      'Are you sure you want to cancel this ride request?',
+      [
+        { text: 'No', style: 'cancel' },
+        { 
+          text: 'Yes, Cancel', 
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              const res = await API.put(`/bookings/${rideId}/cancel`, { reason: 'Cancelled by customer' });
+              if (res.data.success) {
+                Alert.alert('Success', 'Ride cancelled successfully.');
+                fetchMyRides();
+              }
+            } catch (e: any) {
+              Alert.alert('Error', e.response?.data?.message || 'Failed to cancel ride');
+            }
+          }
+        }
+      ]
+    );
   };
 
   const handleUpdateProfile = async () => {
@@ -1331,9 +1361,17 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage, a
                     </View>
                   </View>
                   <View style={styles.rideFooter}>
-                    <Text style={styles.rideDriver}>Driver: {item.driver?.name || 'Partner'}</Text>
+                    <Text style={styles.rideDriver}>Driver: {item.driver?.name || (item.status === 'searching' ? 'Searching...' : 'Partner')}</Text>
                     <Text style={styles.ridePrice}>{'\u20B9'}{item.fare?.totalFare || 0}</Text>
                   </View>
+                  {(item.status === 'searching' || item.status === 'requested') && (
+                    <TouchableOpacity 
+                      style={{ marginTop: 12, backgroundColor: Colors.danger || '#FF3B30', paddingVertical: 8, borderRadius: 8, alignItems: 'center' }}
+                      onPress={() => handleCancelHistoryRide(item._id)}
+                    >
+                      <Text style={{ color: '#fff', fontWeight: 'bold' }}>Cancel Ride</Text>
+                    </TouchableOpacity>
+                  )}
                 </View>
               )}
             />
@@ -1371,7 +1409,7 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage, a
       )}
 
       {/* ─────────────────── BOTTOM TAB BAR (REDESIGNED) ─────────────────── */}
-      {!(activeTab === 'home' && !!dropAddr) && (
+      {!(activeTab === 'home' && (!!dropAddr || estimates.length > 0 || pickerMode !== null || rideStatus !== 'none')) && (
         <View style={{ flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', paddingVertical: 12, position: 'absolute', bottom: 16, left: 16, right: 16, borderRadius: 20, backgroundColor: Colors.bgSecondary, shadowColor: Colors.textPrimary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 10, elevation: 5 }}>
         {([
           { key: 'home',     icon: 'home',  label: t('home.tabHome') || 'Home' },
