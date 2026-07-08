@@ -1,5 +1,6 @@
 const Driver = require('../models/Driver');
 const Booking = require('../models/Booking');
+const DriverFeeEngine = require('../services/FeeEngine');
 
 /**
  * Update driver location (REST endpoint fallback)
@@ -53,6 +54,16 @@ const toggleStatus = async (req, res, next) => {
           message: 'One or more of your vehicle documents have expired. You must submit updated documents and wait for admin verification before going online.'
         });
       }
+
+      // Check Fee Engine
+      const feeResult = await DriverFeeEngine.evaluateOnLogin(driver._id, driver.vehicle.type, driver.city || 'Chennai');
+      if (feeResult.status === 'BLOCKED') {
+        return res.status(402).json({
+          success: false,
+          message: feeResult.message
+        });
+      }
+      // We attach feeResult message to response if needed, but for now just let them pass if not BLOCKED
     }
 
     if (typeof req.body.isOnline === 'boolean') {
@@ -232,10 +243,16 @@ const getWalletDetails = async (req, res, next) => {
     const weekEnd = new Date(weekStart);
     weekEnd.setDate(weekEnd.getDate() + 6);
 
+    const DriverWallet = require('../models/DriverWallet');
+    const driverWalletDoc = await DriverWallet.findOne({ driverId: req.user.id });
+
     res.json({
       success: true,
       walletBalance: driver.wallet?.balance || 0,
       availableLimit: Math.max(driver.wallet?.balance || 0, 0),
+      feeStatus: driverWalletDoc?.feeStatus || 'ACTIVE',
+      pendingFeeAmount: driverWalletDoc?.pendingFeeAmount || 0,
+      graceStartedAt: driverWalletDoc?.graceStartedAt || null,
       totalTips,
       weeklyEarnings: weeklyEarnings.toFixed(0),
       weeklyDeductions: weeklyDeductions.toFixed(0),
@@ -276,6 +293,24 @@ const addMoney = async (req, res, next) => {
     }
 
     await driver.save();
+    
+    // Sync the balance to DriverWallet and resolve pending fees
+    const DriverWallet = require('../models/DriverWallet');
+    const driverWalletDoc = await DriverWallet.findOne({ driverId: req.user.id });
+    if (driverWalletDoc) {
+      driverWalletDoc.balance = driver.wallet.balance;
+      
+      // If we topped up enough to cover the pending fee, set status to ACTIVE
+      if (driverWalletDoc.balance >= 0 && driverWalletDoc.feeStatus !== 'ACTIVE') {
+        driverWalletDoc.feeStatus = 'ACTIVE';
+        driverWalletDoc.pendingFeeAmount = 0;
+        driverWalletDoc.graceStartedAt = null;
+        // Optionally, we could record a FeeTransaction here to deduct the pending fee, 
+        // but for now, the driver's positive balance will just allow the engine 
+        // to deduct it automatically next time they go online!
+      }
+      await driverWalletDoc.save();
+    }
 
     res.json({
       success: true,

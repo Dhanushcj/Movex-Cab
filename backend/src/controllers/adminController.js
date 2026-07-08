@@ -560,6 +560,28 @@ const deleteNotification = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
+const seedFeeTiers = async (req, res, next) => {
+  try {
+    const FeeTier = require('../models/FeeTier');
+    
+    // Clear existing
+    await FeeTier.deleteMany({});
+    
+    const defaultTiers = [
+      { vehicleType: 'bike', city: 'Chennai', feeModel: 'commission', commissionPercent: 12 },
+      { vehicleType: 'auto', city: 'Chennai', feeModel: 'daily_fixed', dailyFeeMin: 9, dailyFeeMax: 29, graceHours: 12 },
+      { vehicleType: 'cab', city: 'Chennai', feeModel: 'monthly_threshold', monthlyFeeAmount: 500, monthlyEarningsThreshold: 10000, graceHours: 48 },
+      { vehicleType: 'mini', city: 'Chennai', feeModel: 'monthly_threshold', monthlyFeeAmount: 500, monthlyEarningsThreshold: 10000, graceHours: 48 },
+      { vehicleType: 'sedan', city: 'Chennai', feeModel: 'monthly_threshold', monthlyFeeAmount: 500, monthlyEarningsThreshold: 10000, graceHours: 48 },
+      { vehicleType: 'suv', city: 'Chennai', feeModel: 'monthly_threshold', monthlyFeeAmount: 500, monthlyEarningsThreshold: 10000, graceHours: 48 },
+    ];
+    
+    await FeeTier.insertMany(defaultTiers);
+    
+    res.json({ success: true, message: 'Fee tiers seeded successfully', data: defaultTiers });
+  } catch (err) { next(err); }
+};
+
 module.exports = {
   getSettings,
   updateSettings,
@@ -589,5 +611,6 @@ module.exports = {
   updateComplaint,
   getPayouts,
   getPayments,
-  getMapData
+  getMapData,
+  seedFeeTiers
 };

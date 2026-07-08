@@ -1,4 +1,5 @@
 const Booking = require('../models/Booking');
+const Subscription = require('../models/Subscription');
 const Driver = require('../models/Driver');
 const User = require('../models/User');
 const { getRouteDetails } = require('../services/routingService');
@@ -51,7 +52,7 @@ const estimateFare = async (req, res, next) => {
  * POST /api/bookings
  */
 const createBooking = async (req, res, next) => {
-  const { pickup, drop, vehicleType, paymentMethod, promoCode } = req.body;
+  const { pickup, drop, vehicleType, paymentMethod, promoCode, preferences, offeredFare, subscriptionId } = req.body;
   try {
     // Check if customer already has active rides
     const activeBooking = await Booking.findOne({
@@ -67,11 +68,21 @@ const createBooking = async (req, res, next) => {
       });
     }
 
+    let sub = null;
+    let finalPaymentMethod = paymentMethod;
+    if (subscriptionId) {
+      sub = await Subscription.findById(subscriptionId);
+      if (!sub || sub.user.toString() !== req.user.id || sub.status !== 'active' || sub.ridesCompleted >= sub.totalRides) {
+        return res.status(400).json({ success: false, message: 'Invalid or exhausted subscription pass' });
+      }
+      finalPaymentMethod = 'wallet';
+    }
+
     // 1. Get route directions
     const route = await getRouteDetails(pickup.coordinates, drop.coordinates);
 
-    // 2. Calculate fare
-    const fare = await calculateFare({
+    // 2. Calculate fare (estimates, or use offered fare)
+    const calculatedFare = await calculateFare({
       vehicleType,
       distance: route.distance,
       duration: route.duration,
@@ -79,12 +90,21 @@ const createBooking = async (req, res, next) => {
       userId: req.user.id
     });
 
+    let finalOfferedFare = offeredFare || calculatedFare.totalFare;
+    if (sub) {
+      finalOfferedFare = sub.pricePerRide;
+    }
+    
+    calculatedFare.offeredFare = finalOfferedFare;
+    calculatedFare.totalFare = finalOfferedFare;
+
     // 3. Generate verification OTP
     const rideOTP = Math.floor(1000 + Math.random() * 9000).toString(); // 4-digit code
 
     // 4. Create record
     const booking = await Booking.create({
       customer: req.user.id,
+      subscriptionId: sub ? sub._id : null,
       pickup: {
         address: pickup.address,
         location: { type: 'Point', coordinates: pickup.coordinates }
@@ -94,11 +114,12 @@ const createBooking = async (req, res, next) => {
         location: { type: 'Point', coordinates: drop.coordinates }
       },
       vehicleType,
+      preferences: preferences || [],
       route,
-      fare,
-      paymentMethod,
+      fare: calculatedFare,
+      paymentMethod: finalPaymentMethod,
       rideOTP,
-      status: 'requested'
+      status: 'searching'
     });
 
     res.status(201).json({
@@ -296,23 +317,33 @@ const completeTrip = async (req, res, next) => {
     await booking.save();
 
     // ── Wallet Commission Logic ──
+    const DriverFeeEngine = require('../services/FeeEngine');
     const driver = await Driver.findById(booking.driver);
     const fare = booking.fare.totalFare || 0;
     const tip = booking.tipAmount || 0;
-    const commission = fare * 0.20;
-    const driverShare = fare * 0.80;
+    
+    // Call the Fee Engine to calculate payout and update earnings
+    const feeResult = await DriverFeeEngine.onRideCompleted(driver._id, driver.vehicle.type, driver.city || 'Chennai', fare);
+    const commission = fare - feeResult.driverPayout;
 
     if (booking.paymentMethod === 'upi' || booking.paymentMethod === 'qr') {
-      // Platform collects 100%, credits driver 80% + Tip
-      driver.wallet.balance += (driverShare + tip);
+      // Platform collects 100%, credits driver their payout + Tip
+      driver.wallet.balance += (feeResult.driverPayout + tip);
     } else {
-      // Driver collects 100% Cash + Tip. Platform deducts 20% commission
+      // Driver collects 100% Cash + Tip. Platform deducts the commission from their wallet (if commission model)
       driver.wallet.balance -= commission;
     }
     
     // Check if wallet falls into negative (insufficient balance)
     const isWalletNegative = driver.wallet.balance < 0;
     await driver.save();
+    
+    // Sync the balance to DriverWallet to keep FeeEngine consistent
+    const DriverWallet = require('../models/DriverWallet');
+    await DriverWallet.findOneAndUpdate(
+      { driverId: driver._id },
+      { $set: { balance: driver.wallet.balance } }
+    );
 
     // Release driver availability (Block if negative balance)
     if (isWalletNegative) {
@@ -491,18 +522,28 @@ const payTrip = async (req, res, next) => {
     await booking.save();
 
     // ── Wallet Commission Logic ──
+    const DriverFeeEngine = require('../services/FeeEngine');
     const Driver = require('../models/Driver');
     const driver = await Driver.findById(booking.driver);
     const fare = booking.fare.totalFare || 0;
     const tip = booking.tipAmount || 0;
-    const driverShare = fare * 0.80;
+    
+    // Call the Fee Engine to calculate payout and update earnings
+    const feeResult = await DriverFeeEngine.onRideCompleted(driver._id, driver.vehicle.type, driver.city || 'Chennai', fare);
 
-    // Platform collected via wallet/online, credits driver 80% + Tip
-    driver.wallet.balance += (driverShare + tip);
+    // Platform collected via wallet/online, credits driver their payout + Tip
+    driver.wallet.balance += (feeResult.driverPayout + tip);
     
     // Check if wallet falls into negative
     const isWalletNegative = driver.wallet.balance < 0;
     await driver.save();
+
+    // Sync the balance to DriverWallet to keep FeeEngine consistent
+    const DriverWallet = require('../models/DriverWallet');
+    await DriverWallet.findOneAndUpdate(
+      { driverId: driver._id },
+      { $set: { balance: driver.wallet.balance } }
+    );
 
     const { setDriverAvailable } = require('../services/routingService');
     if (isWalletNegative) {

@@ -16,6 +16,11 @@ const bookingSchema = new mongoose.Schema({
     ref: 'Driver',
     default: null
   },
+  subscriptionId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Subscription',
+    default: null
+  },
   // Locations
   pickup: {
     address: { type: String, required: true },
@@ -37,13 +42,23 @@ const bookingSchema = new mongoose.Schema({
     enum: ['bike', 'auto', 'mini', 'sedan', 'suv'],
     required: true
   },
+  // Advanced Ride Options
+  preferences: [{
+    type: String,
+    enum: ['quiet', 'ac_off', 'pet_friendly']
+  }],
+  isWomenOnly: {
+    type: Boolean,
+    default: false
+  },
   // Status
   status: {
     type: String,
     enum: [
       'requested',     // Customer placed request
       'searching',     // Looking for drivers
-      'accepted',      // Driver accepted
+      'negotiating',   // Waiting for customer to respond to a counter
+      'accepted',      // Driver accepted (or customer accepted counter)
       'arriving',      // Driver en route to pickup
       'arrived',       // Driver at pickup
       'in_progress',   // Trip started
@@ -69,6 +84,7 @@ const bookingSchema = new mongoose.Schema({
   },
   // Fare breakdown
   fare: {
+    offeredFare: { type: Number, default: 0 },
     baseFare: { type: Number, default: 0 },
     distanceCharge: { type: Number, default: 0 },
     timeCharge: { type: Number, default: 0 },
@@ -82,6 +98,20 @@ const bookingSchema = new mongoose.Schema({
     totalFare: { type: Number, default: 0 },
     estimatedFare: { type: Number, default: 0 },
     finalFare: { type: Number, default: 0 }
+  },
+  // Bidding state
+  currentNegotiation: {
+    driverId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Driver',
+      default: null
+    },
+    fare: { type: Number, default: 0 },
+    status: { 
+      type: String, 
+      enum: ['pending', 'countered', 'rejected', 'accepted'],
+      default: 'pending'
+    }
   },
   // Payment
   paymentMethod: {

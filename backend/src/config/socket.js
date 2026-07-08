@@ -134,12 +134,100 @@ const initializeSocket = (server) => {
     // Driver rejects ride
     socket.on('ride:reject', (data) => {
       const { bookingId, driverId } = data;
+      const { triggerNextDriver } = require('../services/rideMatching');
       io.to(`ride:${bookingId}`).emit('ride:rejected', {
         bookingId,
         driverId,
         timestamp: Date.now()
       });
+      triggerNextDriver(bookingId);
       console.log(`❌ Driver ${driverId} rejected ride ${bookingId}`);
+    });
+
+    // Driver sends a counter-offer
+    socket.on('ride:counter_offer', async (data) => {
+      const { bookingId, driverId, driverInfo, fare } = data;
+      const Booking = require('../models/Booking');
+      try {
+        const booking = await Booking.findById(bookingId);
+        if (booking && booking.status === 'searching') {
+          booking.status = 'negotiating';
+          booking.currentNegotiation = {
+            driverId,
+            fare,
+            status: 'countered'
+          };
+          await booking.save();
+          
+          io.to(`ride:${bookingId}`).emit('ride:counter_offer', {
+            bookingId,
+            driverId,
+            driverInfo,
+            fare,
+            timestamp: Date.now()
+          });
+          console.log(`💬 Driver ${driverId} countered ride ${bookingId} with fare ${fare}`);
+        }
+      } catch (e) {
+        console.error('Error handling counter offer', e);
+      }
+    });
+
+    // Customer responds to a counter-offer
+    socket.on('ride:customer_response', async (data) => {
+      const { bookingId, driverId, accept } = data;
+      const Booking = require('../models/Booking');
+      const { triggerNextDriver } = require('../services/rideMatching');
+      try {
+        const booking = await Booking.findById(bookingId);
+        if (booking && booking.status === 'negotiating' && booking.currentNegotiation?.driverId?.toString() === driverId) {
+          if (accept) {
+            // Customer accepts the counter
+            booking.status = 'accepted';
+            booking.driver = driverId;
+            booking.fare.finalFare = booking.currentNegotiation.fare;
+            booking.fare.totalFare = booking.currentNegotiation.fare;
+            booking.currentNegotiation.status = 'accepted';
+            await booking.save();
+
+            // Track active ride
+            activeRides.set(bookingId, { driverId, status: 'accepted' });
+
+            // Mark driver as unavailable
+            const driverData = onlineDrivers.get(driverId);
+            if (driverData) {
+              driverData.available = false;
+              onlineDrivers.set(driverId, driverData);
+            }
+
+            // Notify Driver
+            const socketDriver = onlineDrivers.get(driverId);
+            if (socketDriver) {
+              io.to(socketDriver.socketId).emit('ride:accepted', {
+                bookingId,
+                timestamp: Date.now()
+              });
+            }
+            console.log(`✅ Customer accepted counter from driver ${driverId} for ride ${bookingId}`);
+          } else {
+            // Customer rejects the counter
+            booking.currentNegotiation.status = 'rejected';
+            await booking.save();
+            
+            // Notify driver that customer rejected
+            const socketDriver = onlineDrivers.get(driverId);
+            if (socketDriver) {
+              io.to(socketDriver.socketId).emit('ride:expired', { bookingId });
+            }
+            
+            // Move to next driver
+            triggerNextDriver(bookingId);
+            console.log(`❌ Customer rejected counter from driver ${driverId} for ride ${bookingId}`);
+          }
+        }
+      } catch (e) {
+        console.error('Error handling customer response', e);
+      }
     });
 
     // Driver arrived at pickup

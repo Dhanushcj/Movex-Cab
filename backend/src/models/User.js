@@ -25,6 +25,10 @@ const userSchema = new mongoose.Schema({
     trim: true,
     lowercase: true,
   },
+  gender: {
+    type: String,
+    enum: ['male', 'female', 'other']
+  },
   firebaseUid: {
     type: String,
     unique: true,

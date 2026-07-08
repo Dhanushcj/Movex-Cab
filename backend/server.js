@@ -14,10 +14,12 @@ const driverRoutes = require('./src/routes/driverRoutes');
 const bookingRoutes = require('./src/routes/bookingRoutes');
 const adminRoutes = require('./src/routes/adminRoutes');
 const { startCron } = require('./src/jobs/expiryNotifications');
+const { startCronJobs } = require('./src/services/cronService');
 const uploadRoutes = require('./src/routes/uploadRoutes');
 const publicRoutes = require('./src/routes/publicRoutes');
 const paymentRoutes = require('./src/routes/paymentRoutes');
 const fareRoutes = require('./src/routes/fareRoutes');
+const subscriptionRoutes = require('./src/routes/subscriptionRoutes');
 
 const app = express();
 const server = http.createServer(app);
@@ -50,6 +52,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/fares', fareRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/public', publicRoutes);
+app.use('/api/subscriptions', subscriptionRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -66,6 +69,7 @@ app.use(errorHandler);
 
 // Start Cron Jobs
 startCron();
+startCronJobs();
 
 // Start server
 const PORT = process.env.PORT || 5000;

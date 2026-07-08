@@ -30,7 +30,8 @@ const {
   updateComplaint,
   getPayouts,
   getPayments,
-  getMapData
+  getMapData,
+  seedFeeTiers
 } = require('../controllers/adminController');
 
 // All endpoints in admin router are protected and limited to the admin role
@@ -78,5 +79,7 @@ router.put('/complaints/:id', updateComplaint);
 router.get('/payouts', getPayouts);
 router.get('/payments', getPayments);
 router.get('/map', getMapData);
+
+router.post('/fee-tiers/seed', seedFeeTiers);
 
 module.exports = router;

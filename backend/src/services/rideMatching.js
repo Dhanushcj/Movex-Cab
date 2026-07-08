@@ -4,6 +4,8 @@ const { getOnlineDrivers, getIO } = require('../config/socket');
 const { calculateHaversineDistance } = require('./routingService');
 const { sendNotification } = require('./notificationService');
 
+const activeDispatches = new Map(); // Store driver lists for active sequential dispatches
+
 /**
  * Find nearby active drivers for a ride request and dispatch booking notifications.
  * @param {string} bookingId - MongoDB ObjectId of booking
@@ -32,7 +34,7 @@ const matchDriversForBooking = async (bookingId) => {
     const radiusInRad = searchRadiusKm / 6371; // Convert km to radians for MongoDB GeoJSON query
 
     // Query DB for online, available, approved drivers of matching vehicle type
-    const nearbyDrivers = await Driver.find({
+    const query = {
       approvalStatus: 'approved',
       isOnline: true,
       isAvailable: true,
@@ -42,7 +44,9 @@ const matchDriversForBooking = async (bookingId) => {
           $centerSphere: [[pickupLng, pickupLat], radiusInRad]
         }
       }
-    }).limit(10); // Check up to 10 closest drivers
+    };
+
+    const nearbyDrivers = await Driver.find(query).limit(10); // Check up to 10 closest drivers
 
     if (nearbyDrivers.length === 0) {
       console.log(`ℹ️ No drivers found for ride ${bookingId}`);
@@ -81,6 +85,8 @@ const matchDriversForBooking = async (bookingId) => {
  * Sends booking request to drivers one by one with a timeout
  */
 const dispatchRequestsSequentially = async (booking, driverList, index) => {
+  activeDispatches.set(booking._id.toString(), { booking, driverList, index });
+  
   const io = getIO();
   if (!io) return;
 
@@ -90,7 +96,7 @@ const dispatchRequestsSequentially = async (booking, driverList, index) => {
     
     // Refresh booking state
     const currentBooking = await Booking.findById(booking._id);
-    if (currentBooking && currentBooking.status === 'searching') {
+    if (currentBooking && (currentBooking.status === 'searching' || currentBooking.status === 'negotiating')) {
       currentBooking.status = 'cancelled';
       currentBooking.cancelledBy = 'system';
       currentBooking.cancellationReason = 'Drivers are busy. Please try again.';
@@ -102,6 +108,7 @@ const dispatchRequestsSequentially = async (booking, driverList, index) => {
         reason: 'Drivers are busy. Please try again.'
       });
     }
+    activeDispatches.delete(booking._id.toString());
     return;
   }
 
@@ -138,6 +145,8 @@ const dispatchRequestsSequentially = async (booking, driverList, index) => {
     drop: currentBooking.drop,
     route: currentBooking.route,
     fare: currentBooking.fare,
+    offeredFare: currentBooking.fare.offeredFare,
+    preferences: currentBooking.preferences,
     estimatedEarnings: Number((currentBooking.fare.totalFare * (1 - parseFloat(process.env.COMMISSION_RATE || '0.20'))).toFixed(2)),
     distanceToPickup: Number(distance.toFixed(2))
   };
@@ -160,6 +169,7 @@ const dispatchRequestsSequentially = async (booking, driverList, index) => {
   setTimeout(async () => {
     // Re-check booking status
     const verifiedBooking = await Booking.findById(booking._id);
+    // If it's still 'searching', it means the driver didn't accept, reject, or counter yet.
     if (verifiedBooking && verifiedBooking.status === 'searching') {
       console.log(`⏰ Driver ${driver.name} request timed out`);
       
@@ -169,7 +179,30 @@ const dispatchRequestsSequentially = async (booking, driverList, index) => {
       // Try next driver
       dispatchRequestsSequentially(booking, driverList, index + 1);
     }
+    // If it's 'negotiating', we DO NOT move to the next driver. We wait for customer response.
   }, timeoutSec * 1000);
 };
 
-module.exports = { matchDriversForBooking };
+const triggerNextDriver = async (bookingId) => {
+  const dispatch = activeDispatches.get(bookingId.toString());
+  if (dispatch) {
+    const booking = await Booking.findById(bookingId);
+    if (booking && (booking.status === 'searching' || booking.status === 'negotiating')) {
+      booking.status = 'searching';
+      await booking.save();
+      // Notify current driver their counter/request expired
+      const driver = dispatch.driverList[dispatch.index]?.driver;
+      if (driver) {
+         const onlineDrivers = getOnlineDrivers();
+         const socketDriver = onlineDrivers.get(driver._id.toString());
+         if (socketDriver) {
+           const io = getIO();
+           io.to(socketDriver.socketId).emit('ride:expired', { bookingId });
+         }
+      }
+      dispatchRequestsSequentially(dispatch.booking, dispatch.driverList, dispatch.index + 1);
+    }
+  }
+};
+
+module.exports = { matchDriversForBooking, triggerNextDriver };

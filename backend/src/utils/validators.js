@@ -71,7 +71,10 @@ const bookingRequestSchema = Joi.object({
   }).required(),
   vehicleType: Joi.string().valid('bike', 'auto', 'mini', 'sedan', 'suv').required(),
   paymentMethod: Joi.string().valid('cash', 'upi', 'qr', 'card', 'wallet').default('cash'),
-  promoCode: Joi.string().optional().allow('')
+  promoCode: Joi.string().optional().allow(''),
+  preferences: Joi.array().items(Joi.string()).optional(),
+  offeredFare: Joi.number().optional(),
+  subscriptionId: Joi.string().optional()
 });
 
 module.exports = {
