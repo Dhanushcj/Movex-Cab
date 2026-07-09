@@ -99,6 +99,12 @@ const LIGHT_MAP_STYLE = [
   }
 ];
 
+export const getVehicle3DIcon = (type: string) => {
+  if (type === 'bike') return require('./assets/3d_bike_icon.png');
+  if (type === 'auto') return require('./assets/3d_auto_icon.png');
+  return require('./assets/3d_car_icon.png');
+};
+
 // Navigation controller
 function NavigationRoot() {
   const { user, loading } = useAuth();
@@ -971,9 +977,7 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage, a
               )}
               {nearbyDrivers.map((d, i) => (
                 <Marker key={`driver-${d._id || i}`} coordinate={{ latitude: d.currentLocation.coordinates[1], longitude: d.currentLocation.coordinates[0] }}>
-                  <View style={styles.nearbyVehicleMarker}>
-                    <Text style={{ fontSize: 14 }}>{getVehicleEmoji(d.vehicle?.type)}</Text>
-                  </View>
+                  <Image source={getVehicle3DIcon(d.vehicle?.type || '')} style={{ width: 44, height: 44, resizeMode: 'contain' }} />
                 </Marker>
               ))}
             </MapView>
@@ -1934,11 +1938,7 @@ function TrackingScreen({ ride, onClose }: { ride: any; onClose: () => void }) {
         {/* Animated driver position */}
         {driverLoc && (
           <Marker.Animated coordinate={animatedDriverLoc as any} title="Driver">
-            <View style={styles.nearbyVehicleMarker}>
-              <Text style={{ fontSize: 18 }}>
-                {ride.vehicleType === 'bike' ? '🏍️' : ride.vehicleType === 'auto' ? '🛺' : '🚗'}
-              </Text>
-            </View>
+            <Image source={getVehicle3DIcon(ride.vehicleType || '')} style={{ width: 48, height: 48, resizeMode: 'contain' }} />
           </Marker.Animated>
         )}
 
