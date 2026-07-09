@@ -66,12 +66,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       let fcmToken = null;
       try {
-        // Add a 3-second timeout to prevent FCM from hanging indefinitely on emulators
-        const tokenPromise = messaging().getToken();
-        const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('FCM token timeout')), 3000)
-        );
-        fcmToken = await Promise.race([tokenPromise, timeoutPromise]);
+        const authStatus = await messaging().requestPermission();
+        const enabled =
+          authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+          authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+        
+        if (enabled) {
+          // Add a 3-second timeout to prevent FCM from hanging indefinitely on emulators
+          const tokenPromise = messaging().getToken();
+          const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('FCM token timeout')), 3000)
+          );
+          fcmToken = await Promise.race([tokenPromise, timeoutPromise]);
+        } else {
+          console.log('Notification permission not granted');
+        }
       } catch(e) {
         console.warn('Failed to get FCM token', e);
       }

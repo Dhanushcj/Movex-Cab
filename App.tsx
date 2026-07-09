@@ -123,6 +123,16 @@ function NavigationRoot() {
     }
   }, [user, onboardingDone]);
 
+  useEffect(() => {
+    const unsubscribe = messaging().onMessage(async remoteMessage => {
+      Alert.alert(
+        remoteMessage.notification?.title || 'New Notification',
+        remoteMessage.notification?.body || ''
+      );
+    });
+    return unsubscribe;
+  }, []);
+
   if (loading) {
     return <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}><ActivityIndicator size="large" color="#00C896" /></View>;
   }
@@ -553,6 +563,7 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage, a
   const [bookingRide, setBookingRide] = useState(false);
   const [passEstimate, setPassEstimate] = useState<any>(null);
   const [bookingMode, setBookingMode] = useState<'ride'|'pass'>('ride');
+  const [preferences, setPreferences] = useState<string[]>([]);
   const [showPassConfig, setShowPassConfig] = useState(false);
 
   // ── Picker state ──────────────────────────────────────────────────────────
@@ -567,6 +578,12 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage, a
   const [showWalletModal, setShowWalletModal] = useState(false);
   const [showEmergencyScreen, setShowEmergencyScreen] = useState(false);
   const [showNotificationScreen, setShowNotificationScreen] = useState(false);
+  const [managePass, setManagePass] = useState<any>(null);
+  const [skipPickup, setSkipPickup] = useState(false);
+  const [skipReturn, setSkipReturn] = useState(false);
+  const [newPickupTime, setNewPickupTime] = useState('');
+  const [newReturnTime, setNewReturnTime] = useState('');
+  const [savingPass, setSavingPass] = useState(false);
   const [showSupportTicketScreen, setShowSupportTicketScreen] = useState(false);
 
   // ── Profile fields ─────────────────────────────────────────────────────────
@@ -601,6 +618,32 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage, a
     };
     fetchBanners();
   }, []);
+
+  const handleUpdatePassException = async () => {
+    if (!managePass) return;
+    setSavingPass(true);
+    try {
+      const todayDate = new Date().toISOString().split('T')[0];
+      const payload = {
+        date: todayDate,
+        skipPickup,
+        skipReturn,
+        newPickupTime: newPickupTime || undefined,
+        newReturnTime: newReturnTime || undefined
+      };
+      
+      const res = await API.post(`/subscriptions/${managePass._id}/customize`, payload);
+      if (res.data.success) {
+        Alert.alert('Success', 'Ride schedule updated for today');
+        setManagePass(null);
+      }
+    } catch (e: any) {
+      Alert.alert('Error', e.response?.data?.message || 'Failed to update ride schedule');
+    } finally {
+      setSavingPass(false);
+    }
+  };
+
 
   useEffect(() => {
     if (banner1List.length > 1) {
@@ -740,12 +783,11 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage, a
         pickup: { address: pickupAddr, coordinates: pickupCoords },
         vehicleType: selectedVehicle.vehicleType,
         paymentMethod: 'cash',
-        fare: offeredFare
+        fare: offeredFare,
+        preferences: preferences
       };
       if (dropCoords && dropCoords.length === 2) {
         payload.drop = { address: dropAddr, coordinates: dropCoords };
-      } else {
-        payload.drop = { address: '', coordinates: [0, 0] };
       }
       const res = await API.post('/bookings', payload);
       if (res.data.success) onRideBooked(res.data.data);
@@ -1062,11 +1104,31 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage, a
                 )}
 
                 {bookingMode === 'ride' && (
-                  <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 12 }}>
-                    <TouchableOpacity onPress={() => setOfferedFare(Math.max(10, offeredFare - 10))}><Feather name="minus-circle" size={24} color={Colors.accent} /></TouchableOpacity>
-                    <Text style={{ fontSize: 20, fontWeight: 'bold' }}>₹{offeredFare}</Text>
-                    <TouchableOpacity onPress={() => setOfferedFare(offeredFare + 10)}><Feather name="plus-circle" size={24} color={Colors.accent} /></TouchableOpacity>
-                  </View>
+                  <>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 12 }}>
+                      <TouchableOpacity onPress={() => setOfferedFare(Math.max(10, offeredFare - 10))}><Feather name="minus-circle" size={24} color={Colors.accent} /></TouchableOpacity>
+                      <Text style={{ fontSize: 20, fontWeight: 'bold' }}>₹{offeredFare}</Text>
+                      <TouchableOpacity onPress={() => setOfferedFare(offeredFare + 10)}><Feather name="plus-circle" size={24} color={Colors.accent} /></TouchableOpacity>
+                    </View>
+                    <View style={{ paddingHorizontal: 12, paddingBottom: 12 }}>
+                      <Text style={{ fontSize: 14, fontWeight: '600', color: Colors.textPrimary, marginBottom: 8 }}>Ride Preferences</Text>
+                      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexDirection: 'row' }}>
+                        {[
+                          { id: 'quiet', label: 'Quiet Ride' },
+                          { id: 'ac_off', label: 'AC Off' },
+                          { id: 'pet_friendly', label: 'Pet Friendly' },
+                        ].map((pref) => (
+                          <TouchableOpacity
+                            key={pref.id}
+                            style={[{ paddingHorizontal: 12, paddingVertical: 6, borderRadius: 16, borderWidth: 1, borderColor: Colors.borderGlass, marginRight: 8, backgroundColor: preferences.includes(pref.id) ? Colors.accent : '#F9FAFB' }]}
+                            onPress={() => setPreferences(prev => prev.includes(pref.id) ? prev.filter(p => p !== pref.id) : [...prev, pref.id])}
+                          >
+                            <Text style={{ fontSize: 13, fontWeight: '500', color: preferences.includes(pref.id) ? '#FFF' : Colors.textSecondary }}>{pref.label}</Text>
+                          </TouchableOpacity>
+                        ))}
+                      </ScrollView>
+                    </View>
+                  </>
                 )}
 
                 <TouchableOpacity 
@@ -1083,21 +1145,18 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage, a
 
             {estimates.length === 0 && !loadingEstimates && (
               <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 100 }}>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 20 }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 }}>
                   {[
                     { icon: '\uD83D\uDE97', label: t('home.serviceCab') || 'Cab', mode: 'ride' },
-                      { icon: '\uD83C\uDFCD\uFE0F', label: t('home.serviceBike') || 'Bike', mode: 'ride' },
+                    { icon: '\uD83C\uDFCD\uFE0F', label: t('home.serviceBike') || 'Bike', mode: 'ride' },
                     { icon: '\uD83D\uDEFA', label: t('home.serviceAuto') || 'Auto', mode: 'ride' },
-                    { icon: '\u2708\uFE0F', label: t('home.serviceTour') || 'Tour', mode: 'ride' },
-                      { icon: '\uD83D\uDE98', label: t('home.serviceRental') || 'Rental', mode: 'ride' },
-                    { icon: '\uD83C\uDFD9\uFE0F', label: t('home.serviceIntercity') || 'Intercity', mode: 'ride' },
                   ].map((s, i) => (
-                    <TouchableOpacity key={i} style={styles.homeServiceChip} activeOpacity={0.8} onPress={() => { setBookingMode(s.mode as any); setPickerMode('drop'); }}>
+                    <TouchableOpacity key={i} style={[styles.homeServiceChip, { width: '31%' }]} activeOpacity={0.8} onPress={() => { setBookingMode(s.mode as any); setPickerMode('drop'); }}>
                       <Text style={{ fontSize: 24 }}>{s.icon}</Text>
                       <Text style={styles.homeServiceLabel} numberOfLines={1}>{s.label}</Text>
                     </TouchableOpacity>
                   ))}
-                </ScrollView>
+                </View>
 
                 {/* Banner 1 (Top) - Auto swiping carousel */}
                 {banner1List.length > 0 ? (
@@ -1215,7 +1274,15 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage, a
                     </View>
                     <Text style={{ color: Colors.textSecondary, fontSize: 12, marginBottom: 4 }}>Pickup: {pass.pickupTime}</Text>
                     {pass.isReturnTrip && <Text style={{ color: Colors.textSecondary, fontSize: 12, marginBottom: 4 }}>Return: {pass.returnTime}</Text>}
-                    <Text style={{ color: Colors.accent, fontSize: 14, marginTop: 8 }}>{pass.totalRides - pass.ridesCompleted} rides remaining</Text>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 }}>
+                      <Text style={{ color: Colors.accent, fontSize: 14 }}>{pass.totalRides - pass.ridesCompleted} rides remaining</Text>
+                      <TouchableOpacity 
+                        style={{ paddingHorizontal: 12, paddingVertical: 6, backgroundColor: Colors.bgPrimary, borderRadius: 8 }}
+                        onPress={() => setManagePass(pass)}
+                      >
+                        <Text style={{ fontSize: 12, color: Colors.textPrimary, fontWeight: '600' }}>Manage Today</Text>
+                      </TouchableOpacity>
+                    </View>
                   </View>
                 ))}
               </View>
@@ -1409,11 +1476,10 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage, a
       )}
 
       {/* ─────────────────── BOTTOM TAB BAR (REDESIGNED) ─────────────────── */}
-      {!(activeTab === 'home' && (!!dropAddr || estimates.length > 0 || pickerMode !== null || rideStatus !== 'none')) && (
+      {!(activeTab === 'home' && (!!dropAddr || estimates.length > 0 || pickerMode !== null)) && (
         <View style={{ flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', paddingVertical: 12, position: 'absolute', bottom: 16, left: 16, right: 16, borderRadius: 20, backgroundColor: Colors.bgSecondary, shadowColor: Colors.textPrimary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 10, elevation: 5 }}>
         {([
           { key: 'home',     icon: 'home',  label: t('home.tabHome') || 'Home' },
-          { key: 'services', icon: 'grid',  label: t('home.tabServices') || 'Services' },
           { key: 'wallet',   icon: 'credit-card', label: t('home.tabWallet') || 'Wallet' },
           { key: 'trips',    icon: 'clock', label: t('home.tabTrips') || 'Trips' },
         ] as { key: TabName; icon: string; label: string }[]).map((tab) => (
@@ -1433,6 +1499,59 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage, a
         ))}
         </View>
       )}
+
+      {/* ─────────────────── MANAGE PASS MODAL ─────────────────── */}
+      <Modal visible={!!managePass} animationType="slide" transparent onRequestClose={() => setManagePass(null)}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalInnerContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Manage Today's Ride</Text>
+              <TouchableOpacity onPress={() => setManagePass(null)} style={styles.modalCloseBtn}>
+                <Feather name="x" size={20} color={Colors.textPrimary} />
+              </TouchableOpacity>
+            </View>
+            <ScrollView style={styles.modalScrollView}>
+              <View style={styles.inputFormGroup}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+                  <Text style={styles.inputLabel}>Skip Pickup Today?</Text>
+                  <Switch value={skipPickup} onValueChange={setSkipPickup} trackColor={{ true: Colors.accent }} />
+                </View>
+
+                {!skipPickup && (
+                  <View style={{ marginBottom: 16 }}>
+                    <Text style={styles.inputLabel}>Reschedule Pickup Time (HH:MM)</Text>
+                    <View style={styles.inputWrapper}>
+                      <TextInput style={styles.formInput} placeholder={managePass?.pickupTime || "HH:MM"} placeholderTextColor={Colors.textSecondary} value={newPickupTime} onChangeText={setNewPickupTime} />
+                    </View>
+                  </View>
+                )}
+              </View>
+
+              {managePass?.isReturnTrip && (
+                <View style={styles.inputFormGroup}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+                    <Text style={styles.inputLabel}>Skip Return Today?</Text>
+                    <Switch value={skipReturn} onValueChange={setSkipReturn} trackColor={{ true: Colors.accent }} />
+                  </View>
+
+                  {!skipReturn && (
+                    <View style={{ marginBottom: 16 }}>
+                      <Text style={styles.inputLabel}>Reschedule Return Time (HH:MM)</Text>
+                      <View style={styles.inputWrapper}>
+                        <TextInput style={styles.formInput} placeholder={managePass?.returnTime || "HH:MM"} placeholderTextColor={Colors.textSecondary} value={newReturnTime} onChangeText={setNewReturnTime} />
+                      </View>
+                    </View>
+                  )}
+                </View>
+              )}
+
+              <TouchableOpacity style={{ backgroundColor: '#0053B3', paddingVertical: 16, borderRadius: 12, alignItems: 'center', marginTop: 8 }} onPress={handleUpdatePassException} disabled={savingPass}>
+                {savingPass ? <ActivityIndicator color="#fff" /> : <Text style={{ color: '#FCFCFC', fontSize: 16, fontWeight: '700' }}>Save Changes</Text>}
+              </TouchableOpacity>
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
 
       {/* ─────────────────── WALLET MODAL ─────────────────── */}
       <Modal visible={showWalletModal} animationType="slide" transparent onRequestClose={() => setShowWalletModal(false)}>
@@ -1492,38 +1611,38 @@ function TrackingScreen({ ride, onClose }: { ride: any; onClose: () => void }) {
   const { location } = useLocation();
   const mapRef = useRef<MapView>(null);
 
-  const [rideStatus, setRideStatus] = useState(ride.status);
+  const [rideStatus, setRideStatus] = useState(ride?.status);
   const [driverLoc, setDriverLoc] = useState<number[] | null>(
-    ride.driverLocation ? ride.driverLocation.coordinates : null
+    ride?.driverLocation ? ride.driverLocation.coordinates : null
   );
   const [rating, setRating] = useState(5);
   const [review, setReview] = useState('');
   const [submittingRating, setSubmittingRating] = useState(false);
   const [cancelling, setCancelling] = useState(false);
   const [driverInfo, setDriverInfo] = useState<any>({
-    name: ride.driver?.name || null,
-    phone: ride.driver?.phone || null,
-    vehicle: ride.driver?.vehicle || null
+    name: ride?.driver?.name || null,
+    phone: ride?.driver?.phone || null,
+    vehicle: ride?.driver?.vehicle || null
   });
 
   // ── Customer-side Navigation State ────────────────────────────────────────
   const [navStepIndex, setNavStepIndex]   = useState(0);
   const [distToTurn, setDistToTurn]       = useState(0);
-  const [remainingDist, setRemainingDist] = useState((ride.route?.distance || 0) * 1000);
-  const [remainingETA, setRemainingETA]   = useState(Math.ceil(ride.route?.duration || 0));
+  const [remainingDist, setRemainingDist] = useState((ride?.route?.distance || 0) * 1000);
+  const [remainingETA, setRemainingETA]   = useState(Math.ceil(ride?.route?.duration || 0));
   const [routeProgress, setRouteProgress] = useState(0);
   const [custHeading, setCustHeading]     = useState(0);
 
   const polylinePoints = React.useMemo(
-    () => (ride.route?.polyline ? decodePolyline(ride.route.polyline) : []),
-    [ride.route?.polyline]
+    () => (ride?.route?.polyline ? decodePolyline(ride.route.polyline) : []),
+    [ride?.route?.polyline]
   );
-  const totalRouteDist = (ride.route?.distance || 0) * 1000; // metres
-  const steps: any[]  = ride.route?.steps || [];
+  const totalRouteDist = (ride?.route?.distance || 0) * 1000; // metres
+  const steps: any[]  = ride?.route?.steps || [];
 
   // Fetch populated booking on mount to get driver details if already accepted
   useEffect(() => {
-    if (ride.driver && !ride.driver.name) {
+    if (ride?.driver && !ride?.driver?.name) {
       API.get(`/bookings/${ride._id}`).then((res) => {
         if (res.data.success) {
           const b = res.data.data;
@@ -1540,8 +1659,8 @@ function TrackingScreen({ ride, onClose }: { ride: any; onClose: () => void }) {
 
   const animatedDriverLoc = useRef(
     new AnimatedRegion({
-      latitude: ride.driverLocation ? ride.driverLocation.coordinates[1] : ride.pickup.location.coordinates[1],
-      longitude: ride.driverLocation ? ride.driverLocation.coordinates[0] : ride.pickup.location.coordinates[0],
+      latitude: ride?.driverLocation ? ride.driverLocation.coordinates[1] : (ride?.pickup?.location?.coordinates[1] || 0),
+      longitude: ride?.driverLocation ? ride.driverLocation.coordinates[0] : (ride?.pickup?.location?.coordinates[0] || 0),
       latitudeDelta: 0,
       longitudeDelta: 0
     })
@@ -1677,8 +1796,8 @@ function TrackingScreen({ ride, onClose }: { ride: any; onClose: () => void }) {
   useEffect(() => {
     if (rideStatus === 'in_progress' && mapRef.current) {
       setTimeout(() => {
-        const lat = location?.coords.latitude  ?? ride.pickup.location.coordinates[1];
-        const lng = location?.coords.longitude ?? ride.pickup.location.coordinates[0];
+        const lat = location?.coords.latitude  ?? (ride?.pickup?.location?.coordinates[1] || 0);
+        const lng = location?.coords.longitude ?? (ride?.pickup?.location?.coordinates[0] || 0);
         mapRef.current?.animateCamera(
           { pitch: 55, heading: 0, zoom: 17, center: { latitude: lat, longitude: lng } },
           { duration: 2000 }
@@ -1686,7 +1805,7 @@ function TrackingScreen({ ride, onClose }: { ride: any; onClose: () => void }) {
       }, 400);
     }
     // Zoom out to overview when trip ends
-    if (rideStatus === 'completed' && mapRef.current) {
+    if (rideStatus === 'completed' && mapRef.current && ride?.drop?.location) {
       mapRef.current.animateCamera(
         {
           center: {
@@ -1708,7 +1827,7 @@ function TrackingScreen({ ride, onClose }: { ride: any; onClose: () => void }) {
     currentStep?.maneuver?.type     || 'straight',
     currentStep?.maneuver?.modifier || 'straight'
   );
-  const nextStreet = currentStep?.name || ride.drop?.address || 'Destination';
+  const nextStreet = currentStep?.name || ride?.drop?.address || 'Destination';
 
   // ── Helpers ────────────────────────────────────────────────────────────────
   const handleCancelRide = () => {
@@ -1750,6 +1869,8 @@ function TrackingScreen({ ride, onClose }: { ride: any; onClose: () => void }) {
   };
 
   // ── Render ─────────────────────────────────────────────────────────────────
+  if (!ride) return null;
+
   if (rideStatus === 'payment_pending') {
     return (
       <CustomerQRScannerScreen 
@@ -2042,6 +2163,11 @@ function DriverHomeScreen({ onRideAccepted, onNavigateProfile, onNavigateHistory
     }
   }, [isOnline, incomingRequest, scanAnim]);
 
+  const locationRef = useRef(location);
+  useEffect(() => {
+    locationRef.current = location;
+  }, [location]);
+
   useEffect(() => {
     if (!socket || !connected || !user) return;
 
@@ -2056,18 +2182,19 @@ function DriverHomeScreen({ onRideAccepted, onNavigateProfile, onNavigateHistory
       });
 
       const interval = setInterval(() => {
-        if (location) {
+        const currLoc = locationRef.current;
+        if (currLoc) {
           socket.emit('location:update', {
             driverId: user._id,
             location: {
               type: 'Point',
-              coordinates: [location.coords.longitude, location.coords.latitude]
+              coordinates: [currLoc.coords.longitude, currLoc.coords.latitude]
             }
           });
           // Also update the database so the driver shows up in GeoJSON queries
           API.put('/drivers/location', {
-            latitude: location.coords.latitude,
-            longitude: location.coords.longitude
+            latitude: currLoc.coords.latitude,
+            longitude: currLoc.coords.longitude
           }).catch(() => {});
         }
       }, 5000);
@@ -2088,7 +2215,7 @@ function DriverHomeScreen({ onRideAccepted, onNavigateProfile, onNavigateHistory
     } else {
       socket.emit('driver:offline', { driverId: user._id });
     }
-  }, [socket, connected, isOnline, user, location]);
+  }, [socket, connected, isOnline, user]);
 
   const toggleOnline = async (value: boolean) => {
     if (value && user?.approvalStatus !== 'approved') {
