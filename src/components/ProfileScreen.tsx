@@ -123,8 +123,6 @@ export default function ProfileScreen({
           {renderOptionRow('darkTheme', true, toggleTheme, isDark)}
           <View style={styles.divider} />
           {renderOptionRow('appLanguage', false, onNavigateLanguage)}
-          <View style={styles.divider} />
-          {renderOptionRow('alertSound')}
         </View>
 
         {/* Second Options Block */}

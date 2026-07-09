@@ -1296,8 +1296,7 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage, a
             <View style={{ backgroundColor: Colors.bgSecondary, borderRadius: 16, paddingHorizontal: 16, marginBottom: 20 }}>
               {([ { key: 'commutePass', label: 'Monthly Commute Pass', icon: 'calendar', color: '#0053B3', onPress: () => setShowPassConfig(true) },
                 { key: 'darkTheme', icon: 'moon', color: '#0053B3', toggle: true },
-                { key: 'appLanguage', icon: 'globe', color: '#0053B3', onPress: onNavigateLanguage },
-                { key: 'alertSound', icon: 'volume-2', color: '#0053B3' }, ] as any[]).map((item, idx) => (
+                { key: 'appLanguage', icon: 'globe', color: '#0053B3', onPress: onNavigateLanguage } ] as any[]).map((item, idx) => (
                 <View key={idx}>
                   <TouchableOpacity onPress={item.toggle ? toggleTheme : item.onPress} style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, gap: 12 }} activeOpacity={0.7} disabled={!item.toggle && !item.onPress}>
                     <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: Colors.iconBg, borderWidth: 1.5, borderColor: '#0053B3', alignItems: 'center', justifyContent: 'center' }}>
@@ -1319,8 +1318,7 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage, a
 
             {/* Support Block */}
             <View style={{ backgroundColor: Colors.bgSecondary, borderRadius: 16, paddingHorizontal: 16, marginBottom: 20 }}>
-              {([ { key: 'helpCentre', icon: 'help-circle', color: '#0053B3' },
-                { key: 'supportTickets', icon: 'message-square', color: '#0053B3', onPress: () => setShowSupportTicketScreen(true) },
+              {([ { key: 'supportTickets', icon: 'message-square', color: '#0053B3', onPress: () => setShowSupportTicketScreen(true) },
                 { key: 'settings', icon: 'settings', color: '#0053B3' }, ] as any[]).map((item, idx) => (
                 <View key={idx}>
                   <TouchableOpacity onPress={item.toggle ? toggleTheme : item.onPress} style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, gap: 12 }} activeOpacity={0.7} disabled={!item.toggle && !item.onPress}>
@@ -1330,7 +1328,7 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage, a
                     <Text style={{ fontSize: 14, color: Colors.textPrimary, fontWeight: '400', flex: 1 }}>{item.label || t('profile.' + item.key)}</Text>
                     <Feather name="chevron-right" size={24} color={Colors.textPrimary} style={{ opacity: 1 }} />
                   </TouchableOpacity>
-                  {idx < 2 && <View style={{ height: 1, backgroundColor: Colors.bgPrimary, marginHorizontal: -16 }} />}
+                  {idx < 1 && <View style={{ height: 1, backgroundColor: Colors.bgPrimary, marginHorizontal: -16 }} />}
                 </View>
               ))}
             </View>
