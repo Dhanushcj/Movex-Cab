@@ -19,8 +19,8 @@ const matchDriversForBooking = async (bookingId) => {
 
   try {
     const booking = await Booking.findById(bookingId).populate('customer');
-    if (!booking || booking.status !== 'requested') {
-      console.log(`⚠️ Ride matching stopped: Booking ${bookingId} not found or status changed`);
+    if (!booking || (booking.status !== 'requested' && booking.status !== 'searching')) {
+      console.log(`⚠️ Ride matching stopped: Booking ${bookingId} not found or status changed. Status: ${booking?.status}`);
       return;
     }
 
@@ -116,17 +116,20 @@ const dispatchRequestsSequentially = async (booking, driverList, index) => {
   
   // Verify booking is still looking for a driver
   const currentBooking = await Booking.findById(booking._id);
-  if (!currentBooking || currentBooking.status !== 'searching') {
-    console.log(`ℹ️ Booking status changed. Stopping dispatch loop.`);
+  if (!currentBooking || (currentBooking.status !== 'searching' && currentBooking.status !== 'requested')) {
+    console.log(`ℹ️ Booking status changed (${currentBooking?.status}). Stopping dispatch loop.`);
     return;
   }
 
   // Get current socket server online drivers cache
   const onlineDrivers = getOnlineDrivers();
   const socketDriver = onlineDrivers.get(driver._id.toString());
+  
+  console.log(`[RideMatching] Checking driver ${driver._id} - socketDriver exists: ${!!socketDriver}, available: ${socketDriver ? socketDriver.available : false}`);
 
   if (!socketDriver || !socketDriver.available) {
     // Driver went offline or became busy, try next driver immediately
+    console.log(`[RideMatching] Skipping driver ${driver._id} because socket is missing or busy`);
     return dispatchRequestsSequentially(booking, driverList, index + 1);
   }
 
