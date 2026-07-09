@@ -142,8 +142,18 @@ export default function Banners() {
               <div>
                 <label className="text-xs font-semibold text-[var(--text-muted)] uppercase">Banner Image</label>
                 <input type="file" accept="image/*" onChange={e => setSelectedFile(e.target.files[0])} className="glass-input mt-1 w-full text-[var(--text-primary)]" />
-                {form.imageUrl && !selectedFile && <p className="text-xs text-blue-500 mt-2 truncate">Current: {form.imageUrl}</p>}
-                {selectedFile && <p className="text-xs text-emerald-500 mt-2">Selected: {selectedFile.name}</p>}
+                {form.imageUrl && !selectedFile && (
+                  <div className="mt-2">
+                    <p className="text-xs text-blue-500 truncate mb-1">Current: {form.imageUrl}</p>
+                    <img src={getImageUrl(form.imageUrl)} alt="Current banner preview" className="h-24 w-auto object-contain rounded border border-[var(--border-glass)]" />
+                  </div>
+                )}
+                {selectedFile && (
+                  <div className="mt-2">
+                    <p className="text-xs text-emerald-500 mb-1">Selected: {selectedFile.name}</p>
+                    <img src={URL.createObjectURL(selectedFile)} alt="Selected banner preview" className="h-24 w-auto object-contain rounded border border-[var(--border-glass)]" />
+                  </div>
+                )}
               </div>
               <div>
                 <label className="text-xs font-semibold text-[var(--text-muted)] uppercase">Target Audience</label>

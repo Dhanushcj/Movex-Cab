@@ -12,7 +12,10 @@ const {
   getNearbyDrivers,
   getWalletDetails,
   addMoney,
-  withdrawMoney
+  withdrawMoney,
+  getSettings,
+  updateSettings,
+  deleteAccount
 } = require('../controllers/driverController');
 const { createComplaint, getMyComplaints } = require('../controllers/complaintController');
 
@@ -67,5 +70,8 @@ router.post('/documents', (req, res, next) => {
 
 router.post('/complaints', createComplaint);
 router.get('/complaints', getMyComplaints);
+router.get('/settings', getSettings);
+router.put('/settings', updateSettings);
+router.delete('/me', deleteAccount);
 
 module.exports = router;

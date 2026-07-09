@@ -157,7 +157,6 @@ const bookingSchema = new mongoose.Schema({
 });
 
 // Indexes
-bookingSchema.index({ bookingId: 1 });
 bookingSchema.index({ customer: 1, status: 1 });
 bookingSchema.index({ driver: 1, status: 1 });
 bookingSchema.index({ status: 1 });

@@ -79,6 +79,10 @@ const userSchema = new mongoose.Schema({
     name: String,
     phone: String
   }],
+  settings: {
+    pushNotification: { type: Boolean, default: false },
+    biometricLock: { type: Boolean, default: false }
+  },
   isActive: {
     type: Boolean,
     default: true
@@ -98,8 +102,6 @@ const userSchema = new mongoose.Schema({
 
 // Index for geospatial queries on saved addresses
 userSchema.index({ 'savedAddresses.location': '2dsphere' });
-userSchema.index({ phone: 1 });
-userSchema.index({ email: 1 });
 
 // Hash password before save
 userSchema.pre('save', async function(next) {

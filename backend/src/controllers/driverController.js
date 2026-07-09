@@ -404,6 +404,68 @@ const updateProfile = async (req, res, next) => {
   }
 };
 
+/**
+ * Get driver settings
+ * GET /api/drivers/settings
+ */
+const getSettings = async (req, res, next) => {
+  try {
+    const driver = await Driver.findById(req.user.id).select('settings');
+    if (!driver) return res.status(404).json({ success: false, message: 'Driver not found' });
+    res.json({ success: true, data: driver.settings || { pushNotification: false, biometricLock: false } });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Update driver settings (pushNotification, biometricLock)
+ * PUT /api/drivers/settings
+ */
+const updateSettings = async (req, res, next) => {
+  const { pushNotification, biometricLock } = req.body;
+  try {
+    const driver = await Driver.findById(req.user.id);
+    if (!driver) return res.status(404).json({ success: false, message: 'Driver not found' });
+
+    if (!driver.settings) {
+      driver.settings = { pushNotification: false, biometricLock: false };
+    }
+    if (typeof pushNotification === 'boolean') driver.settings.pushNotification = pushNotification;
+    if (typeof biometricLock === 'boolean') driver.settings.biometricLock = biometricLock;
+
+    await driver.save();
+    res.json({ success: true, data: driver.settings });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Delete driver account and clean up associated data
+ * DELETE /api/drivers/me
+ */
+const deleteAccount = async (req, res, next) => {
+  try {
+    const driverId = req.user.id;
+    const driver = await Driver.findById(driverId);
+    if (!driver) return res.status(404).json({ success: false, message: 'Driver not found' });
+
+    // Cancel any active bookings assigned to this driver
+    await Booking.updateMany(
+      { driver: driverId, status: { $in: ['accepted', 'arrived', 'in_progress'] } },
+      { $set: { status: 'cancelled', cancelledBy: 'driver', cancelReason: 'Account deleted', driver: null } }
+    );
+
+    // Delete the driver
+    await Driver.findByIdAndDelete(driverId);
+
+    res.json({ success: true, message: 'Account deleted successfully' });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   updateProfile,
   updateLocation,
@@ -413,5 +475,8 @@ module.exports = {
   getNearbyDrivers,
   getWalletDetails,
   addMoney,
-  withdrawMoney
+  withdrawMoney,
+  getSettings,
+  updateSettings,
+  deleteAccount
 };

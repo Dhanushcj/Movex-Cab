@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const Booking = require('../models/Booking');
+const Subscription = require('../models/Subscription');
 
 /**
  * Get profile of current user
@@ -103,4 +104,76 @@ const saveAddress = async (req, res, next) => {
   }
 };
 
-module.exports = { getMe, updateMe, getMyRides, saveAddress };
+/**
+ * Get user settings
+ * GET /api/users/me/settings
+ */
+const getSettings = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user.id).select('settings');
+    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+    res.json({ success: true, data: user.settings || { pushNotification: false, biometricLock: false } });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Update user settings (pushNotification, biometricLock)
+ * PUT /api/users/me/settings
+ */
+const updateSettings = async (req, res, next) => {
+  const { pushNotification, biometricLock } = req.body;
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+
+    if (!user.settings) {
+      user.settings = { pushNotification: false, biometricLock: false };
+    }
+    if (typeof pushNotification === 'boolean') user.settings.pushNotification = pushNotification;
+    if (typeof biometricLock === 'boolean') user.settings.biometricLock = biometricLock;
+
+    await user.save();
+    res.json({ success: true, data: user.settings });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Delete user account and clean up associated data
+ * DELETE /api/users/me
+ */
+const deleteAccount = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+
+    // Cancel any active/searching bookings
+    await Booking.updateMany(
+      { customer: userId, status: { $in: ['searching', 'requested', 'accepted', 'arrived'] } },
+      { $set: { status: 'cancelled', cancelledBy: 'customer', cancelReason: 'Account deleted' } }
+    );
+
+    // Cancel active subscriptions
+    try {
+      await Subscription.updateMany(
+        { user: userId, status: 'active' },
+        { $set: { status: 'cancelled' } }
+      );
+    } catch (e) {
+      // Subscription model may not exist — skip gracefully
+    }
+
+    // Delete the user
+    await User.findByIdAndDelete(userId);
+
+    res.json({ success: true, message: 'Account deleted successfully' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = { getMe, updateMe, getMyRides, saveAddress, getSettings, updateSettings, deleteAccount };

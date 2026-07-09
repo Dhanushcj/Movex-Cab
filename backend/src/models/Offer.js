@@ -67,7 +67,6 @@ const offerSchema = new mongoose.Schema({
   timestamps: true
 });
 
-offerSchema.index({ code: 1 });
 offerSchema.index({ isActive: 1, validFrom: 1, validTo: 1 });
 
 module.exports = mongoose.model('Offer', offerSchema);

@@ -182,6 +182,10 @@ const driverSchema = new mongoose.Schema({
     type: String,
     default: null
   },
+  settings: {
+    pushNotification: { type: Boolean, default: false },
+    biometricLock: { type: Boolean, default: false }
+  },
   isActive: {
     type: Boolean,
     default: true
@@ -194,7 +198,6 @@ const driverSchema = new mongoose.Schema({
 
 // Geospatial index for nearby driver queries
 driverSchema.index({ currentLocation: '2dsphere' });
-driverSchema.index({ phone: 1 });
 driverSchema.index({ approvalStatus: 1, isOnline: 1, isAvailable: 1 });
 driverSchema.index({ 'vehicle.type': 1 });
 
