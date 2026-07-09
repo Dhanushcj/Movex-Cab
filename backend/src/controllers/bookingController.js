@@ -115,8 +115,8 @@ const createBooking = async (req, res, next) => {
         address: pickup.address,
         location: { type: 'Point', coordinates: pickup.coordinates }
       },
-      drop: drop && drop.address ? {
-        address: drop.address,
+      drop: drop && drop.coordinates ? {
+        address: drop.address || '',
         location: { type: 'Point', coordinates: drop.coordinates }
       } : undefined,
       vehicleType,

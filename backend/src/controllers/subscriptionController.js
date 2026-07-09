@@ -96,3 +96,47 @@ exports.getUserPasses = async (req, res) => {
     res.status(500).json({ success: false, message: 'Failed to fetch commute passes' });
   }
 };
+
+exports.customizePass = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { date, skipPickup, skipReturn, newPickupTime, newReturnTime } = req.body;
+
+    const subscription = await Subscription.findOne({ _id: id, user: req.user.id });
+    if (!subscription) {
+      return res.status(404).json({ success: false, message: 'Subscription not found' });
+    }
+
+    if (!subscription.exceptions) {
+      subscription.exceptions = [];
+    }
+
+    // Check if an exception already exists for this date
+    const existingIndex = subscription.exceptions.findIndex(e => e.date === date);
+
+    const exceptionData = {
+      date,
+      skipPickup: !!skipPickup,
+      skipReturn: !!skipReturn,
+      newPickupTime,
+      newReturnTime
+    };
+
+    if (existingIndex > -1) {
+      subscription.exceptions[existingIndex] = exceptionData;
+    } else {
+      subscription.exceptions.push(exceptionData);
+    }
+
+    await subscription.save();
+
+    res.json({
+      success: true,
+      message: 'Commute pass customized successfully for ' + date,
+      data: subscription
+    });
+  } catch (error) {
+    console.error('Customize Pass Error:', error);
+    res.status(500).json({ success: false, message: 'Failed to customize commute pass' });
+  }
+};

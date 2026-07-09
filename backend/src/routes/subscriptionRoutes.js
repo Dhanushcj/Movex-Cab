@@ -4,7 +4,8 @@ const { protect } = require('../middleware/auth');
 const {
   estimatePass,
   purchasePass,
-  getUserPasses
+  getUserPasses,
+  customizePass
 } = require('../controllers/subscriptionController');
 
 router.use(protect);
@@ -12,5 +13,6 @@ router.use(protect);
 router.post('/estimate', estimatePass);
 router.post('/purchase', purchasePass);
 router.get('/', getUserPasses);
+router.post('/:id/customize', customizePass);
 
 module.exports = router;

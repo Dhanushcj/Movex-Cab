@@ -65,7 +65,14 @@ const subscriptionSchema = new mongoose.Schema({
     type: String,
     enum: ['active', 'exhausted', 'cancelled'],
     default: 'active'
-  }
+  },
+  exceptions: [{
+    date: { type: String, required: true }, // Format YYYY-MM-DD
+    skipPickup: { type: Boolean, default: false },
+    skipReturn: { type: Boolean, default: false },
+    newPickupTime: { type: String }, // format HH:MM
+    newReturnTime: { type: String }  // format HH:MM
+  }]
 }, { timestamps: true });
 
 subscriptionSchema.index({ 'pickup.location': '2dsphere' });
