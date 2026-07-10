@@ -32,9 +32,9 @@ const sendNotification = async (token, { title, body, data = {} }) => {
           acc[key] = String(data[key]);
           return acc;
         }, {}) : {},
-        token
+        tokens: [token]
       };
-      await admin.messaging().send(message);
+      await admin.messaging().sendEachForMulticast(message);
       console.log('🚀 FCM push notification sent successfully');
     } catch (error) {
       console.error('❌ Failed to send FCM notification:', error.message);
