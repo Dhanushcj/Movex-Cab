@@ -14,6 +14,7 @@ const driverRoutes = require('./src/routes/driverRoutes');
 const bookingRoutes = require('./src/routes/bookingRoutes');
 const adminRoutes = require('./src/routes/adminRoutes');
 const { startCron } = require('./src/jobs/expiryNotifications');
+const { startPromoCron } = require('./src/jobs/promoNotifications');
 const { startCronJobs } = require('./src/services/cronService');
 const uploadRoutes = require('./src/routes/uploadRoutes');
 const publicRoutes = require('./src/routes/publicRoutes');
@@ -69,6 +70,7 @@ app.use(errorHandler);
 
 // Start Cron Jobs
 startCron();
+startPromoCron();
 startCronJobs();
 
 // Start server
