@@ -1,6 +1,8 @@
 const Subscription = require('../models/Subscription');
+const User = require('../models/User');
 const { getRouteDetails } = require('../services/routingService');
 const { calculateFare } = require('../services/fareEngine');
+const { sendNotification } = require('../services/notificationService');
 
 exports.estimatePass = async (req, res) => {
   try {
@@ -42,7 +44,13 @@ exports.purchasePass = async (req, res) => {
   try {
     const { pickup, drop, vehicleType, totalRides, pricePerRide, totalPrice, isReturnTrip, pickupTime, returnTime } = req.body;
     
-    // In a real app, we would integrate payment gateway here
+    // Validate pickup time is provided
+    if (!pickupTime) {
+      return res.status(400).json({ success: false, message: 'Pickup time is required for commute pass' });
+    }
+    if (isReturnTrip && !returnTime) {
+      return res.status(400).json({ success: false, message: 'Return time is required for return trip pass' });
+    }
     
     const validUntil = new Date();
     validUntil.setDate(validUntil.getDate() + 30); // Valid for 30 days
@@ -68,6 +76,19 @@ exports.purchasePass = async (req, res) => {
     });
     
     await subscription.save();
+    
+    // Send confirmation notification
+    const user = await User.findById(req.user.id);
+    if (user && user.fcmToken) {
+      const scheduleMsg = isReturnTrip
+        ? `Pickup at ${pickupTime}, Return at ${returnTime}`
+        : `Daily pickup at ${pickupTime}`;
+      await sendNotification(user.fcmToken, {
+        title: '✅ Commute Pass Activated',
+        body: `Your ${totalRides}-ride commute pass is active! ${scheduleMsg}. Rides will be booked automatically.`,
+        data: { type: 'subscription_purchased', subscriptionId: subscription._id.toString() }
+      });
+    }
     
     res.status(201).json({
       success: true,
@@ -130,6 +151,34 @@ exports.customizePass = async (req, res) => {
 
     await subscription.save();
 
+    // Send reschedule/customization confirmation notification
+    const user = await User.findById(req.user.id);
+    if (user && user.fcmToken) {
+      let notifBody = '';
+      if (skipPickup && skipReturn) {
+        notifBody = `Both pickup and return rides have been skipped for ${date}.`;
+      } else if (skipPickup) {
+        notifBody = `Pickup ride has been skipped for ${date}.`;
+      } else if (skipReturn) {
+        notifBody = `Return ride has been skipped for ${date}.`;
+      } else {
+        const parts = [];
+        if (newPickupTime) parts.push(`Pickup rescheduled to ${newPickupTime}`);
+        if (newReturnTime) parts.push(`Return rescheduled to ${newReturnTime}`);
+        if (parts.length > 0) {
+          notifBody = `${parts.join('. ')} on ${date}. Your ride will be auto-booked at the new time.`;
+        } else {
+          notifBody = `Ride schedule updated for ${date}.`;
+        }
+      }
+
+      await sendNotification(user.fcmToken, {
+        title: '📅 Schedule Updated',
+        body: notifBody,
+        data: { type: 'subscription_customized', subscriptionId: subscription._id.toString(), date }
+      });
+    }
+
     res.json({
       success: true,
       message: 'Commute pass customized successfully for ' + date,
@@ -140,3 +189,4 @@ exports.customizePass = async (req, res) => {
     res.status(500).json({ success: false, message: 'Failed to customize commute pass' });
   }
 };
+

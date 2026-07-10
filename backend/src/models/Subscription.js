@@ -72,6 +72,17 @@ const subscriptionSchema = new mongoose.Schema({
     skipReturn: { type: Boolean, default: false },
     newPickupTime: { type: String }, // format HH:MM
     newReturnTime: { type: String }  // format HH:MM
+  }],
+  // Days of the week when rides should be auto-booked (0=Sun, 1=Mon, ..., 6=Sat)
+  scheduledDays: {
+    type: [Number],
+    default: [1, 2, 3, 4, 5, 6] // Mon-Sat by default
+  },
+  // Track dates where auto-booking was already attempted (prevents duplicates)
+  lastBookedDates: [{
+    date: { type: String, required: true },      // Format YYYY-MM-DD
+    pickupBooked: { type: Boolean, default: false },
+    returnBooked: { type: Boolean, default: false }
   }]
 }, { timestamps: true });
 

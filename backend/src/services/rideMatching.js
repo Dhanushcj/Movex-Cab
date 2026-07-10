@@ -1,5 +1,7 @@
 const Driver = require('../models/Driver');
 const Booking = require('../models/Booking');
+const User = require('../models/User');
+const Subscription = require('../models/Subscription');
 const { getOnlineDrivers, getIO } = require('../config/socket');
 const { calculateHaversineDistance } = require('./routingService');
 const { sendNotification } = require('./notificationService');
@@ -9,8 +11,11 @@ const activeDispatches = new Map(); // Store driver lists for active sequential 
 /**
  * Find nearby active drivers for a ride request and dispatch booking notifications.
  * @param {string} bookingId - MongoDB ObjectId of booking
+ * @param {Object} [options] - Optional config for subscription rides
+ * @param {boolean} [options.isSubscriptionRide] - Whether this is an auto-booked subscription ride
+ * @param {Function} [options.onAllDriversExhausted] - Callback when all drivers are exhausted (for retry)
  */
-const matchDriversForBooking = async (bookingId) => {
+const matchDriversForBooking = async (bookingId, options = {}) => {
   const io = getIO();
   if (!io) {
     console.error('❌ Cannot match drivers: Socket.IO is not initialized');
@@ -50,6 +55,25 @@ const matchDriversForBooking = async (bookingId) => {
 
     if (nearbyDrivers.length === 0) {
       console.log(`ℹ️ No drivers found for ride ${bookingId}`);
+
+      // For subscription rides, trigger retry callback instead of permanent cancellation
+      if (options.isSubscriptionRide && options.onAllDriversExhausted) {
+        booking.status = 'cancelled';
+        booking.cancelledBy = 'system';
+        booking.cancellationReason = 'No drivers available — retrying shortly';
+        booking.cancelledAt = new Date();
+        await booking.save();
+
+        io.to(`ride:${booking._id}`).emit('booking:status', {
+          status: 'cancelled',
+          reason: 'No drivers available — retrying shortly'
+        });
+
+        console.log(`[RideMatching] Triggering subscription retry for booking ${bookingId}`);
+        options.onAllDriversExhausted();
+        return;
+      }
+
       booking.status = 'cancelled';
       booking.cancelledBy = 'system';
       booking.cancellationReason = 'No drivers available in your area';
@@ -60,6 +84,18 @@ const matchDriversForBooking = async (bookingId) => {
         status: 'cancelled',
         reason: 'No drivers available in your area'
       });
+
+      // Send notification for subscription rides about failure
+      if (booking.subscriptionId) {
+        const customer = await User.findById(booking.customer);
+        if (customer && customer.fcmToken) {
+          await sendNotification(customer.fcmToken, {
+            title: '⚠️ No Drivers Available',
+            body: 'No drivers found for your scheduled commute ride. Please try booking manually.',
+            data: { type: 'subscription_no_drivers', bookingId: booking._id.toString() }
+          });
+        }
+      }
       return;
     }
 
@@ -74,7 +110,7 @@ const matchDriversForBooking = async (bookingId) => {
     }).sort((a, b) => a.distanceWithNoise - b.distanceWithNoise);
 
     // Sequentially notify drivers
-    dispatchRequestsSequentially(booking, sortedDrivers, 0);
+    dispatchRequestsSequentially(booking, sortedDrivers, 0, options);
 
   } catch (error) {
     console.error('❌ Error matching drivers:', error);
@@ -84,8 +120,8 @@ const matchDriversForBooking = async (bookingId) => {
 /**
  * Sends booking request to drivers one by one with a timeout
  */
-const dispatchRequestsSequentially = async (booking, driverList, index) => {
-  activeDispatches.set(booking._id.toString(), { booking, driverList, index });
+const dispatchRequestsSequentially = async (booking, driverList, index, options = {}) => {
+  activeDispatches.set(booking._id.toString(), { booking, driverList, index, options });
   
   const io = getIO();
   if (!io) return;
@@ -97,6 +133,25 @@ const dispatchRequestsSequentially = async (booking, driverList, index) => {
     // Refresh booking state
     const currentBooking = await Booking.findById(booking._id);
     if (currentBooking && (currentBooking.status === 'searching' || currentBooking.status === 'negotiating')) {
+      // For subscription rides, trigger retry callback instead of permanent cancellation
+      if (options.isSubscriptionRide && options.onAllDriversExhausted) {
+        currentBooking.status = 'cancelled';
+        currentBooking.cancelledBy = 'system';
+        currentBooking.cancellationReason = 'All drivers busy — retrying shortly';
+        currentBooking.cancelledAt = new Date();
+        await currentBooking.save();
+
+        io.to(`ride:${booking._id}`).emit('booking:status', {
+          status: 'cancelled',
+          reason: 'All drivers busy — retrying shortly'
+        });
+
+        activeDispatches.delete(booking._id.toString());
+        console.log(`[RideMatching] All drivers exhausted, triggering subscription retry for ${booking._id}`);
+        options.onAllDriversExhausted();
+        return;
+      }
+
       currentBooking.status = 'cancelled';
       currentBooking.cancelledBy = 'system';
       currentBooking.cancellationReason = 'Drivers are busy. Please try again.';
@@ -107,6 +162,18 @@ const dispatchRequestsSequentially = async (booking, driverList, index) => {
         status: 'cancelled',
         reason: 'Drivers are busy. Please try again.'
       });
+
+      // Notify subscription ride customer about failure
+      if (currentBooking.subscriptionId) {
+        const customer = await User.findById(currentBooking.customer);
+        if (customer && customer.fcmToken) {
+          await sendNotification(customer.fcmToken, {
+            title: '⚠️ No Drivers Available',
+            body: 'All nearby drivers are busy for your scheduled commute ride. Please try booking manually.',
+            data: { type: 'subscription_no_drivers', bookingId: currentBooking._id.toString() }
+          });
+        }
+      }
     }
     activeDispatches.delete(booking._id.toString());
     return;
@@ -130,7 +197,7 @@ const dispatchRequestsSequentially = async (booking, driverList, index) => {
   if (!socketDriver || !socketDriver.available) {
     // Driver went offline or became busy, try next driver immediately
     console.log(`[RideMatching] Skipping driver ${driver._id} because socket is missing or busy`);
-    return dispatchRequestsSequentially(booking, driverList, index + 1);
+    return dispatchRequestsSequentially(booking, driverList, index + 1, options);
   }
 
   console.log(`📨 Dispatching request to Driver: ${driver.name} (Socket: ${socketDriver.socketId})`);
@@ -180,7 +247,7 @@ const dispatchRequestsSequentially = async (booking, driverList, index) => {
       io.to(socketDriver.socketId).emit('ride:expired', { bookingId: booking._id });
       
       // Try next driver
-      dispatchRequestsSequentially(booking, driverList, index + 1);
+      dispatchRequestsSequentially(booking, driverList, index + 1, options);
     }
     // If it's 'negotiating', we DO NOT move to the next driver. We wait for customer response.
   }, timeoutSec * 1000);
@@ -203,7 +270,7 @@ const triggerNextDriver = async (bookingId) => {
            io.to(socketDriver.socketId).emit('ride:expired', { bookingId });
          }
       }
-      dispatchRequestsSequentially(dispatch.booking, dispatch.driverList, dispatch.index + 1);
+      dispatchRequestsSequentially(dispatch.booking, dispatch.driverList, dispatch.index + 1, dispatch.options || {});
     }
   }
 };
