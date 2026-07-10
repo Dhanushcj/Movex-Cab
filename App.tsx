@@ -1,6 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
-import messaging from '@react-native-firebase/messaging';
+import { getMessaging, onMessage, requestPermission, getToken, AuthorizationStatus } from '@react-native-firebase/messaging';
 import * as Notifications from 'expo-notifications';
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+    shouldShowBanner: true,
+    shouldShowList: true,
+  }),
+});
 
 import { StatusBar } from 'expo-status-bar';
 import { 
@@ -55,6 +65,7 @@ import EmergencyScreen from './src/components/EmergencyScreen';
 import NotificationScreen from './src/components/NotificationScreen';
 import CustomerQRScannerScreen from './src/components/CustomerQRScannerScreen';
 import SupportTicketScreen from './src/components/SupportTicketScreen';
+import SettingsScreen from './src/components/SettingsScreen';
 const LIGHT_MAP_STYLE = [
   {
     "elementType": "geometry",
@@ -129,12 +140,55 @@ function NavigationRoot() {
     }
   }, [user, onboardingDone]);
 
+  // Foreground notification handler
   useEffect(() => {
-    const unsubscribe = messaging().onMessage(async remoteMessage => {
-      Alert.alert(
-        remoteMessage.notification?.title || 'New Notification',
-        remoteMessage.notification?.body || ''
-      );
+    const unsubscribe = onMessage(async (remoteMessage) => {
+      console.log('A new FCM message arrived in foreground!', remoteMessage);
+      if (remoteMessage.notification) {
+        await Notifications.scheduleNotificationAsync({
+          content: {
+            title: remoteMessage.notification.title,
+            body: remoteMessage.notification.body,
+            data: remoteMessage.data,
+          },
+          trigger: null,
+        });
+      }
+    });
+    return unsubscribe;
+  }, []);
+
+  useEffect(() => {
+    if (user) {
+      const syncToken = async () => {
+        try {
+          const messaging = getMessaging();
+          const authStatus = await requestPermission(messaging);
+          if (authStatus === AuthorizationStatus.AUTHORIZED || authStatus === AuthorizationStatus.PROVISIONAL) {
+            const token = await getToken(messaging);
+            if (token && token !== user.fcmToken) {
+              const endpoint = user.role === 'driver' ? '/drivers/profile' : '/users/me';
+              await API.put(endpoint, { fcmToken: token });
+            }
+          }
+        } catch (e) {
+          console.warn('Failed to sync FCM token', e);
+        }
+      };
+      syncToken();
+    }
+  }, [user]);
+
+  useEffect(() => {
+    const unsubscribe = onMessage(getMessaging(), async remoteMessage => {
+      Notifications.scheduleNotificationAsync({
+        content: {
+          title: remoteMessage.notification?.title || 'MoveX Notification',
+          body: remoteMessage.notification?.body || '',
+          data: remoteMessage.data,
+        },
+        trigger: null,
+      });
     });
     return unsubscribe;
   }, []);
@@ -591,6 +645,7 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage, a
   const [newReturnTime, setNewReturnTime] = useState('');
   const [savingPass, setSavingPass] = useState(false);
   const [showSupportTicketScreen, setShowSupportTicketScreen] = useState(false);
+  const [showSettingsScreen, setShowSettingsScreen] = useState(false);
 
   // ── Profile fields ─────────────────────────────────────────────────────────
   const [profileName, setProfileName] = useState(user?.name || '');
@@ -924,6 +979,7 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage, a
       <EmergencyScreen visible={showEmergencyScreen} onClose={() => setShowEmergencyScreen(false)} />
       <NotificationScreen visible={showNotificationScreen} onClose={() => setShowNotificationScreen(false)} />
       <SupportTicketScreen visible={showSupportTicketScreen} onClose={() => setShowSupportTicketScreen(false)} />
+      <SettingsScreen visible={showSettingsScreen} onClose={() => setShowSettingsScreen(false)} />
 
       {/* ─────────────────── HOME TAB ─────────────────── */}
       {activeTab === 'home' && (
@@ -1170,7 +1226,7 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage, a
                     onPress={() => banner1List[banner1Index]?.linkUrl ? Linking.openURL(banner1List[banner1Index].linkUrl) : null}
                   >
                     <Image 
-                      source={{ uri: banner1List[banner1Index]?.imageUrl }} 
+                      source={{ uri: banner1List[banner1Index]?.imageUrl ? (banner1List[banner1Index].imageUrl.startsWith('http') ? banner1List[banner1Index].imageUrl : `https://movex-cab.onrender.com${banner1List[banner1Index].imageUrl}`) : undefined }} 
                       style={{ width: '100%', height: '100%', resizeMode: 'cover' }} 
                     />
                   </TouchableOpacity>
@@ -1196,7 +1252,7 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage, a
                     onPress={() => banner2List[0]?.linkUrl ? Linking.openURL(banner2List[0].linkUrl) : setPickerMode('drop')}
                   >
                     <Image 
-                      source={{ uri: banner2List[0]?.imageUrl }} 
+                      source={{ uri: banner2List[0]?.imageUrl ? (banner2List[0].imageUrl.startsWith('http') ? banner2List[0].imageUrl : `https://movex-cab.onrender.com${banner2List[0].imageUrl}`) : undefined }} 
                       style={{ width: '100%', height: '100%', resizeMode: 'cover' }} 
                     />
                   </TouchableOpacity>
@@ -1319,7 +1375,7 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage, a
             {/* Support Block */}
             <View style={{ backgroundColor: Colors.bgSecondary, borderRadius: 16, paddingHorizontal: 16, marginBottom: 20 }}>
               {([ { key: 'supportTickets', icon: 'message-square', color: '#0053B3', onPress: () => setShowSupportTicketScreen(true) },
-                { key: 'settings', icon: 'settings', color: '#0053B3' }, ] as any[]).map((item, idx) => (
+                { key: 'settings', icon: 'settings', color: '#0053B3', onPress: () => setShowSettingsScreen(true) }, ] as any[]).map((item, idx) => (
                 <View key={idx}>
                   <TouchableOpacity onPress={item.toggle ? toggleTheme : item.onPress} style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, gap: 12 }} activeOpacity={0.7} disabled={!item.toggle && !item.onPress}>
                     <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: Colors.iconBg, borderWidth: 1.5, borderColor: '#0053B3', alignItems: 'center', justifyContent: 'center' }}>
