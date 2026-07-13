@@ -83,7 +83,7 @@ const startServer = async () => {
     await connectDB();
     console.log('✅ MongoDB connected successfully');
 
-    server.listen(PORT, () => {
+    server.listen(PORT, '0.0.0.0', () => {
       console.log(`\n🚀 MoveX Backend Server running on port ${PORT}`);
       console.log(`📡 Socket.IO ready for real-time connections`);
       console.log(`🌐 API: http://localhost:${PORT}/api`);
