@@ -15,7 +15,8 @@ const {
   withdrawMoney,
   getSettings,
   updateSettings,
-  deleteAccount
+  deleteAccount,
+  getAchievements
 } = require('../controllers/driverController');
 const { createComplaint, getMyComplaints } = require('../controllers/complaintController');
 
@@ -72,6 +73,7 @@ router.post('/complaints', createComplaint);
 router.get('/complaints', getMyComplaints);
 router.get('/settings', getSettings);
 router.put('/settings', updateSettings);
+router.get('/achievements', getAchievements);
 router.delete('/me', deleteAccount);
 
 module.exports = router;

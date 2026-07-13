@@ -466,6 +466,94 @@ const deleteAccount = async (req, res, next) => {
   }
 };
 
+/**
+ * Get driver achievements
+ * GET /api/drivers/achievements
+ */
+const getAchievements = async (req, res, next) => {
+  try {
+    const driver = await Driver.findById(req.user.id);
+    if (!driver) return res.status(404).json({ success: false, message: 'Driver not found' });
+
+    const completedRidesCount = await Booking.countDocuments({
+      driver: req.user.id,
+      status: 'completed'
+    });
+
+    const totalEarnings = driver.earnings || 0;
+    const rating = driver.rating || 0;
+
+    const achievements = [
+      {
+        id: 'first_trip',
+        title: 'First Trip',
+        description: 'Complete your first ride',
+        icon: 'star',
+        currentProgress: completedRidesCount,
+        target: 1,
+        unlocked: completedRidesCount >= 1
+      },
+      {
+        id: 'road_warrior',
+        title: 'Road Warrior',
+        description: 'Complete 50 rides',
+        icon: 'map',
+        currentProgress: completedRidesCount,
+        target: 50,
+        unlocked: completedRidesCount >= 50
+      },
+      {
+        id: 'centurion',
+        title: 'Centurion',
+        description: 'Complete 100 rides',
+        icon: 'award',
+        currentProgress: completedRidesCount,
+        target: 100,
+        unlocked: completedRidesCount >= 100
+      },
+      {
+        id: 'top_rated',
+        title: 'Top Rated',
+        description: 'Maintain a 4.8+ rating',
+        icon: 'thumbs-up',
+        currentProgress: rating,
+        target: 4.8,
+        unlocked: rating >= 4.8 && completedRidesCount >= 10
+      },
+      {
+        id: 'five_star',
+        title: 'Five Star',
+        description: 'Achieve a perfect 5.0 rating',
+        icon: 'star-on',
+        currentProgress: rating,
+        target: 5.0,
+        unlocked: rating === 5.0 && completedRidesCount >= 25
+      },
+      {
+        id: 'hustler',
+        title: 'Hustler',
+        description: 'Earn over ₹10,000 total',
+        icon: 'dollar-sign',
+        currentProgress: totalEarnings,
+        target: 10000,
+        unlocked: totalEarnings >= 10000
+      }
+    ];
+
+    res.json({
+      success: true,
+      achievements,
+      stats: {
+        completedRides: completedRidesCount,
+        rating,
+        totalEarnings
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   updateProfile,
   updateLocation,
@@ -478,5 +566,6 @@ module.exports = {
   withdrawMoney,
   getSettings,
   updateSettings,
-  deleteAccount
+  deleteAccount,
+  getAchievements
 };
