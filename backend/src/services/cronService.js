@@ -204,7 +204,11 @@ function startCronJobs() {
   // Run every minute to check subscription schedules
   cron.schedule('* * * * *', async () => {
     try {
-      const now = new Date();
+      const nowUtc = new Date();
+      // Force date to IST (Asia/Kolkata)
+      const istString = nowUtc.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' });
+      const now = new Date(istString);
+
       const hours = String(now.getHours()).padStart(2, '0');
       const minutes = String(now.getMinutes()).padStart(2, '0');
       const currentTime = `${hours}:${minutes}`;
@@ -215,7 +219,10 @@ function startCronJobs() {
       const futureMinutes = String(future.getMinutes()).padStart(2, '0');
       const time30MinsFromNow = `${futureHours}:${futureMinutes}`;
 
-      const todayDate = now.toISOString().split('T')[0];
+      const yyyy = now.getFullYear();
+      const mm = String(now.getMonth() + 1).padStart(2, '0');
+      const dd = String(now.getDate()).padStart(2, '0');
+      const todayDate = `${yyyy}-${mm}-${dd}`;
 
       const subscriptions = await Subscription.find({ status: 'active' }).populate('user');
 
