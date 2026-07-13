@@ -21,6 +21,7 @@ const publicRoutes = require('./src/routes/publicRoutes');
 const paymentRoutes = require('./src/routes/paymentRoutes');
 const fareRoutes = require('./src/routes/fareRoutes');
 const subscriptionRoutes = require('./src/routes/subscriptionRoutes');
+const cronRoutes = require('./src/routes/cronRoutes');
 
 const app = express();
 const server = http.createServer(app);
@@ -55,6 +56,7 @@ app.use('/api/fares', fareRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/public', publicRoutes);
 app.use('/api/subscriptions', subscriptionRoutes);
+app.use('/api/cron', cronRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
