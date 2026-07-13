@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView, Image } from 'react-native';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { Feather } from '@expo/vector-icons';
 import Colors from '../constants/colors';
+import SettingsScreen from './SettingsScreen';
+import SupportTicketScreen from './SupportTicketScreen';
 
 export default function ProfileScreen({ 
   onBack, 
@@ -23,6 +25,8 @@ export default function ProfileScreen({
   const { t } = useLanguage();
   const { isDark, toggleTheme } = useTheme();
   const styles = getStyles();
+  const [showSettings, setShowSettings] = useState(false);
+  const [showSupport, setShowSupport] = useState(false);
 
   const getIconName = (title: string): keyof typeof Feather.glyphMap => {
     switch(title) {
@@ -35,7 +39,7 @@ export default function ProfileScreen({
       default: return 'circle';
     }
   };
-
+  
   const renderOptionRow = (titleKey: string, showToggle: boolean = false, onPress?: () => void, toggleState: boolean = false) => (
     <TouchableOpacity style={styles.optionRow} onPress={onPress} activeOpacity={0.7} disabled={!onPress}>
       <View style={styles.iconCircle}>
@@ -127,11 +131,16 @@ export default function ProfileScreen({
 
         {/* Second Options Block */}
         <View style={styles.optionsBlock}>
-          {renderOptionRow('helpCentre')}
+          {renderOptionRow('helpCentre', false, () => {
+            // Usually this would open a webview or an external link
+            import('react-native').then(({ Linking }) => {
+              Linking.openURL('https://movex-cab.onrender.com/help').catch(() => {});
+            });
+          })}
           <View style={styles.divider} />
-          {renderOptionRow('supportTickets')}
+          {renderOptionRow('supportTickets', false, () => setShowSupport(true))}
           <View style={styles.divider} />
-          {renderOptionRow('settings')}
+          {renderOptionRow('settings', false, () => setShowSettings(true))}
         </View>
 
         {/* Log out */}
@@ -139,6 +148,8 @@ export default function ProfileScreen({
           <Text style={styles.logoutText}>{t('profile.logout')}</Text>
         </TouchableOpacity>
       </ScrollView>
+      <SettingsScreen visible={showSettings} onClose={() => setShowSettings(false)} />
+      <SupportTicketScreen visible={showSupport} onClose={() => setShowSupport(false)} />
     </SafeAreaView>
   );
 }

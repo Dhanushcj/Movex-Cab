@@ -27,7 +27,10 @@ export default {
       "notification": {
         "icon": "./assets/icon.png",
         "color": "#0053B3"
-      }
+      },
+      "permissions": [
+        "android.permission.POST_NOTIFICATIONS"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -47,13 +50,19 @@ export default {
         }
       ],
       "@react-native-google-signin/google-signin",
-      "@react-native-firebase/messaging"
+      "@react-native-firebase/messaging",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow MoveX to access your camera to scan QR codes for payments."
+        }
+      ]
     ],
     "extra": {
       "eas": {
         "projectId": "a73c2161-71de-4556-9982-57bd43f2925e"
       }
     },
-    "newArchEnabled": false
+    "newArchEnabled": true
   }
 };

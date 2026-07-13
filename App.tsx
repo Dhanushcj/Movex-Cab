@@ -56,6 +56,61 @@ import OnboardingScreen from './src/components/OnboardingScreen';
 import RegistrationScreen from './src/components/RegistrationScreen';
 import ProfileScreen from './src/components/ProfileScreen';
 import CommutePassConfigScreen from './src/components/CommutePassConfigScreen';
+
+const schedulePassNotifications = async (passes: any[]) => {
+  try {
+    await Notifications.cancelAllScheduledNotificationsAsync();
+    for (const pass of passes) {
+      if (pass.pickupTime) {
+        const [hour, minute] = pass.pickupTime.split(':').map(Number);
+        let notifyHour = hour;
+        let notifyMinute = minute - 30;
+        if (notifyMinute < 0) {
+          notifyMinute += 60;
+          notifyHour -= 1;
+        }
+        if (notifyHour < 0) { notifyHour += 24; }
+        
+        await Notifications.scheduleNotificationAsync({
+          content: {
+            title: 'Upcoming Commute Ride',
+            body: `Your commute pass ride is scheduled for ${pass.pickupTime}. Open the app to book now.`,
+          },
+          trigger: {
+            hour: notifyHour,
+            minute: notifyMinute,
+            repeats: true,
+          } as any
+        });
+      }
+      
+      if (pass.isReturnTrip && pass.returnTime) {
+        const [hour, minute] = pass.returnTime.split(':').map(Number);
+        let notifyHour = hour;
+        let notifyMinute = minute - 30;
+        if (notifyMinute < 0) {
+          notifyMinute += 60;
+          notifyHour -= 1;
+        }
+        if (notifyHour < 0) { notifyHour += 24; }
+        
+        await Notifications.scheduleNotificationAsync({
+          content: {
+            title: 'Upcoming Return Ride',
+            body: `Your return commute pass ride is scheduled for ${pass.returnTime}. Open the app to book now.`,
+          },
+          trigger: {
+            hour: notifyHour,
+            minute: notifyMinute,
+            repeats: true,
+          } as any
+        });
+      }
+    }
+  } catch (error) {
+    console.error('Failed to schedule pass notifications', error);
+  }
+};
 import ProfileEditScreen from './src/components/ProfileEditScreen';
 import LanguageScreen from './src/components/LanguageScreen';
 import DriverHistoryScreen from './src/components/DriverHistoryScreen';
@@ -133,7 +188,12 @@ function NavigationRoot() {
         setActiveScreen('register');
       } else {
         setActiveScreen('home');
-        API.get('/subscriptions').then(r => { if(r.data.success) setActivePasses(r.data.data); }).catch(()=>{});
+        API.get('/subscriptions').then(r => { 
+          if(r.data.success) {
+            setActivePasses(r.data.data);
+            schedulePassNotifications(r.data.data);
+          }
+        }).catch(()=>{});
       }
     } else {
       setActiveScreen(onboardingDone ? 'login' : 'onboarding');
@@ -142,13 +202,16 @@ function NavigationRoot() {
 
   // Foreground notification handler
   useEffect(() => {
-    const unsubscribe = onMessage(async (remoteMessage) => {
+    const messaging = getMessaging();
+    const unsubscribe = onMessage(messaging, async (remoteMessage: any) => {
       console.log('A new FCM message arrived in foreground!', remoteMessage);
-      if (remoteMessage.notification) {
+      if (remoteMessage.notification || remoteMessage.data) {
+        const title = remoteMessage.notification?.title || remoteMessage.data?.title || 'MoveX';
+        const body = remoteMessage.notification?.body || remoteMessage.data?.body || 'You have a new message.';
         await Notifications.scheduleNotificationAsync({
           content: {
-            title: remoteMessage.notification.title,
-            body: remoteMessage.notification.body,
+            title,
+            body,
             data: remoteMessage.data,
           },
           trigger: null,
@@ -179,19 +242,7 @@ function NavigationRoot() {
     }
   }, [user]);
 
-  useEffect(() => {
-    const unsubscribe = onMessage(getMessaging(), async remoteMessage => {
-      Notifications.scheduleNotificationAsync({
-        content: {
-          title: remoteMessage.notification?.title || 'MoveX Notification',
-          body: remoteMessage.notification?.body || '',
-          data: remoteMessage.data,
-        },
-        trigger: null,
-      });
-    });
-    return unsubscribe;
-  }, []);
+
 
   if (loading) {
     return <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}><ActivityIndicator size="large" color="#00C896" /></View>;
@@ -2400,7 +2451,6 @@ function DriverHomeScreen({ onRideAccepted, onNavigateProfile, onNavigateHistory
             </View>
           </View>
 
-          {/* Searching Pill */}
           <View style={{
             position: 'absolute',
             top: Platform.OS === 'ios' ? 240 : 220,
@@ -2420,9 +2470,7 @@ function DriverHomeScreen({ onRideAccepted, onNavigateProfile, onNavigateHistory
             zIndex: 10,
           }}>
             <Text style={{ fontFamily: 'sans-serif', fontSize: 16, color: Colors.textPrimary, fontWeight: '500' }}>Waiting for rides</Text>
-            <View style={{ width: 24, height: 24, borderRadius: 12, borderWidth: 2, borderColor: '#DEE0E3', borderTopColor: '#0053B3', alignItems: 'center', justifyContent: 'center' }}>
-               <ActivityIndicator size="small" color="#0053B3" style={{ transform: [{ scale: 0.8 }] }} />
-            </View>
+            <ActivityIndicator size="small" color="#0053B3" />
           </View>
 
           {/* Bottom Navigation */}

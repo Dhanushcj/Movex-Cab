@@ -2,7 +2,7 @@ import React, { createContext, useState, useEffect, useContext } from 'react';
 import * as SecureStore from 'expo-secure-store';
 import API from '../services/api';
 import auth, { signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithCredential, GoogleAuthProvider, updateProfile, sendPasswordResetEmail } from '@react-native-firebase/auth';
-import messaging from '@react-native-firebase/messaging';
+import { getMessaging, requestPermission, getToken, AuthorizationStatus } from '@react-native-firebase/messaging';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 
 interface AuthContextType {
@@ -66,14 +66,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       let fcmToken = null;
       try {
-        const authStatus = await messaging().requestPermission();
+        const messaging = getMessaging();
+        const authStatus = await requestPermission(messaging);
         const enabled =
-          authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-          authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+          authStatus === AuthorizationStatus.AUTHORIZED ||
+          authStatus === AuthorizationStatus.PROVISIONAL;
         
         if (enabled) {
           // Add a 3-second timeout to prevent FCM from hanging indefinitely on emulators
-          const tokenPromise = messaging().getToken();
+          const tokenPromise = getToken(messaging);
           const timeoutPromise = new Promise((_, reject) => 
             setTimeout(() => reject(new Error('FCM token timeout')), 3000)
           );

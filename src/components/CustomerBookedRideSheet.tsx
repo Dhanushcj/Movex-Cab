@@ -94,7 +94,7 @@ export default function CustomerBookedRideSheet({
   const pickup = rideInfo?.pickup?.address || 'Pickup location';
   const drop   = rideInfo?.drop?.address || 'Destination';
 
-  // ─── ARRIVED STATE: Full premium notification overlay ─────────────────────
+  // ─── ARRIVED STATE: Full premium notification overlay ────────────────────
   if (isArrived) {
     return (
       <Animated.View
