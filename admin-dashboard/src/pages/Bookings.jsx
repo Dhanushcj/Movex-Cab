@@ -151,7 +151,7 @@ const Bookings = () => {
                   <MapPin className="text-rose-600 w-5 h-5 flex-shrink-0 mt-0.5" />
                   <div>
                     <h5 className="text-xs font-semibold text-[var(--text-muted)] uppercase">Dropoff Address</h5>
-                    <p className="text-sm text-[var(--text-primary)] font-medium">{selectedBooking.drop?.address}</p>
+                    <p className="text-sm text-[var(--text-primary)] font-medium">{selectedBooking.dropoff?.address || selectedBooking.drop?.address}</p>
                   </div>
                 </div>
               </div>
