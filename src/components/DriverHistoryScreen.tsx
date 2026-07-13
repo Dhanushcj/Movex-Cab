@@ -251,21 +251,21 @@ const getStyles = (Colors: any) => StyleSheet.create({
   },
   bottomNav: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'space-around',
     alignItems: 'center',
+    paddingVertical: 12,
     position: 'absolute',
-    bottom: Platform.OS === 'ios' ? 24 : 16,
+    bottom: 16,
     left: 16,
     right: 16,
-    height: 60,
-    paddingHorizontal: 20,
-    borderRadius: 30,
+    borderRadius: 20,
     backgroundColor: Colors.bgSecondary,
     shadowColor: Colors.textPrimary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 10,
-    elevation: 5
+    elevation: 5,
+    zIndex: 10
   },
   navItem: {
     padding: 8
@@ -275,8 +275,8 @@ const getStyles = (Colors: any) => StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#0053B3',
     paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 20,
+    paddingVertical: 8,
+    borderRadius: 16,
     gap: 6
   },
   navTextActive: {

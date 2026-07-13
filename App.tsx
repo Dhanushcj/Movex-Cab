@@ -77,9 +77,9 @@ const schedulePassNotifications = async (passes: any[]) => {
             body: `Your commute pass ride is scheduled for ${pass.pickupTime}. Open the app to book now.`,
           },
           trigger: {
+            type: Notifications.SchedulableTriggerInputTypes.DAILY,
             hour: notifyHour,
             minute: notifyMinute,
-            repeats: true,
           } as any
         });
       }
@@ -100,9 +100,9 @@ const schedulePassNotifications = async (passes: any[]) => {
             body: `Your return commute pass ride is scheduled for ${pass.returnTime}. Open the app to book now.`,
           },
           trigger: {
+            type: Notifications.SchedulableTriggerInputTypes.DAILY,
             hour: notifyHour,
             minute: notifyMinute,
-            repeats: true,
           } as any
         });
       }
@@ -121,6 +121,7 @@ import NotificationScreen from './src/components/NotificationScreen';
 import CustomerQRScannerScreen from './src/components/CustomerQRScannerScreen';
 import SupportTicketScreen from './src/components/SupportTicketScreen';
 import SettingsScreen from './src/components/SettingsScreen';
+import HelpCentreScreen from './src/components/HelpCentreScreen';
 const LIGHT_MAP_STYLE = [
   {
     "elementType": "geometry",
@@ -696,6 +697,7 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage, a
   const [newReturnTime, setNewReturnTime] = useState('');
   const [savingPass, setSavingPass] = useState(false);
   const [showSupportTicketScreen, setShowSupportTicketScreen] = useState(false);
+  const [showHelpCentreScreen, setShowHelpCentreScreen] = useState(false);
   const [showSettingsScreen, setShowSettingsScreen] = useState(false);
 
   // ── Profile fields ─────────────────────────────────────────────────────────
@@ -1030,6 +1032,7 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage, a
       <EmergencyScreen visible={showEmergencyScreen} onClose={() => setShowEmergencyScreen(false)} />
       <NotificationScreen visible={showNotificationScreen} onClose={() => setShowNotificationScreen(false)} />
       <SupportTicketScreen visible={showSupportTicketScreen} onClose={() => setShowSupportTicketScreen(false)} />
+      <HelpCentreScreen visible={showHelpCentreScreen} onClose={() => setShowHelpCentreScreen(false)} />
       <SettingsScreen visible={showSettingsScreen} onClose={() => setShowSettingsScreen(false)} />
 
       {/* ─────────────────── HOME TAB ─────────────────── */}
@@ -1426,6 +1429,7 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage, a
             {/* Support Block */}
             <View style={{ backgroundColor: Colors.bgSecondary, borderRadius: 16, paddingHorizontal: 16, marginBottom: 20 }}>
               {([ { key: 'supportTickets', icon: 'message-square', color: '#0053B3', onPress: () => setShowSupportTicketScreen(true) },
+                { key: 'helpCentre', label: 'Help Centre', icon: 'help-circle', color: '#0053B3', onPress: () => setShowHelpCentreScreen(true) },
                 { key: 'settings', icon: 'settings', color: '#0053B3', onPress: () => setShowSettingsScreen(true) }, ] as any[]).map((item, idx) => (
                 <View key={idx}>
                   <TouchableOpacity onPress={item.toggle ? toggleTheme : item.onPress} style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 16, gap: 12 }} activeOpacity={0.7} disabled={!item.toggle && !item.onPress}>
@@ -1435,7 +1439,7 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage, a
                     <Text style={{ fontSize: 14, color: Colors.textPrimary, fontWeight: '400', flex: 1 }}>{item.label || t('profile.' + item.key)}</Text>
                     <Feather name="chevron-right" size={24} color={Colors.textPrimary} style={{ opacity: 1 }} />
                   </TouchableOpacity>
-                  {idx < 1 && <View style={{ height: 1, backgroundColor: Colors.bgPrimary, marginHorizontal: -16 }} />}
+                  {idx < 2 && <View style={{ height: 1, backgroundColor: Colors.bgPrimary, marginHorizontal: -16 }} />}
                 </View>
               ))}
             </View>
@@ -3391,7 +3395,7 @@ function DriverActiveRideScreen({ ride, onClose }: { ride: any; onClose: () => v
           shadowRadius: 10,
           elevation: 10,
         }}>
-          <Text style={{ fontSize: 18, color: Colors.textPrimary, fontWeight: '600', marginBottom: 16 }}>{ride.user?.name || 'Customer'}</Text>
+          <Text style={{ fontSize: 18, color: Colors.textPrimary, fontWeight: '600', marginBottom: 16 }}>{ride.customer?.name || ride.user?.name || 'Customer'}</Text>
           
           <View style={{ flexDirection: 'row', alignItems: 'flex-start', marginBottom: 20 }}>
             <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: '#2ecc71', marginTop: 6, marginRight: 12 }} />
@@ -3418,13 +3422,25 @@ function DriverActiveRideScreen({ ride, onClose }: { ride: any; onClose: () => v
           </TouchableOpacity>
 
           <View style={{ flexDirection: 'row', justifyContent: 'space-around', marginBottom: 24 }}>
-            <TouchableOpacity style={{ alignItems: 'center' }}>
+            <TouchableOpacity style={{ alignItems: 'center' }} onPress={() => {
+              if (ride.customer?.phone) {
+                Linking.openURL(`tel:${ride.customer.phone}`);
+              } else {
+                Alert.alert('Error', 'Customer phone number not available');
+              }
+            }}>
               <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: Colors.iconBg, alignItems: 'center', justifyContent: 'center', marginBottom: 8 }}>
                  <Feather name="phone-call" size={20} color="#0053B3" />
               </View>
               <Text style={{ fontSize: 12, color: Colors.textPrimary }}>Call</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={{ alignItems: 'center' }}>
+            <TouchableOpacity style={{ alignItems: 'center' }} onPress={() => {
+              if (ride.customer?.phone) {
+                Linking.openURL(`sms:${ride.customer.phone}`);
+              } else {
+                Alert.alert('Error', 'Customer phone number not available');
+              }
+            }}>
               <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: Colors.iconBg, alignItems: 'center', justifyContent: 'center', marginBottom: 8 }}>
                  <Feather name="message-square" size={20} color="#0053B3" />
               </View>
