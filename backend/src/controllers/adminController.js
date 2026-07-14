@@ -612,26 +612,7 @@ module.exports = {
   getPayouts,
   getPayments,
   getMapData,
-  seedFeeTiers
+  seedFeeTiers,
+  getPasses,
+  updatePass
 };
-
- e x p o r t s . g e t P a s s e s   =   a s y n c   ( r e q ,   r e s )   = >   { 
-     t r y   { 
-         c o n s t   p a s s e s   =   a w a i t   r e q u i r e ( ' . . / m o d e l s / P a s s ' ) . f i n d ( { } ) ; 
-         r e s . j s o n ( {   s u c c e s s :   t r u e ,   d a t a :   p a s s e s   } ) ; 
-     }   c a t c h   ( e r r o r )   { 
-         r e s . s t a t u s ( 5 0 0 ) . j s o n ( {   s u c c e s s :   f a l s e ,   m e s s a g e :   ' F a i l e d   t o   f e t c h   p a s s e s '   } ) ; 
-     } 
- } ; 
- 
- e x p o r t s . u p d a t e P a s s   =   a s y n c   ( r e q ,   r e s )   = >   { 
-     t r y   { 
-         c o n s t   u p d a t e d   =   a w a i t   r e q u i r e ( ' . . / m o d e l s / P a s s ' ) . f i n d B y I d A n d U p d a t e ( r e q . p a r a m s . i d ,   r e q . b o d y ,   {   n e w :   t r u e   } ) ; 
-         i f   ( ! u p d a t e d )   r e t u r n   r e s . s t a t u s ( 4 0 4 ) . j s o n ( {   s u c c e s s :   f a l s e ,   m e s s a g e :   ' P a s s   n o t   f o u n d '   } ) ; 
-         r e s . j s o n ( {   s u c c e s s :   t r u e ,   d a t a :   u p d a t e d   } ) ; 
-     }   c a t c h   ( e r r o r )   { 
-         r e s . s t a t u s ( 5 0 0 ) . j s o n ( {   s u c c e s s :   f a l s e ,   m e s s a g e :   ' F a i l e d   t o   u p d a t e   p a s s '   } ) ; 
-     } 
- } ; 
-  
- 
