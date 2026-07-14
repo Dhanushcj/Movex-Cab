@@ -1,5 +1,5 @@
 const Booking = require('../models/Booking');
-const Subscription = require('../models/Subscription');
+
 const Driver = require('../models/Driver');
 const User = require('../models/User');
 const { getRouteDetails } = require('../services/routingService');
@@ -55,7 +55,7 @@ const estimateFare = async (req, res, next) => {
  * POST /api/bookings
  */
 const createBooking = async (req, res, next) => {
-  const { pickup, drop, vehicleType, paymentMethod, promoCode, preferences, offeredFare, subscriptionId } = req.body;
+  const { pickup, drop, vehicleType, paymentMethod, promoCode, preferences, offeredFare } = req.body;
   try {
     // Check if customer already has active rides
     const activeBooking = await Booking.findOne({
@@ -71,15 +71,7 @@ const createBooking = async (req, res, next) => {
       });
     }
 
-    let sub = null;
     let finalPaymentMethod = paymentMethod;
-    if (subscriptionId) {
-      sub = await Subscription.findById(subscriptionId);
-      if (!sub || sub.user.toString() !== req.user.id || sub.status !== 'active' || sub.ridesCompleted >= sub.totalRides) {
-        return res.status(400).json({ success: false, message: 'Invalid or exhausted subscription pass' });
-      }
-      finalPaymentMethod = 'wallet';
-    }
 
     // 1. Get route directions
     let route = { distance: 0, duration: 0, polyline: '', steps: [] };
@@ -97,9 +89,6 @@ const createBooking = async (req, res, next) => {
     });
 
     let finalOfferedFare = offeredFare || calculatedFare.totalFare;
-    if (sub) {
-      finalOfferedFare = sub.pricePerRide;
-    }
     
     calculatedFare.offeredFare = finalOfferedFare;
     calculatedFare.totalFare = finalOfferedFare;
@@ -110,7 +99,6 @@ const createBooking = async (req, res, next) => {
     // 4. Create record
     const booking = await Booking.create({
       customer: req.user.id,
-      subscriptionId: sub ? sub._id : null,
       pickup: {
         address: pickup.address,
         location: { type: 'Point', coordinates: pickup.coordinates }
@@ -193,20 +181,11 @@ const acceptBooking = async (req, res, next) => {
     // Notify customer via push notification
     const customer = await User.findById(booking.customer);
     if (customer && customer.fcmToken) {
-      // Enhanced notification for subscription (commute pass) rides
-      if (booking.subscriptionId) {
-        await sendNotification(customer.fcmToken, {
-          title: '🚗 Commute Driver Assigned!',
-          body: `${driver.name} is on the way for your scheduled commute ride. Vehicle: ${driver.vehicle?.plateNumber || booking.vehicleType}.`,
-          data: { bookingId: booking._id, type: 'subscription_driver_assigned' }
-        });
-      } else {
-        await sendNotification(customer.fcmToken, {
-          title: 'Ride Confirmed!',
-          body: `${driver.name} has accepted your ride request.`,
-          data: { bookingId: booking._id }
-        });
-      }
+      await sendNotification(customer.fcmToken, {
+        title: 'Ride Confirmed!',
+        body: `${driver.name} has accepted your ride request.`,
+        data: { bookingId: booking._id }
+      });
     }
 
   } catch (error) {
