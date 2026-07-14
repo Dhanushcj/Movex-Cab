@@ -582,6 +582,25 @@ const seedFeeTiers = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
+const getPasses = async (req, res) => {
+  try {
+    const passes = await require('../models/Pass').find({});
+    res.json({ success: true, data: passes });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to fetch passes' });
+  }
+};
+
+const updatePass = async (req, res) => {
+  try {
+    const updated = await require('../models/Pass').findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!updated) return res.status(404).json({ success: false, message: 'Pass not found' });
+    res.json({ success: true, data: updated });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to update pass' });
+  }
+};
+
 module.exports = {
   getSettings,
   updateSettings,
