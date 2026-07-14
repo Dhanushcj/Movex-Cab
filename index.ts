@@ -10,8 +10,8 @@ setBackgroundMessageHandler(getMessaging(), async remoteMessage => {
   
   // If it's a data-only message or we want to ensure it displays:
   if (remoteMessage.data || remoteMessage.notification) {
-    const title = remoteMessage.notification?.title || remoteMessage.data?.title || 'New Notification';
-    const body = remoteMessage.notification?.body || remoteMessage.data?.body || 'You have a new message.';
+    const title = remoteMessage.notification?.title || (remoteMessage.data?.title as string | undefined) || 'New Notification';
+    const body = remoteMessage.notification?.body || (remoteMessage.data?.body as string | undefined) || 'You have a new message.';
     
     await Notifications.scheduleNotificationAsync({
       content: {

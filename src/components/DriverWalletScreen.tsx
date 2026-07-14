@@ -22,9 +22,10 @@ interface DriverWalletScreenProps {
   onBack: () => void;
   onNavigateHome: () => void;
   onNavigateHistory: () => void;
+  onNavigateAchievements?: () => void;
 }
 
-export default function DriverWalletScreen({ onBack, onNavigateHome, onNavigateHistory }: DriverWalletScreenProps) {
+export default function DriverWalletScreen({ onBack, onNavigateHome, onNavigateHistory, onNavigateAchievements }: DriverWalletScreenProps) {
     const { isDark } = useTheme();
     const styles = getStyles(Colors);
 
@@ -266,7 +267,7 @@ export default function DriverWalletScreen({ onBack, onNavigateHome, onNavigateH
         <TouchableOpacity style={styles.navItemInactive} onPress={onNavigateHome}>
           <Feather name="home" size={22} color="#8F98A2" />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navItemInactive}>
+        <TouchableOpacity style={styles.navItemInactive} onPress={onNavigateAchievements}>
           <Feather name="award" size={22} color="#9098A2" />
         </TouchableOpacity>
         <TouchableOpacity style={styles.navItemActive}>

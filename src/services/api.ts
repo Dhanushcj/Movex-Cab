@@ -23,4 +23,14 @@ API.interceptors.request.use(async (config) => {
   return Promise.reject(error);
 });
 
+export const getDriverAchievements = async () => {
+  try {
+    const response = await API.get('/drivers/achievements');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching driver achievements:', error);
+    throw error;
+  }
+};
+
 export default API;

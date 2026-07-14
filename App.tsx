@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { getMessaging, onMessage, requestPermission, getToken, AuthorizationStatus } from '@react-native-firebase/messaging';
 import * as Notifications from 'expo-notifications';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -114,6 +116,7 @@ const schedulePassNotifications = async (passes: any[]) => {
 import ProfileEditScreen from './src/components/ProfileEditScreen';
 import LanguageScreen from './src/components/LanguageScreen';
 import DriverHistoryScreen from './src/components/DriverHistoryScreen';
+import DriverAchievementsScreen from './src/components/DriverAchievementsScreen';
 import AdminDashboardScreen from './src/components/AdminDashboardScreen';
 import CustomerWalletScreen from './src/components/CustomerWalletScreen';
 import EmergencyScreen from './src/components/EmergencyScreen';
@@ -172,23 +175,40 @@ export const getVehicle3DIcon = (type: string) => {
   return require('./assets/3d_car_icon.png');
 };
 
+type RootStackParamList = {
+  Onboarding: undefined;
+  Login: undefined;
+  Register: { prefillData?: any; isCorrection?: boolean } | undefined;
+  Home: undefined;
+  Tracking: { ride: any };
+  DriverProfile: undefined;
+  DriverProfileEdit: undefined;
+  DriverLanguage: undefined;
+  CustomerLanguage: undefined;
+  DriverHistory: undefined;
+  DriverAchievements: undefined;
+  DriverWallet: undefined;
+  AdminDashboard: undefined;
+};
+
+const Stack = createNativeStackNavigator<RootStackParamList>();
+
 // Navigation controller
 function NavigationRoot() {
   const { user, loading } = useAuth();
   const [activePasses, setActivePasses] = React.useState<any[]>([]);
-  const [activeScreen, setActiveScreen] = useState<'onboarding' | 'login' | 'home' | 'tracking' | 'register' | 'driverProfile' | 'driverProfileEdit' | 'driverLanguage' | 'customerLanguage' | 'driverHistory' | 'driverWallet' | 'adminDashboard' | 'commutePassConfig'>('onboarding');
-  const [selectedRide, setSelectedRide] = useState<any>(null);
   const [driverRegData, setDriverRegData] = useState<any>(null);
   const [onboardingDone, setOnboardingDone] = useState(false);
+  const [initialRoute, setInitialRoute] = useState<keyof RootStackParamList | null>(null);
 
   useEffect(() => {
     if (user) {
       if (user.role === 'admin') {
-        setActiveScreen('adminDashboard');
+        setInitialRoute('AdminDashboard');
       } else if (user.role === 'driver' && user.approvalStatus === 'correction_needed') {
-        setActiveScreen('register');
+        setInitialRoute('Register');
       } else {
-        setActiveScreen('home');
+        setInitialRoute('Home');
         API.get('/subscriptions').then(r => { 
           if(r.data.success) {
             setActivePasses(r.data.data);
@@ -197,7 +217,7 @@ function NavigationRoot() {
         }).catch(()=>{});
       }
     } else {
-      setActiveScreen(onboardingDone ? 'login' : 'onboarding');
+      setInitialRoute(onboardingDone ? 'Login' : 'Onboarding');
     }
   }, [user, onboardingDone]);
 
@@ -211,8 +231,8 @@ function NavigationRoot() {
         const body = remoteMessage.notification?.body || remoteMessage.data?.body || 'You have a new message.';
         await Notifications.scheduleNotificationAsync({
           content: {
-            title,
-            body,
+            title: title as string,
+            body: body as string,
             data: remoteMessage.data,
           },
           trigger: null,
@@ -243,97 +263,152 @@ function NavigationRoot() {
     }
   }, [user]);
 
-
-
-  if (loading) {
+  if (loading || !initialRoute) {
     return <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}><ActivityIndicator size="large" color="#00C896" /></View>;
   }
 
-    return (
+  return (
     <View style={styles.container}>
+      <NavigationContainer>
+        <Stack.Navigator key={initialRoute} initialRouteName={initialRoute} screenOptions={{ headerShown: false, animation: 'slide_from_right' }}>
+          
+          <Stack.Screen name="Onboarding">
+            {(props) => (
+              <OnboardingScreen 
+                onComplete={() => {
+                  setOnboardingDone(true);
+                  props.navigation.replace('Login');
+                }} 
+              />
+            )}
+          </Stack.Screen>
+          
+          <Stack.Screen name="Login">
+            {(props) => (
+              <AuthScreen 
+                onNavigateRegister={(data) => {
+                  setDriverRegData(data);
+                  props.navigation.navigate('Register');
+                }} 
+              />
+            )}
+          </Stack.Screen>
+          
+          <Stack.Screen name="Register">
+            {(props) => (
+              <RegistrationScreen 
+                onBack={() => props.navigation.goBack()} 
+                prefillData={user?.approvalStatus === 'correction_needed' ? user : driverRegData} 
+                isCorrection={user?.approvalStatus === 'correction_needed'} 
+              />
+            )}
+          </Stack.Screen>
 
-      {activeScreen === 'onboarding' && (
-        <OnboardingScreen onComplete={() => setOnboardingDone(true)} />
-      )}
-      {activeScreen === 'login' && <AuthScreen onNavigateRegister={(data) => {
-        setDriverRegData(data);
-        setActiveScreen('register');
-      }} />}
-      {activeScreen === 'register' && <RegistrationScreen onBack={() => setActiveScreen('login')} prefillData={user?.approvalStatus === 'correction_needed' ? user : driverRegData} isCorrection={user?.approvalStatus === 'correction_needed'} />}
-      {activeScreen === 'home' && user?.role === 'customer' && (
-        <HomeScreen 
-          onRideBooked={(booking: any) => {
-            setSelectedRide(booking);
-            setActiveScreen('tracking');
-          }} 
-          onNavigateProfileEdit={() => setActiveScreen('driverProfileEdit')} 
-          onNavigateLanguage={() => setActiveScreen('customerLanguage')}
+          <Stack.Screen name="Home">
+            {(props) => (
+              user?.role === 'customer' ? (
+                <HomeScreen 
+                  onRideBooked={(booking: any) => props.navigation.navigate('Tracking', { ride: booking })} 
+                  onNavigateProfileEdit={() => props.navigation.navigate('DriverProfileEdit')} 
+                  onNavigateLanguage={() => props.navigation.navigate('CustomerLanguage')}
+                  activePasses={activePasses}
+                />
+              ) : (
+                <DriverHomeScreen 
+                  onRideAccepted={(ride: any) => props.navigation.navigate('Tracking', { ride: ride })}
+                  onNavigateProfile={() => props.navigation.navigate('DriverProfile')}
+                  onNavigateHistory={() => props.navigation.navigate('DriverHistory')}
+                  onNavigateWallet={() => props.navigation.navigate('DriverWallet')}
+                />
+              )
+            )}
+          </Stack.Screen>
 
-          activePasses={activePasses}
-        />
-      )}
-      {activeScreen === 'tracking' && user?.role === 'customer' && (
-        <TrackingScreen 
-          ride={selectedRide} 
-          onClose={() => {
-            setSelectedRide(null);
-            setActiveScreen('home');
-          }} 
-        />
-      )}
-      {activeScreen === 'home' && user?.role === 'driver' && (
-        <DriverHomeScreen 
-          onRideAccepted={(ride: any) => {
-            setSelectedRide(ride);
-            setActiveScreen('tracking');
-          }}
-          onNavigateProfile={() => setActiveScreen('driverProfile')}
-          onNavigateHistory={() => setActiveScreen('driverHistory')}
-                    onNavigateWallet={() => setActiveScreen('driverWallet')}
-        />
-      )}
-      {activeScreen === 'tracking' && user?.role === 'driver' && (
-        <DriverActiveRideScreen 
-          ride={selectedRide} 
-          onClose={() => {
-            setSelectedRide(null);
-            setActiveScreen('home');
-          }} 
-        />
-      )}
-      {activeScreen === 'driverProfile' && (
-        <ProfileScreen 
-          onBack={() => setActiveScreen('home')} 
-          onEditProfile={() => setActiveScreen('driverProfileEdit')}
-          onNavigateLanguage={() => setActiveScreen('driverLanguage')}
-        />
-      )}
-      {activeScreen === 'driverProfileEdit' && (
-        <ProfileEditScreen 
-          onBack={() => setActiveScreen(user?.role === 'customer' ? 'home' : 'driverProfile')}
-          onSave={() => setActiveScreen(user?.role === 'customer' ? 'home' : 'driverProfile')}
-        />
-      )}
-      {activeScreen === 'customerLanguage' && (
-        <LanguageScreen onBack={() => setActiveScreen('home')} />
-      )}
-      {activeScreen === 'driverLanguage' && (
-        <LanguageScreen onBack={() => setActiveScreen('driverProfile')} />
-      )}
-      {activeScreen === 'driverHistory' && (
-        <DriverHistoryScreen onNavigateHome={() => setActiveScreen('home')} />
-      )}
-      {activeScreen === 'driverWallet' && (
-        <DriverWalletScreen
-          onBack={() => setActiveScreen('home')}
-          onNavigateHome={() => setActiveScreen('home')}
-          onNavigateHistory={() => setActiveScreen('driverHistory')}
-        />
-      )}
-      {activeScreen === 'adminDashboard' && (
-        <AdminDashboardScreen onNavigateLogout={() => setActiveScreen('login')} />
-      )}
-      
+          <Stack.Screen name="Tracking">
+            {(props) => (
+              user?.role === 'customer' ? (
+                <TrackingScreen 
+                  ride={props.route.params?.ride} 
+                  onClose={() => props.navigation.navigate('Home')} 
+                />
+              ) : (
+                <DriverActiveRideScreen 
+                  ride={props.route.params?.ride} 
+                  onClose={() => props.navigation.navigate('Home')} 
+                />
+              )
+            )}
+          </Stack.Screen>
+
+          <Stack.Screen name="DriverProfile">
+            {(props) => (
+              <ProfileScreen 
+                onBack={() => props.navigation.goBack()} 
+                onEditProfile={() => props.navigation.navigate('DriverProfileEdit')}
+                onNavigateLanguage={() => props.navigation.navigate('DriverLanguage')}
+              />
+            )}
+          </Stack.Screen>
+
+          <Stack.Screen name="DriverProfileEdit">
+            {(props) => (
+              <ProfileEditScreen 
+                onBack={() => props.navigation.goBack()}
+                onSave={() => props.navigation.goBack()}
+              />
+            )}
+          </Stack.Screen>
+
+          <Stack.Screen name="CustomerLanguage">
+            {(props) => (
+              <LanguageScreen onBack={() => props.navigation.goBack()} />
+            )}
+          </Stack.Screen>
+
+          <Stack.Screen name="DriverLanguage">
+            {(props) => (
+              <LanguageScreen onBack={() => props.navigation.goBack()} />
+            )}
+          </Stack.Screen>
+
+          <Stack.Screen name="DriverHistory">
+            {(props) => (
+              <DriverHistoryScreen 
+                onNavigateHome={() => props.navigation.navigate('Home')} 
+                onNavigateAchievements={() => props.navigation.navigate('DriverAchievements')}
+                onNavigateWallet={() => props.navigation.navigate('DriverWallet')}
+              />
+            )}
+          </Stack.Screen>
+
+          <Stack.Screen name="DriverAchievements">
+            {(props) => (
+              <DriverAchievementsScreen
+                onNavigateHome={() => props.navigation.navigate('Home')}
+                onNavigateHistory={() => props.navigation.navigate('DriverHistory')}
+                onNavigateWallet={() => props.navigation.navigate('DriverWallet')}
+              />
+            )}
+          </Stack.Screen>
+
+          <Stack.Screen name="DriverWallet">
+            {(props) => (
+              <DriverWalletScreen
+                onBack={() => props.navigation.goBack()}
+                onNavigateHome={() => props.navigation.navigate('Home')}
+                onNavigateHistory={() => props.navigation.navigate('DriverHistory')}
+              />
+            )}
+          </Stack.Screen>
+
+          <Stack.Screen name="AdminDashboard">
+            {(props) => (
+              <AdminDashboardScreen onNavigateLogout={() => props.navigation.replace('Login')} />
+            )}
+          </Stack.Screen>
+
+        </Stack.Navigator>
+      </NavigationContainer>
       <StatusBar style="light" />
     </View>
   );

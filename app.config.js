@@ -60,7 +60,7 @@ export default {
     ],
     "extra": {
       "eas": {
-        "projectId": "a73c2161-71de-4556-9982-57bd43f2925e"
+        "projectId": "72915a97-2e5f-447f-a669-d79fcb451955"
       }
     },
     "newArchEnabled": true

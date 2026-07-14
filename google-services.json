@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "444707951530-5bfcj3eb91jbjlrvn8c6e5i37ldhh8nr.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.movex.app",
+            "certificate_hash": "b46abbf6540d7f53540fe9a835d49423c58d1f6a"
+          }
+        },
+        {
           "client_id": "444707951530-nfu2nm21lq5f6lldbmqbtqvqas2uvvjr.apps.googleusercontent.com",
           "client_type": 3
         }

@@ -7,7 +7,7 @@ import API from '../services/api';
 
 type FilterType = 'All' | 'Completed' | 'Cancelled';
 
-export default function DriverHistoryScreen({ onNavigateHome }: { onNavigateHome: () => void }) {
+export default function DriverHistoryScreen({ onNavigateHome, onNavigateAchievements, onNavigateWallet }: { onNavigateHome: () => void, onNavigateAchievements?: () => void, onNavigateWallet?: () => void }) {
   const { isDark } = useTheme();
   const styles = getStyles(Colors);
   const [activeFilter, setActiveFilter] = useState<FilterType>('All');
@@ -129,10 +129,10 @@ export default function DriverHistoryScreen({ onNavigateHome }: { onNavigateHome
         <TouchableOpacity style={styles.navItem} onPress={onNavigateHome}>
           <Feather name="home" size={24} color="#9098A2" />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem}>
+        <TouchableOpacity style={styles.navItem} onPress={onNavigateAchievements}>
           <Feather name="award" size={24} color="#9098A2" />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem}>
+        <TouchableOpacity style={styles.navItem} onPress={onNavigateWallet}>
           <Feather name="credit-card" size={24} color="#9098A2" />
         </TouchableOpacity>
         <TouchableOpacity style={[styles.navItemActive]}>
