@@ -1,192 +1,74 @@
-const Subscription = require('../models/Subscription');
+const Pass = require('../models/Pass');
+const UserPass = require('../models/UserPass');
 const User = require('../models/User');
-const { getRouteDetails } = require('../services/routingService');
-const { calculateFare } = require('../services/fareEngine');
-const { sendNotification } = require('../services/notificationService');
 
-exports.estimatePass = async (req, res) => {
+exports.getAvailablePasses = async (req, res) => {
   try {
-    const { pickup, drop, vehicleType, isReturnTrip } = req.body;
-    const totalRides = isReturnTrip ? 60 : 30; // 30 days
-    
-    // Get route distance and duration
-    const route = await getRouteDetails(pickup.coordinates, drop.coordinates);
-    
-    // Calculate standard single ride fare
-    const standardFare = await calculateFare({
-      vehicleType,
-      distance: route.distance,
-      duration: route.duration,
-      userId: req.user.id
-    });
-    
-    // Apply 10% discount for the pass
-    const pricePerRide = Math.floor(standardFare.totalFare * 0.90);
-    const totalPrice = pricePerRide * totalRides;
-    
-    res.json({
-      success: true,
-      data: {
-        pricePerRide,
-        totalPrice,
-        totalRides,
-        standardTotal: standardFare.totalFare * totalRides,
-        savings: (standardFare.totalFare * totalRides) - totalPrice
-      }
-    });
+    const passes = await Pass.find({ isActive: true });
+    res.json({ success: true, data: passes });
   } catch (error) {
-    console.error('Estimate Pass Error:', error);
-    res.status(500).json({ success: false, message: 'Failed to estimate commute pass' });
+    console.error('Get Passes Error:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch passes' });
   }
 };
 
 exports.purchasePass = async (req, res) => {
   try {
-    const { pickup, drop, vehicleType, totalRides, pricePerRide, totalPrice, isReturnTrip, pickupTime, returnTime } = req.body;
+    const { passId } = req.body;
     
-    // Validate pickup time is provided
-    if (!pickupTime) {
-      return res.status(400).json({ success: false, message: 'Pickup time is required for commute pass' });
+    const pass = await Pass.findById(passId);
+    if (!pass || !pass.isActive) {
+      return res.status(404).json({ success: false, message: 'Pass not found or inactive' });
     }
-    if (isReturnTrip && !returnTime) {
-      return res.status(400).json({ success: false, message: 'Return time is required for return trip pass' });
-    }
-    
-    const validUntil = new Date();
-    validUntil.setDate(validUntil.getDate() + 30); // Valid for 30 days
-    
-    const subscription = new Subscription({
+
+    // Check if user already has an active pass
+    const activePass = await UserPass.findOne({
       user: req.user.id,
-      pickup: {
-        address: pickup.address,
-        location: { type: 'Point', coordinates: pickup.coordinates }
-      },
-      drop: {
-        address: drop.address,
-        location: { type: 'Point', coordinates: drop.coordinates }
-      },
-      vehicleType,
-      isReturnTrip,
-      pickupTime,
-      returnTime: isReturnTrip ? returnTime : undefined,
-      totalRides,
-      pricePerRide,
-      totalPrice,
+      status: 'active',
+      validUntil: { $gt: new Date() }
+    });
+
+    if (activePass) {
+      return res.status(400).json({ success: false, message: 'You already have an active pass' });
+    }
+
+    // Create UserPass
+    const validUntil = new Date();
+    validUntil.setDate(validUntil.getDate() + pass.validityDays);
+    
+    const userPass = new UserPass({
+      user: req.user.id,
+      pass: pass._id,
       validUntil
     });
     
-    await subscription.save();
-    
-    // Send confirmation notification
-    const user = await User.findById(req.user.id);
-    if (user && user.fcmToken) {
-      const scheduleMsg = isReturnTrip
-        ? `Pickup at ${pickupTime}, Return at ${returnTime}`
-        : `Daily pickup at ${pickupTime}`;
-      await sendNotification(user.fcmToken, {
-        title: '✅ Commute Pass Activated',
-        body: `Your ${totalRides}-ride commute pass is active! ${scheduleMsg}. Rides will be booked automatically.`,
-        data: { type: 'subscription_purchased', subscriptionId: subscription._id.toString() }
-      });
-    }
+    await userPass.save();
     
     res.status(201).json({
       success: true,
-      message: 'Commute pass purchased successfully',
-      data: subscription
+      message: `${pass.name} pass purchased successfully!`,
+      data: userPass
     });
   } catch (error) {
     console.error('Purchase Pass Error:', error);
-    res.status(500).json({ success: false, message: 'Failed to purchase commute pass' });
+    res.status(500).json({ success: false, message: 'Failed to purchase pass' });
   }
 };
 
-exports.getUserPasses = async (req, res) => {
+exports.getMyPass = async (req, res) => {
   try {
-    const passes = await Subscription.find({ 
+    const userPass = await UserPass.findOne({ 
       user: req.user.id,
-      status: 'active'
-    }).sort({ createdAt: -1 });
+      status: 'active',
+      validUntil: { $gt: new Date() }
+    }).populate('pass');
     
     res.json({
       success: true,
-      data: passes
+      data: userPass || null
     });
   } catch (error) {
-    console.error('Get Passes Error:', error);
-    res.status(500).json({ success: false, message: 'Failed to fetch commute passes' });
+    console.error('Get My Pass Error:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch your pass' });
   }
 };
-
-exports.customizePass = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { date, skipPickup, skipReturn, newPickupTime, newReturnTime } = req.body;
-
-    const subscription = await Subscription.findOne({ _id: id, user: req.user.id });
-    if (!subscription) {
-      return res.status(404).json({ success: false, message: 'Subscription not found' });
-    }
-
-    if (!subscription.exceptions) {
-      subscription.exceptions = [];
-    }
-
-    // Check if an exception already exists for this date
-    const existingIndex = subscription.exceptions.findIndex(e => e.date === date);
-
-    const exceptionData = {
-      date,
-      skipPickup: !!skipPickup,
-      skipReturn: !!skipReturn,
-      newPickupTime,
-      newReturnTime
-    };
-
-    if (existingIndex > -1) {
-      subscription.exceptions[existingIndex] = exceptionData;
-    } else {
-      subscription.exceptions.push(exceptionData);
-    }
-
-    await subscription.save();
-
-    // Send reschedule/customization confirmation notification
-    const user = await User.findById(req.user.id);
-    if (user && user.fcmToken) {
-      let notifBody = '';
-      if (skipPickup && skipReturn) {
-        notifBody = `Both pickup and return rides have been skipped for ${date}.`;
-      } else if (skipPickup) {
-        notifBody = `Pickup ride has been skipped for ${date}.`;
-      } else if (skipReturn) {
-        notifBody = `Return ride has been skipped for ${date}.`;
-      } else {
-        const parts = [];
-        if (newPickupTime) parts.push(`Pickup rescheduled to ${newPickupTime}`);
-        if (newReturnTime) parts.push(`Return rescheduled to ${newReturnTime}`);
-        if (parts.length > 0) {
-          notifBody = `${parts.join('. ')} on ${date}. Your ride will be auto-booked at the new time.`;
-        } else {
-          notifBody = `Ride schedule updated for ${date}.`;
-        }
-      }
-
-      await sendNotification(user.fcmToken, {
-        title: '📅 Schedule Updated',
-        body: notifBody,
-        data: { type: 'subscription_customized', subscriptionId: subscription._id.toString(), date }
-      });
-    }
-
-    res.json({
-      success: true,
-      message: 'Commute pass customized successfully for ' + date,
-      data: subscription
-    });
-  } catch (error) {
-    console.error('Customize Pass Error:', error);
-    res.status(500).json({ success: false, message: 'Failed to customize commute pass' });
-  }
-};
-

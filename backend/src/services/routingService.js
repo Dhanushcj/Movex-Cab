@@ -8,8 +8,18 @@ const axios = require('axios');
  */
 const getRouteDetails = async (pickup, drop) => {
   try {
-    const [pLng, pLat] = pickup;
-    const [dLng, dLat] = drop;
+    const [pLng, pLat] = pickup || [];
+    const [dLng, dLat] = drop || [];
+
+    // Validate that all coordinates are valid numbers
+    if (
+      typeof pLng !== 'number' || isNaN(pLng) ||
+      typeof pLat !== 'number' || isNaN(pLat) ||
+      typeof dLng !== 'number' || isNaN(dLng) ||
+      typeof dLat !== 'number' || isNaN(dLat)
+    ) {
+      throw new Error('Invalid coordinates provided to routing service');
+    }
 
     const baseUrl = process.env.OSRM_BASE_URL || 'https://router.project-osrm.org';
     // steps=true fetches turn-by-turn maneuvers for navigation HUD

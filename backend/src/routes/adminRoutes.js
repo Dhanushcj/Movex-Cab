@@ -31,7 +31,9 @@ const {
   getPayouts,
   getPayments,
   getMapData,
-  seedFeeTiers
+  seedFeeTiers,
+  getPasses,
+  updatePass
 } = require('../controllers/adminController');
 
 // All endpoints in admin router are protected and limited to the admin role
@@ -79,6 +81,9 @@ router.put('/complaints/:id', updateComplaint);
 router.get('/payouts', getPayouts);
 router.get('/payments', getPayments);
 router.get('/map', getMapData);
+
+router.get('/passes', getPasses);
+router.put('/passes/:id', updatePass);
 
 router.post('/fee-tiers/seed', seedFeeTiers);
 

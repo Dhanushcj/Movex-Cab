@@ -1,5 +1,6 @@
 const FareConfig = require('../models/FareConfig');
 const Offer = require('../models/Offer');
+const UserPass = require('../models/UserPass');
 
 /**
  * Calculates estimated fare for a ride
@@ -52,7 +53,6 @@ const calculateFare = async ({ vehicleType, distance, duration, promoCode, userI
     });
 
     if (offer && discountableTotal >= (offer.minRideAmount || 0)) {
-      // Check if user has not exceeded limits
       const userUsageCount = offer.usedBy.filter(usage => usage.user.toString() === userId).length;
       if (!offer.usageLimit || offer.usedCount < offer.usageLimit) {
         if (userUsageCount < offer.perUserLimit) {
@@ -70,13 +70,36 @@ const calculateFare = async ({ vehicleType, distance, duration, promoCode, userI
     }
   }
 
+  let taxableAmount = Math.max(0, discountableTotal - discount);
+
+  // 5.5 Apply Tiered Pass Discount if user has an active pass
+  let passDiscount = 0;
+  let passApplied = null;
+  if (userId) {
+    const activePass = await UserPass.findOne({
+      user: userId,
+      status: 'active',
+      validUntil: { $gt: new Date() }
+    }).populate('pass');
+    
+    if (activePass && activePass.pass && activePass.pass.discountPercentage > 0) {
+      passApplied = activePass.pass.name;
+      const discountPercentage = activePass.pass.discountPercentage;
+      passDiscount = Math.round(taxableAmount * (discountPercentage / 100));
+      
+      // Keep track of total saved amount asynchronously
+      activePass.usageStats.totalSavedAmount += passDiscount;
+      activePass.save().catch(err => console.error('Failed to update pass stats', err));
+    }
+  }
+
   // 6. Tax calculations (GST / VAT)
   const taxRate = parseFloat(process.env.TAX_RATE || '0.05'); // default 5%
-  const taxableAmount = Math.max(0, discountableTotal - discount);
-  const tax = Math.round(taxableAmount * taxRate);
+  const finalTaxableAmount = Math.max(0, taxableAmount - passDiscount);
+  const tax = Math.round(finalTaxableAmount * taxRate);
 
   // 7. Total final fare
-  let totalFare = Math.round(taxableAmount + tax);
+  let totalFare = Math.round(finalTaxableAmount + tax);
 
   // Enforce minimum fare
   if (totalFare < config.minFare) {
@@ -90,8 +113,10 @@ const calculateFare = async ({ vehicleType, distance, duration, promoCode, userI
     subtotal,
     surgeMultiplier,
     surgeAmount,
-    discount,
+    discount, // promo discount
     promoCode: promoApplied,
+    passDiscount, // subscription pass discount
+    passApplied,
     tax,
     totalFare,
     estimatedFare: totalFare

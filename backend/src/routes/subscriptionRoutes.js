@@ -2,17 +2,15 @@ const express = require('express');
 const router = express.Router();
 const { protect } = require('../middleware/auth');
 const {
-  estimatePass,
+  getAvailablePasses,
   purchasePass,
-  getUserPasses,
-  customizePass
+  getMyPass
 } = require('../controllers/subscriptionController');
 
 router.use(protect);
 
-router.post('/estimate', estimatePass);
+router.get('/available', getAvailablePasses);
 router.post('/purchase', purchasePass);
-router.get('/', getUserPasses);
-router.post('/:id/customize', customizePass);
+router.get('/my-pass', getMyPass);
 
 module.exports = router;

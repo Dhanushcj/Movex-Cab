@@ -12,7 +12,8 @@ import {
   Settings,
   ShieldCheck,
   MapPin,
-  Bell
+  Bell,
+  Star
 } from 'lucide-react';
 
 const Sidebar = () => {
@@ -23,6 +24,7 @@ const Sidebar = () => {
     { path: '/bookings', name: 'Bookings', icon: CalendarDays },
     { path: '/map', name: 'Live Map', icon: MapPin },
     { path: '/fares', name: 'Fares & Pricing', icon: Tag },
+    { path: '/passes', name: 'Premium Passes', icon: Star },
     { path: '/banners', name: 'Ad Banners', icon: LayoutDashboard },
     { path: '/notifications', name: 'Notifications', icon: Bell },
     { path: '/complaints', name: 'Complaints', icon: AlertTriangle },
