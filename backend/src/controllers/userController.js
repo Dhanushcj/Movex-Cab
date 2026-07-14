@@ -1,6 +1,6 @@
 const User = require('../models/User');
 const Booking = require('../models/Booking');
-const Subscription = require('../models/Subscription');
+const UserPass = require('../models/UserPass');
 
 /**
  * Get profile of current user
@@ -159,12 +159,12 @@ const deleteAccount = async (req, res, next) => {
 
     // Cancel active subscriptions
     try {
-      await Subscription.updateMany(
+      await UserPass.updateMany(
         { user: userId, status: 'active' },
         { $set: { status: 'cancelled' } }
       );
     } catch (e) {
-      // Subscription model may not exist — skip gracefully
+      // Pass model may not exist - skip gracefully
     }
 
     // Delete the user

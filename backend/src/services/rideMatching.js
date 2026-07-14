@@ -1,7 +1,7 @@
 const Driver = require('../models/Driver');
 const Booking = require('../models/Booking');
 const User = require('../models/User');
-const Subscription = require('../models/Subscription');
+
 const { getOnlineDrivers, getIO } = require('../config/socket');
 const { calculateHaversineDistance } = require('./routingService');
 const { sendNotification } = require('./notificationService');
@@ -11,11 +11,8 @@ const activeDispatches = new Map(); // Store driver lists for active sequential 
 /**
  * Find nearby active drivers for a ride request and dispatch booking notifications.
  * @param {string} bookingId - MongoDB ObjectId of booking
- * @param {Object} [options] - Optional config for subscription rides
- * @param {boolean} [options.isSubscriptionRide] - Whether this is an auto-booked subscription ride
- * @param {Function} [options.onAllDriversExhausted] - Callback when all drivers are exhausted (for retry)
  */
-const matchDriversForBooking = async (bookingId, options = {}) => {
+const matchDriversForBooking = async (bookingId) => {
   const io = getIO();
   if (!io) {
     console.error('❌ Cannot match drivers: Socket.IO is not initialized');
@@ -56,24 +53,6 @@ const matchDriversForBooking = async (bookingId, options = {}) => {
     if (nearbyDrivers.length === 0) {
       console.log(`ℹ️ No drivers found for ride ${bookingId}`);
 
-      // For subscription rides, trigger retry callback instead of permanent cancellation
-      if (options.isSubscriptionRide && options.onAllDriversExhausted) {
-        booking.status = 'cancelled';
-        booking.cancelledBy = 'system';
-        booking.cancellationReason = 'No drivers available — retrying shortly';
-        booking.cancelledAt = new Date();
-        await booking.save();
-
-        io.to(`ride:${booking._id}`).emit('booking:status', {
-          status: 'cancelled',
-          reason: 'No drivers available — retrying shortly'
-        });
-
-        console.log(`[RideMatching] Triggering subscription retry for booking ${bookingId}`);
-        options.onAllDriversExhausted();
-        return;
-      }
-
       booking.status = 'cancelled';
       booking.cancelledBy = 'system';
       booking.cancellationReason = 'No drivers available in your area';
@@ -85,17 +64,6 @@ const matchDriversForBooking = async (bookingId, options = {}) => {
         reason: 'No drivers available in your area'
       });
 
-      // Send notification for subscription rides about failure
-      if (booking.subscriptionId) {
-        const customer = await User.findById(booking.customer);
-        if (customer && customer.fcmToken) {
-          await sendNotification(customer.fcmToken, {
-            title: '⚠️ No Drivers Available',
-            body: 'No drivers found for your scheduled commute ride. Please try booking manually.',
-            data: { type: 'subscription_no_drivers', bookingId: booking._id.toString() }
-          });
-        }
-      }
       return;
     }
 
@@ -133,25 +101,6 @@ const dispatchRequestsSequentially = async (booking, driverList, index, options 
     // Refresh booking state
     const currentBooking = await Booking.findById(booking._id);
     if (currentBooking && (currentBooking.status === 'searching' || currentBooking.status === 'negotiating')) {
-      // For subscription rides, trigger retry callback instead of permanent cancellation
-      if (options.isSubscriptionRide && options.onAllDriversExhausted) {
-        currentBooking.status = 'cancelled';
-        currentBooking.cancelledBy = 'system';
-        currentBooking.cancellationReason = 'All drivers busy — retrying shortly';
-        currentBooking.cancelledAt = new Date();
-        await currentBooking.save();
-
-        io.to(`ride:${booking._id}`).emit('booking:status', {
-          status: 'cancelled',
-          reason: 'All drivers busy — retrying shortly'
-        });
-
-        activeDispatches.delete(booking._id.toString());
-        console.log(`[RideMatching] All drivers exhausted, triggering subscription retry for ${booking._id}`);
-        options.onAllDriversExhausted();
-        return;
-      }
-
       currentBooking.status = 'cancelled';
       currentBooking.cancelledBy = 'system';
       currentBooking.cancellationReason = 'Drivers are busy. Please try again.';
@@ -162,18 +111,6 @@ const dispatchRequestsSequentially = async (booking, driverList, index, options 
         status: 'cancelled',
         reason: 'Drivers are busy. Please try again.'
       });
-
-      // Notify subscription ride customer about failure
-      if (currentBooking.subscriptionId) {
-        const customer = await User.findById(currentBooking.customer);
-        if (customer && customer.fcmToken) {
-          await sendNotification(customer.fcmToken, {
-            title: '⚠️ No Drivers Available',
-            body: 'All nearby drivers are busy for your scheduled commute ride. Please try booking manually.',
-            data: { type: 'subscription_no_drivers', bookingId: currentBooking._id.toString() }
-          });
-        }
-      }
     }
     activeDispatches.delete(booking._id.toString());
     return;

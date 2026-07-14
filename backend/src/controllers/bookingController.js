@@ -331,34 +331,6 @@ const completeTrip = async (req, res, next) => {
     booking.completedAt = new Date();
     await booking.save();
 
-    // ── Increment ridesCompleted for subscription (commute pass) rides ──
-    if (booking.subscriptionId) {
-      try {
-        const subscription = await Subscription.findById(booking.subscriptionId);
-        if (subscription && subscription.status === 'active') {
-          subscription.ridesCompleted += 1;
-          // Auto-exhaust the pass if all rides are used up
-          if (subscription.ridesCompleted >= subscription.totalRides) {
-            subscription.status = 'exhausted';
-            console.log(`[Booking] Subscription ${subscription._id} exhausted (${subscription.ridesCompleted}/${subscription.totalRides} rides)`);
-
-            // Notify customer that their pass is exhausted
-            const passCustomer = await User.findById(booking.customer);
-            if (passCustomer && passCustomer.fcmToken) {
-              await sendNotification(passCustomer.fcmToken, {
-                title: '📋 Commute Pass Exhausted',
-                body: `You have completed all ${subscription.totalRides} rides on your commute pass. Purchase a new one to continue.`,
-                data: { type: 'subscription_exhausted', subscriptionId: subscription._id.toString() }
-              });
-            }
-          }
-          await subscription.save();
-          console.log(`[Booking] Subscription ${subscription._id} ride count: ${subscription.ridesCompleted}/${subscription.totalRides}`);
-        }
-      } catch (subErr) {
-        console.error('[Booking] Failed to update subscription ridesCompleted:', subErr);
-      }
-    }
 
     // ── Wallet Commission Logic ──
     const DriverFeeEngine = require('../services/FeeEngine');

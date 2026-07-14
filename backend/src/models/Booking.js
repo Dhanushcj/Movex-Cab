@@ -18,7 +18,7 @@ const bookingSchema = new mongoose.Schema({
   },
   subscriptionId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Subscription',
+    ref: 'UserPass',
     default: null
   },
   // Locations
