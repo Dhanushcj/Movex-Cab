@@ -78,7 +78,7 @@ const matchDriversForBooking = async (bookingId) => {
     }).sort((a, b) => a.distanceWithNoise - b.distanceWithNoise);
 
     // Sequentially notify drivers
-    dispatchRequestsSequentially(booking, sortedDrivers, 0, options);
+    dispatchRequestsSequentially(booking, sortedDrivers, 0);
 
   } catch (error) {
     console.error('❌ Error matching drivers:', error);
