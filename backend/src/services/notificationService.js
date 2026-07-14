@@ -73,7 +73,17 @@ const sendMulticastNotification = async (tokens = [], { title, body, data = {} }
         }, {}) : {},
         tokens: validTokens
       };
-      await admin.messaging().sendEachForMulticast(message);
+      const response = await admin.messaging().sendEachForMulticast(message);
+      if (response.failureCount > 0) {
+        console.warn(`⚠️ FCM Multicast had ${response.failureCount} failures.`);
+        response.responses.forEach((resp, idx) => {
+          if (!resp.success) {
+            console.error(`Token ${idx} failed:`, resp.error);
+          }
+        });
+      } else {
+        console.log(`🚀 FCM push notification sent successfully to ${response.successCount} devices`);
+      }
     } catch (error) {
       console.error('❌ Failed to send multicast notification:', error.message);
     }

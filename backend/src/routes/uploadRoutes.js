@@ -15,37 +15,39 @@ const s3Client = new S3Client({
     },
 });
 
-// Create uploads directory if it doesn't exist
-const uploadDir = path.join(__dirname, '../../uploads');
-if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
-}
+const admin = require('../config/firebase');
 
-// Multer storage for local image uploads
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, uploadDir);
-    },
-    filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        const ext = path.extname(file.originalname) || '';
-        cb(null, uniqueSuffix + ext);
-    }
-});
+// Multer storage for memory (to upload to Firebase)
+const upload = multer({ storage: multer.memoryStorage() });
 
-const upload = multer({ storage });
-
-// Direct upload route for banners and other images to local server
-router.post('/image', upload.single('image'), (req, res) => {
+// Direct upload route for banners and other images to Firebase Storage
+router.post('/image', upload.single('image'), async (req, res) => {
     try {
         if (!req.file) {
             return res.status(400).json({ error: 'No image file uploaded' });
         }
-        // Return relative path which will be served statically by server.js
-        const imageUrl = `/uploads/${req.file.filename}`;
-        res.json({ success: true, imageUrl });
+
+        const bucket = admin.storage().bucket();
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        const ext = path.extname(req.file.originalname) || '';
+        const filename = `banners/${uniqueSuffix}${ext}`;
+        const file = bucket.file(filename);
+
+        await file.save(req.file.buffer, {
+            metadata: {
+                contentType: req.file.mimetype,
+            }
+        });
+
+        // Generate a public URL that doesn't expire for ~100 years
+        const [url] = await file.getSignedUrl({
+            action: 'read',
+            expires: '01-01-2100'
+        });
+
+        res.json({ success: true, imageUrl: url });
     } catch (error) {
-        console.error('Error uploading image:', error);
+        console.error('Error uploading image to Firebase:', error);
         res.status(500).json({ error: 'Failed to upload image' });
     }
 });

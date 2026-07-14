@@ -25,7 +25,11 @@ try {
     console.log('Firebase Admin Initialized successfully with Service Account Key.');
   }
 
-  admin.initializeApp({ credential });
+    const appOptions = {
+      credential,
+      storageBucket: process.env.FIREBASE_STORAGE_BUCKET || 'movex-9a9ea.appspot.com'
+    };
+    admin.initializeApp(appOptions);
 } catch (error) {
   if (!/already exists/.test(error.message)) {
     console.error('Firebase Admin Initialization Error:', error.message);
