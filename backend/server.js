@@ -4,6 +4,7 @@ const http = require('http');
 const cors = require('cors');
 const path = require('path');
 const { connectDB } = require('./src/config/database');
+const { connectRedis } = require('./src/config/redis');
 const { initializeSocket } = require('./src/config/socket');
 const { errorHandler } = require('./src/middleware/errorHandler');
 
@@ -84,6 +85,9 @@ const startServer = async () => {
     // Connect to MongoDB
     await connectDB();
     console.log('✅ MongoDB connected successfully');
+
+    // Connect to Redis
+    await connectRedis();
 
     server.listen(PORT, '0.0.0.0', () => {
       console.log(`\n🚀 MoveX Backend Server running on port ${PORT}`);

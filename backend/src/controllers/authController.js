@@ -1,14 +1,34 @@
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 const User = require('../models/User');
 const admin = require('../config/firebase');
 const Driver = require('../models/Driver');
+const Session = require('../models/Session');
+const { getRedisClient } = require('../config/redis');
 const { sendNotification } = require('../services/notificationService');
 
-// Helper to generate JWT Token
-const generateToken = (id, role) => {
-  return jwt.sign({ id, role }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRES_IN || '30d'
+// Helper to generate Tokens
+const generateTokens = async (userId, role, req) => {
+  const accessToken = jwt.sign({ id: userId, role }, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_ACCESS_EXPIRES_IN || '15m'
   });
+
+  const refreshToken = crypto.randomBytes(40).toString('hex');
+  const expiresAt = new Date();
+  expiresAt.setDate(expiresAt.getDate() + parseInt(process.env.JWT_REFRESH_EXPIRES_DAYS || '30'));
+
+  const userModel = role === 'driver' ? 'Driver' : 'User';
+
+  await Session.create({
+    userId,
+    userModel,
+    refreshToken,
+    ipAddress: req.ip,
+    deviceInfo: req.headers['user-agent'] || 'Unknown',
+    expiresAt
+  });
+
+  return { accessToken, refreshToken };
 };
 
 /**
@@ -89,12 +109,14 @@ const verifyOTP = async (req, res, next) => {
     person.lastLogin = new Date();
     await person.save();
 
-    // Generate token
-    const token = generateToken(person._id, role);
+    // Generate tokens
+    const tokens = await generateTokens(person._id, role, req);
 
     res.json({
       success: true,
-      token,
+      token: tokens.accessToken, // For backward compatibility
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
       user: person
     });
   } catch (error) {
@@ -137,14 +159,16 @@ const login = async (req, res, next) => {
 
     await Model.updateOne({ _id: person._id }, { $set: { lastLogin: new Date() } });
 
-    const token = generateToken(person._id, role || person.role || 'customer');
+    const tokens = await generateTokens(person._id, role || person.role || 'customer', req);
 
     const userResponse = person.toObject();
     userResponse.role = role || person.role || 'customer';
 
     res.json({
       success: true,
-      token,
+      token: tokens.accessToken, // For backward compatibility
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
       user: userResponse
     });
   } catch (error) {
@@ -196,7 +220,7 @@ const registerDriver = async (req, res, next) => {
       isActive: true
     });
 
-    const token = generateToken(driver._id, 'driver');
+    const tokens = await generateTokens(driver._id, 'driver', req);
 
     const userResponse = driver.toObject();
     userResponse.role = 'driver';
@@ -204,7 +228,9 @@ const registerDriver = async (req, res, next) => {
     res.status(201).json({
       success: true,
       message: 'Driver registration successful. Waiting for admin approval.',
-      token,
+      token: tokens.accessToken, // Backward compatibility
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
       user: userResponse
     });
   } catch (error) {
@@ -299,7 +325,7 @@ const register = async (req, res, next) => {
       isActive: true
     });
 
-    const token = generateToken(user._id, 'customer');
+    const tokens = await generateTokens(user._id, 'customer', req);
 
     const userResponse = user.toObject();
     userResponse.role = 'customer';
@@ -307,7 +333,9 @@ const register = async (req, res, next) => {
     res.status(201).json({
       success: true,
       message: 'Registration successful',
-      token,
+      token: tokens.accessToken, // backward compatibility
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
       user: userResponse
     });
   } catch (error) {
@@ -431,17 +459,124 @@ const firebaseLogin = async (req, res, next) => {
 
     const actualRole = (person.role === 'admin') ? 'admin' : (role || person.role || 'customer');
     
-    // Generate our JWT token
-    const token = generateToken(person._id, actualRole);
+    // Generate our JWT tokens
+    const tokens = await generateTokens(person._id, actualRole, req);
 
     const userData = person.toObject();
     userData.role = actualRole;
 
     res.json({
       success: true,
-      token,
+      token: tokens.accessToken, // backward compatibility
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
       user: userData
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Refresh Access Token
+ * POST /api/auth/refresh
+ */
+const refreshToken = async (req, res, next) => {
+  const { refreshToken } = req.body;
+  if (!refreshToken) {
+    return res.status(401).json({ success: false, message: 'Refresh token is required' });
+  }
+
+  try {
+    const session = await Session.findOne({ refreshToken }).populate('userId');
+    if (!session || !session.userId) {
+      return res.status(401).json({ success: false, message: 'Invalid or expired refresh token' });
+    }
+
+    if (session.expiresAt < new Date()) {
+      await Session.deleteOne({ _id: session._id });
+      return res.status(401).json({ success: false, message: 'Refresh token expired. Please login again.' });
+    }
+
+    // Role determination for generating new token
+    let role = 'customer';
+    if (session.userModel === 'Driver') role = 'driver';
+    if (session.userId.role === 'admin') role = 'admin';
+
+    // Generate NEW tokens (Refresh Token Rotation)
+    const tokens = await generateTokens(session.userId._id, role, req);
+
+    // Delete old session
+    await Session.deleteOne({ _id: session._id });
+
+    res.json({
+      success: true,
+      token: tokens.accessToken,
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Logout
+ * POST /api/auth/logout
+ */
+const logout = async (req, res, next) => {
+  const { refreshToken } = req.body;
+  
+  try {
+    // 1. Delete session from DB
+    if (refreshToken) {
+      await Session.deleteOne({ refreshToken });
+    }
+
+    // 2. Blacklist current access token in Redis
+    let token;
+    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+      token = req.headers.authorization.split(' ')[1];
+    }
+    
+    if (token) {
+      try {
+        const decoded = jwt.decode(token);
+        if (decoded && decoded.exp) {
+          const redisClient = getRedisClient();
+          if (redisClient) {
+            // Time to live in seconds
+            const ttl = decoded.exp - Math.floor(Date.now() / 1000);
+            if (ttl > 0) {
+              await redisClient.set(`bl_${token}`, 'true', { EX: ttl });
+            }
+          }
+        }
+      } catch (e) {
+        console.error('Error blacklisting token:', e);
+      }
+    }
+
+    res.json({ success: true, message: 'Logged out successfully' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Logout from all devices
+ * POST /api/auth/logout-all
+ */
+const logoutAll = async (req, res, next) => {
+  try {
+    // Requires authentication to know which user to logout
+    if (!req.user) {
+      return res.status(401).json({ success: false, message: 'Unauthorized' });
+    }
+
+    await Session.deleteMany({ userId: req.user._id });
+    
+    res.json({ success: true, message: 'Logged out from all devices successfully' });
   } catch (error) {
     next(error);
   }
@@ -455,5 +590,8 @@ module.exports = {
   registerDriver,
   resubmitDriverApplication,
   register,
-  getMe
+  getMe,
+  refreshToken,
+  logout,
+  logoutAll
 };

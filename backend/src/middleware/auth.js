@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const Driver = require('../models/Driver');
+const { getRedisClient } = require('../config/redis');
 
 const protect = async (req, res, next) => {
   try {
@@ -11,6 +12,15 @@ const protect = async (req, res, next) => {
 
     if (!token) {
       return res.status(401).json({ success: false, message: 'Not authorized to access this route' });
+    }
+
+    // Check if token is blacklisted in Redis
+    const redisClient = getRedisClient();
+    if (redisClient) {
+      const isBlacklisted = await redisClient.get(`bl_${token}`);
+      if (isBlacklisted) {
+        return res.status(401).json({ success: false, message: 'Token has been revoked. Please login again.' });
+      }
     }
 
     // Verify token
