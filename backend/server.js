@@ -33,15 +33,43 @@ const io = initializeSocket(server);
 // Make io accessible in routes
 app.set('io', io);
 
+const mongoSanitize = require('express-mongo-sanitize');
+const helmet = require('helmet');
+const xss = require('xss-clean');
+
 // Middleware
+// Security Headers
+app.use(helmet());
+
+// Cross-Site Scripting (XSS) Protection
+app.use(xss());
+
+// Strict CORS Policy
+const allowedOrigins = process.env.ALLOWED_ORIGINS 
+  ? process.env.ALLOWED_ORIGINS.split(',') 
+  : ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8081', 'http://localhost:5173']; // default dev ports
+
 app.use(cors({
-  origin: '*',
+  origin: function (origin, callback) {
+    // allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin']
 }));
 app.options('*', cors());
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true }));
+
+// Payload size limit reduced to 1mb for DoS protection
+app.use(express.json({ limit: '1mb' }));
+app.use(express.urlencoded({ extended: true, limit: '1mb' }));
+
+// Data sanitization against NoSQL query injection
+app.use(mongoSanitize());
 
 // Static uploads folder
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));

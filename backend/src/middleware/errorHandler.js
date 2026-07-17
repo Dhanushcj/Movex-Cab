@@ -13,7 +13,12 @@ const errorHandler = (err, req, res, next) => {
 
   // Mongoose duplicate key
   if (err.code === 11000) {
-    const message = 'Duplicate field value entered';
+    let field = 'User';
+    if (err.keyValue) {
+      const key = Object.keys(err.keyValue)[0];
+      field = key.charAt(0).toUpperCase() + key.slice(1); // e.g., 'Phone' or 'Email'
+    }
+    const message = `${field} already exists. Please login instead.`;
     return res.status(400).json({ success: false, message });
   }
 
