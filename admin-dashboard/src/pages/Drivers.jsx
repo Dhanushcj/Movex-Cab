@@ -36,17 +36,18 @@ const Drivers = () => {
     setUploadingDoc(docKey);
     const formData = new FormData();
     const isImage = file.type.startsWith('image/');
-    formData.append(isImage ? 'image' : 'document', file);
-    if (isImage) formData.append('folder', 'documents');
+    // Always use /upload/image which accepts all file types
+    formData.append('image', file);
+    formData.append('folder', 'documents');
 
     try {
-      const endpoint = isImage ? '/upload/image' : '/upload/document';
-      const res = await API.post(endpoint, formData, {
+      const res = await API.post('/upload/image', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       if (res.data.success) {
         const fileUrl = res.data.imageUrl || res.data.fileUrl;
-        
+
+        // Update local form state
         if (docKey === 'profilePhoto') {
           setEditForm(prev => ({
             ...prev,
@@ -61,13 +62,33 @@ const Drivers = () => {
             }
           }));
         }
+
+        // ✅ Auto-save URL to database immediately so it persists after refresh
+        const docUpdate = docKey === 'profilePhoto'
+          ? { documents: { profilePhoto: { url: fileUrl } } }
+          : { documents: { [docKey]: { url: fileUrl } } };
+
+        await API.put(`/admin/drivers/${selectedDriver._id}`, docUpdate);
+
+        // Update selectedDriver so the view link renders without needing full refresh
+        setSelectedDriver(prev => ({
+          ...prev,
+          documents: {
+            ...prev.documents,
+            [docKey]: { ...(prev.documents?.[docKey] || {}), url: fileUrl }
+          }
+        }));
+
+        alert(`${docKey === 'profilePhoto' ? 'Photo' : 'Document'} uploaded and saved successfully!`);
       }
     } catch (err) {
-      alert('Failed to upload document');
+      console.error('Upload error:', err);
+      alert('Failed to upload document. Please try again.');
     } finally {
       setUploadingDoc(null);
     }
   };
+
 
   const handleEditClick = (driver) => {
     setSelectedDriver(driver);
