@@ -152,25 +152,33 @@ const updateDriverStatus = async (req, res, next) => {
     if (vehicle) updateObj.vehicle = vehicle;
     
     if (documents) {
+      if (documents.profilePhoto) {
+        if (documents.profilePhoto.url) updateObj['documents.profilePhoto.url'] = documents.profilePhoto.url;
+      }
       if (documents.drivingLicense) {
         if (documents.drivingLicense.expiryDate) updateObj['documents.drivingLicense.expiryDate'] = documents.drivingLicense.expiryDate;
         if (documents.drivingLicense.number !== undefined) updateObj['documents.drivingLicense.number'] = documents.drivingLicense.number;
+        if (documents.drivingLicense.url) updateObj['documents.drivingLicense.url'] = documents.drivingLicense.url;
       }
       if (documents.vehicleRC) {
         if (documents.vehicleRC.expiryDate) updateObj['documents.vehicleRC.expiryDate'] = documents.vehicleRC.expiryDate;
         if (documents.vehicleRC.number !== undefined) updateObj['documents.vehicleRC.number'] = documents.vehicleRC.number;
+        if (documents.vehicleRC.url) updateObj['documents.vehicleRC.url'] = documents.vehicleRC.url;
       }
       if (documents.insurance) {
         if (documents.insurance.expiryDate) updateObj['documents.insurance.expiryDate'] = documents.insurance.expiryDate;
         if (documents.insurance.number !== undefined) updateObj['documents.insurance.number'] = documents.insurance.number;
+        if (documents.insurance.url) updateObj['documents.insurance.url'] = documents.insurance.url;
       }
       if (documents.permit) {
         if (documents.permit.expiryDate) updateObj['documents.permit.expiryDate'] = documents.permit.expiryDate;
         if (documents.permit.number !== undefined) updateObj['documents.permit.number'] = documents.permit.number;
+        if (documents.permit.url) updateObj['documents.permit.url'] = documents.permit.url;
       }
       if (documents.fitnessCertificate) {
         if (documents.fitnessCertificate.expiryDate) updateObj['documents.fitnessCertificate.expiryDate'] = documents.fitnessCertificate.expiryDate;
         if (documents.fitnessCertificate.number !== undefined) updateObj['documents.fitnessCertificate.number'] = documents.fitnessCertificate.number;
+        if (documents.fitnessCertificate.url) updateObj['documents.fitnessCertificate.url'] = documents.fitnessCertificate.url;
       }
     }
 
