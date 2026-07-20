@@ -30,7 +30,8 @@ router.post('/image', upload.single('image'), async (req, res) => {
         const bucket = admin.storage().bucket();
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
         const ext = path.extname(req.file.originalname) || '';
-        const filename = `banners/${uniqueSuffix}${ext}`;
+        const folder = req.body.folder || 'banners';
+        const filename = `${folder}/${uniqueSuffix}${ext}`;
         const file = bucket.file(filename);
 
         await file.save(req.file.buffer, {
@@ -49,6 +50,38 @@ router.post('/image', upload.single('image'), async (req, res) => {
     } catch (error) {
         console.error('Error uploading image to Firebase:', error);
         res.status(500).json({ error: 'Failed to upload image' });
+    }
+});
+
+// Direct upload route for documents to Firebase Storage
+router.post('/document', upload.single('document'), async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ error: 'No document file uploaded' });
+        }
+
+        const bucket = admin.storage().bucket();
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        const ext = path.extname(req.file.originalname) || '';
+        const filename = `documents/${uniqueSuffix}${ext}`;
+        const file = bucket.file(filename);
+
+        await file.save(req.file.buffer, {
+            metadata: {
+                contentType: req.file.mimetype,
+            }
+        });
+
+        // Generate a public URL that doesn't expire for ~100 years
+        const [url] = await file.getSignedUrl({
+            action: 'read',
+            expires: '01-01-2100'
+        });
+
+        res.json({ success: true, fileUrl: url });
+    } catch (error) {
+        console.error('Error uploading document to Firebase:', error);
+        res.status(500).json({ error: 'Failed to upload document' });
     }
 });
 
