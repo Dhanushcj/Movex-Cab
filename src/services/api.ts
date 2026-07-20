@@ -80,4 +80,31 @@ export const getDriverAchievements = async () => {
   }
 };
 
+export const uploadFile = async (uri: string): Promise<string | null> => {
+  if (!uri || !uri.startsWith('file://')) return uri; // Already a remote URL or null
+
+  try {
+    const formData = new FormData();
+    const filename = uri.split('/').pop() || 'upload.jpg';
+    const match = /\.(\w+)$/.exec(filename);
+    const type = match ? `image/${match[1]}` : 'image/jpeg';
+
+    formData.append('document', { uri, name: filename, type } as any);
+
+    const response = await API.post('/upload/document', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
+    if (response.data.success) {
+      return response.data.fileUrl;
+    }
+    return null;
+  } catch (error) {
+    console.error('File upload failed:', error);
+    return null;
+  }
+};
+
 export default API;

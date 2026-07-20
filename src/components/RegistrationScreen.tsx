@@ -18,6 +18,7 @@ import * as DocumentPicker from 'expo-document-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Colors from '../constants/colors';
 import { useAuth } from '../context/AuthContext';
+import { uploadFile } from '../services/api';
 
 const KARNATAKA_DISTRICTS = [
   'Bagalkot', 'Ballari', 'Belagavi', 'Bengaluru Rural', 'Bengaluru Urban',
@@ -196,6 +197,36 @@ export default function RegistrationScreen({ onBack, prefillData = null, isCorre
 
     setLoading(true);
 
+    let finalProfilePhoto = profilePhotoUrl;
+    let finalAadhaar = aadhaarUrl;
+    let finalPan = panUrl;
+    let finalDl = dlUrl;
+    let finalRc = rcUrl;
+    let finalIns = insUrl;
+    let finalPermit = permitUrl;
+    let finalFc = fcUrl;
+    let finalTax = taxUrl;
+
+    try {
+      finalProfilePhoto = await uploadFile(profilePhotoUrl) || profilePhotoUrl;
+      finalAadhaar = await uploadFile(aadhaarUrl) || aadhaarUrl;
+      if (panUrl) finalPan = await uploadFile(panUrl) || panUrl;
+      finalDl = await uploadFile(dlUrl) || dlUrl;
+
+      if (vehicleOwnership === 'own') {
+        finalRc = await uploadFile(rcUrl) || rcUrl;
+        finalIns = await uploadFile(insUrl) || insUrl;
+        if (plateType === 'yellow') {
+          finalPermit = await uploadFile(permitUrl) || permitUrl;
+          finalFc = await uploadFile(fcUrl) || fcUrl;
+          finalTax = await uploadFile(taxUrl) || taxUrl;
+        }
+      }
+    } catch (uploadError) {
+      setLoading(false);
+      return Alert.alert('Error', 'Failed to upload documents. Please try again.');
+    }
+
     const payload = {
       name, phone, password, gender, address: `${city}, ${selectedState}`, email,
       vehicleOwnership,
@@ -208,16 +239,16 @@ export default function RegistrationScreen({ onBack, prefillData = null, isCorre
         plateType
       },
       documents: {
-        profilePhoto: { url: profilePhotoUrl },
-        aadhaar: { number: aadhaarNumber, url: aadhaarUrl },
-        pan: { number: panNumber, url: panUrl },
-        drivingLicense: { number: dlNumber, url: dlUrl, expiryDate: dlExpiry, type: dlType },
+        profilePhoto: { url: finalProfilePhoto },
+        aadhaar: { number: aadhaarNumber, url: finalAadhaar },
+        pan: panNumber ? { number: panNumber, url: finalPan } : undefined,
+        drivingLicense: { number: dlNumber, url: finalDl, expiryDate: dlExpiry, type: dlType },
         ...(vehicleOwnership === 'own' ? {
-          vehicleRC: { number: rcNumber, url: rcUrl },
-          insurance: { number: insNumber, url: insUrl, expiryDate: insExpiry },
-          permit: plateType === 'yellow' ? { number: permitNumber, type: permitType, expiryDate: permitExpiry, url: permitUrl } : undefined,
-          fitnessCertificate: plateType === 'yellow' ? { expiryDate: fcExpiry, url: fcUrl } : undefined,
-          taxReceipt: plateType === 'yellow' ? { expiryDate: taxExpiry, url: taxUrl } : undefined,
+          vehicleRC: { number: rcNumber, url: finalRc },
+          insurance: { number: insNumber, url: finalIns, expiryDate: insExpiry },
+          permit: plateType === 'yellow' ? { number: permitNumber, type: permitType, expiryDate: permitExpiry, url: finalPermit } : undefined,
+          fitnessCertificate: plateType === 'yellow' ? { expiryDate: fcExpiry, url: finalFc } : undefined,
+          taxReceipt: plateType === 'yellow' ? { expiryDate: taxExpiry, url: finalTax } : undefined,
         } : {})
       }
     };
