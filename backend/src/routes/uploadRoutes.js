@@ -7,11 +7,17 @@ const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
 
 const router = express.Router();
 
+// Log AWS config on startup so we can debug missing env vars in Render logs
+console.log('[Upload] AWS_REGION:', process.env.AWS_REGION || '(not set)');
+console.log('[Upload] AWS_S3_BUCKET_NAME:', process.env.AWS_S3_BUCKET_NAME || '(not set)');
+console.log('[Upload] AWS_ACCESS_KEY_ID:', process.env.AWS_ACCESS_KEY_ID ? '(set)' : '(NOT SET)');
+console.log('[Upload] AWS_SECRET_ACCESS_KEY:', process.env.AWS_SECRET_ACCESS_KEY ? '(set)' : '(NOT SET)');
+
 const s3Client = new S3Client({
     region: process.env.AWS_REGION || 'ap-south-1',
     credentials: {
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID || 'dummy',
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || 'dummy',
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
     },
 });
 
@@ -43,19 +49,20 @@ const uploadToS3 = async (file, folder) => {
 };
 
 // Direct upload route for banners and other images to S3
+// Also accepts PDFs and other file types
 router.post('/image', upload.single('image'), async (req, res) => {
     try {
         if (!req.file) {
-            return res.status(400).json({ error: 'No image file uploaded' });
+            return res.status(400).json({ error: 'No file uploaded' });
         }
 
         const folder = req.body.folder || 'banners';
         const url = await uploadToS3(req.file, folder);
 
-        res.json({ success: true, imageUrl: url });
+        res.json({ success: true, imageUrl: url, fileUrl: url });
     } catch (error) {
-        console.error('Error uploading image to S3:', error);
-        res.status(500).json({ error: 'Failed to upload image' });
+        console.error('Error uploading file to S3:', error.message);
+        res.status(500).json({ error: 'Failed to upload file', detail: error.message });
     }
 });
 
@@ -68,10 +75,10 @@ router.post('/document', upload.single('document'), async (req, res) => {
 
         const url = await uploadToS3(req.file, 'documents');
 
-        res.json({ success: true, fileUrl: url });
+        res.json({ success: true, fileUrl: url, imageUrl: url });
     } catch (error) {
-        console.error('Error uploading document to S3:', error);
-        res.status(500).json({ error: 'Failed to upload document' });
+        console.error('Error uploading document to S3:', error.message);
+        res.status(500).json({ error: 'Failed to upload document', detail: error.message });
     }
 });
 
