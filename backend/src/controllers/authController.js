@@ -182,7 +182,7 @@ const login = async (req, res, next) => {
  */
 const registerDriver = async (req, res, next) => {
   console.log('Driver registration attempt:', req.body.phone, req.body.vehicle);
-  const { name, phone, email, password, gender, address, vehicle, documents, fcmToken } = req.body;
+  const { name, phone, email, password, gender, address, vehicle, documents, fcmToken, vehicleOwnership } = req.body;
   try {
     const existingDriver = await Driver.findOne({ phone });
     if (existingDriver) {
@@ -198,7 +198,11 @@ const registerDriver = async (req, res, next) => {
       { name: 'Insurance Number', field: 'documents.insurance.number', value: documents?.insurance?.number }
     ];
     for (let check of uniqueChecks) {
-      if (check.value) {
+      // Skip vehicle checks for company vehicles
+      if (vehicleOwnership === 'company' && (check.name === 'Vehicle Plate Number' || check.name === 'RC Number' || check.name === 'Insurance Number')) {
+        continue;
+      }
+      if (check.value && check.value !== 'N/A') {
         const exists = await Driver.findOne({ [check.field]: check.value });
         if (exists) {
           return res.status(400).json({ success: false, message: `This document is already registered: ${check.name}` });
@@ -213,7 +217,8 @@ const registerDriver = async (req, res, next) => {
       password,
       gender,
       address,
-      vehicle,
+      vehicleOwnership: vehicleOwnership || 'own',
+      vehicle: vehicleOwnership === 'company' ? { type: 'none', make: 'N/A', model: 'N/A', color: 'N/A', plateNumber: 'N/A' } : vehicle,
       documents,
       fcmToken,
       approvalStatus: 'pending', // Default pending admin approval
@@ -427,7 +432,8 @@ const firebaseLogin = async (req, res, next) => {
             dob,
             gender,
             approvalStatus: 'pending',
-            vehicle: { type: 'bike' } // Default placeholder required by schema
+            vehicleOwnership: req.body.vehicleOwnership || 'own',
+            vehicle: req.body.vehicleOwnership === 'company' ? { type: 'none', make: 'N/A', model: 'N/A', color: 'N/A', plateNumber: 'N/A' } : { type: 'bike' } // Default placeholder required by schema
           });
         } else {
           person = await User.create({

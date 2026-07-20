@@ -35,8 +35,9 @@ const registerDriverSchema = Joi.object({
   password: Joi.string().min(6).optional(),
   gender: Joi.string().valid('male', 'female', 'other').optional(),
   address: Joi.string().optional(),
+  vehicleOwnership: Joi.string().valid('own', 'company').default('own'),
   vehicle: Joi.object({
-    type: Joi.string().valid('bike', 'auto', 'mini', 'sedan', 'suv').required(),
+    type: Joi.string().valid('bike', 'auto', 'mini', 'sedan', 'suv', 'none').required(),
     make: Joi.string().required(),
     model: Joi.string().required(),
     year: Joi.number().integer().min(2000).max(new Date().getFullYear()).optional(),
@@ -44,7 +45,11 @@ const registerDriverSchema = Joi.object({
     plateType: Joi.string().valid('white', 'yellow').optional(),
     color: Joi.string().required(),
     capacity: Joi.number().integer().min(1).max(10).optional()
-  }).required(),
+  }).when('vehicleOwnership', {
+    is: 'own',
+    then: Joi.required(),
+    otherwise: Joi.optional().allow(null)
+  }),
   documents: Joi.object().optional().unknown(true),
   fcmToken: Joi.string().optional()
 });

@@ -110,12 +110,18 @@ const driverSchema = new mongoose.Schema({
       verified: { type: Boolean, default: false }
     }
   },
+  // Vehicle Ownership
+  vehicleOwnership: {
+    type: String,
+    enum: ['own', 'company'],
+    default: 'own'
+  },
   // Vehicle info
   vehicle: {
     type: {
       type: String,
-      enum: ['bike', 'auto', 'mini', 'sedan', 'suv'],
-      required: true
+      enum: ['bike', 'auto', 'mini', 'sedan', 'suv', 'none'], // added 'none' for company placeholder
+      required: function() { return this.vehicleOwnership === 'own'; }
     },
     make: { type: String, trim: true },
     model: { type: String, trim: true },
