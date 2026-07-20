@@ -17,70 +17,60 @@ const s3Client = new S3Client({
 
 const admin = require('../config/firebase');
 
-// Multer storage for memory (to upload to Firebase)
+// Multer storage for memory (to upload to S3)
 const upload = multer({ storage: multer.memoryStorage() });
 
-// Direct upload route for banners and other images to Firebase Storage
+// Helper to upload to S3
+const uploadToS3 = async (file, folder) => {
+    const bucket = process.env.AWS_S3_BUCKET_NAME;
+    if (!bucket) throw new Error('AWS_S3_BUCKET_NAME is not configured');
+    
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    const cleanOriginal = (file.originalname || 'upload').replace(/[^a-zA-Z0-9.]/g, '_');
+    const filename = `${folder}/${uniqueSuffix}-${cleanOriginal}`;
+
+    const command = new PutObjectCommand({
+        Bucket: bucket,
+        Key: filename,
+        Body: file.buffer,
+        ContentType: file.mimetype,
+    });
+
+    await s3Client.send(command);
+    
+    const region = process.env.AWS_REGION || 'ap-south-1';
+    return `https://${bucket}.s3.${region}.amazonaws.com/${filename}`;
+};
+
+// Direct upload route for banners and other images to S3
 router.post('/image', upload.single('image'), async (req, res) => {
     try {
         if (!req.file) {
             return res.status(400).json({ error: 'No image file uploaded' });
         }
 
-        const bucket = admin.storage().bucket();
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        const ext = path.extname(req.file.originalname) || '';
         const folder = req.body.folder || 'banners';
-        const filename = `${folder}/${uniqueSuffix}${ext}`;
-        const file = bucket.file(filename);
-
-        await file.save(req.file.buffer, {
-            metadata: {
-                contentType: req.file.mimetype,
-            }
-        });
-
-        // Generate a public URL that doesn't expire for ~100 years
-        const [url] = await file.getSignedUrl({
-            action: 'read',
-            expires: '01-01-2100'
-        });
+        const url = await uploadToS3(req.file, folder);
 
         res.json({ success: true, imageUrl: url });
     } catch (error) {
-        console.error('Error uploading image to Firebase:', error);
+        console.error('Error uploading image to S3:', error);
         res.status(500).json({ error: 'Failed to upload image' });
     }
 });
 
-// Direct upload route for documents to Firebase Storage
+// Direct upload route for documents to S3
 router.post('/document', upload.single('document'), async (req, res) => {
     try {
         if (!req.file) {
             return res.status(400).json({ error: 'No document file uploaded' });
         }
 
-        const bucket = admin.storage().bucket();
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        const ext = path.extname(req.file.originalname) || '';
-        const filename = `documents/${uniqueSuffix}${ext}`;
-        const file = bucket.file(filename);
-
-        await file.save(req.file.buffer, {
-            metadata: {
-                contentType: req.file.mimetype,
-            }
-        });
-
-        // Generate a public URL that doesn't expire for ~100 years
-        const [url] = await file.getSignedUrl({
-            action: 'read',
-            expires: '01-01-2100'
-        });
+        const url = await uploadToS3(req.file, 'documents');
 
         res.json({ success: true, fileUrl: url });
     } catch (error) {
-        console.error('Error uploading document to Firebase:', error);
+        console.error('Error uploading document to S3:', error);
         res.status(500).json({ error: 'Failed to upload document' });
     }
 });
