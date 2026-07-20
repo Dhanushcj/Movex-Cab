@@ -396,7 +396,14 @@ const firebaseLogin = async (req, res, next) => {
     let Model = role === 'driver' ? Driver : User;
 
     // Check if user exists
-    let person = await Model.findOne({ $or: [{ firebaseUid: uid }, { email: email }] });
+    let person;
+    const queryConds = [];
+    if (uid) queryConds.push({ firebaseUid: uid });
+    if (email) queryConds.push({ email: email });
+    
+    if (queryConds.length > 0) {
+      person = await Model.findOne({ $or: queryConds });
+    }
     console.log('Found person in DB:', person ? person._id : null);
 
     if (!person) {
