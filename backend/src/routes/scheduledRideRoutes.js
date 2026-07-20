@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const scheduledRideController = require('../controllers/scheduledRideController');
-const { protect } = require('../middleware/authMiddleware');
+const { protect } = require('../middleware/auth');
 
 // Protect all routes
 router.use(protect);
