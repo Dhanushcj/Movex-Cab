@@ -16,6 +16,7 @@ const bookingRoutes = require('./src/routes/bookingRoutes');
 const adminRoutes = require('./src/routes/adminRoutes');
 const { startCron } = require('./src/jobs/expiryNotifications');
 const { startPromoCron } = require('./src/jobs/promoNotifications');
+const { initScheduleWorker } = require('./src/services/scheduleWorker');
 
 const uploadRoutes = require('./src/routes/uploadRoutes');
 const publicRoutes = require('./src/routes/publicRoutes');
@@ -23,6 +24,7 @@ const paymentRoutes = require('./src/routes/paymentRoutes');
 const fareRoutes = require('./src/routes/fareRoutes');
 const subscriptionRoutes = require('./src/routes/subscriptionRoutes');
 const cronRoutes = require('./src/routes/cronRoutes');
+const scheduledRideRoutes = require('./src/routes/scheduledRideRoutes');
 
 const app = express();
 const server = http.createServer(app);
@@ -86,6 +88,7 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/public', publicRoutes);
 app.use('/api/subscriptions', subscriptionRoutes);
 app.use('/api/cron', cronRoutes);
+app.use('/api/scheduled-rides', scheduledRideRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -103,6 +106,7 @@ app.use(errorHandler);
 // Start Cron Jobs
 startCron();
 startPromoCron();
+initScheduleWorker();
 
 
 // Start server

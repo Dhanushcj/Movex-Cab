@@ -11,11 +11,9 @@ const API = axios.create({
 });
 
 // Request interceptor to attach JWT token
-API.interceptors.request.use(async (config) => {
+API.interceptors.request.use((config) => {
   try {
-    // Assuming you're using expo-secure-store here too, based on the codebase pattern
-    const { getItemAsync } = require('expo-secure-store');
-    const token = await getItemAsync('adminToken');
+    const token = localStorage.getItem('adminToken');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -37,8 +35,8 @@ API.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        const { getItemAsync, setItemAsync, deleteItemAsync } = require('expo-secure-store');
-        const refreshToken = await getItemAsync('refreshToken');
+
+        const refreshToken = localStorage.getItem('refreshToken');
         
         if (refreshToken) {
           const refreshResponse = await axios.post(`${API.defaults.baseURL}/auth/refresh`, {
@@ -48,8 +46,8 @@ API.interceptors.response.use(
           if (refreshResponse.data.success) {
             const { accessToken, refreshToken: newRefreshToken } = refreshResponse.data;
 
-            await setItemAsync('adminToken', accessToken);
-            await setItemAsync('refreshToken', newRefreshToken);
+            localStorage.setItem('adminToken', accessToken);
+            localStorage.setItem('refreshToken', newRefreshToken);
 
             originalRequest.headers.Authorization = `Bearer ${accessToken}`;
             return API(originalRequest);
@@ -57,10 +55,10 @@ API.interceptors.response.use(
         }
       } catch (refreshError) {
         console.error('Session expired. Please login again.', refreshError);
-        const { deleteItemAsync } = require('expo-secure-store');
-        await deleteItemAsync('adminToken');
-        await deleteItemAsync('refreshToken');
-        await deleteItemAsync('adminData');
+
+        localStorage.removeItem('adminToken');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('adminData');
       }
     }
 
