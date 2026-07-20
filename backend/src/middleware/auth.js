@@ -17,9 +17,13 @@ const protect = async (req, res, next) => {
     // Check if token is blacklisted in Redis
     const redisClient = getRedisClient();
     if (redisClient) {
-      const isBlacklisted = await redisClient.get(`bl_${token}`);
-      if (isBlacklisted) {
-        return res.status(401).json({ success: false, message: 'Token has been revoked. Please login again.' });
+      try {
+        const isBlacklisted = await redisClient.get(`bl_${token}`);
+        if (isBlacklisted) {
+          return res.status(401).json({ success: false, message: 'Token has been revoked. Please login again.' });
+        }
+      } catch (redisError) {
+        console.warn('Redis blacklist check failed:', redisError.message);
       }
     }
 
