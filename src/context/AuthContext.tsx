@@ -66,22 +66,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       let fcmToken = null;
       try {
-        const messaging = getMessaging();
-        const authStatus = await requestPermission(messaging);
-        const enabled =
-          authStatus === AuthorizationStatus.AUTHORIZED ||
-          authStatus === AuthorizationStatus.PROVISIONAL;
-        
-        if (enabled) {
-          // Add a 3-second timeout to prevent FCM from hanging indefinitely on emulators
-          const tokenPromise = getToken(messaging);
-          const timeoutPromise = new Promise((_, reject) => 
-            setTimeout(() => reject(new Error('FCM token timeout')), 3000)
-          );
-          fcmToken = await Promise.race([tokenPromise, timeoutPromise]);
-        } else {
-          console.log('Notification permission not granted');
-        }
+        const getFcmData = async () => {
+          const messaging = getMessaging();
+          const authStatus = await requestPermission(messaging);
+          const enabled =
+            authStatus === AuthorizationStatus.AUTHORIZED ||
+            authStatus === AuthorizationStatus.PROVISIONAL;
+          
+          if (enabled) {
+            return await getToken(messaging);
+          }
+          return null;
+        };
+
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('FCM completely timed out')), 4000)
+        );
+
+        fcmToken = await Promise.race([getFcmData(), timeoutPromise]);
       } catch(e) {
         console.warn('Failed to get FCM token', e);
       }
@@ -95,6 +97,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           return response.data; // Return { success: true, isNewUser: true, decodedUser }
         }
         await SecureStore.setItemAsync('userToken', response.data.token);
+        if (response.data.refreshToken) {
+          await SecureStore.setItemAsync('refreshToken', response.data.refreshToken);
+        }
         setUser(response.data.user);
         return true;
       }
@@ -237,6 +242,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const response = await API.post('/auth/login', { phone, password, role });
       if (response.data.success) {
         await SecureStore.setItemAsync('userToken', response.data.token);
+        if (response.data.refreshToken) {
+          await SecureStore.setItemAsync('refreshToken', response.data.refreshToken);
+        }
         setUser(response.data.user);
         return true;
       }
@@ -265,6 +273,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const response = await API.post('/auth/verify-otp', { phone, otp, role: 'customer', name });
       if (response.data.success) {
         await SecureStore.setItemAsync('userToken', response.data.token);
+        if (response.data.refreshToken) {
+          await SecureStore.setItemAsync('refreshToken', response.data.refreshToken);
+        }
         setUser(response.data.user);
         return true;
       }
@@ -298,6 +309,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = async () => {
     await SecureStore.deleteItemAsync('userToken');
+    await SecureStore.deleteItemAsync('refreshToken');
     setUser(null);
   };
 
@@ -339,6 +351,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const response = await API.post('/auth/login', { phone, password, role: 'driver' });
       if (response.data.success) {
         await SecureStore.setItemAsync('userToken', response.data.token);
+        if (response.data.refreshToken) {
+          await SecureStore.setItemAsync('refreshToken', response.data.refreshToken);
+        }
         setUser(response.data.user);
         return true;
       }

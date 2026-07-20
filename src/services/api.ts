@@ -2,8 +2,8 @@ import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
 
 const API = axios.create({
-  // baseURL: 'https://movex-cab.onrender.com/api', // Render Production Server
-  baseURL: 'http://192.168.1.28:5000/api', // Local Dev Server
+  baseURL: 'https://movex-cab.onrender.com/api', // Render Production Server
+  // baseURL: 'http://192.168.1.28:5000/api', // Local Dev Server
   headers: {
     'Content-Type': 'application/json'
   }
@@ -54,13 +54,15 @@ API.interceptors.response.use(
             originalRequest.headers.Authorization = `Bearer ${accessToken}`;
             return API(originalRequest);
           }
+        } else {
+          // No refresh token available, force logout
+          await SecureStore.deleteItemAsync('userToken');
         }
       } catch (refreshError) {
         console.error('Session expired. Please login again.', refreshError);
         // Clear secure store to force logout
         await SecureStore.deleteItemAsync('userToken');
         await SecureStore.deleteItemAsync('refreshToken');
-        await SecureStore.deleteItemAsync('userData');
       }
     }
 

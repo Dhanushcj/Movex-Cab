@@ -234,6 +234,16 @@ function NavigationRoot() {
 
   // Foreground notification handler
   useEffect(() => {
+    // Configure Android notification channel
+    if (require('react-native').Platform.OS === 'android') {
+      Notifications.setNotificationChannelAsync('default', {
+        name: 'default',
+        importance: Notifications.AndroidImportance.MAX,
+        vibrationPattern: [0, 250, 250, 250],
+        lightColor: '#00C896',
+      });
+    }
+
     const messaging = getMessaging();
     const unsubscribe = onMessage(messaging, async (remoteMessage: any) => {
       console.log('A new FCM message arrived in foreground!', remoteMessage);
@@ -280,8 +290,8 @@ function NavigationRoot() {
 
   return (
     <View style={styles.container}>
-      <NavigationContainer>
-        <Stack.Navigator key={initialRoute} initialRouteName={initialRoute} screenOptions={{ headerShown: false, animation: 'slide_from_right' }}>
+      <NavigationContainer key={initialRoute}>
+        <Stack.Navigator initialRouteName={initialRoute} screenOptions={{ headerShown: false, animation: 'slide_from_right' }}>
           
           <Stack.Screen name="Onboarding">
             {(props) => (

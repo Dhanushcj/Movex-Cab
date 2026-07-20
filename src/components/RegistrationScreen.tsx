@@ -95,6 +95,7 @@ export default function RegistrationScreen({ onBack, prefillData = null, isCorre
   const [email, setEmail] = useState(prefillData?.email || '');
   const [selectedState, setSelectedState] = useState(prefillData?.address?.split(', ')[1] || '');
   const [city, setCity] = useState(prefillData?.address?.split(', ')[0] || '');
+  const [vehicleOwnership, setVehicleOwnership] = useState<'own' | 'company'>(prefillData?.vehicleOwnership || 'own');
 
   const [vehicleType, setVehicleType] = useState(prefillData?.vehicle?.type || '');
   const [vehicleMake, setVehicleMake] = useState(prefillData?.vehicle?.make || '');
@@ -148,8 +149,13 @@ export default function RegistrationScreen({ onBack, prefillData = null, isCorre
 
   const nextStep = () => {
     if (step === 1) {
-      if (!name || !phone || !password || !selectedState || !city || !vehicleType || !vehicleMake || !vehicleModel || !vehicleColor || !plateNumber || !plateType) {
-        return Alert.alert('Error', 'Please fill all mandatory fields in Step 1');
+      if (!name || !phone || !password || !selectedState || !city) {
+        return Alert.alert('Error', 'Please fill all mandatory personal details in Step 1');
+      }
+      if (vehicleOwnership === 'own') {
+        if (!vehicleType || !vehicleMake || !vehicleModel || !vehicleColor || !plateNumber || !plateType) {
+          return Alert.alert('Error', 'Please fill all mandatory vehicle fields in Step 1');
+        }
       }
       setStep(2);
     } else if (step === 2) {
@@ -164,29 +170,36 @@ export default function RegistrationScreen({ onBack, prefillData = null, isCorre
       if (gender === 'male' && dlType === 'MCW0G') {
         return Alert.alert('Not Eligible', 'You are not eligible. It should be eligible only to Females.');
       }
-      if ((dlType === 'MCWG' || dlType === 'MCW0G') && vehicleType !== 'bike') {
+      if ((dlType === 'MCWG' || dlType === 'MCW0G') && vehicleOwnership === 'own' && vehicleType !== 'bike') {
         return Alert.alert('Not Eligible', 'You are not eligible for this Vehicle type.');
       }
 
-      setStep(3);
+      if (vehicleOwnership === 'company') {
+        submitRegistration();
+      } else {
+        setStep(3);
+      }
     }
   };
 
   const submitRegistration = async () => {
-    if (!rcNumber || !rcUrl) return Alert.alert('Error', 'RC Details are mandatory');
-    if (!insNumber || !insExpiry || !insUrl) return Alert.alert('Error', 'Insurance Details are mandatory');
-    
-    if (plateType === 'yellow') {
-      if (!permitNumber || !permitType || !permitExpiry || !permitUrl) return Alert.alert('Error', 'Permit details are mandatory for Yellow board');
-      if (!fcExpiry || !fcUrl) return Alert.alert('Error', 'FC details are mandatory for Yellow board');
-      if (!taxExpiry || !taxUrl) return Alert.alert('Error', 'Tax details are mandatory for Yellow board');
+    if (vehicleOwnership === 'own') {
+      if (!rcNumber || !rcUrl) return Alert.alert('Error', 'RC Details are mandatory');
+      if (!insNumber || !insExpiry || !insUrl) return Alert.alert('Error', 'Insurance Details are mandatory');
+      
+      if (plateType === 'yellow') {
+        if (!permitNumber || !permitType || !permitExpiry || !permitUrl) return Alert.alert('Error', 'Permit details are mandatory for Yellow board');
+        if (!fcExpiry || !fcUrl) return Alert.alert('Error', 'FC details are mandatory for Yellow board');
+        if (!taxExpiry || !taxUrl) return Alert.alert('Error', 'Tax details are mandatory for Yellow board');
+      }
     }
 
     setLoading(true);
 
     const payload = {
       name, phone, password, gender, address: `${city}, ${selectedState}`, email,
-      vehicle: {
+      vehicleOwnership,
+      vehicle: vehicleOwnership === 'company' ? undefined : {
         type: vehicleType,
         make: vehicleMake,
         model: vehicleModel,
@@ -199,11 +212,13 @@ export default function RegistrationScreen({ onBack, prefillData = null, isCorre
         aadhaar: { number: aadhaarNumber, url: aadhaarUrl },
         pan: { number: panNumber, url: panUrl },
         drivingLicense: { number: dlNumber, url: dlUrl, expiryDate: dlExpiry, type: dlType },
-        vehicleRC: { number: rcNumber, url: rcUrl },
-        insurance: { number: insNumber, url: insUrl, expiryDate: insExpiry },
-        permit: plateType === 'yellow' ? { number: permitNumber, type: permitType, expiryDate: permitExpiry, url: permitUrl } : undefined,
-        fitnessCertificate: plateType === 'yellow' ? { expiryDate: fcExpiry, url: fcUrl } : undefined,
-        taxReceipt: plateType === 'yellow' ? { expiryDate: taxExpiry, url: taxUrl } : undefined,
+        ...(vehicleOwnership === 'own' ? {
+          vehicleRC: { number: rcNumber, url: rcUrl },
+          insurance: { number: insNumber, url: insUrl, expiryDate: insExpiry },
+          permit: plateType === 'yellow' ? { number: permitNumber, type: permitType, expiryDate: permitExpiry, url: permitUrl } : undefined,
+          fitnessCertificate: plateType === 'yellow' ? { expiryDate: fcExpiry, url: fcUrl } : undefined,
+          taxReceipt: plateType === 'yellow' ? { expiryDate: taxExpiry, url: taxUrl } : undefined,
+        } : {})
       }
     };
 
@@ -383,17 +398,24 @@ export default function RegistrationScreen({ onBack, prefillData = null, isCorre
             <Text style={styles.inputLabel}>Gender</Text>
             {renderRadio(['male', 'female', 'other'], gender, setGender)}
 
-            <Text style={styles.sectionTitle}>Vehicle Details</Text>
-            <Text style={styles.label}>Vehicle Type</Text>
-            {renderRadio(['bike', 'auto', 'mini', 'sedan', 'suv'], vehicleType, handleVehicleTypeChange)}
-            
-            <TextInput style={styles.input} placeholder="Vehicle Make (e.g. Maruti)" placeholderTextColor={Colors.textSecondary} value={vehicleMake} onChangeText={setVehicleMake} />
-            <TextInput style={styles.input} placeholder="Vehicle Model (e.g. Swift)" placeholderTextColor={Colors.textSecondary} value={vehicleModel} onChangeText={setVehicleModel} />
-            <TextInput style={styles.input} placeholder="Vehicle Color" placeholderTextColor={Colors.textSecondary} value={vehicleColor} onChangeText={setVehicleColor} />
-            <TextInput style={styles.input} placeholder="Vehicle Number (e.g. TN01XX1234)" placeholderTextColor={Colors.textSecondary} value={plateNumber} onChangeText={setPlateNumber} autoCapitalize="characters" />
-            
-            <Text style={styles.label}>Plate Type</Text>
-            {renderPlateRadio()}
+            <Text style={styles.inputLabel}>Vehicle Ownership</Text>
+            {renderRadio(['own', 'company'], vehicleOwnership, setVehicleOwnership)}
+
+            {vehicleOwnership === 'own' && (
+              <>
+                <Text style={styles.sectionTitle}>Vehicle Details</Text>
+                <Text style={styles.label}>Vehicle Type</Text>
+                {renderRadio(['bike', 'auto', 'mini', 'sedan', 'suv'], vehicleType, handleVehicleTypeChange)}
+                
+                <TextInput style={styles.input} placeholder="Vehicle Make (e.g. Maruti)" placeholderTextColor={Colors.textSecondary} value={vehicleMake} onChangeText={setVehicleMake} />
+                <TextInput style={styles.input} placeholder="Vehicle Model (e.g. Swift)" placeholderTextColor={Colors.textSecondary} value={vehicleModel} onChangeText={setVehicleModel} />
+                <TextInput style={styles.input} placeholder="Vehicle Color" placeholderTextColor={Colors.textSecondary} value={vehicleColor} onChangeText={setVehicleColor} />
+                <TextInput style={styles.input} placeholder="Vehicle Number (e.g. TN01XX1234)" placeholderTextColor={Colors.textSecondary} value={plateNumber} onChangeText={setPlateNumber} autoCapitalize="characters" />
+                
+                <Text style={styles.label}>Plate Type</Text>
+                {renderPlateRadio()}
+              </>
+            )}
           </View>
         )}
 
@@ -419,7 +441,7 @@ export default function RegistrationScreen({ onBack, prefillData = null, isCorre
           </View>
         )}
 
-        {step === 3 && (
+        {step === 3 && vehicleOwnership === 'own' && (
           <View style={styles.stepBlock}>
             <Text style={styles.sectionTitle}>Vehicle Documents</Text>
             
@@ -456,12 +478,12 @@ export default function RegistrationScreen({ onBack, prefillData = null, isCorre
             </TouchableOpacity>
           ) : <View style={{ flex: 1 }} />}
           
-          {step < 3 ? (
+          {step === 1 || (step === 2 && vehicleOwnership === 'own') ? (
             <TouchableOpacity style={styles.navBtnPrimary} onPress={nextStep}>
               <Text style={styles.navBtnPrimaryText}>Next</Text>
             </TouchableOpacity>
           ) : (
-            <TouchableOpacity style={styles.navBtnPrimary} onPress={submitRegistration} disabled={loading}>
+            <TouchableOpacity style={styles.navBtnPrimary} onPress={step === 2 && vehicleOwnership === 'company' ? nextStep : submitRegistration} disabled={loading}>
               {loading ? <ActivityIndicator color={Colors.bgSecondary} /> : <Text style={styles.navBtnPrimaryText}>{isCorrection ? 'Submit Correction' : 'Submit Application'}</Text>}
             </TouchableOpacity>
           )}
