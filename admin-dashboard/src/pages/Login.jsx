@@ -22,6 +22,7 @@ const Login = ({ onLoginSuccess }) => {
 
       if (response.data.success) {
         localStorage.setItem('adminToken', response.data.token);
+        localStorage.setItem('refreshToken', response.data.refreshToken);
         onLoginSuccess();
       } else {
         setError('Login failed. Please verify credentials.');

@@ -43,7 +43,11 @@ API.interceptors.response.use(
 
             originalRequest.headers.Authorization = `Bearer ${accessToken}`;
             return API(originalRequest);
+          } else {
+            throw new Error('Refresh failed');
           }
+        } else {
+          throw new Error('No refresh token');
         }
       } catch (refreshError) {
         console.error('Session expired. Please login again.', refreshError);
