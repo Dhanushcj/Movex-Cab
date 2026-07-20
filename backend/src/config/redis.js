@@ -5,7 +5,7 @@ let redisClient;
 const connectRedis = async () => {
   try {
     redisClient = createClient({
-      url: process.env.REDIS_URL || 'redis://localhost:6379',
+      url: process.env.REDIS_URL || 'redis://default:T3PnQ7gYyOlltt3ROmaLB6lsFJyw62IX@organic-supersmooth-honorable-63504.db.redis.io:10451',
       socket: {
         reconnectStrategy: (retries) => {
           if (retries > 3) {
