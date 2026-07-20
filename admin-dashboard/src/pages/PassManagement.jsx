@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { FiEdit2, FiSave, FiX, FiCheck } from 'react-icons/fi';
-import toast from 'react-hot-toast';
+import { Pencil, Save, X, Check } from 'lucide-react';
+
 
 const PassManagement = () => {
   const [passes, setPasses] = useState([]);
@@ -16,14 +16,14 @@ const PassManagement = () => {
   const fetchPasses = async () => {
     try {
       setLoading(true);
-      const res = await axios.get('http://localhost:5000/api/admin/passes', {
+      const res = await axios.get('https://movex-cab.onrender.com/api/admin/passes', {
         headers: { Authorization: `Bearer ${localStorage.getItem('adminToken')}` }
       });
       if (res.data.success) {
         setPasses(res.data.data);
       }
     } catch (err) {
-      toast.error('Failed to load passes');
+      alert('Failed to load passes');
     } finally {
       setLoading(false);
     }
@@ -41,19 +41,19 @@ const PassManagement = () => {
   const handleSave = async (id) => {
     try {
       const res = await axios.put(
-        `http://localhost:5000/api/admin/passes/${id}`,
+        `https://movex-cab.onrender.com/api/admin/passes/${id}`,
         editForm,
         {
           headers: { Authorization: `Bearer ${localStorage.getItem('adminToken')}` }
         }
       );
       if (res.data.success) {
-        toast.success('Pass updated successfully');
+        alert('Pass updated successfully');
         setEditingId(null);
         fetchPasses();
       }
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to update pass');
+      alert(err.response?.data?.message || 'Failed to update pass');
     }
   };
 
@@ -119,13 +119,13 @@ const PassManagement = () => {
                       onClick={() => handleSave(pass._id)}
                       className="flex-1 bg-blue-600 text-white rounded-lg py-2 flex items-center justify-center space-x-2"
                     >
-                      <FiSave /> <span>Save</span>
+                      <Save /> <span>Save</span>
                     </button>
                     <button
                       onClick={() => setEditingId(null)}
                       className="flex-1 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg py-2 flex items-center justify-center space-x-2"
                     >
-                      <FiX /> <span>Cancel</span>
+                      <X /> <span>Cancel</span>
                     </button>
                   </div>
                 </div>
@@ -138,15 +138,15 @@ const PassManagement = () => {
 
                   <div className="space-y-2 mb-6">
                     <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                      <FiCheck className="text-green-500 mr-2" />
+                      <Check className="text-green-500 mr-2" />
                       Priority: {pass.benefits.priorityBooking ? 'Yes' : 'No'}
                     </div>
                     <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                      <FiCheck className="text-green-500 mr-2" />
+                      <Check className="text-green-500 mr-2" />
                       Cancellations: {pass.benefits.freeCancellations === -1 ? 'Unlimited' : pass.benefits.freeCancellations}
                     </div>
                     <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                      <FiCheck className="text-green-500 mr-2" />
+                      <Check className="text-green-500 mr-2" />
                       Wait time: {pass.benefits.freeWaitTimeMinutes} mins
                     </div>
                   </div>
@@ -155,7 +155,7 @@ const PassManagement = () => {
                     onClick={() => startEditing(pass)}
                     className="w-full border border-gray-200 dark:border-gray-700 rounded-lg py-2 flex items-center justify-center space-x-2 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
                   >
-                    <FiEdit2 /> <span>Edit Pass</span>
+                    <Pencil /> <span>Edit Pass</span>
                   </button>
                 </>
               )}
