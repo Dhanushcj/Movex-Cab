@@ -8,6 +8,7 @@ const Drivers = () => {
   const [selectedDriver, setSelectedDriver] = useState(null);
   const [rejectReason, setRejectReason] = useState('');
   const [processing, setProcessing] = useState(false);
+  const [uploadingDoc, setUploadingDoc] = useState(null);
   
   // Search & Filter
   const [searchTerm, setSearchTerm] = useState('');
@@ -18,13 +19,55 @@ const Drivers = () => {
     employeeId: '',
     vehicle: { make: '', model: '', year: '', plateNumber: '', color: '', type: 'bike' },
     documents: {
-      drivingLicense: { expiryDate: '', number: '' },
-      vehicleRC: { expiryDate: '', number: '' },
-      insurance: { expiryDate: '', number: '' },
-      permit: { expiryDate: '', number: '' },
-      fitnessCertificate: { expiryDate: '', number: '' }
+      profilePhoto: { url: '' },
+      drivingLicense: { expiryDate: '', number: '', url: '' },
+      vehicleRC: { expiryDate: '', number: '', url: '' },
+      insurance: { expiryDate: '', number: '', url: '' },
+      permit: { expiryDate: '', number: '', url: '' },
+      fitnessCertificate: { expiryDate: '', number: '', url: '' }
     }
   });
+
+  
+  const handleFileUpload = async (e, docKey) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setUploadingDoc(docKey);
+    const formData = new FormData();
+    const isImage = file.type.startsWith('image/');
+    formData.append(isImage ? 'image' : 'document', file);
+    if (isImage) formData.append('folder', 'documents');
+
+    try {
+      const endpoint = isImage ? '/upload/image' : '/upload/document';
+      const res = await API.post(endpoint, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      if (res.data.success) {
+        const fileUrl = res.data.imageUrl || res.data.fileUrl;
+        
+        if (docKey === 'profilePhoto') {
+          setEditForm(prev => ({
+            ...prev,
+            documents: { ...prev.documents, profilePhoto: { url: fileUrl } }
+          }));
+        } else {
+          setEditForm(prev => ({
+            ...prev,
+            documents: {
+              ...prev.documents,
+              [docKey]: { ...prev.documents[docKey], url: fileUrl }
+            }
+          }));
+        }
+      }
+    } catch (err) {
+      alert('Failed to upload document');
+    } finally {
+      setUploadingDoc(null);
+    }
+  };
 
   const handleEditClick = (driver) => {
     setSelectedDriver(driver);
@@ -39,25 +82,31 @@ const Drivers = () => {
         type: driver.vehicle?.type || 'bike' 
       },
       documents: {
+        profilePhoto: { url: driver.documents?.profilePhoto?.url || '' },
         drivingLicense: { 
           expiryDate: driver.documents?.drivingLicense?.expiryDate ? new Date(driver.documents.drivingLicense.expiryDate).toISOString().split('T')[0] : '',
-          number: driver.documents?.drivingLicense?.number || ''
+          number: driver.documents?.drivingLicense?.number || '',
+          url: driver.documents?.drivingLicense?.url || ''
         },
         vehicleRC: { 
           expiryDate: driver.documents?.vehicleRC?.expiryDate ? new Date(driver.documents.vehicleRC.expiryDate).toISOString().split('T')[0] : '',
-          number: driver.documents?.vehicleRC?.number || ''
+          number: driver.documents?.vehicleRC?.number || '',
+          url: driver.documents?.vehicleRC?.url || ''
         },
         insurance: { 
           expiryDate: driver.documents?.insurance?.expiryDate ? new Date(driver.documents.insurance.expiryDate).toISOString().split('T')[0] : '',
-          number: driver.documents?.insurance?.number || ''
+          number: driver.documents?.insurance?.number || '',
+          url: driver.documents?.insurance?.url || ''
         },
         permit: { 
           expiryDate: driver.documents?.permit?.expiryDate ? new Date(driver.documents.permit.expiryDate).toISOString().split('T')[0] : '',
-          number: driver.documents?.permit?.number || ''
+          number: driver.documents?.permit?.number || '',
+          url: driver.documents?.permit?.url || ''
         },
         fitnessCertificate: { 
           expiryDate: driver.documents?.fitnessCertificate?.expiryDate ? new Date(driver.documents.fitnessCertificate.expiryDate).toISOString().split('T')[0] : '',
-          number: driver.documents?.fitnessCertificate?.number || ''
+          number: driver.documents?.fitnessCertificate?.number || '',
+          url: driver.documents?.fitnessCertificate?.url || ''
         }
       }
     });
@@ -368,11 +417,17 @@ const Drivers = () => {
                     <div className="p-3 bg-indigo-100/50 rounded-lg border border-[var(--border-glass)] space-y-3 md:col-span-2">
                       <div className="flex justify-between items-center">
                         <span className="text-xs font-semibold text-[var(--text-muted)] uppercase">Passport Size Photo</span>
-                        <a href={`https://movex-cab.onrender.com${selectedDriver.documents.profilePhoto.url}`} target="_blank" rel="noreferrer" className="text-xs text-indigo-700 flex items-center hover:underline">
-                          <ExternalLink className="w-3 h-3 mr-1" /> View Image
-                        </a>
+                        <div className="flex items-center">
+                          <a href={editForm.documents?.profilePhoto?.url || selectedDriver.documents?.profilePhoto?.url} target="_blank" rel="noreferrer" className="text-xs text-indigo-700 flex items-center hover:underline">
+                            <ExternalLink className="w-3 h-3 mr-1" /> View Image
+                          </a>
+                          <label className="cursor-pointer text-xs text-indigo-600 hover:text-indigo-800 flex items-center ml-3 border border-indigo-200 bg-white px-2 py-1 rounded-md shadow-sm">
+                            {uploadingDoc === 'profilePhoto' ? '...' : 'Upload'}
+                            <input type="file" className="hidden" onChange={(e) => handleFileUpload(e, 'profilePhoto')} accept=".jpg,.jpeg,.png,.pdf" disabled={uploadingDoc === 'profilePhoto'} />
+                          </label>
+                        </div>
                       </div>
-                      <img src={selectedDriver.documents.profilePhoto.url.startsWith('http') ? selectedDriver.documents.profilePhoto.url : `https://movex-cab.onrender.com${selectedDriver.documents.profilePhoto.url}`} className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-sm" alt="Profile" />
+                      <img src={(editForm.documents?.profilePhoto?.url || selectedDriver.documents.profilePhoto.url).startsWith('http') ? selectedDriver.documents.profilePhoto.url : ((editForm.documents?.profilePhoto?.url || selectedDriver.documents.profilePhoto.url).startsWith("http") ? (editForm.documents?.profilePhoto?.url || selectedDriver.documents.profilePhoto.url) : `https://movex-cab.onrender.com${editForm.documents?.profilePhoto?.url || selectedDriver.documents.profilePhoto.url}`)} className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-sm" alt="Profile" />
                     </div>
                   )}
                   {/* Driving License */}
@@ -380,9 +435,15 @@ const Drivers = () => {
                     <div className="flex justify-between items-center">
                       <span className="text-xs font-semibold text-[var(--text-muted)] uppercase">Driving License</span>
                       {selectedDriver.documents?.drivingLicense?.url && (
-                        <a href={`https://movex-cab.onrender.com${selectedDriver.documents.drivingLicense.url}`} target="_blank" rel="noreferrer" className="text-xs text-indigo-700 flex items-center hover:underline">
-                          <ExternalLink className="w-3 h-3 mr-1" /> View Image
-                        </a>
+                        <div className="flex items-center">
+                          <a href={editForm.documents?.drivingLicense?.url || selectedDriver.documents?.drivingLicense?.url} target="_blank" rel="noreferrer" className="text-xs text-indigo-700 flex items-center hover:underline">
+                            <ExternalLink className="w-3 h-3 mr-1" /> View Image
+                          </a>
+                          <label className="cursor-pointer text-xs text-indigo-600 hover:text-indigo-800 flex items-center ml-3 border border-indigo-200 bg-white px-2 py-1 rounded-md shadow-sm">
+                            {uploadingDoc === 'drivingLicense' ? '...' : 'Upload'}
+                            <input type="file" className="hidden" onChange={(e) => handleFileUpload(e, 'drivingLicense')} accept=".jpg,.jpeg,.png,.pdf" disabled={uploadingDoc === 'drivingLicense'} />
+                          </label>
+                        </div>
                       )}
                     </div>
                     <div>
@@ -399,9 +460,15 @@ const Drivers = () => {
                     <div className="flex justify-between items-center">
                       <span className="text-xs font-semibold text-[var(--text-muted)] uppercase">Vehicle RC</span>
                       {selectedDriver.documents?.vehicleRC?.url && (
-                        <a href={`https://movex-cab.onrender.com${selectedDriver.documents.vehicleRC.url}`} target="_blank" rel="noreferrer" className="text-xs text-indigo-700 flex items-center hover:underline">
-                          <ExternalLink className="w-3 h-3 mr-1" /> View Image
-                        </a>
+                        <div className="flex items-center">
+                          <a href={editForm.documents?.vehicleRC?.url || selectedDriver.documents?.vehicleRC?.url} target="_blank" rel="noreferrer" className="text-xs text-indigo-700 flex items-center hover:underline">
+                            <ExternalLink className="w-3 h-3 mr-1" /> View Image
+                          </a>
+                          <label className="cursor-pointer text-xs text-indigo-600 hover:text-indigo-800 flex items-center ml-3 border border-indigo-200 bg-white px-2 py-1 rounded-md shadow-sm">
+                            {uploadingDoc === 'vehicleRC' ? '...' : 'Upload'}
+                            <input type="file" className="hidden" onChange={(e) => handleFileUpload(e, 'vehicleRC')} accept=".jpg,.jpeg,.png,.pdf" disabled={uploadingDoc === 'vehicleRC'} />
+                          </label>
+                        </div>
                       )}
                     </div>
                     <div>
@@ -416,7 +483,20 @@ const Drivers = () => {
                   {/* Insurance */}
                   <div className="p-3 bg-indigo-100/50 rounded-lg border border-[var(--border-glass)] space-y-3">
                     <div className="flex justify-between items-center">
-                      <span className="text-xs font-semibold text-[var(--text-muted)] uppercase">Insurance</span>
+                      <div className="flex items-center w-full justify-between">
+                        <div className="flex flex-col gap-1">
+                          <span className="text-xs font-semibold text-[var(--text-muted)] uppercase">Insurance</span>
+                          {(editForm.documents?.insurance?.url || selectedDriver.documents?.insurance?.url) && (
+                            <a href={editForm.documents?.insurance?.url || selectedDriver.documents?.insurance?.url} target="_blank" rel="noreferrer" className="text-xs text-indigo-700 flex items-center hover:underline">
+                              <ExternalLink className="w-3 h-3 mr-1" /> View Document
+                            </a>
+                          )}
+                        </div>
+                        <label className="cursor-pointer text-xs text-indigo-600 hover:text-indigo-800 flex items-center ml-3 border border-indigo-200 bg-white px-2 py-1 rounded-md shadow-sm">
+                            {uploadingDoc === 'insurance' ? '...' : 'Upload'}
+                            <input type="file" className="hidden" onChange={(e) => handleFileUpload(e, 'insurance')} accept=".jpg,.jpeg,.png,.pdf" disabled={uploadingDoc === 'insurance'} />
+                          </label>
+                      </div>
                     </div>
                     <div>
                       <label className="text-[10px] uppercase text-[var(--text-muted)] block mb-1">Doc Number</label>
@@ -430,7 +510,20 @@ const Drivers = () => {
                   {/* Permit */}
                   <div className="p-3 bg-indigo-100/50 rounded-lg border border-[var(--border-glass)] space-y-3">
                     <div className="flex justify-between items-center">
-                      <span className="text-xs font-semibold text-[var(--text-muted)] uppercase">Permit</span>
+                      <div className="flex items-center w-full justify-between">
+                        <div className="flex flex-col gap-1">
+                          <span className="text-xs font-semibold text-[var(--text-muted)] uppercase">Permit</span>
+                          {(editForm.documents?.permit?.url || selectedDriver.documents?.permit?.url) && (
+                            <a href={editForm.documents?.permit?.url || selectedDriver.documents?.permit?.url} target="_blank" rel="noreferrer" className="text-xs text-indigo-700 flex items-center hover:underline">
+                              <ExternalLink className="w-3 h-3 mr-1" /> View Document
+                            </a>
+                          )}
+                        </div>
+                        <label className="cursor-pointer text-xs text-indigo-600 hover:text-indigo-800 flex items-center ml-3 border border-indigo-200 bg-white px-2 py-1 rounded-md shadow-sm">
+                            {uploadingDoc === 'permit' ? '...' : 'Upload'}
+                            <input type="file" className="hidden" onChange={(e) => handleFileUpload(e, 'permit')} accept=".jpg,.jpeg,.png,.pdf" disabled={uploadingDoc === 'permit'} />
+                          </label>
+                      </div>
                     </div>
                     <div>
                       <label className="text-[10px] uppercase text-[var(--text-muted)] block mb-1">Doc Number</label>
@@ -444,7 +537,20 @@ const Drivers = () => {
                   {/* FC */}
                   <div className="p-3 bg-indigo-100/50 rounded-lg border border-[var(--border-glass)] space-y-3">
                     <div className="flex justify-between items-center">
-                      <span className="text-xs font-semibold text-[var(--text-muted)] uppercase">Fitness Certificate (FC)</span>
+                      <div className="flex items-center w-full justify-between">
+                        <div className="flex flex-col gap-1">
+                          <span className="text-xs font-semibold text-[var(--text-muted)] uppercase">Fitness Certificate (FC)</span>
+                          {(editForm.documents?.fitnessCertificate?.url || selectedDriver.documents?.fitnessCertificate?.url) && (
+                            <a href={editForm.documents?.fitnessCertificate?.url || selectedDriver.documents?.fitnessCertificate?.url} target="_blank" rel="noreferrer" className="text-xs text-indigo-700 flex items-center hover:underline">
+                              <ExternalLink className="w-3 h-3 mr-1" /> View Document
+                            </a>
+                          )}
+                        </div>
+                        <label className="cursor-pointer text-xs text-indigo-600 hover:text-indigo-800 flex items-center ml-3 border border-indigo-200 bg-white px-2 py-1 rounded-md shadow-sm">
+                            {uploadingDoc === 'fitnessCertificate' ? '...' : 'Upload'}
+                            <input type="file" className="hidden" onChange={(e) => handleFileUpload(e, 'fitnessCertificate')} accept=".jpg,.jpeg,.png,.pdf" disabled={uploadingDoc === 'fitnessCertificate'} />
+                          </label>
+                      </div>
                     </div>
                     <div>
                       <label className="text-[10px] uppercase text-[var(--text-muted)] block mb-1">Doc Number</label>
