@@ -48,6 +48,7 @@ import * as DocumentPicker from 'expo-document-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import SlideToStartScreen from './src/components/SlideToStartScreen';
 import TripCompletedPaymentSheet from './src/components/TripCompletedPaymentSheet';
+import CustomerPaymentOptionsSheet from './src/components/CustomerPaymentOptionsSheet';
 import CustomerInRideOptions from './src/components/CustomerInRideOptions';
 import CustomerBookedRideSheet from './src/components/CustomerBookedRideSheet';
 import DriverWalletScreen from './src/components/DriverWalletScreen';
@@ -57,7 +58,8 @@ import AuthScreen from './src/components/AuthScreen';
 import OnboardingScreen from './src/components/OnboardingScreen';
 import RegistrationScreen from './src/components/RegistrationScreen';
 import ProfileScreen from './src/components/ProfileScreen';
-import CommutePassConfigScreen from './src/components/CommutePassConfigScreen';
+import PassPurchaseScreen from './src/components/PassPurchaseScreen';
+import DashboardUI from './src/components/DashboardUI';
 
 const schedulePassNotifications = async (passes: any[]) => {
   try {
@@ -118,6 +120,10 @@ import LanguageScreen from './src/components/LanguageScreen';
 import DriverHistoryScreen from './src/components/DriverHistoryScreen';
 import DriverAchievementsScreen from './src/components/DriverAchievementsScreen';
 import AdminDashboardScreen from './src/components/AdminDashboardScreen';
+import ScheduleRideScreen from './src/components/ScheduleRideScreen';
+import ScheduleConfirmScreen from './src/components/ScheduleConfirmScreen';
+// Force TS Reload
+import MyPassScreen from './src/components/MyPassScreen';
 import CustomerWalletScreen from './src/components/CustomerWalletScreen';
 import EmergencyScreen from './src/components/EmergencyScreen';
 import NotificationScreen from './src/components/NotificationScreen';
@@ -170,9 +176,11 @@ const LIGHT_MAP_STYLE = [
 ];
 
 export const getVehicle3DIcon = (type: string) => {
-  if (type === 'bike') return require('./assets/3d_bike_icon.png');
-  if (type === 'auto') return require('./assets/3d_auto_icon.png');
-  return require('./assets/3d_car_icon.png');
+  if (type === 'bike') return require('./assets/bike_realistic.png');
+  if (type === 'auto') return require('./assets/auto_realistic.png');
+  if (type === 'sedan') return require('./assets/sedan_realistic.png');
+  if (type === 'suv') return require('./assets/suv_realistic.png');
+  return require('./assets/mini_realistic.png');
 };
 
 type RootStackParamList = {
@@ -189,6 +197,7 @@ type RootStackParamList = {
   DriverAchievements: undefined;
   DriverWallet: undefined;
   AdminDashboard: undefined;
+  PassPurchase: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -209,10 +218,12 @@ function NavigationRoot() {
         setInitialRoute('Register');
       } else {
         setInitialRoute('Home');
-        API.get('/subscriptions').then(r => { 
-          if(r.data.success) {
-            setActivePasses(r.data.data);
-            schedulePassNotifications(r.data.data);
+        API.get('/subscriptions/my-pass').then(r => { 
+          if(r.data.success && r.data.data) {
+            setActivePasses([r.data.data]);
+            schedulePassNotifications([r.data.data]);
+          } else {
+            setActivePasses([]);
           }
         }).catch(()=>{});
       }
@@ -309,7 +320,7 @@ function NavigationRoot() {
               user?.role === 'customer' ? (
                 <HomeScreen 
                   onRideBooked={(booking: any) => props.navigation.navigate('Tracking', { ride: booking })} 
-                  onNavigateProfileEdit={() => props.navigation.navigate('DriverProfileEdit')} 
+                  onNavigateProfile={() => props.navigation.navigate('DriverProfile')} 
                   onNavigateLanguage={() => props.navigation.navigate('CustomerLanguage')}
                   activePasses={activePasses}
                 />
@@ -346,6 +357,20 @@ function NavigationRoot() {
                 onBack={() => props.navigation.goBack()} 
                 onEditProfile={() => props.navigation.navigate('DriverProfileEdit')}
                 onNavigateLanguage={() => props.navigation.navigate('DriverLanguage')}
+                activePasses={activePasses}
+                onOpenPassConfig={() => props.navigation.navigate('PassPurchase')}
+              />
+            )}
+          </Stack.Screen>
+
+          <Stack.Screen name="PassPurchase">
+            {(props) => (
+              <PassPurchaseScreen
+                onBack={() => props.navigation.goBack()}
+                onPassPurchased={() => {
+                  props.navigation.goBack();
+                  API.get('/subscriptions').catch(()=>{});
+                }}
               />
             )}
           </Stack.Screen>
@@ -579,96 +604,25 @@ function LocationPickerScreen({
   };
 
   const handleConfirm = () => {
+    const finalPickupData = { ...pickupData, address: pickupData.address && pickupData.address !== 'Finding location...' ? pickupData.address : 'Selected Pickup Location' };
+    const finalDropData = { ...dropData, address: dropData.address ? dropData.address : 'Selected Drop Location' };
+
     if (activeField === 'pickup') {
       if (!pickupData.coordinates.length) return Alert.alert('Missing Location', 'Please select a pickup location');
+      // Update pickup data with fallback just in case before switching
+      setPickupData(finalPickupData);
       handleFieldSwitch('drop');
     } else {
       if (!dropData.coordinates.length) return Alert.alert('Missing Location', 'Please select a drop location');
-      onConfirm(pickupData, dropData);
+      onConfirm(finalPickupData, finalDropData);
     }
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: Colors.bgSecondary }}>
-      {/* Unified Top Route Card */}
-      <View style={[styles.pickerHeader, { flexDirection: 'column', alignItems: 'stretch', paddingBottom: 15, zIndex: 10, paddingTop: Platform.OS === 'ios' ? 50 : 35 }]}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 15 }}>
-          <TouchableOpacity onPress={onBack} style={styles.pickerBackBtn} activeOpacity={0.7}>
-            <Feather name="arrow-left" size={22} color={Colors.textPrimary} />
-          </TouchableOpacity>
-          <Text style={styles.pickerHeaderTitle}>{t('home.planRoute') || 'Plan Your Route'}</Text>
-        </View>
-
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
-          <View style={styles.pickerAddressDot} />
-          <TouchableOpacity 
-            style={{ flex: 1, backgroundColor: activeField === 'pickup' ? Colors.bgSecondary : Colors.bgPrimary, paddingHorizontal: 12, paddingVertical: 4, borderRadius: 8, borderWidth: 1, borderColor: activeField === 'pickup' ? Colors.success : 'transparent', flexDirection: 'row', alignItems: 'center', minHeight: 46 }}
-            onPress={() => handleFieldSwitch('pickup')}
-            activeOpacity={0.8}
-          >
-             {activeField === 'pickup' ? (
-                <TextInput
-                  style={{ flex: 1, fontSize: 15, color: Colors.textPrimary }}
-                  placeholder={t('home.searchPickup') || 'Search pickup location...'}
-                  placeholderTextColor={Colors.textMuted}
-                  value={searchQuery}
-                  onChangeText={handleSearch}
-                  autoFocus={true}
-                />
-             ) : (
-                <Text style={{ flex: 1, fontSize: 15, color: pickupData.address ? Colors.textPrimary : Colors.textMuted }} numberOfLines={1}>
-                  {pickupData.address || t('home.setPickup') || 'Set Pickup Location'}
-                </Text>
-             )}
-          </TouchableOpacity>
-        </View>
-
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <View style={[styles.pickerAddressDot, { backgroundColor: Colors.danger, borderRadius: 2 }]} />
-          <TouchableOpacity 
-            style={{ flex: 1, backgroundColor: activeField === 'drop' ? Colors.bgSecondary : Colors.bgPrimary, paddingHorizontal: 12, paddingVertical: 4, borderRadius: 8, borderWidth: 1, borderColor: activeField === 'drop' ? Colors.danger : 'transparent', flexDirection: 'row', alignItems: 'center', minHeight: 46 }}
-            onPress={() => handleFieldSwitch('drop')}
-            activeOpacity={0.8}
-          >
-             {activeField === 'drop' ? (
-                <TextInput
-                  style={{ flex: 1, fontSize: 15, color: Colors.textPrimary }}
-                  placeholder={t('home.searchDrop') || 'Search drop location...'}
-                  placeholderTextColor={Colors.textMuted}
-                  value={searchQuery}
-                  onChangeText={handleSearch}
-                  autoFocus={true}
-                />
-             ) : (
-                <Text style={{ flex: 1, fontSize: 15, color: dropData.address ? Colors.textPrimary : Colors.textMuted }} numberOfLines={1}>
-                  {dropData.address || t('home.whereTo') || 'Where to?'}
-                </Text>
-             )}
-          </TouchableOpacity>
-        </View>
-
-        {/* Search Results Dropdown */}
-        {searchResults.length > 0 && (
-          <View style={{ position: 'absolute', top: 180, left: 20, right: 20, backgroundColor: Colors.bgSecondary, borderRadius: 10, shadowColor: Colors.textPrimary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 10, elevation: 5, maxHeight: 250, zIndex: 20 }}>
-            <ScrollView keyboardShouldPersistTaps="handled">
-              {searchResults.map((item, index) => (
-                <TouchableOpacity key={index} style={{ padding: 15, borderBottomWidth: 1, borderBottomColor: Colors.border, flexDirection: 'row', alignItems: 'center' }} onPress={() => onSelectResult(item)}>
-                  <Feather name="map-pin" size={16} color={Colors.textSecondary} style={{ marginRight: 12 }} />
-                  <View style={{ flex: 1 }}>
-                    <Text style={{ fontSize: 15, color: Colors.textPrimary }} numberOfLines={2}>{item.address}</Text>
-                  </View>
-                  {item.distance && (
-                    <Text style={{ fontSize: 12, color: Colors.textSecondary, marginLeft: 8, fontWeight: '600' }}>{item.distance}</Text>
-                  )}
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-          </View>
-        )}
-      </View>
-
-      {/* Full-screen map — pin stays fixed, map moves */}
-      <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: '#F3F4F6' }}>
+      
+      {/* Full-screen map */}
+      <View style={{ ...StyleSheet.absoluteFillObject }}>
         <MapView provider={PROVIDER_GOOGLE}
           ref={mapRef}
           style={{ flex: 1 }}
@@ -683,48 +637,141 @@ function LocationPickerScreen({
           showsUserLocation
           showsMyLocationButton={false}
         >
-</MapView>
-        
-        {/* Fixed center crosshair pin — does NOT move, map scrolls under it */}
-        <View style={styles.pickerCrosshairWrapper} pointerEvents="none">
-          {isGeocoding && (
-            <View style={{ position: 'absolute', top: -30, backgroundColor: Colors.bgSecondary, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, shadowColor: Colors.textPrimary, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.2, shadowRadius: 4, elevation: 4 }}>
-              <Text style={{ fontSize: 12, fontWeight: '600', color: Colors.textSecondary }}>Finding address...</Text>
-            </View>
-          )}
-          <View style={styles.pickerPinShadow} />
-          <View style={[styles.pickerPinOuter, { backgroundColor: activeField === 'drop' ? Colors.danger : Colors.success }]}>
-            <View style={styles.pickerPinInner} />
-          </View>
-          <View style={[styles.pickerPinStem, { backgroundColor: activeField === 'drop' ? Colors.danger : Colors.success }]} />
-        </View>
-
-        {/* Recenter button */}
-        {location && (
-          <TouchableOpacity
-            style={styles.pickerRecenterBtn}
-            activeOpacity={0.8}
-            onPress={() => {
-              isProgrammaticPan.current = true;
-              setCurrentCoords({ latitude: location.coords.latitude, longitude: location.coords.longitude });
-              reverseGeocode(location.coords.latitude, location.coords.longitude, activeField);
-              mapRef.current?.animateToRegion({
-                latitude: location.coords.latitude,
-                longitude: location.coords.longitude,
-                latitudeDelta: 0.012,
-                longitudeDelta: 0.012,
-              }, 500);
-            }}
-          >
-            <Feather name="crosshair" size={20} color={Colors.accent} />
-          </TouchableOpacity>
-        )}
+        </MapView>
       </View>
 
-      <View style={styles.pickerFooter}>
-        <TouchableOpacity style={styles.pickerConfirmBtn} onPress={handleConfirm} activeOpacity={0.85}>
-          <Text style={styles.pickerConfirmText}>
-            {activeField === 'pickup' ? (t('app.ConfirmPickupLocation') || 'Confirm Pickup Location') : (t('home.confirmDrop') || 'Confirm Drop Location')}
+      {/* Floating Back Button */}
+      <TouchableOpacity 
+        onPress={onBack} 
+        style={{ position: 'absolute', top: Platform.OS === 'ios' ? 60 : 40, left: 20, width: 44, height: 44, borderRadius: 22, backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center', zIndex: 100, shadowColor: '#000', shadowOffset: {width: 0, height: 2}, shadowOpacity: 0.1, shadowRadius: 8, elevation: 5 }}
+        activeOpacity={0.8}
+      >
+        <Feather name="chevron-left" size={24} color="#262D36" />
+      </TouchableOpacity>
+
+      {/* Floating Location Card */}
+      <View style={{ position: 'absolute', top: Platform.OS === 'ios' ? 120 : 100, left: 20, right: 20, backgroundColor: '#FFFFFF', borderRadius: 20, padding: 20, zIndex: 100, shadowColor: '#000', shadowOffset: {width: 0, height: 4}, shadowOpacity: 0.1, shadowRadius: 12, elevation: 5 }}>
+        
+        {/* Dotted connecting line */}
+        <View style={{ position: 'absolute', left: 25, top: 45, bottom: 45, width: 1, borderStyle: 'dotted', borderWidth: 1, borderColor: '#D1D5DB', borderRadius: 1 }} />
+
+        {/* Pickup Field */}
+        <View style={{ flexDirection: 'row', alignItems: 'flex-start', marginBottom: 20 }}>
+          <View style={{ width: 12, height: 12, borderRadius: 6, backgroundColor: Colors.success, marginTop: 4, marginRight: 16 }} />
+          <TouchableOpacity 
+            style={{ flex: 1 }}
+            onPress={() => handleFieldSwitch('pickup')}
+            activeOpacity={0.8}
+          >
+            <Text style={{ fontSize: 12, color: Colors.textMuted, marginBottom: 4 }}>Pickup Location</Text>
+            {activeField === 'pickup' ? (
+              <TextInput
+                style={{ fontSize: 15, color: Colors.textPrimary, padding: 0 }}
+                placeholder={t('home.searchPickup') || 'Search pickup location...'}
+                placeholderTextColor={Colors.textMuted}
+                value={searchQuery}
+                onChangeText={handleSearch}
+                autoFocus={true}
+              />
+            ) : (
+              <Text style={{ fontSize: 15, color: pickupData.address ? Colors.textPrimary : Colors.textMuted }} numberOfLines={1}>
+                {pickupData.address || t('home.setPickup') || 'Set Pickup Location'}
+              </Text>
+            )}
+            {activeField === 'pickup' && <View style={{ height: 1, backgroundColor: Colors.borderGlass, marginTop: 8 }} />}
+          </TouchableOpacity>
+        </View>
+
+        {/* Divider */}
+        <View style={{ height: 1, backgroundColor: '#F3F4F6', marginLeft: 28, marginBottom: 20 }} />
+
+        {/* Drop Field */}
+        <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
+          <View style={{ width: 12, height: 12, borderRadius: 6, borderWidth: 3, borderColor: Colors.danger, backgroundColor: '#FFF', marginTop: 4, marginRight: 16 }} />
+          <TouchableOpacity 
+            style={{ flex: 1 }}
+            onPress={() => handleFieldSwitch('drop')}
+            activeOpacity={0.8}
+          >
+            <Text style={{ fontSize: 12, color: Colors.textMuted, marginBottom: 4 }}>Drop Location</Text>
+            {activeField === 'drop' ? (
+              <TextInput
+                style={{ fontSize: 15, color: Colors.textPrimary, padding: 0 }}
+                placeholder={t('home.searchDrop') || 'Search drop location...'}
+                placeholderTextColor={Colors.textMuted}
+                value={searchQuery}
+                onChangeText={handleSearch}
+                autoFocus={true}
+              />
+            ) : (
+              <Text style={{ fontSize: 15, color: dropData.address ? Colors.textPrimary : Colors.textMuted }} numberOfLines={1}>
+                {dropData.address || t('home.whereTo') || 'Where to?'}
+              </Text>
+            )}
+            {activeField === 'drop' && <View style={{ height: 1, backgroundColor: Colors.borderGlass, marginTop: 8 }} />}
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      {/* Search Results Dropdown */}
+      {searchResults.length > 0 && (
+        <View style={{ position: 'absolute', top: Platform.OS === 'ios' ? 290 : 270, left: 20, right: 20, backgroundColor: Colors.bgSecondary, borderRadius: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 10, elevation: 5, maxHeight: 250, zIndex: 110 }}>
+          <ScrollView keyboardShouldPersistTaps="handled">
+            {searchResults.map((item, index) => (
+              <TouchableOpacity key={index} style={{ padding: 15, borderBottomWidth: 1, borderBottomColor: Colors.border, flexDirection: 'row', alignItems: 'center' }} onPress={() => onSelectResult(item)}>
+                <Feather name="map-pin" size={16} color={Colors.textSecondary} style={{ marginRight: 12 }} />
+                <View style={{ flex: 1 }}>
+                  <Text style={{ fontSize: 15, color: Colors.textPrimary }} numberOfLines={2}>{item.address}</Text>
+                </View>
+                {item.distance && (
+                  <Text style={{ fontSize: 12, color: Colors.textSecondary, marginLeft: 8, fontWeight: '600' }}>{item.distance}</Text>
+                )}
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
+      )}
+        
+      {/* Fixed center crosshair pin ?" does NOT move, map scrolls under it */}
+      <View style={styles.pickerCrosshairWrapper} pointerEvents="none">
+        {isGeocoding && (
+          <View style={{ position: 'absolute', top: -40, backgroundColor: Colors.bgSecondary, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, shadowColor: Colors.textPrimary, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.2, shadowRadius: 4, elevation: 4 }}>
+            <Text style={{ fontSize: 12, fontWeight: '600', color: Colors.textSecondary }}>Finding address...</Text>
+          </View>
+        )}
+        <View style={{ width: 16, height: 16, borderRadius: 8, borderWidth: 3, borderColor: '#0053B3', backgroundColor: '#FFFFFF', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4, elevation: 4 }} />
+      </View>
+
+      {/* Recenter button */}
+      {location && (
+        <TouchableOpacity
+          style={{ position: 'absolute', bottom: 100, right: 20, width: 48, height: 48, borderRadius: 24, backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.15, shadowRadius: 8, elevation: 5, zIndex: 50 }}
+          activeOpacity={0.8}
+          onPress={() => {
+            isProgrammaticPan.current = true;
+            setCurrentCoords({ latitude: location.coords.latitude, longitude: location.coords.longitude });
+            reverseGeocode(location.coords.latitude, location.coords.longitude, activeField);
+            mapRef.current?.animateToRegion({
+              latitude: location.coords.latitude,
+              longitude: location.coords.longitude,
+              latitudeDelta: 0.012,
+              longitudeDelta: 0.012,
+            }, 500);
+          }}
+        >
+          <Feather name="crosshair" size={20} color="#262D36" />
+        </TouchableOpacity>
+      )}
+
+      {/* Confirm Button */}
+      <View style={{ position: 'absolute', bottom: 30, left: 20, right: 20, zIndex: 100 }}>
+        <TouchableOpacity 
+          style={{ backgroundColor: '#0053B3', paddingVertical: 16, borderRadius: 24, alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 8 }} 
+          onPress={handleConfirm} 
+          activeOpacity={0.85}
+        >
+          <Text style={{ color: '#FCFCFC', fontSize: 16, fontWeight: '600' }}>
+            {activeField === 'pickup' && dropData.address ? 'Book Ride' : activeField === 'pickup' ? (t('app.ConfirmPickupLocation') || 'Confirm Pickup Location') : (t('home.confirmDrop') || 'Confirm Drop Location')}
           </Text>
         </TouchableOpacity>
       </View>
@@ -733,7 +780,7 @@ function LocationPickerScreen({
 }
 
 // 2. REVAMPED HOME / BOOKING SCREEN
-function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage, activePasses = [] }: { onRideBooked: (ride: any) => void; onNavigateProfileEdit: () => void; onNavigateLanguage: () => void; activePasses?: any[]; }) {
+function HomeScreen({ onRideBooked, onNavigateProfile, onNavigateLanguage, activePasses = [] }: { onRideBooked: (ride: any) => void; onNavigateProfile: () => void; onNavigateLanguage: () => void; activePasses?: any[]; }) {
   const { user, logout, updateUserWallet } = useAuth();
   const { t } = useLanguage();
   const { isDark, toggleTheme } = useTheme();
@@ -748,6 +795,8 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage, a
   const [selectedVehicle, setSelectedVehicle] = useState<any>(null);
   const [loadingEstimates, setLoadingEstimates] = useState(false);
   const [bookingRide, setBookingRide] = useState(false);
+  const [showMap, setShowMap] = useState(false);
+  const mapRef = useRef<MapView>(null);
   const [passEstimate, setPassEstimate] = useState<any>(null);
   const [bookingMode, setBookingMode] = useState<'ride'|'pass'>('ride');
   const [preferences, setPreferences] = useState<string[]>([]);
@@ -765,6 +814,11 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage, a
   const [showWalletModal, setShowWalletModal] = useState(false);
   const [showEmergencyScreen, setShowEmergencyScreen] = useState(false);
   const [showNotificationScreen, setShowNotificationScreen] = useState(false);
+  const [showScheduleRideScreen, setShowScheduleRideScreen] = useState(false);
+  const [showScheduleConfirmScreen, setShowScheduleConfirmScreen] = useState(false);
+  const [schedulePayload, setSchedulePayload] = useState<any>(null);
+  const [scheduledRide, setScheduledRide] = useState<any>(null);
+  const [isScheduling, setIsScheduling] = useState(false);
   const [managePass, setManagePass] = useState<any>(null);
   const [skipPickup, setSkipPickup] = useState(false);
   const [skipReturn, setSkipReturn] = useState(false);
@@ -774,6 +828,9 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage, a
   const [showSupportTicketScreen, setShowSupportTicketScreen] = useState(false);
   const [showHelpCentreScreen, setShowHelpCentreScreen] = useState(false);
   const [showSettingsScreen, setShowSettingsScreen] = useState(false);
+  const [showMonthlyPayment, setShowMonthlyPayment] = useState(false);
+  const [monthlyFareAmount, setMonthlyFareAmount] = useState(0);
+  const [processingMonthlyPayment, setProcessingMonthlyPayment] = useState(false);
 
   // ── Profile fields ─────────────────────────────────────────────────────────
   const [profileName, setProfileName] = useState(user?.name || '');
@@ -1092,11 +1149,18 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage, a
           setPickupCoords(validPickup);
           setDropAddr(dropData.address);
           setDropCoords(validDrop);
-          if (validPickup && validDrop) {
+          if (isScheduling) {
+            setShowScheduleConfirmScreen(true);
+          } else if (validPickup && validDrop) {
             getEstimates(validPickup, pickupData.address, validDrop, dropData.address);
           }
         }}
-        onBack={() => setPickerMode(null)}
+        onBack={() => {
+          setPickerMode(null);
+          if (isScheduling) {
+            setShowScheduleConfirmScreen(true);
+          }
+        }}
       />
     );
   }
@@ -1109,10 +1173,129 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage, a
       <SupportTicketScreen visible={showSupportTicketScreen} onClose={() => setShowSupportTicketScreen(false)} />
       <HelpCentreScreen visible={showHelpCentreScreen} onClose={() => setShowHelpCentreScreen(false)} />
       <SettingsScreen visible={showSettingsScreen} onClose={() => setShowSettingsScreen(false)} />
+      <ScheduleRideScreen visible={showScheduleRideScreen} onClose={() => { setShowScheduleRideScreen(false); setIsScheduling(false); }} onContinue={(payload: any) => { setSchedulePayload(payload); setShowScheduleRideScreen(false); setShowScheduleConfirmScreen(true); }} />
+      <ScheduleConfirmScreen
+        visible={showScheduleConfirmScreen}
+        onClose={() => {
+          setShowScheduleConfirmScreen(false);
+          setIsScheduling(false);
+        }}
+        onSchedule={async (pickupStr, dropStr) => {
+          setShowScheduleConfirmScreen(false);
+          setIsScheduling(false);
+
+          try {
+            if (schedulePayload?.scheduleType === 'today') {
+              const res = await API.post('/scheduled-rides/one-time', {
+                pickup: { address: pickupAddr, location: { type: 'Point', coordinates: pickupCoords } },
+                drop: { address: dropAddr, location: { type: 'Point', coordinates: dropCoords } },
+                vehicleType: 'mini', // Fallback, could prompt for vehicle
+                scheduledDate: schedulePayload.scheduledDate.toISOString().split('T')[0],
+                scheduledTime: schedulePayload.scheduledTime.toISOString().split('T')[1].substring(0,5),
+                tripType: schedulePayload.tripType,
+                returnTime: schedulePayload.returnTime ? schedulePayload.returnTime.toISOString().split('T')[1].substring(0,5) : null,
+                estimatedFare: 150
+              });
+              if (res.data.success) {
+                Alert.alert('Ride Scheduled', 'Your ride has been successfully scheduled!');
+              }
+            } else if (schedulePayload?.scheduleType === 'monthly') {
+              const baseFare = 150; // Using fallback mini fare
+              const numMonths = schedulePayload.numMonths || 1;
+              const tripsPerDay = schedulePayload.tripType === 'round' ? 2 : 1;
+              const totalEst = baseFare * tripsPerDay * numMonths;
+              const discount = totalEst * 0.10;
+              setMonthlyFareAmount(totalEst - discount);
+              setShowMonthlyPayment(true);
+            }
+          } catch (e) {
+            console.error(e);
+            Alert.alert('Error', 'Failed to schedule ride.');
+          }
+
+          setScheduledRide({ pickup: pickupAddr, drop: dropAddr });
+          setPickupAddr('');
+          setDropAddr('');
+          setPickupCoords(null);
+          setDropCoords(null);
+          setEstimates([]);
+          setPickerMode(null);
+          Alert.alert('Ride Scheduled', 'Your ride has been successfully scheduled!');
+        }}
+        pickupAddress={pickupAddr}
+        dropAddress={dropAddr}
+        onSelectLocation={(field) => {
+          setShowScheduleConfirmScreen(false);
+          setPickerMode(field);
+        }}
+      />
+
+      {showMonthlyPayment && (
+        <Modal visible transparent animationType="slide">
+          <View style={{flex:1, backgroundColor: 'rgba(0,0,0,0.5)'}}>
+            <TouchableOpacity style={{flex: 1}} activeOpacity={1} onPress={() => !processingMonthlyPayment && setShowMonthlyPayment(false)} />
+            <CustomerPaymentOptionsSheet 
+               amount={monthlyFareAmount}
+               processing={processingMonthlyPayment}
+               onCancel={() => setShowMonthlyPayment(false)}
+               onSelect={async (method: string) => {
+                 setProcessingMonthlyPayment(true);
+                 try {
+                   const res = await API.post('/scheduled-rides/monthly', {
+                     pickup: { address: pickupAddr, location: { type: 'Point', coordinates: pickupCoords } },
+                     drop: { address: dropAddr, location: { type: 'Point', coordinates: dropCoords } },
+                     vehicleType: 'mini', // Fallback
+                     repeatDay: parseInt(schedulePayload.repeatDay, 10),
+                     scheduledTime: schedulePayload.scheduledTime.toISOString().split('T')[1].substring(0,5),
+                     tripType: schedulePayload.tripType,
+                     returnTime: schedulePayload.returnTime ? schedulePayload.returnTime.toISOString().split('T')[1].substring(0,5) : null,
+                     startMonth: schedulePayload.startMonth,
+                     numberOfMonths: schedulePayload.numMonths
+                   });
+                   if (res.data.success) {
+                     Alert.alert('Monthly Schedule Created', 'Your monthly commute has been scheduled successfully!');
+                     setShowMonthlyPayment(false);
+                     setScheduledRide({ pickup: pickupAddr, drop: dropAddr });
+                     setPickupAddr('');
+                     setDropAddr('');
+                     setPickupCoords(null);
+                     setDropCoords(null);
+                     setEstimates([]);
+                     setPickerMode(null);
+                   }
+                 } catch (e) {
+                   console.error(e);
+                   Alert.alert('Error', 'Failed to schedule ride.');
+                 }
+                 setProcessingMonthlyPayment(false);
+               }}
+            />
+          </View>
+        </Modal>
+      )}
 
       {/* ─────────────────── HOME TAB ─────────────────── */}
       {activeTab === 'home' && (
-        <>
+        <View style={{ flex: 1 }}>
+          {(!dropAddr && (!estimates || estimates.length === 0) && pickerMode === null && !bookingRide && !showMap) ? (
+            <DashboardUI 
+              user={user}
+              activePasses={activePasses}
+              onProfilePress={onNavigateProfile}
+              onNotificationPress={() => setShowNotificationScreen(true)}
+              onBuyPass={() => setShowPassConfig(true)}
+              onBookRide={() => setPickerMode('drop')}
+              onScheduleRide={() => { setIsScheduling(true); setShowScheduleRideScreen(true); }}
+              onTrackRide={() => setShowMap(true)}
+              scheduledRide={scheduledRide}
+            />
+          ) : (
+            <View style={{ flex: 1 }}>
+              {showMap && (
+                <TouchableOpacity onPress={() => setShowMap(false)} style={{ position: 'absolute', top: Platform.OS === 'ios' ? 60 : 40, left: 16, zIndex: 100, width: 40, height: 40, borderRadius: 20, backgroundColor: '#FFF', alignItems: 'center', justifyContent: 'center', shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 5 }}>
+                  <Feather name="arrow-left" size={24} color="#000" />
+                </TouchableOpacity>
+              )}
           {/* Full-screen map */}
           <View style={styles.homeMapPreview}>
             <MapView provider={PROVIDER_GOOGLE}
@@ -1245,25 +1428,13 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage, a
 
             {estimates.length > 0 && !loadingEstimates && (
               <View style={styles.homeEstimatesPanel}>
-                <View style={styles.homeEstimatesRoute}>
-                  <View style={styles.homeRouteRow}>
-                    <View style={styles.homeDotGreen} />
-                    <Text style={styles.homeRouteAddr} numberOfLines={1}>{pickupAddr}</Text>
-                  </View>
-                  <View style={[styles.homeRouteLine]} />
-                  <View style={[styles.homeRouteRow, { marginTop: 0 }]}>
-                    <View style={styles.homeDotRed} />
-                    <Text style={styles.homeRouteAddr} numberOfLines={1}>{dropAddr}</Text>
-                  </View>
-                </View>
-                <Text style={styles.estimatesTitle}>
-                  Choose a ride  {selectedVehicle?.routeDetails?.distance ? `· ${selectedVehicle.routeDetails.distance} km` : ''}
-                </Text>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.estimatesScroll}>
+                <Text style={{ fontSize: 18, fontWeight: '600', color: '#262D36', marginBottom: 20 }}>Choose a Ride</Text>
+                
+                <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ gap: 12 }}>
                   {estimates.map((est, idx) => (
                     <TouchableOpacity
                       key={idx}
-                      style={[styles.estimatesCard, selectedVehicle?.vehicleType === est.vehicleType && styles.estimatesCardActive]}
+                      style={{ borderWidth: 1, borderColor: selectedVehicle?.vehicleType === est.vehicleType ? '#0053B3' : '#E9EAEC', borderRadius: 16, padding: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: selectedVehicle?.vehicleType === est.vehicleType ? '#F3F8FF' : '#FFFFFF' }}
                       onPress={() => {
                         if (!isVehicleDisabled(est.vehicleType)) {
                           setSelectedVehicle(est);
@@ -1273,62 +1444,53 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage, a
                       }}
                       activeOpacity={0.8}
                     >
-                      <Text style={styles.estEmoji}>{getVehicleEmoji(est.vehicleType)}</Text>
-                      <Text style={[styles.estType, selectedVehicle?.vehicleType === est.vehicleType && styles.estTypeActive]}>
-                        {est.vehicleType.toUpperCase()}
-                      </Text>
-                      <Text style={[styles.estFare, selectedVehicle?.vehicleType === est.vehicleType && styles.estFareActive]}>
-                        {'\u20B9'}{est.fareDetails.totalFare}
-                      </Text>
-                      <Text style={styles.estTime}>{est.routeDetails.duration.toFixed(0)} min</Text>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
+                        <Image 
+                          source={(function(type) {
+                            const t = type.toLowerCase();
+                            if (t === 'bike') return require('./assets/bike_realistic.png');
+                            if (t === 'auto') return require('./assets/auto_realistic.png');
+                            if (t === 'sedan') return require('./assets/sedan_realistic.png');
+                            if (t === 'suv') return require('./assets/suv_realistic.png');
+                            return require('./assets/mini_realistic.png');
+                          })(est.vehicleType)} 
+                          style={{ width: 60, height: 40, resizeMode: 'contain' }} 
+                        />
+                        <View>
+                          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                            <Text style={{ fontSize: 16, color: '#262D36', fontWeight: '500' }}>{est.vehicleType.charAt(0).toUpperCase() + est.vehicleType.slice(1)}</Text>
+                            <Feather name="user" size={14} color="#7C848D" />
+                            <Text style={{ fontSize: 14, color: '#7C848D' }}>{est.capacity || 4}</Text>
+                          </View>
+                          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 4 }}>
+                            <Feather name="zap" size={12} color="#7C848D" />
+                            <Text style={{ fontSize: 12, color: '#7C848D' }}>{est.routeDetails.duration.toFixed(0)} min away</Text>
+                          </View>
+                        </View>
+                      </View>
+                      <Text style={{ fontSize: 18, fontWeight: '600', color: '#262D36' }}>₹{est.fareDetails.totalFare}</Text>
                     </TouchableOpacity>
                   ))}
                 </ScrollView>
 
-                {bookingMode === 'pass' && passEstimate && (
-                  <View style={{ padding: 16, backgroundColor: Colors.bgPrimary, borderRadius: 12, marginBottom: 12 }}>
-                    <Text style={{ fontSize: 16, color: Colors.textSecondary, marginBottom: 4 }}>Fixed flat rate for {passEstimate.totalRides} rides</Text>
-                    <Text style={{ fontSize: 24, fontWeight: '700', color: Colors.textPrimary, marginBottom: 8 }}>{'\u20B9'}{passEstimate.pricePerRide} / ride</Text>
+                <View style={{ marginTop: 24, paddingBottom: Platform.OS === 'ios' ? 20 : 0 }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                      <Text style={{ fontSize: 16, color: '#262D36', fontWeight: '500' }}>₹ Cash</Text>
+                      <Feather name="chevron-right" size={16} color="#262D36" />
+                    </TouchableOpacity>
+                    
+                    <TouchableOpacity 
+                      style={[{ backgroundColor: '#0053B3', borderRadius: 12, paddingVertical: 14, paddingHorizontal: 24 }, (bookingRide || isVehicleDisabled(selectedVehicle?.vehicleType)) && { opacity: 0.5 }]} 
+                      onPress={bookingMode === 'pass' ? handlePurchasePass : handleBookRide}
+                      disabled={bookingRide || isVehicleDisabled(selectedVehicle?.vehicleType)}
+                    >
+                      {bookingRide ? <ActivityIndicator color="#FCFCFC" /> : (
+                        <Text style={{ color: '#FCFCFC', fontSize: 16, fontWeight: '600' }}>Confirm Ride ₹{offeredFare}</Text>
+                      )}
+                    </TouchableOpacity>
                   </View>
-                )}
-
-                {bookingMode === 'ride' && (
-                  <>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 12 }}>
-                      <TouchableOpacity onPress={() => setOfferedFare(Math.max(10, offeredFare - 10))}><Feather name="minus-circle" size={24} color={Colors.accent} /></TouchableOpacity>
-                      <Text style={{ fontSize: 20, fontWeight: 'bold' }}>₹{offeredFare}</Text>
-                      <TouchableOpacity onPress={() => setOfferedFare(offeredFare + 10)}><Feather name="plus-circle" size={24} color={Colors.accent} /></TouchableOpacity>
-                    </View>
-                    <View style={{ paddingHorizontal: 12, paddingBottom: 12 }}>
-                      <Text style={{ fontSize: 14, fontWeight: '600', color: Colors.textPrimary, marginBottom: 8 }}>Ride Preferences</Text>
-                      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexDirection: 'row' }}>
-                        {[
-                          { id: 'quiet', label: 'Quiet Ride' },
-                          { id: 'ac_off', label: 'AC Off' },
-                          { id: 'pet_friendly', label: 'Pet Friendly' },
-                        ].map((pref) => (
-                          <TouchableOpacity
-                            key={pref.id}
-                            style={[{ paddingHorizontal: 12, paddingVertical: 6, borderRadius: 16, borderWidth: 1, borderColor: Colors.borderGlass, marginRight: 8, backgroundColor: preferences.includes(pref.id) ? Colors.accent : '#F9FAFB' }]}
-                            onPress={() => setPreferences(prev => prev.includes(pref.id) ? prev.filter(p => p !== pref.id) : [...prev, pref.id])}
-                          >
-                            <Text style={{ fontSize: 13, fontWeight: '500', color: preferences.includes(pref.id) ? '#FFF' : Colors.textSecondary }}>{pref.label}</Text>
-                          </TouchableOpacity>
-                        ))}
-                      </ScrollView>
-                    </View>
-                  </>
-                )}
-
-                <TouchableOpacity 
-                  style={[styles.premiumBookBtn, (bookingRide || isVehicleDisabled(selectedVehicle?.vehicleType)) && { opacity: 0.5 }]} 
-                  onPress={bookingMode === 'pass' ? handlePurchasePass : handleBookRide}
-                  disabled={bookingRide || isVehicleDisabled(selectedVehicle?.vehicleType)}
-                >
-                  {bookingRide ? <ActivityIndicator color={Colors.bgSecondary} /> : (
-                    <Text style={styles.premiumBookBtnText}>Book {selectedVehicle?.vehicleType?.toUpperCase()}</Text>
-                  )}
-                </TouchableOpacity>
+                </View>
               </View>
             )}
 
@@ -1403,15 +1565,20 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage, a
               </ScrollView>
             )}
           </View>
-        </>
+            </View>
+          )}
+        </View>
       )}
 
-      {/* ─────────────────── ACCOUNT TAB (REDESIGNED) ─────────────────── */}
+      {/* ─────────────────── PASS TAB (REDESIGNED) ─────────────────── */}
       {activeTab === 'wallet' && (
-        <CustomerWalletScreen
+        <MyPassScreen
+          user={user}
+          activePasses={activePasses}
           onBack={() => setActiveTab('home')}
           onNavigateHome={() => handleTabPress('home')}
           onNavigateHistory={() => handleTabPress('trips')}
+          onUpgradePlan={() => setShowPassConfig(true)}
         />
       )}
       
@@ -1424,7 +1591,7 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage, a
             </TouchableOpacity>
 
             {/* Profile Card */}
-            <TouchableOpacity onPress={onNavigateProfileEdit} style={{ backgroundColor: '#0053B3', borderRadius: 16, padding: 16, marginBottom: 20, shadowColor: Colors.textPrimary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 10, elevation: 5 }} activeOpacity={0.9}>
+            <TouchableOpacity onPress={onNavigateProfile} style={{ backgroundColor: '#0053B3', borderRadius: 16, padding: 16, marginBottom: 20, shadowColor: Colors.textPrimary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 10, elevation: 5 }} activeOpacity={0.9}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
                 <View style={{ width: 60, height: 60, borderRadius: 30, backgroundColor: '#005FCC', alignItems: 'center', justifyContent: 'center', borderWidth: 2.1, borderColor: '#FCFCFC' }}>
                   <Feather name="user" size={28} color="#FCFCFC" />
@@ -1458,19 +1625,11 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage, a
                 {activePasses.map((pass: any) => (
                   <View key={pass._id} style={{ backgroundColor: Colors.bgSecondary, padding: 16, borderRadius: 12, marginBottom: 12, borderWidth: 1, borderColor: Colors.border }}>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
-                      <Text style={{ fontSize: 16, fontWeight: '700', color: Colors.textPrimary, textTransform: 'capitalize' }}>{pass.vehicleType} Pass</Text>
+                      <Text style={{ fontSize: 16, fontWeight: '700', color: Colors.textPrimary, textTransform: 'capitalize' }}>{pass.pass?.name || pass.passType || pass.vehicleType || 'Gold'} Pass</Text>
                       <Text style={{ color: Colors.success, fontSize: 12, fontWeight: '700' }}>ACTIVE</Text>
                     </View>
-                    <Text style={{ color: Colors.textSecondary, fontSize: 12, marginBottom: 4 }}>Pickup: {pass.pickupTime}</Text>
-                    {pass.isReturnTrip && <Text style={{ color: Colors.textSecondary, fontSize: 12, marginBottom: 4 }}>Return: {pass.returnTime}</Text>}
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 }}>
-                      <Text style={{ color: Colors.accent, fontSize: 14 }}>{pass.totalRides - pass.ridesCompleted} rides remaining</Text>
-                      <TouchableOpacity 
-                        style={{ paddingHorizontal: 12, paddingVertical: 6, backgroundColor: Colors.bgPrimary, borderRadius: 8 }}
-                        onPress={() => setManagePass(pass)}
-                      >
-                        <Text style={{ fontSize: 12, color: Colors.textPrimary, fontWeight: '600' }}>Manage Today</Text>
-                      </TouchableOpacity>
+                      <Text style={{ color: Colors.accent, fontSize: 14 }}>{pass.validUntil ? Math.max(0, Math.ceil((new Date(pass.validUntil).getTime() - new Date().getTime()) / (1000 * 3600 * 24))) : 30} days remaining</Text>
                     </View>
                   </View>
                 ))}
@@ -1634,52 +1793,34 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage, a
         </View>
       )}
 
-      {/* ─────────────────── SERVICES TAB ─────────────────── */}
+
+      {/* ─────────────────── WALLET TAB ─────────────────── */}
       {activeTab === 'services' && (
-        <View style={styles.custTabPage}>
-          <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 120 }}>
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 14 }}>
-              {[
-                { icon: '\uD83D\uDCC5', label: 'Schedule Trip',  desc: 'Book for later' },
-                { icon: '\u2708\uFE0F', label: 'Airport Tour',   desc: 'Outstation trips' },
-                { icon: '\uD83D\uDE98', label: 'Rental',         desc: 'Rent by the hour' },
-                { icon: '\uD83C\uDFD9\uFE0F', label: 'Intercity', desc: 'Travel between cities' },
-                { icon: '\uD83C\uDFCD\uFE0F', label: 'Bike Taxi', desc: 'Fast & affordable' },
-                { icon: '\uD83D\uDEFA', label: 'Auto Rickshaw',  desc: 'Local trips' },
-              ].map((service, idx) => (
-                <TouchableOpacity
-                  key={idx}
-                  style={styles.custServiceCard}
-                  activeOpacity={0.8}
-                  onPress={() => Alert.alert('Coming Soon', `${service.label} will be available soon!`)}
-                >
-                  <Text style={{ fontSize: 34, marginBottom: 10 }}>{service.icon}</Text>
-                  <Text style={styles.custServiceLabel}>{service.label}</Text>
-                  <Text style={styles.custServiceDesc}>{service.desc}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </ScrollView>
-        </View>
+        <CustomerWalletScreen
+          onBack={() => setActiveTab('home')}
+          onNavigateHome={() => handleTabPress('home')}
+          onNavigateHistory={() => handleTabPress('trips')}
+        />
       )}
 
       {/* ─────────────────── BOTTOM TAB BAR (REDESIGNED) ─────────────────── */}
-      {!(activeTab === 'home' && (!!dropAddr || estimates.length > 0 || pickerMode !== null)) && (
+      {!(activeTab === 'home' && (!!dropAddr || (estimates && estimates.length > 0) || pickerMode !== null || showMap)) && (
         <View style={{ flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', paddingVertical: 12, position: 'absolute', bottom: 16, left: 16, right: 16, borderRadius: 20, backgroundColor: Colors.bgSecondary, shadowColor: Colors.textPrimary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 10, elevation: 5 }}>
         {([
-          { key: 'home',     icon: 'home',  label: t('home.tabHome') || 'Home' },
-          { key: 'wallet',   icon: 'credit-card', label: t('home.tabWallet') || 'Wallet' },
-          { key: 'trips',    icon: 'clock', label: t('home.tabTrips') || 'Trips' },
-        ] as { key: TabName; icon: string; label: string }[]).map((tab) => (
+          { key: 'home',     icon: 'home',  label: 'Home' },
+          { key: 'wallet',   icon: 'credit-card', label: 'My Pass' },
+          { key: 'services', icon: 'briefcase', label: 'Wallet' },
+          { key: 'trips',    icon: 'clock', label: 'History' },
+        ] as { key: 'home' | 'wallet' | 'services' | 'trips'; icon: string; label: string }[]).map((tab) => (
           <TouchableOpacity
             key={tab.key}
-            style={activeTab === tab.key ? { backgroundColor: Colors.accent, paddingHorizontal: 16, paddingVertical: 8, borderRadius: 16, flexDirection: 'row', alignItems: 'center', gap: 6 } : { padding: 8 }}
+            style={activeTab === tab.key ? { backgroundColor: '#F6F8FE', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 16, flexDirection: 'row', alignItems: 'center', gap: 6 } : { padding: 8 }}
             onPress={() => handleTabPress(tab.key)}
             activeOpacity={0.7}
           >
-            <Feather name={tab.icon as any} size={activeTab === tab.key ? 18 : 24} color={activeTab === tab.key ? '#FCFCFC' : '#9098A2'} />
+            <Feather name={tab.icon as any} size={activeTab === tab.key ? 18 : 24} color={activeTab === tab.key ? '#0053B3' : '#7C848D'} />
             {activeTab === tab.key && (
-              <Text style={{ color: '#FCFCFC', fontSize: 14, fontWeight: '600', marginLeft: 6 }}>
+              <Text style={{ color: '#0053B3', fontSize: 14, fontWeight: '600', marginLeft: 6 }}>
                 {tab.label}
               </Text>
             )}
@@ -1778,13 +1919,12 @@ function HomeScreen({ onRideBooked, onNavigateProfileEdit, onNavigateLanguage, a
       </Modal>
       {showPassConfig && (
         <View style={StyleSheet.absoluteFill}>
-          <CommutePassConfigScreen 
+          <PassPurchaseScreen 
             onBack={() => setShowPassConfig(false)}
             onPassPurchased={() => {
               setShowPassConfig(false);
               API.get('/subscriptions').catch(()=>{}); // silent trigger
             }}
-            RenderLocationPicker={(props) => <LocationPickerScreen {...props} />}
           />
         </View>
       )}
@@ -5492,7 +5632,13 @@ const styles = StyleSheet.create({
   homeTabActiveDot: { position: 'absolute', top: -12, width: 30, height: 3, backgroundColor: Colors.accent, borderBottomLeftRadius: 3, borderBottomRightRadius: 3 },
 
   // Estimates panel in Home
-  homeEstimatesPanel: { flex: 1 },
+  homeEstimatesPanel: { 
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    padding: 20
+  },
   homeEstimatesRoute: { marginBottom: 16, backgroundColor: Colors.bgPrimary, padding: 12, borderRadius: 12 },
   homeRouteRow: { flexDirection: 'row', alignItems: 'center' },
   homeDotGreen: { width: 8, height: 8, borderRadius: 4, backgroundColor: Colors.success, marginRight: 12 },

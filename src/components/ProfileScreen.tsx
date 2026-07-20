@@ -30,12 +30,18 @@ export default function ProfileScreen({
 
   const getIconName = (title: string): keyof typeof Feather.glyphMap => {
     switch(title) {
+      case 'darkTheme':
       case 'Dark theme': return 'moon';
+      case 'appLanguage':
       case 'App language': return 'globe';
       case 'Order alert sound': return 'volume-2';
+      case 'helpCentre':
       case 'Help Centre': return 'help-circle';
+      case 'supportTickets':
       case 'Support tickets': return 'message-square';
+      case 'settings':
       case 'Settings': return 'settings';
+      case 'Monthly Commute Pass': return 'calendar';
       default: return 'circle';
     }
   };
@@ -45,7 +51,7 @@ export default function ProfileScreen({
       <View style={styles.iconCircle}>
         <Feather name={getIconName(titleKey)} size={18} color="#0053B3" />
       </View>
-      <Text style={styles.optionText}>{t(`profile.${titleKey}`)}</Text>
+      <Text style={styles.optionText}>{titleKey === 'Monthly Commute Pass' ? titleKey : t(`profile.${titleKey}`)}</Text>
       <View style={{ flex: 1 }} />
       {showToggle ? (
         <View style={[styles.toggleTrack, toggleState && { backgroundColor: '#0053B3' }]}>
@@ -77,11 +83,11 @@ export default function ProfileScreen({
                   style={{ width: 64, height: 64, borderRadius: 32 }}
                 />
               ) : (
-                <Text style={{ fontSize: 24 }}>👤</Text>
+                <Feather name="user" size={32} color="#FFF" />
               )}
             </View>
             <View style={styles.profileDetails}>
-              <Text style={styles.profileName}>{user?.name || 'Raja'}</Text>
+              <Text style={styles.profileName}>{user?.name || 'Dhanush Chakravarthy'}</Text>
               <Text style={styles.profileId}>{user?.vehicle?.plateNumber || 'FE2889108'}</Text>
               <View style={styles.ratingRow}>
                 <Text style={styles.starIcon}>⭐</Text>
@@ -93,46 +99,44 @@ export default function ProfileScreen({
               </View>
             </View>
             <View style={{ flex: 1 }} />
-            <Feather name="edit-2" size={24} color={Colors.textPrimary} style={{ opacity: 0.8 }} />
+            <Feather name="chevron-right" size={24} color="#FFF" />
           </View>
         </TouchableOpacity>
 
         {/* Referral Card */}
-        {user?.role === 'customer' && (
+        <View style={styles.referralCard}>
+          <Text style={styles.referralTitle}>Upto ₹4,500 referral bonus</Text>
+          <Text style={styles.referralSubtitle}>Refer your friend and earn</Text>
+        </View>
+
+        {/* Active Passes Section */}
+        {user?.role === 'customer' && activePasses && activePasses.length > 0 && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Commute Passes</Text>
-            {renderOptionRow('Monthly Commute Pass', false, onOpenPassConfig)}
+            <Text style={styles.sectionTitle}>Active Passes</Text>
             
             {activePasses.map(pass => (
               <View key={pass._id} style={{ backgroundColor: Colors.bgSecondary, padding: 16, borderRadius: 12, marginTop: 12, borderWidth: 1, borderColor: Colors.border }}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
-                  <Text style={{ fontSize: 16, fontWeight: '700', color: Colors.textPrimary, textTransform: 'capitalize' }}>{pass.vehicleType} Pass</Text>
+                  <Text style={{ fontSize: 16, fontWeight: '700', color: Colors.textPrimary, textTransform: 'capitalize' }}>{pass.pass?.name || pass.passType || pass.vehicleType || 'Gold'} Pass</Text>
                   <Text style={{ color: Colors.success, fontSize: 12, fontWeight: '700' }}>ACTIVE</Text>
                 </View>
-                <Text style={{ color: Colors.textSecondary, fontSize: 12, marginBottom: 4 }}>Pickup: {pass.pickupTime}</Text>
-                {pass.isReturnTrip && <Text style={{ color: Colors.textSecondary, fontSize: 12, marginBottom: 4 }}>Return: {pass.returnTime}</Text>}
-                <Text style={{ color: Colors.accent, fontSize: 14, marginTop: 8 }}>{pass.totalRides - pass.ridesCompleted} rides remaining</Text>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 }}>
+                  <Text style={{ color: '#0053B3', fontSize: 14 }}>{pass.validUntil ? Math.max(0, Math.ceil((new Date(pass.validUntil).getTime() - new Date().getTime()) / (1000 * 3600 * 24))) : 30} days remaining</Text>
+                </View>
               </View>
             ))}
           </View>
         )}
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>{t('profile.account')}</Text>
-          <Text style={styles.referralSubtitle}>{t('profile.referralSub')}</Text>
-        </View>
-
-        {/* First Options Block */}
+        {/* Options Block */}
         <View style={styles.optionsBlock}>
+          {renderOptionRow('Monthly Commute Pass', false, onOpenPassConfig)}
+          <View style={styles.divider} />
           {renderOptionRow('darkTheme', true, toggleTheme, isDark)}
           <View style={styles.divider} />
           {renderOptionRow('appLanguage', false, onNavigateLanguage)}
-        </View>
-
-        {/* Second Options Block */}
-        <View style={styles.optionsBlock}>
+          <View style={styles.divider} />
           {renderOptionRow('helpCentre', false, () => {
-            // Usually this would open a webview or an external link
             import('react-native').then(({ Linking }) => {
               Linking.openURL('https://movex-cab.onrender.com/help').catch(() => {});
             });
@@ -166,15 +170,12 @@ const getStyles = () => StyleSheet.create({
   },
   header: {
     marginTop: 20,
-    marginBottom: 20
+    marginBottom: 20,
+    paddingHorizontal: 4
   },
   backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: Colors.borderGlass,
-    alignItems: 'center',
-    justifyContent: 'center'
+    paddingVertical: 8,
+    alignSelf: 'flex-start'
   },
   backButtonIcon: {
     fontSize: 18,

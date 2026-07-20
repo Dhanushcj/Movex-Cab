@@ -1,7 +1,7 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import * as SecureStore from 'expo-secure-store';
 import API from '../services/api';
-import auth, { signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithCredential, GoogleAuthProvider, updateProfile, sendPasswordResetEmail } from '@react-native-firebase/auth';
+import auth, { getAuth, getIdToken, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithCredential, GoogleAuthProvider, updateProfile, sendPasswordResetEmail, sendEmailVerification } from '@react-native-firebase/auth';
 import { getMessaging, requestPermission, getToken, AuthorizationStatus } from '@react-native-firebase/messaging';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 
@@ -12,7 +12,7 @@ interface AuthContextType {
   registerWithEmail: (email: string, password: string, name: string, phone: string, role: string) => Promise<boolean>;
   loginWithGoogle: (role: string) => Promise<any>;
   completeGoogleRegistration: (role: string, name: string, dob: string, gender: string, phone: string, idToken: string, password?: string) => Promise<boolean>;
-  loginWithPassword: (phone: string, password: string) => Promise<boolean>;
+  loginWithPassword: (phone: string, password: string, role?: string) => Promise<boolean>;
   sendOTPCode: (phone: string) => Promise<string | null>;
   verifyOTPCode: (phone: string, otp: string, name?: string) => Promise<boolean>;
   registerUser: (name: string, phone: string, password: string, dob: string, gender: string) => Promise<boolean>;
@@ -107,11 +107,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const loginWithEmail = async (email: string, password: string, role: string): Promise<boolean> => {
     try {
-      const userCredential = await signInWithEmailAndPassword(auth() as any, email, password);
+      const userCredential = await signInWithEmailAndPassword(getAuth() as any, email, password);
       if (!userCredential.user.emailVerified) {
         throw new Error('Please verify your email before logging in. Check your inbox/spam folder.');
       }
-      const idToken = await userCredential.user.getIdToken();
+      const idToken = await getIdToken(userCredential.user);
       return await handleFirebaseLogin(idToken, role);
     } catch (error) {
       console.error('Firebase Email login failed:', error);
@@ -121,11 +121,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const registerWithEmail = async (email: string, password: string, name: string, phone: string, role: string): Promise<boolean> => {
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth() as any, email, password);
+      const userCredential = await createUserWithEmailAndPassword(getAuth() as any, email, password);
       await (userCredential.user as any).updateProfile({ displayName: name });
-      await (userCredential.user as any).sendEmailVerification();
+      await sendEmailVerification(userCredential.user as any);
       
-      const idToken = await userCredential.user.getIdToken();
+      const idToken = await getIdToken(userCredential.user);
       // Inform backend, but the frontend will force them to login mode to await verification
       await handleFirebaseLogin(idToken, role, true, { phone });
       return true;
@@ -137,11 +137,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const checkEmailVerification = async (role: string): Promise<boolean> => {
     try {
-      const currentUser = auth().currentUser;
+      const currentUser = getAuth().currentUser;
       if (currentUser) {
         await currentUser.reload();
         if (currentUser.emailVerified) {
-          const idToken = await currentUser.getIdToken();
+          const idToken = await getIdToken(currentUser);
           await handleFirebaseLogin(idToken, role);
           return true;
         }
@@ -155,9 +155,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const resendVerificationEmail = async (): Promise<void> => {
     try {
-      const currentUser = auth().currentUser;
+      const currentUser = getAuth().currentUser;
       if (currentUser && !currentUser.emailVerified) {
-        await currentUser.sendEmailVerification();
+        await sendEmailVerification(currentUser as any);
       } else {
         throw new Error("No unverified user currently logged in.");
       }
@@ -169,7 +169,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const resetPassword = async (email: string): Promise<void> => {
     try {
-      await sendPasswordResetEmail(auth() as any, email);
+      await sendPasswordResetEmail(getAuth() as any, email);
     } catch (error) {
       console.error('Reset password failed:', error);
       throw error;
@@ -207,8 +207,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       
       // Sign-in the user with the credential
-      const userCredential = await signInWithCredential(auth() as any, googleCredential);
-      const firebaseIdToken = await userCredential.user.getIdToken();
+      const userCredential = await signInWithCredential(getAuth() as any, googleCredential);
+      const firebaseIdToken = await getIdToken(userCredential.user);
       
       const backendResponse = await handleFirebaseLogin(firebaseIdToken, role);
       if (backendResponse && backendResponse.isNewUser) {
@@ -232,9 +232,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const loginWithPassword = async (phone: string, password: string): Promise<boolean> => {
+  const loginWithPassword = async (phone: string, password: string, role: string = 'customer'): Promise<boolean> => {
     try {
-      const response = await API.post('/auth/login', { phone, password, role: 'customer' });
+      const response = await API.post('/auth/login', { phone, password, role });
       if (response.data.success) {
         await SecureStore.setItemAsync('userToken', response.data.token);
         setUser(response.data.user);

@@ -192,6 +192,7 @@ const getStyles = (Colors: any) => StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
+    flex: 1,
   },
   iconBox: {
     width: 40,
@@ -204,6 +205,7 @@ const getStyles = (Colors: any) => StyleSheet.create({
   textWrap: {
     flexDirection: 'column',
     gap: 4,
+    flex: 1,
   },
   notifTitle: {
     fontSize: 14,
