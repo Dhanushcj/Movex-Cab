@@ -27,6 +27,7 @@ const cronRoutes = require('./src/routes/cronRoutes');
 const scheduledRideRoutes = require('./src/routes/scheduledRideRoutes');
 
 const app = express();
+app.set('trust proxy', 1); // Trust first proxy (Render) to fix rate-limiter IP resolution
 const server = http.createServer(app);
 
 // Initialize Socket.IO
