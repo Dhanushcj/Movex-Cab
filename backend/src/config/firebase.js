@@ -5,8 +5,11 @@ try {
   let credential;
   
   // First try to load from environment variables (useful for Render/production)
-  if (process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_PRIVATE_KEY && process.env.FIREBASE_CLIENT_EMAIL) {
-    let privateKey = process.env.FIREBASE_PRIVATE_KEY;
+  if (process.env.FIREBASE_PROJECT_ID && (process.env.FIREBASE_PRIVATE_KEY || process.env.FIREBASE_PRIVATE_KEY_BASE64) && process.env.FIREBASE_CLIENT_EMAIL) {
+    let privateKey = process.env.FIREBASE_PRIVATE_KEY_BASE64 
+      ? Buffer.from(process.env.FIREBASE_PRIVATE_KEY_BASE64, 'base64').toString('utf-8')
+      : process.env.FIREBASE_PRIVATE_KEY;
+
     if (privateKey.startsWith('"') && privateKey.endsWith('"')) {
       privateKey = privateKey.slice(1, -1);
     }
