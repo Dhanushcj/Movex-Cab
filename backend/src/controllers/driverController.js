@@ -360,12 +360,13 @@ const withdrawMoney = async (req, res, next) => {
  * PUT /api/drivers/profile
  */
 const updateProfile = async (req, res, next) => {
-  const { name, phone, city, vehicleType, plate, bankName, accountNo, ifsc, oldPassword, newPassword } = req.body;
+  const { name, phone, city, vehicleType, plate, bankName, accountNo, ifsc, oldPassword, newPassword, fcmToken } = req.body;
   try {
     const Driver = require('../models/Driver');
     const driver = await Driver.findById(req.user.id).select('+password');
     if (!driver) return res.status(404).json({ success: false, message: 'Driver not found' });
 
+    if (fcmToken) driver.fcmToken = fcmToken;
     if (name) driver.name = name;
     if (phone) driver.phone = phone;
     if (city) driver.address = city; // mapping city to address

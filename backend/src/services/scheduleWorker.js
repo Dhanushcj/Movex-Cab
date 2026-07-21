@@ -24,8 +24,7 @@ const initScheduleWorker = () => {
 
         // 1. Send Reminder
         if (ride.customer && ride.customer.fcmToken) {
-          await sendNotification({
-            token: ride.customer.fcmToken,
+          await sendNotification(ride.customer.fcmToken, {
             title: 'Upcoming Ride',
             body: 'Your scheduled ride starts in 15 minutes. A driver will be assigned shortly.',
             data: { rideId: ride.rideId, type: 'SCHEDULED_RIDE_REMINDER' }

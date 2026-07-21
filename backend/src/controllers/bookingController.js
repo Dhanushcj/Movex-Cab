@@ -567,7 +567,7 @@ const payTrip = async (req, res, next) => {
     }
 
     const User = require('../models/User');
-    const { sendNotification } = require('../services/pushNotificationService');
+    const { sendNotification } = require('../services/notificationService');
     const customer = await User.findById(booking.customer);
     if (customer && customer.fcmToken) {
       await sendNotification(customer.fcmToken, {

@@ -20,10 +20,12 @@ const getMe = async (req, res, next) => {
  * PUT /api/users/me
  */
 const updateMe = async (req, res, next) => {
-  const { name, email, phone, avatar, emergencyContacts, oldPassword, newPassword } = req.body;
+  const { name, email, phone, avatar, emergencyContacts, oldPassword, newPassword, fcmToken } = req.body;
   try {
     const user = await User.findById(req.user.id).select('+password');
     if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+
+    if (fcmToken) user.fcmToken = fcmToken;
 
     if (name) user.name = name;
     if (email) user.email = email;
