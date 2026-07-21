@@ -4,8 +4,14 @@ let redisClient;
 
 const connectRedis = async () => {
   try {
+    let redisUrl = process.env.REDIS_URL || 'redis://default:T3PnQ7gYyOlltt3ROmaLB6lsFJyw62IX@organic-supersmooth-honorable-63504.db.redis.io:10451';
+    // If the terminal has a cached REDIS_URL pointing to localhost, override it
+    if (redisUrl.includes('localhost') || redisUrl.includes('127.0.0.1')) {
+      redisUrl = 'redis://default:T3PnQ7gYyOlltt3ROmaLB6lsFJyw62IX@organic-supersmooth-honorable-63504.db.redis.io:10451';
+    }
+    
     redisClient = createClient({
-      url: process.env.REDIS_URL || 'redis://default:T3PnQ7gYyOlltt3ROmaLB6lsFJyw62IX@organic-supersmooth-honorable-63504.db.redis.io:10451',
+      url: redisUrl,
       socket: {
         reconnectStrategy: (retries) => {
           if (retries > 3) {
