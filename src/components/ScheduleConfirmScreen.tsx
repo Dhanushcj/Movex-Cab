@@ -6,13 +6,16 @@ import Colors from '../constants/colors';
 interface Props {
   visible: boolean;
   onClose: () => void;
-  onSchedule: (pickup: any, drop: any) => void;
+  onSchedule: (pickup: string, drop: string, vehicleType: string, estimatedFare: number) => void;
   onSelectLocation: (field: 'pickup' | 'drop') => void;
   pickupAddress: string;
   dropAddress: string;
+  estimates?: any[];
+  selectedVehicle?: any;
+  setSelectedVehicle?: (v: any) => void;
 }
 
-export default function ScheduleConfirmScreen({ visible, onClose, onSchedule, onSelectLocation, pickupAddress, dropAddress }: Props) {
+export default function ScheduleConfirmScreen({ visible, onClose, onSchedule, onSelectLocation, pickupAddress, dropAddress, estimates = [], selectedVehicle, setSelectedVehicle }: Props) {
   return (
     <Modal visible={visible} animationType="slide" transparent={false} onRequestClose={onClose}>
       <SafeAreaView style={styles.container}>
@@ -58,14 +61,37 @@ export default function ScheduleConfirmScreen({ visible, onClose, onSchedule, on
               </TouchableOpacity>
             </View>
           </View>
+
+          {estimates && estimates.length > 0 && (
+            <View style={{ marginTop: 24 }}>
+              <Text style={styles.sectionTitle}>Select Vehicle</Text>
+              {estimates.map((est, i) => {
+                const isSelected = selectedVehicle?.vehicleType === est.vehicleType;
+                return (
+                  <TouchableOpacity
+                    key={i}
+                    style={[styles.vehicleCard, isSelected && styles.vehicleCardSelected]}
+                    onPress={() => setSelectedVehicle && setSelectedVehicle(est)}
+                    activeOpacity={0.7}
+                  >
+                    <View style={styles.vehicleInfo}>
+                      <Text style={styles.vehicleName}>{String(est.vehicleType).toUpperCase()}</Text>
+                      <Text style={styles.vehicleTime}>{Math.round(est.routeDetails.duration)} mins</Text>
+                    </View>
+                    <Text style={styles.vehiclePrice}>₹{est.fareDetails.totalFare}</Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          )}
         </ScrollView>
 
         {/* Bottom Button */}
         <View style={styles.bottomContainer}>
           <TouchableOpacity 
-            style={[styles.confirmBtn, (!pickupAddress || !dropAddress) && { opacity: 0.5 }]} 
-            onPress={() => onSchedule(pickupAddress, dropAddress)}
-            disabled={!pickupAddress || !dropAddress}
+            style={[styles.confirmBtn, (!pickupAddress || !dropAddress || !selectedVehicle) && { opacity: 0.5 }]} 
+            onPress={() => selectedVehicle && onSchedule(pickupAddress, dropAddress, selectedVehicle.vehicleType, selectedVehicle.fareDetails.totalFare)}
+            disabled={!pickupAddress || !dropAddress || !selectedVehicle}
             activeOpacity={0.85}
           >
             <Text style={styles.confirmText}>Schedule Ride</Text>
@@ -187,5 +213,42 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
+  },
+  vehicleCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#FFFFFF',
+    padding: 16,
+    borderRadius: 16,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#E9EAEC',
+  },
+  vehicleCardSelected: {
+    borderColor: '#0053B3',
+    backgroundColor: '#F0F7FF',
+    borderWidth: 2,
+  },
+  vehicleInfo: {
+    flex: 1,
+  },
+  vehicleName: {
+    fontFamily: 'sans-serif',
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#262D36',
+  },
+  vehicleTime: {
+    fontFamily: 'sans-serif',
+    fontSize: 12,
+    color: '#7C848D',
+    marginTop: 2,
+  },
+  vehiclePrice: {
+    fontFamily: 'sans-serif',
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#262D36',
   }
 });

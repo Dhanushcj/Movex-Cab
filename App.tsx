@@ -176,11 +176,11 @@ const LIGHT_MAP_STYLE = [
 ];
 
 export const getVehicle3DIcon = (type: string) => {
-  if (type === 'bike') return require('./assets/bike_realistic.png');
-  if (type === 'auto') return require('./assets/auto_realistic.png');
-  if (type === 'sedan') return require('./assets/sedan_realistic.png');
-  if (type === 'suv') return require('./assets/suv_realistic.png');
-  return require('./assets/mini_realistic.png');
+  if (type === 'bike') return require('./assets/bike_realistic.jpg');
+  if (type === 'auto') return require('./assets/auto_realistic.jpg');
+  if (type === 'sedan') return require('./assets/sedan_realistic.jpg');
+  if (type === 'suv') return require('./assets/suv_realistic.jpg');
+  return require('./assets/mini_realistic.jpg');
 };
 
 type RootStackParamList = {
@@ -267,6 +267,17 @@ function NavigationRoot() {
     if (user) {
       const syncToken = async () => {
         try {
+          const { status: existingStatus } = await Notifications.getPermissionsAsync();
+          let finalStatus = existingStatus;
+          if (existingStatus !== 'granted') {
+            const { status } = await Notifications.requestPermissionsAsync();
+            finalStatus = status;
+          }
+          if (finalStatus !== 'granted') {
+            console.log('Failed to get push token for push notification!');
+            return;
+          }
+
           const messaging = getMessaging();
           const authStatus = await requestPermission(messaging);
           if (authStatus === AuthorizationStatus.AUTHORIZED || authStatus === AuthorizationStatus.PROVISIONAL) {
@@ -872,7 +883,25 @@ function HomeScreen({ onRideBooked, onNavigateProfile, onNavigateLanguage, activ
         console.warn('Failed to fetch banners', err);
       }
     };
+    const fetchUpcomingScheduledRide = async () => {
+      try {
+        const res = await API.get('/scheduled-rides');
+        if (res.data && res.data.success && res.data.data.length > 0) {
+          const upcoming = res.data.data.find((r: any) => ['scheduled', 'searching', 'driver_assigned'].includes(r.status));
+          if (upcoming) {
+            setScheduledRide({
+              ...upcoming,
+              pickup: upcoming.pickup?.address || 'Pickup',
+              drop: upcoming.drop?.address || 'Drop'
+            });
+          }
+        }
+      } catch (err) {
+        console.warn('Failed to fetch scheduled rides', err);
+      }
+    };
     fetchBanners();
+    fetchUpcomingScheduledRide();
   }, []);
 
   const handleUpdatePassException = async () => {
@@ -1159,10 +1188,11 @@ function HomeScreen({ onRideBooked, onNavigateProfile, onNavigateLanguage, activ
           setPickupCoords(validPickup);
           setDropAddr(dropData.address);
           setDropCoords(validDrop);
+          if (validPickup && validDrop) {
+            getEstimates(validPickup, pickupData.address, validDrop, dropData.address);
+          }
           if (isScheduling) {
             setShowScheduleConfirmScreen(true);
-          } else if (validPickup && validDrop) {
-            getEstimates(validPickup, pickupData.address, validDrop, dropData.address);
           }
         }}
         onBack={() => {
@@ -1186,11 +1216,14 @@ function HomeScreen({ onRideBooked, onNavigateProfile, onNavigateLanguage, activ
       <ScheduleRideScreen visible={showScheduleRideScreen} onClose={() => { setShowScheduleRideScreen(false); setIsScheduling(false); }} onContinue={(payload: any) => { setSchedulePayload(payload); setShowScheduleRideScreen(false); setShowScheduleConfirmScreen(true); }} />
       <ScheduleConfirmScreen
         visible={showScheduleConfirmScreen}
+        estimates={estimates}
+        selectedVehicle={selectedVehicle}
+        setSelectedVehicle={setSelectedVehicle}
         onClose={() => {
           setShowScheduleConfirmScreen(false);
           setIsScheduling(false);
         }}
-        onSchedule={async (pickupStr, dropStr) => {
+        onSchedule={async (pickupStr, dropStr, vehicleType, estimatedFare) => {
           setShowScheduleConfirmScreen(false);
           setIsScheduling(false);
 
@@ -1199,21 +1232,29 @@ function HomeScreen({ onRideBooked, onNavigateProfile, onNavigateLanguage, activ
               const res = await API.post('/scheduled-rides/one-time', {
                 pickup: { address: pickupAddr, location: { type: 'Point', coordinates: pickupCoords } },
                 drop: { address: dropAddr, location: { type: 'Point', coordinates: dropCoords } },
-                vehicleType: 'mini', // Fallback, could prompt for vehicle
+                vehicleType: vehicleType,
                 scheduledDate: schedulePayload.scheduledDate.toISOString().split('T')[0],
                 scheduledTime: schedulePayload.scheduledTime.toISOString().split('T')[1].substring(0,5),
                 tripType: schedulePayload.tripType,
                 returnTime: schedulePayload.returnTime ? schedulePayload.returnTime.toISOString().split('T')[1].substring(0,5) : null,
-                estimatedFare: 150
+                estimatedFare: estimatedFare
               });
               if (res.data.success) {
                 Alert.alert('Ride Scheduled', 'Your ride has been successfully scheduled!');
+                if (res.data.data && res.data.data.length > 0) {
+                  const upcoming = res.data.data[0];
+                  setScheduledRide({
+                    ...upcoming,
+                    pickup: upcoming.pickup?.address || pickupAddr,
+                    drop: upcoming.drop?.address || dropAddr
+                  });
+                }
               }
             } else if (schedulePayload?.scheduleType === 'monthly') {
-              const baseFare = 150; // Using fallback mini fare
+              const baseFare = estimatedFare; // Use actual estimate
               const numMonths = schedulePayload.numMonths || 1;
               const tripsPerDay = schedulePayload.tripType === 'round' ? 2 : 1;
-              const totalEst = baseFare * tripsPerDay * numMonths;
+              const totalEst = baseFare * tripsPerDay * numMonths * 30; // Approx 30 days
               const discount = totalEst * 0.10;
               setMonthlyFareAmount(totalEst - discount);
               setShowMonthlyPayment(true);
@@ -1223,14 +1264,15 @@ function HomeScreen({ onRideBooked, onNavigateProfile, onNavigateLanguage, activ
             Alert.alert('Error', 'Failed to schedule ride.');
           }
 
-          setScheduledRide({ pickup: pickupAddr, drop: dropAddr });
+          if (schedulePayload?.scheduleType !== 'monthly' && schedulePayload?.scheduleType !== 'today') {
+            setScheduledRide({ pickup: pickupAddr, drop: dropAddr });
+          }
           setPickupAddr('');
           setDropAddr('');
           setPickupCoords(null);
           setDropCoords(null);
           setEstimates([]);
           setPickerMode(null);
-          Alert.alert('Ride Scheduled', 'Your ride has been successfully scheduled!');
         }}
         pickupAddress={pickupAddr}
         dropAddress={dropAddr}
@@ -1265,7 +1307,16 @@ function HomeScreen({ onRideBooked, onNavigateProfile, onNavigateLanguage, activ
                    if (res.data.success) {
                      Alert.alert('Monthly Schedule Created', 'Your monthly commute has been scheduled successfully!');
                      setShowMonthlyPayment(false);
-                     setScheduledRide({ pickup: pickupAddr, drop: dropAddr });
+                     if (res.data.data && res.data.data.rides && res.data.data.rides.length > 0) {
+                       const upcoming = res.data.data.rides[0];
+                       setScheduledRide({
+                         ...upcoming,
+                         pickup: upcoming.pickup?.address || pickupAddr,
+                         drop: upcoming.drop?.address || dropAddr
+                       });
+                     } else {
+                       setScheduledRide({ pickup: pickupAddr, drop: dropAddr });
+                     }
                      setPickupAddr('');
                      setDropAddr('');
                      setPickupCoords(null);
@@ -1296,7 +1347,24 @@ function HomeScreen({ onRideBooked, onNavigateProfile, onNavigateLanguage, activ
               onBuyPass={() => setShowPassConfig(true)}
               onBookRide={() => setPickerMode('drop')}
               onScheduleRide={() => { setIsScheduling(true); setShowScheduleRideScreen(true); }}
-              onTrackRide={() => setShowMap(true)}
+              onTrackRide={() => {
+                if (scheduledRide.status === 'scheduled') {
+                  Alert.alert('Scheduled Ride', 'Driver will be assigned 15 minutes before the pickup time.');
+                } else {
+                  API.get('/users/me/rides').then(res => {
+                    if (res.data.success) {
+                      const activeBooking = res.data.data.find((r: any) => r.scheduledRideId === scheduledRide._id && !['completed', 'cancelled'].includes(r.status));
+                      if (activeBooking) {
+                        onRideBooked(activeBooking);
+                      } else {
+                        Alert.alert('Ride Update', 'Could not find active tracking details. Please check your rides history.');
+                      }
+                    }
+                  }).catch(() => {
+                    Alert.alert('Error', 'Failed to fetch ride tracking info.');
+                  });
+                }
+              }}
               scheduledRide={scheduledRide}
             />
           ) : (
@@ -1458,11 +1526,11 @@ function HomeScreen({ onRideBooked, onNavigateProfile, onNavigateLanguage, activ
                         <Image 
                           source={(function(type) {
                             const t = type.toLowerCase();
-                            if (t === 'bike') return require('./assets/bike_realistic.png');
-                            if (t === 'auto') return require('./assets/auto_realistic.png');
-                            if (t === 'sedan') return require('./assets/sedan_realistic.png');
-                            if (t === 'suv') return require('./assets/suv_realistic.png');
-                            return require('./assets/mini_realistic.png');
+                            if (t === 'bike') return require('./assets/bike_realistic.jpg');
+                            if (t === 'auto') return require('./assets/auto_realistic.jpg');
+                            if (t === 'sedan') return require('./assets/sedan_realistic.jpg');
+                            if (t === 'suv') return require('./assets/suv_realistic.jpg');
+                            return require('./assets/mini_realistic.jpg');
                           })(est.vehicleType)} 
                           style={{ width: 60, height: 40, resizeMode: 'contain' }} 
                         />

@@ -91,10 +91,17 @@ const DashboardUI = ({
              <Feather name="home" size={16} color="#198E1E" />
              <Text style={{ color: '#262D36', fontSize: 14 }} numberOfLines={1}>{scheduledRide.pickup || 'Pickup Location'}</Text>
           </View>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 16 }}>
              <Feather name="map-pin" size={16} color="#F85300" />
-             <Text style={{ color: '#262D36', fontSize: 14 }} numberOfLines={1}>{scheduledRide.drop || 'Drop Location'}</Text>
+             <Text style={{ color: '#262D36', fontSize: 14, flex: 1 }} numberOfLines={1}>{scheduledRide.drop || 'Drop Location'}</Text>
           </View>
+          <TouchableOpacity 
+            style={{ backgroundColor: '#0053B3', paddingVertical: 12, borderRadius: 12, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 8 }}
+            onPress={onTrackRide}
+          >
+            <Feather name="navigation" size={16} color="#FFFFFF" />
+            <Text style={{ color: '#FFFFFF', fontSize: 14, fontWeight: 'bold' }}>Track Ride Status</Text>
+          </TouchableOpacity>
         </View>
       )}
 
