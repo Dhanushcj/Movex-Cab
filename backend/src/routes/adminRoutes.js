@@ -33,7 +33,8 @@ const {
   getMapData,
   seedFeeTiers,
   getPasses,
-  updatePass
+  updatePass,
+  getAlerts
 } = require('../controllers/adminController');
 
 // All endpoints in admin router are protected and limited to the admin role
@@ -46,6 +47,8 @@ router.put('/settings', updateSettings);
 router.get('/fares', getFares);
 router.post('/fares', createFare);
 router.delete('/fares/:id', deleteFare);
+
+router.get('/alerts', getAlerts);
 
 router.get('/banners', getBanners);
 router.post('/banners', createBanner);

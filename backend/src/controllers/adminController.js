@@ -641,5 +641,6 @@ module.exports = {
   getMapData,
   seedFeeTiers,
   getPasses,
-  updatePass
+  updatePass,
+  getAlerts
 };
