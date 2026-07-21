@@ -13,12 +13,12 @@ try {
     // Replace literal '\n' with actual newlines
     privateKey = privateKey.replace(/\\n/g, '\n');
     
-    // If newlines were stripped entirely by the environment dashboard (replaced by spaces)
-    if (!privateKey.includes('\n') && privateKey.includes('BEGIN PRIVATE KEY')) {
+    // If the key doesn't have enough newlines (a valid PEM has >20 newlines), it was likely stripped by the dashboard
+    if (privateKey.split('\n').length < 10 && privateKey.includes('BEGIN PRIVATE KEY')) {
       const coreKey = privateKey
-        .replace('-----BEGIN PRIVATE KEY-----', '')
-        .replace('-----END PRIVATE KEY-----', '')
-        .replace(/\s+/g, ''); // remove all spaces
+        .replace(/-+BEGIN PRIVATE KEY-+/, '')
+        .replace(/-+END PRIVATE KEY-+/, '')
+        .replace(/\s+/g, ''); // remove all spaces and newlines
       const chunks = coreKey.match(/.{1,64}/g);
       privateKey = `-----BEGIN PRIVATE KEY-----\n${chunks.join('\n')}\n-----END PRIVATE KEY-----\n`;
     }
