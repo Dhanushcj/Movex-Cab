@@ -1,7 +1,10 @@
 import React from 'react';
 import { Bell, Search, LogOut, User } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const Header = () => {
+  const navigate = useNavigate();
+
   const handleLogout = () => {
     localStorage.removeItem('adminToken');
     window.location.reload();
@@ -21,7 +24,10 @@ const Header = () => {
 
       {/* Action buttons */}
       <div className="flex items-center gap-6">
-        <button className="relative p-2 rounded-lg hover:bg-black/5 transition-colors">
+        <button 
+          onClick={() => navigate('/notifications')}
+          className="relative p-2 rounded-lg hover:bg-black/5 transition-colors"
+        >
           <div className="relative">
             <Bell className="w-5 h-5 text-[var(--text-muted)]" />
             <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 border-2 border-white bg-rose-500 rounded-full"></span>
