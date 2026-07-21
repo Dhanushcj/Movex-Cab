@@ -609,6 +609,83 @@ const updatePass = async (req, res) => {
   }
 };
 
+/**
+ * Get System Alerts for Admin (Pending Drivers, Support Tickets, Expiring Documents)
+ * GET /api/admin/alerts
+ */
+const getAlerts = async (req, res, next) => {
+  try {
+    const alerts = [];
+
+    // 1. Pending Driver Applications
+    const pendingDrivers = await Driver.find({ approvalStatus: 'pending' }).select('name createdAt');
+    pendingDrivers.forEach(driver => {
+      alerts.push({
+        id: `pending_${driver._id}`,
+        type: 'application',
+        title: `New driver application`,
+        description: `Driver ${driver.name} is waiting for approval.`,
+        date: driver.createdAt,
+        link: '/drivers',
+        icon: 'UserPlus',
+        color: 'blue'
+      });
+    });
+
+    // 2. Open Support Tickets (Complaints)
+    const openTickets = await Complaint.find({ status: 'open' }).select('subject createdAt userType');
+    openTickets.forEach(ticket => {
+      alerts.push({
+        id: `ticket_${ticket._id}`,
+        type: 'support',
+        title: `New support ticket`,
+        description: ticket.subject,
+        date: ticket.createdAt,
+        link: '/complaints',
+        icon: 'AlertCircle',
+        color: 'rose'
+      });
+    });
+
+    // 3. Expiring Documents
+    const thirtyDaysFromNow = new Date();
+    thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
+    
+    // Find drivers whose documents expire soon
+    const driversWithExpiringDocs = await Driver.find({
+      approvalStatus: 'approved',
+      $or: [
+        { 'documents.drivingLicense.expiryDate': { $lt: thirtyDaysFromNow, $gt: new Date() } },
+        { 'documents.vehicleRC.expiryDate': { $lt: thirtyDaysFromNow, $gt: new Date() } },
+        { 'documents.insurance.expiryDate': { $lt: thirtyDaysFromNow, $gt: new Date() } },
+        { 'documents.permit.expiryDate': { $lt: thirtyDaysFromNow, $gt: new Date() } },
+        { 'documents.fitnessCertificate.expiryDate': { $lt: thirtyDaysFromNow, $gt: new Date() } },
+        { 'documents.taxReceipt.expiryDate': { $lt: thirtyDaysFromNow, $gt: new Date() } }
+      ]
+    }).select('name documents');
+
+    driversWithExpiringDocs.forEach(driver => {
+      alerts.push({
+        id: `doc_${driver._id}`,
+        type: 'document',
+        title: `Documents expiring soon`,
+        description: `Driver ${driver.name} has documents expiring within 30 days.`,
+        date: new Date(),
+        link: '/drivers',
+        icon: 'FileWarning',
+        color: 'amber'
+      });
+    });
+
+    // Sort by date descending (newest first)
+    alerts.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    res.json({ success: true, count: alerts.length, data: alerts });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getSettings,
   updateSettings,
