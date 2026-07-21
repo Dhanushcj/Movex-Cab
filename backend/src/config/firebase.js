@@ -10,7 +10,18 @@ try {
     if (privateKey.startsWith('"') && privateKey.endsWith('"')) {
       privateKey = privateKey.slice(1, -1);
     }
+    // Replace literal '\n' with actual newlines
     privateKey = privateKey.replace(/\\n/g, '\n');
+    
+    // If newlines were stripped entirely by the environment dashboard (replaced by spaces)
+    if (!privateKey.includes('\n') && privateKey.includes('BEGIN PRIVATE KEY')) {
+      const coreKey = privateKey
+        .replace('-----BEGIN PRIVATE KEY-----', '')
+        .replace('-----END PRIVATE KEY-----', '')
+        .replace(/\s+/g, ''); // remove all spaces
+      const chunks = coreKey.match(/.{1,64}/g);
+      privateKey = `-----BEGIN PRIVATE KEY-----\n${chunks.join('\n')}\n-----END PRIVATE KEY-----\n`;
+    }
 
     credential = admin.credential.cert({
       projectId: process.env.FIREBASE_PROJECT_ID,
