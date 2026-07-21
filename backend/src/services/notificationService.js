@@ -18,7 +18,8 @@ const sendNotification = async (token, { title, body, data = {} }) => {
         notification: { title, body },
         android: {
           notification: {
-            sound: 'default'
+            sound: 'default',
+            channelId: 'default'
           }
         },
         apns: {
@@ -34,8 +35,17 @@ const sendNotification = async (token, { title, body, data = {} }) => {
         }, {}) : {},
         tokens: [token]
       };
-      await admin.messaging().sendEachForMulticast(message);
-      console.log('🚀 FCM push notification sent successfully');
+      const response = await admin.messaging().sendEachForMulticast(message);
+      if (response.failureCount > 0) {
+        console.warn(`⚠️ FCM Notification failed.`);
+        response.responses.forEach((resp, idx) => {
+          if (!resp.success) {
+            console.error(`Token ${idx} failed:`, resp.error);
+          }
+        });
+      } else {
+        console.log('🚀 FCM push notification sent successfully');
+      }
     } catch (error) {
       console.error('❌ Failed to send FCM notification:', error.message);
     }
@@ -57,7 +67,8 @@ const sendMulticastNotification = async (tokens = [], { title, body, data = {} }
         notification: { title, body },
         android: {
           notification: {
-            sound: 'default'
+            sound: 'default',
+            channelId: 'default'
           }
         },
         apns: {

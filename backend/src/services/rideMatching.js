@@ -59,6 +59,19 @@ const matchDriversForBooking = async (bookingId) => {
       booking.cancelledAt = new Date();
       await booking.save();
 
+      if (booking.scheduledRideId) {
+        const ScheduledRide = require('../models/ScheduledRide');
+        await ScheduledRide.findByIdAndUpdate(booking.scheduledRideId, { status: 'assignment_failed' });
+      }
+
+      if (booking.customer && booking.customer.fcmToken) {
+        sendNotification(booking.customer.fcmToken, {
+          title: 'Ride Cancelled',
+          body: 'We could not find any drivers for your ride in your area.',
+          data: { bookingId: booking._id.toString(), type: 'RIDE_CANCELLED' }
+        }).catch(console.error);
+      }
+
       io.to(`ride:${booking._id}`).emit('booking:status', {
         status: 'cancelled',
         reason: 'No drivers available in your area'
@@ -99,13 +112,27 @@ const dispatchRequestsSequentially = async (booking, driverList, index, options 
     console.log(`⚠️ All drivers declined/timed out for ride ${booking._id}`);
     
     // Refresh booking state
-    const currentBooking = await Booking.findById(booking._id);
+    const currentBooking = await Booking.findById(booking._id).populate('customer');
     if (currentBooking && (currentBooking.status === 'searching' || currentBooking.status === 'negotiating')) {
       currentBooking.status = 'cancelled';
       currentBooking.cancelledBy = 'system';
       currentBooking.cancellationReason = 'Drivers are busy. Please try again.';
       currentBooking.cancelledAt = new Date();
       await currentBooking.save();
+
+      if (currentBooking.scheduledRideId) {
+        const ScheduledRide = require('../models/ScheduledRide');
+        await ScheduledRide.findByIdAndUpdate(currentBooking.scheduledRideId, { status: 'assignment_failed' });
+      }
+
+      if (currentBooking.customer && currentBooking.customer.fcmToken) {
+        const { sendNotification } = require('./notificationService');
+        sendNotification(currentBooking.customer.fcmToken, {
+          title: 'Ride Cancelled',
+          body: 'All nearby drivers are currently busy. Please try again later.',
+          data: { bookingId: currentBooking._id.toString(), type: 'RIDE_CANCELLED' }
+        }).catch(console.error);
+      }
 
       io.to(`ride:${booking._id}`).emit('booking:status', {
         status: 'cancelled',

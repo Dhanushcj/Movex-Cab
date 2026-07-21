@@ -21,6 +21,11 @@ const bookingSchema = new mongoose.Schema({
     ref: 'UserPass',
     default: null
   },
+  scheduledRideId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'ScheduledRide',
+    default: null
+  },
   // Locations
   pickup: {
     address: { type: String, required: true },

@@ -32,6 +32,8 @@ const initScheduleWorker = () => {
         }
         ride.notificationSent = true;
         
+        const rideOTP = Math.floor(1000 + Math.random() * 9000).toString();
+        
         // 2. We need to create an active Booking record from this ScheduledRide to run standard dispatch
         const newBooking = new Booking({
           customer: ride.customer._id,
@@ -40,7 +42,14 @@ const initScheduleWorker = () => {
           vehicleType: ride.vehicleType,
           status: 'requested',
           preferences: [],
-          isWomenOnly: false
+          isWomenOnly: false,
+          rideOTP: rideOTP,
+          fare: {
+            totalFare: ride.estimatedFare || 0,
+            estimatedFare: ride.estimatedFare || 0,
+            offeredFare: ride.estimatedFare || 0
+          },
+          scheduledRideId: ride._id
         });
 
         await newBooking.save();

@@ -162,6 +162,14 @@ const acceptBooking = async (req, res, next) => {
     booking.acceptedAt = new Date();
     await booking.save();
 
+    if (booking.scheduledRideId) {
+      const ScheduledRide = require('../models/ScheduledRide');
+      await ScheduledRide.findByIdAndUpdate(booking.scheduledRideId, {
+        status: 'driver_assigned',
+        driver: driver._id
+      });
+    }
+
     // Make driver unavailable
     driver.isAvailable = false;
     await driver.save();
