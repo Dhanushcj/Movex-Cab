@@ -69,7 +69,7 @@ const Login = ({ onLoginSuccess }) => {
                 placeholder="admin@cab.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="glass-input pl-11 w-full"
+                className="glass-input !pl-11 w-full"
                 required
               />
             </div>
@@ -87,7 +87,7 @@ const Login = ({ onLoginSuccess }) => {
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="glass-input pl-11 w-full"
+                className="glass-input !pl-11 w-full"
                 required
               />
             </div>
