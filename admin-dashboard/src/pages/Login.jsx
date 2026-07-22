@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import API from '../services/api';
-import { Car, Lock, Phone, AlertCircle } from 'lucide-react';
+import { Car, Lock, Mail, AlertCircle } from 'lucide-react';
 
 const Login = ({ onLoginSuccess }) => {
   const [email, setEmail] = useState('');
@@ -45,7 +45,7 @@ const Login = ({ onLoginSuccess }) => {
           <div className="w-14 h-14 rounded-2xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-500/30 mx-auto mb-4">
             <Car className="text-white w-8 h-8" />
           </div>
-          <h1 className="font-extrabold text-2xl tracking-tight text-white">MoveX Admin</h1>
+          <h1 className="font-extrabold text-2xl tracking-tight text-gray-900">MoveX Admin</h1>
           <p className="text-sm text-[var(--text-muted)] mt-1">Authenticate to access control panel</p>
         </div>
 
@@ -63,13 +63,13 @@ const Login = ({ onLoginSuccess }) => {
               Admin Email
             </label>
             <div className="relative">
-              <Phone className="absolute left-3 top-3.5 text-[var(--text-muted)] w-4.5 h-4.5" />
+              <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--text-muted)] w-5 h-5" />
               <input
                 type="email"
                 placeholder="admin@cab.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="glass-input pl-10 w-full"
+                className="glass-input pl-11 w-full"
                 required
               />
             </div>
@@ -81,13 +81,13 @@ const Login = ({ onLoginSuccess }) => {
               Password
             </label>
             <div className="relative">
-              <Lock className="absolute left-3 top-3.5 text-[var(--text-muted)] w-4.5 h-4.5" />
+              <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--text-muted)] w-5 h-5" />
               <input
                 type="password"
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="glass-input pl-10 w-full"
+                className="glass-input pl-11 w-full"
                 required
               />
             </div>
