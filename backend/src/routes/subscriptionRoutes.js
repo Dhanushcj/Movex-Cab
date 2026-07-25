@@ -4,7 +4,8 @@ const { protect } = require('../middleware/auth');
 const {
   getAvailablePasses,
   purchasePass,
-  getMyPass
+  getMyPass,
+  cancelPass
 } = require('../controllers/subscriptionController');
 
 router.use(protect);
@@ -12,5 +13,6 @@ router.use(protect);
 router.get('/available', getAvailablePasses);
 router.post('/purchase', purchasePass);
 router.get('/my-pass', getMyPass);
+router.post('/cancel', cancelPass);
 
 module.exports = router;

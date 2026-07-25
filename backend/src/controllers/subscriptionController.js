@@ -72,3 +72,22 @@ exports.getMyPass = async (req, res) => {
     res.status(500).json({ success: false, message: 'Failed to fetch your pass' });
   }
 };
+
+exports.cancelPass = async (req, res) => {
+  try {
+    const { passId } = req.body; // userPass ID
+    const userPass = await UserPass.findOne({ _id: passId, user: req.user.id });
+    
+    if (!userPass) {
+      return res.status(404).json({ success: false, message: 'Pass not found' });
+    }
+    
+    userPass.status = 'cancelled';
+    await userPass.save();
+    
+    res.json({ success: true, message: 'Pass cancelled successfully' });
+  } catch (error) {
+    console.error('Cancel Pass Error:', error);
+    res.status(500).json({ success: false, message: 'Failed to cancel pass: ' + error.message });
+  }
+};
