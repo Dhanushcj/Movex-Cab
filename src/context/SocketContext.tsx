@@ -21,9 +21,12 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         const token = await SecureStore.getItemAsync('userToken');
         if (!token) return;
 
-        activeSocket = io('http://192.168.1.28:5000', {
+        activeSocket = io('https://forty-beans-show.loca.lt', {
           auth: { token },
-          transports: ['websocket']
+          transports: ['websocket', 'polling'],
+          extraHeaders: {
+            'Bypass-Tunnel-Reminder': 'true' // Required to bypass localtunnel warning page
+          }
         });
 
         activeSocket.on('connect', () => {
