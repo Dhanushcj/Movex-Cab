@@ -20,7 +20,7 @@ import Colors from '../constants/colors';
 export default function AuthScreen({ onNavigateRegister }: { onNavigateRegister: (data: any) => void }) {
   const { isDark } = useTheme();
   const styles = getStyles(Colors);
-  const { loginWithEmail, registerWithEmail, loginWithGoogle, completeGoogleRegistration, loginDriver, loginAdmin, loginWithPassword, checkEmailVerification, resendVerificationEmail, resetPassword } = useAuth();
+  const { loginWithEmail, registerWithEmail, loginWithGoogle, completeGoogleRegistration, loginDriver, loginAdmin, loginWithPassword, registerWithPassword, checkEmailVerification, resendVerificationEmail, resetPassword } = useAuth();
   
   const [mode, setMode] = useState<'login' | 'register' | 'verify_email' | 'forgot_password'>('login');
   const [role, setRole] = useState<'customer' | 'driver' | 'admin'>('customer');
@@ -56,11 +56,11 @@ export default function AuthScreen({ onNavigateRegister }: { onNavigateRegister:
     try {
       let success = false;
       if (role === 'driver') {
-        success = await loginWithEmail(email, password, 'driver');
+        success = await loginWithPassword(email, password, 'driver');
       } else if (role === 'admin') {
-        success = await loginWithEmail(email, password, 'admin');
+        success = await loginWithPassword(email, password, 'admin');
       } else {
-        success = await loginWithEmail(email, password, 'customer');
+        success = await loginWithPassword(email, password, 'customer');
       }
       if (!success) {
         Alert.alert('Error', 'Invalid login credentials');
@@ -115,10 +115,9 @@ export default function AuthScreen({ onNavigateRegister }: { onNavigateRegister:
           setLoading(false);
           return Alert.alert('Error', 'Mobile number is required');
         }
-        success = await registerWithEmail(email, password, name, phone, role);
+        success = await registerWithPassword(name, phone, email, password);
         if (success) {
-          Alert.alert('Verification Sent', 'Please check your email and verify before logging in.');
-          setMode('verify_email');
+          Alert.alert('Success', 'Registered successfully. Logging you in...');
         }
       }
     } catch (e: any) {

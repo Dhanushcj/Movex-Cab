@@ -12,7 +12,8 @@ interface AuthContextType {
   registerWithEmail: (email: string, password: string, name: string, phone: string, role: string) => Promise<boolean>;
   loginWithGoogle: (role: string) => Promise<any>;
   completeGoogleRegistration: (role: string, name: string, dob: string, gender: string, phone: string, idToken: string, password?: string) => Promise<boolean>;
-  loginWithPassword: (phone: string, password: string, role?: string) => Promise<boolean>;
+  loginWithPassword: (emailOrPhone: string, password: string, role?: string) => Promise<boolean>;
+  registerWithPassword: (name: string, phone: string, email: string, password: string) => Promise<boolean>;
   sendOTPCode: (phone: string) => Promise<string | null>;
   verifyOTPCode: (phone: string, otp: string, name?: string) => Promise<boolean>;
   registerUser: (name: string, phone: string, password: string, dob: string, gender: string) => Promise<boolean>;
@@ -237,9 +238,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const loginWithPassword = async (phone: string, password: string, role: string = 'customer'): Promise<boolean> => {
+  const loginWithPassword = async (emailOrPhone: string, password: string, role: string = 'customer'): Promise<boolean> => {
     try {
-      const response = await API.post('/auth/login', { phone, password, role });
+      const payload: any = { password, role };
+      if (emailOrPhone.includes('@')) {
+        payload.email = emailOrPhone;
+      } else {
+        payload.phone = emailOrPhone;
+      }
+      const response = await API.post('/auth/login', payload);
       if (response.data.success) {
         await SecureStore.setItemAsync('userToken', response.data.token);
         if (response.data.refreshToken) {
@@ -251,6 +258,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return false;
     } catch (error) {
       console.error('Password login failed:', error);
+      throw error;
+    }
+  };
+  const registerWithPassword = async (name: string, phone: string, email: string, password: string): Promise<boolean> => {
+    try {
+      const response = await API.post('/auth/register', { name, phone, email, password });
+      if (response.data.success) {
+        await SecureStore.setItemAsync('userToken', response.data.token);
+        if (response.data.refreshToken) {
+          await SecureStore.setItemAsync('refreshToken', response.data.refreshToken);
+        }
+        setUser(response.data.user);
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('Password register failed:', error);
       throw error;
     }
   };
@@ -431,6 +455,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       loginWithGoogle,
       completeGoogleRegistration,
       loginWithPassword,
+      registerWithPassword,
       sendOTPCode,
       verifyOTPCode,
       registerUser,

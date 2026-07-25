@@ -2,8 +2,8 @@ import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
 
 const API = axios.create({
-  baseURL: 'https://movex-cab.onrender.com/api', // Render Production Server
-  // baseURL: 'http://192.168.1.28:5000/api', // Local Dev Server
+  // baseURL: 'https://movex-cab.onrender.com/api', // Render Production Server
+  baseURL: 'http://192.168.1.28:5000/api', // Local Dev Server
   headers: {
     'Content-Type': 'application/json'
   }

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView, Image, Alert, ActivityIndicator } from 'react-native';
+import API from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
@@ -13,13 +14,15 @@ export default function ProfileScreen({
   onEditProfile, 
   onNavigateLanguage,
   activePasses = [],
-  onOpenPassConfig
+  onOpenPassConfig,
+  onPassCancelled
 }: { 
   onBack: () => void, 
   onEditProfile?: () => void, 
   onNavigateLanguage?: () => void,
   activePasses?: any[],
-  onOpenPassConfig?: () => void
+  onOpenPassConfig?: () => void,
+  onPassCancelled?: () => void
 }) {
   const { user, logout } = useAuth();
   const { t } = useLanguage();
@@ -27,6 +30,34 @@ export default function ProfileScreen({
   const styles = getStyles();
   const [showSettings, setShowSettings] = useState(false);
   const [showSupport, setShowSupport] = useState(false);
+  const [cancellingPass, setCancellingPass] = useState<string | null>(null);
+  const handleCancelPass = (passId: string) => {
+    Alert.alert(
+      'Cancel Pass',
+      'Are you sure you want to cancel your active pass?',
+      [
+        { text: 'No, keep it', style: 'cancel' },
+        { 
+          text: 'Yes, cancel', 
+          style: 'destructive',
+          onPress: async () => {
+            setCancellingPass(passId);
+            try {
+              const res = await API.post('/subscriptions/cancel', { passId });
+              if (res.data.success) {
+                Alert.alert('Success', 'Pass cancelled successfully');
+                if (onPassCancelled) onPassCancelled();
+              }
+            } catch (err: any) {
+              Alert.alert('Error', err.response?.data?.message || 'Failed to cancel pass');
+            } finally {
+              setCancellingPass(null);
+            }
+          }
+        }
+      ]
+    );
+  };
 
   const getIconName = (title: string): keyof typeof Feather.glyphMap => {
     switch(title) {
@@ -122,6 +153,17 @@ export default function ProfileScreen({
                 </View>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 }}>
                   <Text style={{ color: '#0053B3', fontSize: 14 }}>{pass.validUntil ? Math.max(0, Math.ceil((new Date(pass.validUntil).getTime() - new Date().getTime()) / (1000 * 3600 * 24))) : 30} days remaining</Text>
+                  <TouchableOpacity 
+                    onPress={() => handleCancelPass(pass._id)}
+                    disabled={cancellingPass === pass._id}
+                    style={{ backgroundColor: '#FFEBEB', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6 }}
+                  >
+                    {cancellingPass === pass._id ? (
+                      <ActivityIndicator size="small" color="#FF3B30" />
+                    ) : (
+                      <Text style={{ color: '#FF3B30', fontSize: 12, fontWeight: '600' }}>Cancel</Text>
+                    )}
+                  </TouchableOpacity>
                 </View>
               </View>
             ))}

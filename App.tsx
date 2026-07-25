@@ -380,6 +380,15 @@ function NavigationRoot() {
                 onNavigateLanguage={() => props.navigation.navigate('DriverLanguage')}
                 activePasses={activePasses}
                 onOpenPassConfig={() => props.navigation.navigate('PassPurchase')}
+                onPassCancelled={() => {
+                  API.get('/subscriptions/my-pass').then(r => {
+                    if(r.data.success && r.data.data) {
+                      setActivePasses([r.data.data]);
+                    } else {
+                      setActivePasses([]);
+                    }
+                  }).catch(()=>{});
+                }}
               />
             )}
           </Stack.Screen>

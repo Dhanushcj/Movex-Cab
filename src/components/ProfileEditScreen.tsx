@@ -1,7 +1,7 @@
 import { useTheme } from '../context/ThemeContext';
 import Colors from '../constants/colors';
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView, TextInput, Platform, KeyboardAvoidingView, Alert, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView, TextInput, Platform, KeyboardAvoidingView, Alert, Image, ActivityIndicator } from 'react-native';
 import { useAuth } from '../context/AuthContext';
 import { Feather } from '@expo/vector-icons';
 
@@ -26,14 +26,17 @@ export default function ProfileEditScreen({ onBack, onSave }: { onBack: () => vo
   const [ifsc, setIfsc] = useState(user?.bankDetails?.ifscCode || 'IDIB000G092');
 
   const [bankExpanded, setBankExpanded] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const handleSave = async () => {
+    if (loading) return;
     try {
       if (newPassword || oldPassword || confirmNewPassword) {
         if (!oldPassword) return Alert.alert('Error', 'Please enter your old password');
         if (newPassword !== confirmNewPassword) return Alert.alert('Error', 'New passwords do not match');
       }
       
+      setLoading(true);
       const payload: any = { name, phone };
       if (gender) payload.gender = gender.toLowerCase();
       if (user?.role === 'driver') {
@@ -54,6 +57,8 @@ export default function ProfileEditScreen({ onBack, onSave }: { onBack: () => vo
       onSave();
     } catch (e: any) {
       Alert.alert('Error', e.response?.data?.message || 'Failed to update profile');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -171,11 +176,15 @@ export default function ProfileEditScreen({ onBack, onSave }: { onBack: () => vo
 
         {/* Action Buttons */}
         <View style={styles.footerContainer}>
-          <TouchableOpacity style={styles.cancelBtn} onPress={onBack}>
+          <TouchableOpacity style={styles.cancelBtn} onPress={onBack} disabled={loading}>
             <Text style={styles.cancelText}>Cancel</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.saveBtn} onPress={handleSave}>
-            <Text style={styles.saveText}>Save</Text>
+          <TouchableOpacity style={styles.saveBtn} onPress={handleSave} disabled={loading}>
+            {loading ? (
+              <ActivityIndicator color="#FCFCFC" size="small" />
+            ) : (
+              <Text style={styles.saveText}>Save</Text>
+            )}
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
