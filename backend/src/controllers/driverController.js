@@ -209,7 +209,19 @@ const getNearbyDrivers = async (req, res, next) => {
       }
     }).select('name vehicle currentLocation');
 
-    res.json({ success: true, drivers: nearbyDrivers });
+    const { getOnlineDrivers } = require('../config/socket');
+    const onlineDrivers = getOnlineDrivers();
+    
+    // Filter out drivers who don't have an active socket connection
+    const activeNearbyDrivers = nearbyDrivers.filter(d => {
+      const socketDriver = onlineDrivers.get(d._id.toString());
+      return socketDriver && socketDriver.available;
+    });
+
+    res.json({
+      success: true,
+      drivers: activeNearbyDrivers
+    });
   } catch (error) {
     next(error);
   }

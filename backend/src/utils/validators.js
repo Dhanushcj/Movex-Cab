@@ -74,7 +74,7 @@ const bookingRequestSchema = Joi.object({
     address: Joi.string().allow('').optional(),
     coordinates: Joi.array().items(Joi.number()).length(2).optional() // [lng, lat]
   }).optional(),
-  vehicleType: Joi.string().valid('bike', 'auto', 'mini', 'sedan', 'suv').required(),
+  vehicleType: Joi.string().valid('any', 'bike', 'auto', 'mini', 'sedan', 'suv').required(),
   paymentMethod: Joi.string().valid('cash', 'upi', 'qr', 'card', 'wallet').default('cash'),
   promoCode: Joi.string().optional().allow(''),
   preferences: Joi.array().items(Joi.string()).optional(),

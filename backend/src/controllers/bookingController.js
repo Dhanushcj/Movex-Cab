@@ -23,7 +23,7 @@ const estimateFare = async (req, res, next) => {
     }
 
     // 2. Compute fare estimations across all types
-    const vehicles = ['bike', 'auto', 'mini', 'sedan', 'suv'];
+    const vehicles = ['any', 'bike', 'auto', 'mini', 'sedan', 'suv'];
     const estimates = await Promise.all(
       vehicles.map(async (type) => {
         const fare = await calculateFare({
@@ -405,6 +405,10 @@ const cancelBooking = async (req, res, next) => {
   try {
     const booking = await Booking.findById(req.params.id);
     if (!booking) return res.status(404).json({ success: false, message: 'Booking not found' });
+
+    if (booking.status === 'cancelled') {
+      return res.json({ success: true, message: 'Booking is already cancelled', data: booking });
+    }
 
     const cancelableStatuses = ['requested', 'searching', 'accepted', 'arriving', 'arrived'];
     if (!cancelableStatuses.includes(booking.status)) {

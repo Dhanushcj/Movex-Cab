@@ -155,13 +155,23 @@ exports.getUserScheduledRides = async (req, res) => {
 
 exports.cancelScheduledRide = async (req, res) => {
   try {
-    const ride = await ScheduledRide.findOne({ rideId: req.params.id, customer: req.user.id });
+    let query = { customer: req.user.id };
+    if (req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+      query._id = req.params.id;
+    } else {
+      query.rideId = req.params.id;
+    }
+    const ride = await ScheduledRide.findOne(query);
     if (!ride) {
       return res.status(404).json({ success: false, message: 'Ride not found' });
     }
 
-    if (ride.status !== 'scheduled') {
-      return res.status(400).json({ success: false, message: 'Only scheduled rides can be cancelled' });
+    if (ride.status === 'cancelled') {
+      return res.json({ success: true, message: 'Ride is already cancelled' });
+    }
+
+    if (!['scheduled', 'searching', 'driver_assigned', 'assignment_failed'].includes(ride.status)) {
+      return res.status(400).json({ success: false, message: 'Only upcoming scheduled rides can be cancelled' });
     }
 
     // 24 hour refund logic check

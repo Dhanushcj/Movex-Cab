@@ -40,7 +40,6 @@ const matchDriversForBooking = async (bookingId) => {
       approvalStatus: 'approved',
       isOnline: true,
       isAvailable: true,
-      'vehicle.type': booking.vehicleType,
       currentLocation: {
         $geoWithin: {
           $centerSphere: [[pickupLng, pickupLat], radiusInRad]
@@ -48,9 +47,25 @@ const matchDriversForBooking = async (bookingId) => {
       }
     };
 
+    if (booking.vehicleType !== 'any') {
+      query['vehicle.type'] = booking.vehicleType;
+    }
+
+    console.log(`[RideMatching] Querying DB with:`, JSON.stringify(query));
     const nearbyDrivers = await Driver.find(query).limit(10); // Check up to 10 closest drivers
 
-    if (nearbyDrivers.length === 0) {
+    const { getOnlineDrivers } = require('../config/socket');
+    const onlineDrivers = getOnlineDrivers();
+    
+    // Only consider drivers who are actually connected via WebSocket
+    const activeDrivers = nearbyDrivers.filter(driver => {
+      const socketDriver = onlineDrivers.get(driver._id.toString());
+      return socketDriver && socketDriver.available;
+    });
+
+    console.log(`[RideMatching] Found ${nearbyDrivers.length} drivers from DB, ${activeDrivers.length} have active sockets`);
+
+    if (activeDrivers.length === 0) {
       console.log(`ℹ️ No drivers found for ride ${bookingId}`);
 
       booking.status = 'cancelled';
@@ -58,6 +73,11 @@ const matchDriversForBooking = async (bookingId) => {
       booking.cancellationReason = 'No drivers available in your area';
       booking.cancelledAt = new Date();
       await booking.save();
+
+      const io = getIO();
+      if (io) {
+        io.to(`ride:${booking._id}`).emit('booking:status', { status: 'cancelled', reason: booking.cancellationReason });
+      }
 
       if (booking.scheduledRideId) {
         const ScheduledRide = require('../models/ScheduledRide');
@@ -83,14 +103,25 @@ const matchDriversForBooking = async (bookingId) => {
     console.log(`🔍 Found ${nearbyDrivers.length} matching drivers for booking ${bookingId}`);
 
     // Sort drivers by distance, with random noise (up to 500m) to randomize assignment for drivers in the same area
-    const sortedDrivers = nearbyDrivers.map(driver => {
-      const [driverLng, driverLat] = driver.currentLocation.coordinates;
-      const distance = calculateHaversineDistance(pickupLat, pickupLng, driverLat, driverLng);
-      const distanceWithNoise = distance + (Math.random() * 0.5); // 0 to 500m noise
-      return { driver, distance, distanceWithNoise };
-    }).sort((a, b) => a.distanceWithNoise - b.distanceWithNoise);
+    const sortedDrivers = activeDrivers.map(driver => {
+      // Haversine formula to sort by exact distance
+      const distance = calculateHaversineDistance(
+        booking.pickup.location.coordinates[1],
+        booking.pickup.location.coordinates[0],
+        driver.currentLocation.coordinates[1],
+        driver.currentLocation.coordinates[0]
+      );
+      return { driver, distance };
+    }).sort((a, b) => a.distance - b.distance);
 
-    // Sequentially notify drivers
+    // Track this active dispatch process
+    activeDispatches.set(bookingId.toString(), {
+      booking,
+      driverList: sortedDrivers,
+      index: 0
+    });
+
+    console.log(`🚀 Starting sequential dispatch for ${sortedDrivers.length} drivers`);
     dispatchRequestsSequentially(booking, sortedDrivers, 0);
 
   } catch (error) {
@@ -119,6 +150,10 @@ const dispatchRequestsSequentially = async (booking, driverList, index, options 
       currentBooking.cancellationReason = 'Drivers are busy. Please try again.';
       currentBooking.cancelledAt = new Date();
       await currentBooking.save();
+
+      if (io) {
+        io.to(`ride:${currentBooking._id}`).emit('booking:status', { status: 'cancelled', reason: currentBooking.cancellationReason });
+      }
 
       if (currentBooking.scheduledRideId) {
         const ScheduledRide = require('../models/ScheduledRide');

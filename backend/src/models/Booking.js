@@ -44,7 +44,7 @@ const bookingSchema = new mongoose.Schema({
   // Vehicle
   vehicleType: {
     type: String,
-    enum: ['bike', 'auto', 'mini', 'sedan', 'suv'],
+    enum: ['any', 'bike', 'auto', 'mini', 'sedan', 'suv'],
     required: true
   },
   // Advanced Ride Options
