@@ -176,11 +176,9 @@ const LIGHT_MAP_STYLE = [
 ];
 
 export const getVehicle3DIcon = (type: string) => {
-  if (type === 'bike') return require('./assets/bike_realistic.jpg');
-  if (type === 'auto') return require('./assets/auto_realistic.jpg');
-  if (type === 'sedan') return require('./assets/sedan_realistic.jpg');
-  if (type === 'suv') return require('./assets/suv_realistic.jpg');
-  return require('./assets/mini_realistic.jpg');
+  if (type === 'bike') return require('./assets/3d_bike_icon.png');
+  if (type === 'auto') return require('./assets/3d_auto_icon.png');
+  return require('./assets/3d_car_icon.png');
 };
 
 type RootStackParamList = {
@@ -1594,7 +1592,16 @@ function HomeScreen({ onRideBooked, onNavigateProfile, onNavigateLanguage, activ
                           </View>
                         </View>
                       </View>
-                      <Text style={{ fontSize: 18, fontWeight: '600', color: '#262D36' }}>₹{est.fareDetails.totalFare}</Text>
+                        <View style={{ alignItems: 'flex-end' }}>
+                          <Text style={{ fontSize: 18, fontWeight: '600', color: '#262D36' }}>
+                            ₹{est.fareDetails.totalFare}
+                          </Text>
+                          {est.fareDetails.passDiscount > 0 && (
+                            <Text style={{ fontSize: 12, fontWeight: '500', color: '#7C848D', textDecorationLine: 'line-through' }}>
+                              ₹{est.fareDetails.originalFare}
+                            </Text>
+                          )}
+                        </View>
                     </TouchableOpacity>
                   ))}
                 </ScrollView>
@@ -2065,6 +2072,7 @@ function TrackingScreen({ ride, onClose }: { ride: any; onClose: () => void }) {
   const { location } = useLocation();
   const mapRef = useRef<MapView>(null);
 
+  const [localRide, setLocalRide] = useState(ride);
   const [rideStatus, setRideStatus] = useState(ride?.status);
   const [driverLoc, setDriverLoc] = useState<number[] | null>(
     ride?.driverLocation ? ride.driverLocation.coordinates : null
@@ -2114,7 +2122,7 @@ function TrackingScreen({ ride, onClose }: { ride: any; onClose: () => void }) {
 
   // Fetch populated booking on mount to get driver details if already accepted
   useEffect(() => {
-    if (ride?.driver && !ride?.driver?.name) {
+    if (ride?._id) {
       API.get(`/bookings/${ride._id}`).then((res) => {
         if (res.data.success) {
           const b = res.data.data;
@@ -2124,6 +2132,7 @@ function TrackingScreen({ ride, onClose }: { ride: any; onClose: () => void }) {
             vehicle: b.driver?.vehicle || null
           });
           setRideStatus(b.status);
+          setLocalRide(b);
         }
       }).catch(() => {});
     }
@@ -2156,10 +2165,18 @@ function TrackingScreen({ ride, onClose }: { ride: any; onClose: () => void }) {
   useEffect(() => {
     if (!socket || !ride) return;
 
-    socket.emit('tracking:join', { bookingId: ride._id });
+    const joinTracking = () => {
+      socket.emit('tracking:join', { bookingId: ride._id });
+    };
+
+    joinTracking();
+    socket.on('connect', joinTracking);
 
     socket.on('ride:accepted', (data: any) => {
       if (data.driverInfo) setDriverInfo(data.driverInfo);
+      if (data.booking) {
+        setLocalRide(data.booking);
+      }
       setRideStatus('accepted');
     });
 
@@ -2181,6 +2198,7 @@ function TrackingScreen({ ride, onClose }: { ride: any; onClose: () => void }) {
     socket.on('ride:payment_pending', () => { setRideStatus('payment_pending'); });
 
     return () => {
+      socket.off('connect', joinTracking);
       socket.off('ride:accepted');
       socket.off('booking:status');
       socket.off('driver:location');
@@ -2475,7 +2493,7 @@ function TrackingScreen({ ride, onClose }: { ride: any; onClose: () => void }) {
       {(rideStatus === 'accepted' || rideStatus === 'arrived') && (
         <CustomerBookedRideSheet
           driverInfo={driverInfo}
-          rideInfo={ride}
+          rideInfo={localRide}
           rideStatus={rideStatus}
           onCall={() => Alert.alert('Calling Driver', 'Initiating call...')}
           onMessage={() => Alert.alert('Message', 'Opening chat...')}
@@ -2508,11 +2526,11 @@ function TrackingScreen({ ride, onClose }: { ride: any; onClose: () => void }) {
         {/* ── In-progress compact bottom row ── */}
         {rideStatus === 'in_progress' && (
           <CustomerInRideOptions
-            rideId={ride._id}
-            initialPaymentMethod={ride.paymentMethod}
+            rideId={localRide._id}
+            initialPaymentMethod={localRide.paymentMethod}
             driverName={driverInfo?.name}
-            vehiclePlate={driverInfo?.vehicle?.plateNumber || ride.vehicleType?.toUpperCase()}
-            fare={ride.fare?.totalFare || 0}
+            vehiclePlate={driverInfo?.vehicle?.plateNumber || localRide.vehicleType?.toUpperCase()}
+            fare={localRide.fare?.totalFare || 0}
           />
         )}
 
@@ -2720,7 +2738,8 @@ function DriverHomeScreen({ onRideAccepted, onNavigateProfile, onNavigateHistory
             name: user.name,
             phone: user.phone,
             vehicle: user.vehicle
-          }
+          },
+          booking: response.data.data
         });
         const currentRide = response.data.data;
         setIncomingRequest(null);
@@ -3262,6 +3281,15 @@ function DriverActiveRideScreen({ ride, onClose }: { ride: any; onClose: () => v
 
   useEffect(() => {
     if (!socket) return;
+    
+    const joinTracking = () => {
+      if (rideData?._id) {
+        socket.emit('tracking:join', { bookingId: rideData._id });
+      }
+    };
+    joinTracking();
+    socket.on('connect', joinTracking);
+
     const handlePaymentUpdate = (data: any) => {
       setRideData((prev: any) => ({
         ...prev,
@@ -3279,11 +3307,12 @@ function DriverActiveRideScreen({ ride, onClose }: { ride: any; onClose: () => v
     socket.on('ride:completed', () => setRideStatus('completed'));
 
     return () => {
+      socket.off('connect', joinTracking);
       socket.off('booking:payment_updated', handlePaymentUpdate);
       socket.off('booking:status', handleBookingStatus);
       socket.off('ride:completed');
     };
-  }, [socket]);
+  }, [socket, rideData?._id]);
 
   // Navigation state
   const [navStepIndex, setNavStepIndex]       = useState(0);

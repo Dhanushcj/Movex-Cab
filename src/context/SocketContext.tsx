@@ -21,10 +21,9 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         const token = await SecureStore.getItemAsync('userToken');
         if (!token) return;
 
-        activeSocket = io('https://movex-cab.onrender.com', {
+        activeSocket = io('http://192.168.1.28:5000', {
           auth: { token },
-          transports: ['websocket'],
-          reconnectionAttempts: 5
+          transports: ['websocket']
         });
 
         activeSocket.on('connect', () => {
