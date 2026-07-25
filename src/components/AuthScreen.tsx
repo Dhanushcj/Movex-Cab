@@ -467,20 +467,17 @@ export default function AuthScreen({ onNavigateRegister }: { onNavigateRegister:
             </View>
           )}
 
-            </>
-          )}
         </View>
 
         <TouchableOpacity 
           style={styles.roleToggleBtn} 
           onPress={() => {
-            const nextRole = role === 'customer' ? 'driver' : role === 'driver' ? 'admin' : 'customer';
+            const nextRole = role === 'customer' ? 'driver' : 'customer';
             setRole(nextRole);
-            if (nextRole === 'admin') setMode('login');
           }}
         >
           <Text style={styles.roleToggleText}>
-            {role === 'customer' ? 'Login/Register as Driver' : role === 'driver' ? 'Login as Admin' : 'Login/Register as Rider'}
+            {role === 'customer' ? 'Login/Register as Driver' : 'Login/Register as Rider'}
           </Text>
         </TouchableOpacity>
 
