@@ -109,7 +109,7 @@ const initializeSocket = (server) => {
 
     // Driver accepts ride
     socket.on('ride:accept', (data) => {
-      const { bookingId, driverId, driverInfo } = data;
+      const { bookingId, driverId, driverInfo, booking } = data;
       socket.join(`ride:${bookingId}`);
 
       // Mark driver as unavailable
@@ -126,6 +126,7 @@ const initializeSocket = (server) => {
       io.to(`ride:${bookingId}`).emit('ride:accepted', {
         bookingId,
         driverInfo,
+        booking,
         timestamp: Date.now()
       });
       console.log(`✅ Driver ${driverId} accepted ride ${bookingId}`);

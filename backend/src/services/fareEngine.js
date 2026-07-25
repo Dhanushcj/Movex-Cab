@@ -101,9 +101,16 @@ const calculateFare = async ({ vehicleType, distance, duration, promoCode, userI
   // 7. Total final fare
   let totalFare = Math.round(finalTaxableAmount + tax);
 
+  // Original fare without pass discount
+  const originalTax = Math.round(taxableAmount * taxRate);
+  let originalFare = Math.round(taxableAmount + originalTax);
+
   // Enforce minimum fare
   if (totalFare < config.minFare) {
     totalFare = config.minFare;
+  }
+  if (originalFare < config.minFare) {
+    originalFare = config.minFare;
   }
 
   return {
@@ -119,6 +126,7 @@ const calculateFare = async ({ vehicleType, distance, duration, promoCode, userI
     passApplied,
     tax,
     totalFare,
+    originalFare,
     estimatedFare: totalFare
   };
 };

@@ -156,6 +156,30 @@ const acceptBooking = async (req, res, next) => {
       return res.status(403).json({ success: false, message: 'Driver accounts must be approved to accept rides' });
     }
 
+    if (booking.vehicleType === 'any' && booking.route && booking.route.distance > 0) {
+      const { calculateFare } = require('../services/fareEngine');
+      const fare = await calculateFare({
+        vehicleType: driver.vehicle.type,
+        distance: booking.route.distance,
+        duration: booking.route.duration,
+        promoCode: booking.promoCode,
+        userId: booking.customer
+      });
+      
+      booking.fare = {
+        baseFare: fare.baseFare,
+        distanceCharge: fare.distanceCharge,
+        timeCharge: fare.timeCharge,
+        subtotal: fare.subtotal,
+        surgeMultiplier: fare.surgeMultiplier,
+        surgeAmount: fare.surgeAmount,
+        tax: fare.tax,
+        totalFare: fare.totalFare
+      };
+      booking.discount = (fare.discount || 0) + (fare.passDiscount || 0);
+      booking.vehicleType = driver.vehicle.type;
+    }
+
     // Assign driver to ride
     booking.driver = driver._id;
     booking.status = 'accepted';
