@@ -172,8 +172,8 @@ export default function AuthScreen({ onNavigateRegister }: { onNavigateRegister:
         
         {/* Logo Frame */}
         <View style={styles.logoContainer}>
-          <Image source={require('../../assets/icon.png')} style={styles.logoIcon} resizeMode="contain" />
-          <Text style={styles.logoText}>Move X</Text>
+          <Image source={require('../../assets/Frame 3.png')} style={styles.logoIcon} resizeMode="contain" />
+          <Image source={require('../../assets/Move X.png')} style={styles.logoTextImg} resizeMode="contain" />
         </View>
 
         {/* Text Headers */}
@@ -536,11 +536,10 @@ const getStyles = (Colors: any) => StyleSheet.create({
     height: 120,
     marginBottom: 16,
   },
-  logoText: {
-    fontSize: 28,
-    fontWeight: '800',
-    color: Colors.accent,
-    letterSpacing: 1,
+  logoTextImg: {
+    width: 92,
+    height: 19,
+    marginTop: 8,
   },
   headerContainer: {
     width: '100%',
