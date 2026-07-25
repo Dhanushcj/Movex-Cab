@@ -13,13 +13,32 @@ const DashboardUI = ({
   onBuyPass, 
   onScheduleRide,
   onTrackRide,
-  scheduledRide
+  scheduledRide,
+  onCancelScheduledRide
 }: any) => {
-  const passName = activePasses && activePasses.length > 0 
-    ? String(activePasses[0].pass?.name || activePasses[0].vehicleType || 'Gold').toLowerCase() 
+  const pass = activePasses && activePasses.length > 0 ? activePasses[0] : null;
+  const passName = pass 
+    ? String(pass.pass?.name || pass.vehicleType || 'Gold').toLowerCase() 
     : 'gold';
   const isDiamond = passName === 'diamond';
   const themeColor = isDiamond ? '#007BFF' : '#D49F0C';
+  
+  // Calculate progress percentage
+  let progressWidth = 0;
+  if (pass && pass.validUntil) {
+    const start = new Date(pass.purchaseDate || pass.createdAt || Date.now()).getTime();
+    const end = new Date(pass.validUntil).getTime();
+    const now = Date.now();
+    
+    if (end > start) {
+      // Calculate how much time has passed as a percentage
+      const elapsed = now - start;
+      const total = end - start;
+      // We want to show remaining time, so 100% when purchased, down to 0%
+      const remainingPercent = Math.max(0, Math.min(100, ((total - elapsed) / total) * 100));
+      progressWidth = remainingPercent;
+    }
+  }
   return (
     <ScrollView style={{ flex: 1, backgroundColor: '#F3F4F6' }} contentContainerStyle={{ paddingBottom: 120 }}>
       {/* TOP HEADER */}
@@ -31,7 +50,14 @@ const DashboardUI = ({
             </Text>
           </View>
           <View>
-            <Text style={{ fontFamily: 'sans-serif', fontSize: 14, color: '#7C848D' }}>Good Morning!</Text>
+            <Text style={{ fontFamily: 'sans-serif', fontSize: 14, color: '#7C848D' }}>
+              {(() => {
+                const hour = new Date().getHours();
+                if (hour < 12) return 'Good Morning!';
+                if (hour < 17) return 'Good Afternoon!';
+                return 'Good Evening!';
+              })()}
+            </Text>
             <Text style={{ fontFamily: 'sans-serif', fontSize: 16, color: '#262D36', fontWeight: 'bold' }}>{user?.name?.split(' ')[0] || 'Rose'}</Text>
           </View>
         </TouchableOpacity>
@@ -60,18 +86,18 @@ const DashboardUI = ({
           <View style={{ marginTop: 40 }}>
             <Text style={{ color: '#7C848D', fontSize: 10 }}>Valid Till</Text>
             <Text style={{ color: '#FCFCFC', fontSize: 14, fontWeight: 'bold', marginTop: 4 }}>
-              {activePasses && activePasses.length > 0 && activePasses[0].validUntil 
-                ? new Date(activePasses[0].validUntil).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+              {pass && pass.validUntil 
+                ? new Date(pass.validUntil).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
                 : 'July 29, 2026'}
             </Text>
           </View>
-          <View style={{ marginTop: 12, height: 8, backgroundColor: '#F6F8FE', borderRadius: 4, width: '50%' }}>
-             <View style={{ width: '30%', height: 8, backgroundColor: '#0053B3', borderRadius: 4 }} />
+          <View style={{ marginTop: 12, height: 8, backgroundColor: '#F6F8FE', borderRadius: 4, width: '50%', overflow: 'hidden' }}>
+             <View style={{ width: `${progressWidth}%`, height: 8, backgroundColor: '#0053B3', borderRadius: 4 }} />
           </View>
           <Text style={{ color: '#262D36', fontSize: 12, marginTop: 4 }}>
-            {activePasses && activePasses.length > 0 && activePasses[0].validUntil 
-              ? `${Math.max(0, Math.ceil((new Date(activePasses[0].validUntil).getTime() - new Date().getTime()) / (1000 * 3600 * 24)))} Days Left`
-              : (activePasses && activePasses.length > 0 && activePasses[0].totalRides ? `${activePasses[0].totalRides - (activePasses[0].ridesCompleted || 0)} Rides Left` : 'Active')}
+            {pass && pass.validUntil 
+              ? `${Math.max(0, Math.ceil((new Date(pass.validUntil).getTime() - Date.now()) / (1000 * 3600 * 24)))} Days Left`
+              : (pass && pass.totalRides ? `${pass.totalRides - (pass.ridesCompleted || 0)} Rides Left` : 'Active')}
           </Text>
           
           <Image source={{ uri: 'https://www.pngplay.com/wp-content/uploads/13/White-Tata-Tiago-Transparent-PNG.png' }} style={{ position: 'absolute', right: -20, top: 40, width: 220, height: 120, resizeMode: 'contain' }} />
@@ -87,6 +113,18 @@ const DashboardUI = ({
               <Text style={{ color: '#198E1E', fontSize: 12, fontWeight: 'bold' }}>Scheduled</Text>
             </View>
           </View>
+          
+          {scheduledRide.pickupDateTime && (
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12, backgroundColor: '#F6F8FE', padding: 8, borderRadius: 8, alignSelf: 'flex-start' }}>
+              <Feather name="clock" size={14} color="#0053B3" />
+              <Text style={{ color: '#0053B3', fontSize: 12, fontWeight: 'bold' }}>
+                {new Date(scheduledRide.pickupDateTime).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}
+                {' - '}
+                {new Date(scheduledRide.pickupDateTime).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+              </Text>
+            </View>
+          )}
+
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 8 }}>
              <Feather name="home" size={16} color="#198E1E" />
              <Text style={{ color: '#262D36', fontSize: 14 }} numberOfLines={1}>{scheduledRide.pickup || 'Pickup Location'}</Text>
@@ -95,13 +133,23 @@ const DashboardUI = ({
              <Feather name="map-pin" size={16} color="#F85300" />
              <Text style={{ color: '#262D36', fontSize: 14, flex: 1 }} numberOfLines={1}>{scheduledRide.drop || 'Drop Location'}</Text>
           </View>
-          <TouchableOpacity 
-            style={{ backgroundColor: '#0053B3', paddingVertical: 12, borderRadius: 12, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 8 }}
-            onPress={onTrackRide}
-          >
-            <Feather name="navigation" size={16} color="#FFFFFF" />
-            <Text style={{ color: '#FFFFFF', fontSize: 14, fontWeight: 'bold' }}>Track Ride Status</Text>
-          </TouchableOpacity>
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            <TouchableOpacity 
+              style={{ flex: 1, backgroundColor: '#0053B3', paddingVertical: 12, borderRadius: 12, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 8 }}
+              onPress={onTrackRide}
+            >
+              <Feather name="navigation" size={16} color="#FFFFFF" />
+              <Text style={{ color: '#FFFFFF', fontSize: 14, fontWeight: 'bold' }}>Track</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity 
+              style={{ flex: 1, backgroundColor: '#FFF0F0', paddingVertical: 12, borderRadius: 12, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 8 }}
+              onPress={() => onCancelScheduledRide && onCancelScheduledRide(scheduledRide._id)}
+            >
+              <Feather name="x-circle" size={16} color="#FF3B30" />
+              <Text style={{ color: '#FF3B30', fontSize: 14, fontWeight: 'bold' }}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       )}
 

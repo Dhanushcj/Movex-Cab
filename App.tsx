@@ -340,10 +340,19 @@ function NavigationRoot() {
             {(props) => (
               user?.role === 'customer' ? (
                 <HomeScreen 
-                  onRideBooked={(booking: any) => props.navigation.navigate('Tracking', { ride: booking })} 
-                  onNavigateProfile={() => props.navigation.navigate('DriverProfile')} 
+                  onRideBooked={(ride) => props.navigation.navigate('Tracking', { ride })}
+                  onNavigateProfile={() => props.navigation.navigate('DriverProfile')}
                   onNavigateLanguage={() => props.navigation.navigate('CustomerLanguage')}
                   activePasses={activePasses}
+                  onPassPurchased={() => {
+                    API.get('/subscriptions/my-pass').then(r => {
+                      if(r.data.success && r.data.data) {
+                        setActivePasses([r.data.data]);
+                      } else {
+                        setActivePasses([]);
+                      }
+                    }).catch(()=>{});
+                  }}
                 />
               ) : (
                 <DriverHomeScreen 
@@ -399,7 +408,13 @@ function NavigationRoot() {
                 onBack={() => props.navigation.goBack()}
                 onPassPurchased={() => {
                   props.navigation.goBack();
-                  API.get('/subscriptions').catch(()=>{});
+                  API.get('/subscriptions/my-pass').then(r => {
+                    if(r.data.success && r.data.data) {
+                      setActivePasses([r.data.data]);
+                    } else {
+                      setActivePasses([]);
+                    }
+                  }).catch(()=>{});
                 }}
               />
             )}
@@ -810,7 +825,7 @@ function LocationPickerScreen({
 }
 
 // 2. REVAMPED HOME / BOOKING SCREEN
-function HomeScreen({ onRideBooked, onNavigateProfile, onNavigateLanguage, activePasses = [] }: { onRideBooked: (ride: any) => void; onNavigateProfile: () => void; onNavigateLanguage: () => void; activePasses?: any[]; }) {
+function HomeScreen({ onRideBooked, onNavigateProfile, onNavigateLanguage, activePasses = [], onPassPurchased }: { onRideBooked: (ride: any) => void; onNavigateProfile: () => void; onNavigateLanguage: () => void; activePasses?: any[]; onPassPurchased?: () => void; }) {
   const { user, logout, updateUserWallet } = useAuth();
   const { t } = useLanguage();
   const { isDark, toggleTheme } = useTheme();
@@ -1375,6 +1390,30 @@ function HomeScreen({ onRideBooked, onNavigateProfile, onNavigateLanguage, activ
                 }
               }}
               scheduledRide={scheduledRide}
+              onCancelScheduledRide={(id: string) => {
+                Alert.alert(
+                  "Cancel Scheduled Ride",
+                  "Are you sure you want to cancel this scheduled ride?",
+                  [
+                    { text: "No", style: "cancel" },
+                    { text: "Yes", onPress: () => {
+                        API.post(`/scheduled-rides/${id}/cancel`)
+                          .then(res => {
+                            if (res.data && res.data.success) {
+                              setScheduledRide(null);
+                              Alert.alert('Success', 'Scheduled ride cancelled successfully.');
+                            } else {
+                              Alert.alert('Error', res.data?.message || 'Failed to cancel scheduled ride.');
+                            }
+                          })
+                          .catch(err => {
+                            Alert.alert('Error', err.response?.data?.message || 'Failed to cancel scheduled ride.');
+                          });
+                      }
+                    }
+                  ]
+                );
+              }}
             />
           ) : (
             <View style={{ flex: 1 }}>
@@ -2010,7 +2049,7 @@ function HomeScreen({ onRideBooked, onNavigateProfile, onNavigateLanguage, activ
             onBack={() => setShowPassConfig(false)}
             onPassPurchased={() => {
               setShowPassConfig(false);
-              API.get('/subscriptions').catch(()=>{}); // silent trigger
+              if (onPassPurchased) onPassPurchased();
             }}
           />
         </View>
@@ -2034,11 +2073,29 @@ function TrackingScreen({ ride, onClose }: { ride: any; onClose: () => void }) {
   const [review, setReview] = useState('');
   const [submittingRating, setSubmittingRating] = useState(false);
   const [cancelling, setCancelling] = useState(false);
+  const [nearbyDrivers, setNearbyDrivers] = useState<any[]>([]);
   const [driverInfo, setDriverInfo] = useState<any>({
     name: ride?.driver?.name || null,
     phone: ride?.driver?.phone || null,
     vehicle: ride?.driver?.vehicle || null
   });
+
+  // Fetch nearby drivers if searching
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (rideStatus === 'searching' && ride?.pickup?.location?.coordinates) {
+      const fetchDrivers = async () => {
+        try {
+          const coords = ride.pickup.location.coordinates;
+          const res = await API.get(`/drivers/nearby?lng=${coords[0]}&lat=${coords[1]}&radius=2`);
+          if (res.data.success) setNearbyDrivers(res.data.drivers);
+        } catch {}
+      };
+      fetchDrivers();
+      interval = setInterval(fetchDrivers, 5000);
+    }
+    return () => clearInterval(interval);
+  }, [rideStatus, ride]);
 
   // ── Customer-side Navigation State ────────────────────────────────────────
   const [navStepIndex, setNavStepIndex]   = useState(0);
@@ -2257,7 +2314,12 @@ function TrackingScreen({ ride, onClose }: { ride: any; onClose: () => void }) {
           onPress: async () => {
             setCancelling(true);
             try {
-              const res = await API.put(`/bookings/${ride._id}/cancel`, { reason: 'Cancelled by customer' });
+              let res;
+              if (ride.pickupDateTime) {
+                res = await API.post(`/scheduled-rides/${ride._id}/cancel`, { reason: 'Cancelled by customer' });
+              } else {
+                res = await API.put(`/bookings/${ride._id}/cancel`, { reason: 'Cancelled by customer' });
+              }
               if (res.data.success) {
                 Alert.alert('Ride Cancelled', 'Your ride has been successfully cancelled.');
                 onClose();
@@ -2345,6 +2407,13 @@ function TrackingScreen({ ride, onClose }: { ride: any; onClose: () => void }) {
           pinColor="red"
           title="Your Destination"
         />
+
+        {/* Nearby drivers when searching */}
+        {rideStatus === 'searching' && nearbyDrivers.map((d, i) => (
+          <Marker key={`nearby-${d._id || i}`} coordinate={{ latitude: d.currentLocation.coordinates[1], longitude: d.currentLocation.coordinates[0] }}>
+            <Image source={getVehicle3DIcon(d.vehicle?.type || '')} style={{ width: 44, height: 44, resizeMode: 'contain', opacity: 0.7 }} />
+          </Marker>
+        ))}
 
         {/* Animated driver position */}
         {driverLoc && (
