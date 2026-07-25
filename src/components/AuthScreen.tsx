@@ -467,6 +467,8 @@ export default function AuthScreen({ onNavigateRegister }: { onNavigateRegister:
             </View>
           )}
 
+            </>
+          )}
         </View>
 
         <TouchableOpacity 
