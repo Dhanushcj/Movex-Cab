@@ -1014,7 +1014,10 @@ function HomeScreen({ onRideBooked, onNavigateProfile, onNavigateLanguage, activ
   }, [pickupCoords]);
 
   // ── Helpers ────────────────────────────────────────────────────────────────
-  const isVehicleDisabled = (type: string) => false;
+  const isVehicleDisabled = (type: string) => {
+    const est = estimates.find(e => e.vehicleType === type);
+    return est ? est.available === false : false;
+  };
   
   const handleEstimatePass = async (type: string) => {
     if (!pickupCoords || !dropCoords) return;
@@ -1568,7 +1571,7 @@ function HomeScreen({ onRideBooked, onNavigateProfile, onNavigateLanguage, activ
                   {estimates.map((est, idx) => (
                     <TouchableOpacity
                       key={idx}
-                      style={{ borderWidth: 1, borderColor: selectedVehicle?.vehicleType === est.vehicleType ? '#0053B3' : '#E9EAEC', borderRadius: 16, padding: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: selectedVehicle?.vehicleType === est.vehicleType ? '#F3F8FF' : '#FFFFFF' }}
+                      style={[{ borderWidth: 1, borderColor: selectedVehicle?.vehicleType === est.vehicleType ? '#0053B3' : '#E9EAEC', borderRadius: 16, padding: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: selectedVehicle?.vehicleType === est.vehicleType ? '#F3F8FF' : '#FFFFFF' }, isVehicleDisabled(est.vehicleType) && { opacity: 0.5 }]}
                       onPress={() => {
                         if (!isVehicleDisabled(est.vehicleType)) {
                           setSelectedVehicle(est);
@@ -1576,9 +1579,9 @@ function HomeScreen({ onRideBooked, onNavigateProfile, onNavigateLanguage, activ
                           if (bookingMode === 'pass') handleEstimatePass(est.vehicleType);
                         }
                       }}
-                      activeOpacity={0.8}
+                      activeOpacity={isVehicleDisabled(est.vehicleType) ? 1 : 0.8}
                     >
-                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16, flex: 1 }}>
                         <Image 
                           source={(function(type) {
                             const t = type.toLowerCase();
@@ -1590,18 +1593,23 @@ function HomeScreen({ onRideBooked, onNavigateProfile, onNavigateLanguage, activ
                           })(est.vehicleType)} 
                           style={{ width: 60, height: 40, resizeMode: 'contain' }} 
                         />
-                        <View>
+                        <View style={{ flex: 1 }}>
                           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                             <Text style={{ fontSize: 16, color: '#262D36', fontWeight: '500' }}>{est.vehicleType.charAt(0).toUpperCase() + est.vehicleType.slice(1)}</Text>
                             <Feather name="user" size={14} color="#7C848D" />
                             <Text style={{ fontSize: 14, color: '#7C848D' }}>{est.capacity || 4}</Text>
                           </View>
-                          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 4 }}>
-                            <Feather name="zap" size={12} color="#7C848D" />
-                            <Text style={{ fontSize: 12, color: '#7C848D' }}>{est.eta ? est.eta : est.routeDetails.duration.toFixed(0)} min away</Text>
-                          </View>
+                          {isVehicleDisabled(est.vehicleType) ? (
+                            <Text style={{ fontSize: 11, color: colors.danger, marginTop: 4, paddingRight: 8 }}>No drivers available in this type in this area</Text>
+                          ) : (
+                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 4 }}>
+                              <Feather name="zap" size={12} color="#7C848D" />
+                              <Text style={{ fontSize: 12, color: '#7C848D' }}>{est.eta ? est.eta : est.routeDetails.duration.toFixed(0)} min away</Text>
+                            </View>
+                          )}
                         </View>
                       </View>
+                      {!isVehicleDisabled(est.vehicleType) && (
                         <View style={{ alignItems: 'flex-end' }}>
                           <Text style={{ fontSize: 18, fontWeight: '600', color: '#262D36' }}>
                             ₹{est.fareDetails.totalFare}
@@ -1612,6 +1620,7 @@ function HomeScreen({ onRideBooked, onNavigateProfile, onNavigateLanguage, activ
                             </Text>
                           )}
                         </View>
+                      )}
                     </TouchableOpacity>
                   ))}
                 </ScrollView>
