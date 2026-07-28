@@ -56,7 +56,8 @@ const estimateFare = async (req, res, next) => {
 
         const nearestDriver = await Driver.findOne(query).select('currentLocation').lean();
         
-        let etaMinutes = 4; // Default if no drivers are nearby
+        let etaMinutes = 4; // Default
+        let available = false;
         if (nearestDriver && nearestDriver.currentLocation && nearestDriver.currentLocation.coordinates) {
           const dist = calculateHaversineDistance(
             pickupLat, pickupLng,
@@ -64,13 +65,19 @@ const estimateFare = async (req, res, next) => {
           );
           // Assuming an average city speed of ~30 km/h
           etaMinutes = Math.max(1, Math.ceil((dist / 30) * 60));
+          available = true;
+        } else {
+          // Provide varied realistic ETAs per vehicle type if no drivers are nearby
+          const fallbackEtas = { 'bike': 2, 'auto': 3, 'mini': 5, 'sedan': 6, 'suv': 8, 'any': 4 };
+          etaMinutes = fallbackEtas[type] || 5;
         }
 
         return {
           vehicleType: type,
           fareDetails: fare,
           routeDetails: route,
-          eta: etaMinutes
+          eta: etaMinutes,
+          available
         };
       })
     );
