@@ -20,8 +20,8 @@ export default function CustomerInRideOptions({
   vehiclePlate,
   fare
 }: CustomerInRideOptionsProps) {
-    const { isDark } = useTheme();
-    const styles = getStyles(Colors);
+    const { colors, isDark } = useTheme();
+    const styles = getStyles(colors);
 
   const [paymentMethod, setPaymentMethod] = useState(initialPaymentMethod || 'cash');
   const [tip, setTip] = useState(0);

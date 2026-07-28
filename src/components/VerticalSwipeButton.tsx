@@ -15,8 +15,8 @@ export default function VerticalSwipeButton({
   onSwipeComplete,
   label = 'Start Ride',
 }: SwipeButtonProps) {
-    const { isDark } = useTheme();
-    const styles = getStyles(Colors);
+    const { colors, isDark } = useTheme();
+    const styles = getStyles(colors);
 
   const TRACK_HEIGHT = 56;
   const THUMB_SIZE = 48;

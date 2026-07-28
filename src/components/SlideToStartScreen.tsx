@@ -27,8 +27,8 @@ interface SlideToStartScreenProps {
 }
 
 export default function SlideToStartScreen({ onStart, onVerify, pickupAddress, customerName, customerPhone }: SlideToStartScreenProps) {
-    const { isDark } = useTheme();
-    const styles = getStyles(Colors);
+    const { colors, isDark } = useTheme();
+    const styles = getStyles(colors);
 
   const [otp, setOtp] = useState('');
   const [isVerified, setIsVerified] = useState(false);

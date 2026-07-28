@@ -32,8 +32,8 @@ export default function CustomerBookedRideSheet({
   onMessage,
   rideStatus,
 }: CustomerBookedRideSheetProps) {
-    const { isDark } = useTheme();
-    const styles = getStyles(Colors);
+    const { colors, isDark } = useTheme();
+    const styles = getStyles(colors);
 
   const slideAnim  = useRef(new Animated.Value(300)).current;
   const pulseAnim  = useRef(new Animated.Value(1)).current;

@@ -21,9 +21,9 @@ interface NotificationScreenProps {
 }
 
 export default function NotificationScreen({ visible, onClose }: NotificationScreenProps) {
-    const { isDark } = useTheme();
+    const { colors, isDark } = useTheme();
     const { t } = useLanguage();
-    const styles = getStyles(Colors);
+    const styles = getStyles(colors);
 
   const [filter, setFilter] = useState<'all' | 'unread'>('all');
   const [notifications, setNotifications] = useState<any[]>([]);

@@ -39,8 +39,8 @@ const TAMIL_NADU_DISTRICTS = [
 ];
 
 const CustomDropdown = ({ label, options, selectedValue, onSelect, placeholder }: any) => {
-    const { isDark } = useTheme();
-    const styles = getStyles(Colors);
+    const { colors, isDark } = useTheme();
+    const styles = getStyles(colors);
 
   const [modalVisible, setModalVisible] = useState(false);
 
@@ -82,8 +82,8 @@ const CustomDropdown = ({ label, options, selectedValue, onSelect, placeholder }
 };
 
 export default function RegistrationScreen({ onBack, prefillData = null, isCorrection = false }: { onBack: () => void, prefillData?: any, isCorrection?: boolean }) {
-  const { isDark } = useTheme();
-  const styles = getStyles(Colors);
+  const { colors, isDark } = useTheme();
+  const styles = getStyles(colors);
   const { registerDriverProfile, resubmitDriverProfile } = useAuth();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);

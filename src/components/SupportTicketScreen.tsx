@@ -22,9 +22,9 @@ interface SupportTicketScreenProps {
 }
 
 export default function SupportTicketScreen({ visible, onClose }: SupportTicketScreenProps) {
-    const { isDark } = useTheme();
+    const { colors, isDark } = useTheme();
     const { t } = useLanguage();
-    const styles = getStyles(Colors);
+    const styles = getStyles(colors);
 
     const [tickets, setTickets] = React.useState<any[]>([]);
     const [loading, setLoading] = React.useState(true);

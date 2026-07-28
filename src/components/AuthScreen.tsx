@@ -18,8 +18,8 @@ import { useAuth } from '../context/AuthContext';
 import Colors from '../constants/colors';
 
 export default function AuthScreen({ onNavigateRegister }: { onNavigateRegister: (data: any) => void }) {
-  const { isDark } = useTheme();
-  const styles = getStyles(Colors);
+  const { colors, isDark } = useTheme();
+  const styles = getStyles(colors);
   const { loginWithEmail, registerWithEmail, loginWithGoogle, completeGoogleRegistration, loginDriver, loginAdmin, loginWithPassword, registerWithPassword, checkEmailVerification, resendVerificationEmail, resetPassword } = useAuth();
   
   const [mode, setMode] = useState<'login' | 'register' | 'verify_email' | 'forgot_password'>('login');

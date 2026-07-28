@@ -23,8 +23,8 @@ interface CreateTicketModalProps {
 }
 
 export default function CreateTicketModal({ visible, onClose, onSuccess }: CreateTicketModalProps) {
-  const { isDark } = useTheme();
-  const styles = getStyles(Colors);
+  const { colors, isDark } = useTheme();
+  const styles = getStyles(colors);
 
   const [type, setType] = useState('other');
   const [subject, setSubject] = useState('');

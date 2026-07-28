@@ -29,8 +29,8 @@ export default function TripCompletedPaymentSheet({
   onComplete,
   driverId,
 }: TripCompletedPaymentSheetProps) {
-    const { isDark } = useTheme();
-    const styles = getStyles(Colors);
+    const { colors, isDark } = useTheme();
+    const styles = getStyles(colors);
 
   const slideAnim = useRef(new Animated.Value(600)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;

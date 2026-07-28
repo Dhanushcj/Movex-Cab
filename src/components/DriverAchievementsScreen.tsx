@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Alert, SafeAreaView, Platform } from 'react-native';
+import { useTheme } from '../context/ThemeContext';
 import { Feather, FontAwesome5 } from '@expo/vector-icons';
 import Colors from '../constants/colors';
 import { getDriverAchievements } from '../services/api';
@@ -15,6 +16,8 @@ const DriverAchievementsScreen: React.FC<DriverAchievementsScreenProps> = ({
   onNavigateWallet,
   onNavigateHistory
 }) => {
+  const { colors, isDark } = useTheme();
+  const styles = getStyles(colors);
   const [loading, setLoading] = useState(true);
   const [achievements, setAchievements] = useState<any[]>([]);
   const [stats, setStats] = useState<any>(null);
@@ -57,7 +60,7 @@ const DriverAchievementsScreen: React.FC<DriverAchievementsScreenProps> = ({
       <View style={styles.container}>
         <View style={styles.header}>
           <TouchableOpacity onPress={onNavigateHome} style={styles.backButton}>
-            <Feather name="arrow-left" size={24} color={Colors.textPrimary} />
+            <Feather name="arrow-left" size={24} color={colors.textPrimary} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>My Achievements</Text>
           <View style={{ width: 40 }} />
@@ -65,7 +68,7 @@ const DriverAchievementsScreen: React.FC<DriverAchievementsScreenProps> = ({
 
         {loading ? (
           <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color={Colors.accent} />
+            <ActivityIndicator size="large" color={colors.accent} />
           </View>
         ) : (
           <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -125,7 +128,7 @@ const DriverAchievementsScreen: React.FC<DriverAchievementsScreenProps> = ({
                 </View>
               );
             }) : (
-              <Text style={{ textAlign: 'center', color: Colors.textMuted, marginTop: 40 }}>No achievements available.</Text>
+              <Text style={{ textAlign: 'center', color: colors.textMuted, marginTop: 40 }}>No achievements available.</Text>
             )}
             
             <View style={{ height: 100 }} />
@@ -153,15 +156,15 @@ const DriverAchievementsScreen: React.FC<DriverAchievementsScreenProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any) => StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: colors.bgPrimary,
     paddingTop: Platform.OS === 'android' ? 24 : 0,
   },
   container: {
     flex: 1,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: colors.bgPrimary,
   },
   header: {
     flexDirection: 'row',
@@ -189,7 +192,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: colors.textPrimary,
   },
   loadingContainer: {
     flex: 1,
@@ -226,23 +229,23 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 20,
     fontWeight: '700',
-    color: Colors.accent,
+    color: colors.accent,
     marginBottom: 4,
   },
   statLabel: {
     fontSize: 12,
     fontWeight: '500',
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
   },
   statDivider: {
     width: 1,
     height: 40,
-    backgroundColor: Colors.border,
+    backgroundColor: colors.border,
   },
   sectionTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: colors.textPrimary,
     marginBottom: 16,
   },
   achievementCard: {
@@ -272,7 +275,7 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: colors.bgPrimary,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 16,
@@ -283,12 +286,12 @@ const styles = StyleSheet.create({
   achievementTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: colors.textPrimary,
     marginBottom: 4,
   },
   achievementDesc: {
     fontSize: 13,
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
     marginBottom: 8,
   },
   unlockedBadge: {
@@ -308,12 +311,12 @@ const styles = StyleSheet.create({
   },
   progressBarFill: {
     height: '100%',
-    backgroundColor: Colors.accent,
+    backgroundColor: colors.accent,
     borderRadius: 3,
   },
   progressText: {
     fontSize: 12,
-    color: Colors.textMuted,
+    color: colors.textMuted,
     fontWeight: '500',
     width: 45,
     textAlign: 'right',

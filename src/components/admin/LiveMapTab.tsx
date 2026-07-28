@@ -7,8 +7,8 @@ import API from '../../services/api';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 
 export default function LiveMapTab() {
-    const { isDark } = useTheme();
-    const styles = getStyles(Colors);
+    const { colors, isDark } = useTheme();
+    const styles = getStyles(colors);
 
   const [onlineDrivers, setOnlineDrivers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);

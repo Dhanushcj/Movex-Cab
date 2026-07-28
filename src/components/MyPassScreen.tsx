@@ -2,9 +2,12 @@ import * as React from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Platform, StyleSheet } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useTheme } from '../context/ThemeContext';
 import Colors from '../constants/colors';
 
 const MyPassScreen = ({ user, activePasses, onBack, onNavigateHome, onNavigateHistory, onUpgradePlan }: any) => {
+  const { colors, isDark } = useTheme();
+  const styles = getStyles(colors);
   const passName = activePasses && activePasses.length > 0 
     ? String(activePasses[0].pass?.name || activePasses[0].vehicleType || 'Gold').toLowerCase() 
     : 'gold';
@@ -41,7 +44,7 @@ const MyPassScreen = ({ user, activePasses, onBack, onNavigateHome, onNavigateHi
           {/* Middle Row: Chip & Card Number */}
           <View style={styles.cardMiddleRow}>
             <Feather name="cpu" size={32} color={isDiamond ? "rgba(255,255,255,0.9)" : passName === 'silver' ? "rgba(0,0,0,0.6)" : "rgba(0,0,0,0.7)"} style={styles.chipIcon} />
-            <Text style={[styles.cardNumber, (passName === 'silver' || !isDiamond && passName !== 'silver') && { color: '#262D36' }]}>
+            <Text style={[styles.cardNumber, (passName === 'silver' || !isDiamond && passName !== 'silver') && { color: colors.textPrimary }]}>
               {user?.empId ? user.empId.replace(/(.{4})/g, '$1 ').trim() : '•••• •••• •••• ••••'}
             </Text>
           </View>
@@ -50,11 +53,11 @@ const MyPassScreen = ({ user, activePasses, onBack, onNavigateHome, onNavigateHi
           <View style={styles.cardBottomRow}>
             <View>
               <Text style={[styles.cardLabel, (passName === 'silver' || !isDiamond && passName !== 'silver') && { color: 'rgba(0,0,0,0.5)' }]}>CARDHOLDER NAME</Text>
-              <Text style={[styles.cardValue, (passName === 'silver' || !isDiamond && passName !== 'silver') && { color: '#262D36' }]}>{(user?.name || 'Sabari').toUpperCase()}</Text>
+              <Text style={[styles.cardValue, (passName === 'silver' || !isDiamond && passName !== 'silver') && { color: colors.textPrimary }]}>{(user?.name || 'Sabari').toUpperCase()}</Text>
             </View>
             <View style={{ alignItems: 'flex-end' }}>
               <Text style={[styles.cardLabel, (passName === 'silver' || !isDiamond && passName !== 'silver') && { color: 'rgba(0,0,0,0.5)' }]}>VALID THRU</Text>
-              <Text style={[styles.cardValue, (passName === 'silver' || !isDiamond && passName !== 'silver') && { color: '#262D36' }]}>
+              <Text style={[styles.cardValue, (passName === 'silver' || !isDiamond && passName !== 'silver') && { color: colors.textPrimary }]}>
                 {activePasses && activePasses.length > 0 && activePasses[0].validUntil 
                   ? (() => {
                       const d = new Date(activePasses[0].validUntil);
@@ -95,10 +98,10 @@ const MyPassScreen = ({ user, activePasses, onBack, onNavigateHome, onNavigateHi
   );
 };
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: colors.bgPrimary,
   },
   header: {
     flexDirection: 'row',
@@ -112,7 +115,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.bgSecondary,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -120,7 +123,7 @@ const styles = StyleSheet.create({
     fontFamily: 'sans-serif',
     fontSize: 18,
     fontWeight: '600',
-    color: '#262D36',
+    color: colors.textPrimary,
   },
   scrollContent: {
     paddingHorizontal: 16,
@@ -148,7 +151,7 @@ const styles = StyleSheet.create({
     fontFamily: 'sans-serif',
     fontSize: 20,
     fontWeight: '800',
-    color: '#FCFCFC',
+    color: colors.white,
     letterSpacing: 1,
   },
   cardTierName: {
@@ -169,7 +172,7 @@ const styles = StyleSheet.create({
   cardNumber: {
     fontFamily: 'monospace',
     fontSize: 22,
-    color: '#FCFCFC',
+    color: colors.white,
     letterSpacing: 2,
     textShadowColor: 'rgba(0, 0, 0, 0.3)',
     textShadowOffset: { width: 0, height: 1 },
@@ -191,7 +194,7 @@ const styles = StyleSheet.create({
     fontFamily: 'sans-serif',
     fontSize: 15,
     fontWeight: '600',
-    color: '#FCFCFC',
+    color: colors.white,
     letterSpacing: 1,
     textShadowColor: 'rgba(0, 0, 0, 0.3)',
     textShadowOffset: { width: 0, height: 1 },
@@ -216,7 +219,7 @@ const styles = StyleSheet.create({
   btnPrimaryText: {
     fontFamily: 'sans-serif',
     fontSize: 16,
-    color: '#FCFCFC',
+    color: colors.white,
     fontWeight: '500',
   },
   btnOutline: {
@@ -244,24 +247,24 @@ const styles = StyleSheet.create({
     fontFamily: 'sans-serif',
     fontSize: 18,
     fontWeight: '600',
-    color: '#262D36',
+    color: colors.textPrimary,
     marginBottom: 16,
   },
   noInvoicesBox: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.bgSecondary,
     borderRadius: 16,
     padding: 30,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: '#E9EAEC',
+    borderColor: colors.border,
     borderStyle: 'dashed',
     gap: 12,
   },
   noInvoicesText: {
     fontFamily: 'sans-serif',
     fontSize: 14,
-    color: '#9098A2',
+    color: colors.textSecondary,
   }
 });
 

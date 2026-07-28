@@ -34,8 +34,8 @@ const SLIDES_DATA = [
 ];
 
 export default function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
-    const { isDark } = useTheme();
-    const styles = getStyles(Colors);
+    const { colors, isDark } = useTheme();
+    const styles = getStyles(colors);
 
   const scrollViewRef = useRef<ScrollView>(null);
   const [activeIndex, setActiveIndex] = useState(0);

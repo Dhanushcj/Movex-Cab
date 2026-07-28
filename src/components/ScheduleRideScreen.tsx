@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Platform, SafeAreaView, Modal } from 'react-native';
+import { useTheme } from '../context/ThemeContext';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Feather } from '@expo/vector-icons';
 import Colors from '../constants/colors';
@@ -7,6 +8,8 @@ import Colors from '../constants/colors';
 const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
 const ScheduleRideScreen = ({ visible, onClose, onContinue }: any) => {
+  const { colors, isDark } = useTheme();
+  const styles = getStyles(colors);
   const [showPicker, setShowPicker] = useState<'time' | 'date' | 'startMonth' | 'returnTime' | null>(null);
   const [scheduleType, setScheduleType] = useState<'today' | 'monthly'>('today');
   
@@ -79,7 +82,7 @@ const ScheduleRideScreen = ({ visible, onClose, onContinue }: any) => {
       <SafeAreaView style={styles.container}>
         <View style={styles.header}>
           <TouchableOpacity style={styles.backButton} onPress={onClose}>
-          <Feather name="chevron-left" size={24} color="#262D36" />
+          <Feather name="chevron-left" size={24} color={colors.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Schedule a Trip</Text>
         <View style={{ width: 40 }} />
@@ -89,7 +92,7 @@ const ScheduleRideScreen = ({ visible, onClose, onContinue }: any) => {
         {/* Schedule Type Card */}
         <View style={styles.card}>
           <View style={styles.cardHeader}>
-            <Feather name="calendar" size={20} color="#262D36" />
+            <Feather name="calendar" size={20} color={colors.textPrimary} />
             <Text style={styles.cardTitle}>Schedule For</Text>
           </View>
           <View style={{ flexDirection: 'row', gap: 12 }}>
@@ -112,7 +115,7 @@ const ScheduleRideScreen = ({ visible, onClose, onContinue }: any) => {
         {scheduleType === 'today' && (
           <View style={styles.card}>
             <View style={styles.cardHeader}>
-              <Feather name="calendar" size={20} color="#262D36" />
+              <Feather name="calendar" size={20} color={colors.textPrimary} />
               <Text style={styles.cardTitle}>Date & Time</Text>
             </View>
 
@@ -136,14 +139,14 @@ const ScheduleRideScreen = ({ visible, onClose, onContinue }: any) => {
                 <Text style={styles.timingLabel}>Date</Text>
                 <TouchableOpacity style={styles.timeSelectBtn} onPress={() => setShowPicker('date')}>
                   <Text style={styles.timeText}>{formatDate(scheduledDate)}</Text>
-                  <Feather name="chevron-down" size={16} color="#262D36" />
+                  <Feather name="chevron-down" size={16} color={colors.textPrimary} />
                 </TouchableOpacity>
               </View>
               <View style={styles.timingBox}>
                 <Text style={styles.timingLabel}>Pickup Time</Text>
                 <TouchableOpacity style={styles.timeSelectBtn} onPress={() => setShowPicker('time')}>
                   <Text style={styles.timeText}>{formatTime(scheduledTime)}</Text>
-                  <Feather name="chevron-down" size={16} color="#262D36" />
+                  <Feather name="chevron-down" size={16} color={colors.textPrimary} />
                 </TouchableOpacity>
               </View>
             </View>
@@ -154,7 +157,7 @@ const ScheduleRideScreen = ({ visible, onClose, onContinue }: any) => {
                   <Text style={styles.timingLabel}>Return Pickup Time</Text>
                   <TouchableOpacity style={styles.timeSelectBtn} onPress={() => setShowPicker('returnTime')}>
                     <Text style={styles.timeText}>{formatTime(returnTime)}</Text>
-                    <Feather name="chevron-down" size={16} color="#262D36" />
+                    <Feather name="chevron-down" size={16} color={colors.textPrimary} />
                   </TouchableOpacity>
                 </View>
               </View>
@@ -166,7 +169,7 @@ const ScheduleRideScreen = ({ visible, onClose, onContinue }: any) => {
         {scheduleType === 'monthly' && (
           <View style={styles.card}>
             <View style={styles.cardHeader}>
-              <Feather name="repeat" size={20} color="#262D36" />
+              <Feather name="repeat" size={20} color={colors.textPrimary} />
               <Text style={styles.cardTitle}>Monthly Schedule</Text>
             </View>
 
@@ -190,7 +193,7 @@ const ScheduleRideScreen = ({ visible, onClose, onContinue }: any) => {
                   <Text style={styles.timingLabel}>Pickup Time</Text>
                   <TouchableOpacity style={[styles.timeSelectBtn, { marginBottom: 16 }]} onPress={() => setShowPicker('time')}>
                     <Text style={styles.timeText}>{formatTime(scheduledTime)}</Text>
-                    <Feather name="chevron-down" size={16} color="#262D36" />
+                    <Feather name="chevron-down" size={16} color={colors.textPrimary} />
                   </TouchableOpacity>
               </View>
               {tripType === 'round' && (
@@ -198,7 +201,7 @@ const ScheduleRideScreen = ({ visible, onClose, onContinue }: any) => {
                   <Text style={styles.timingLabel}>Return Pickup Time</Text>
                   <TouchableOpacity style={[styles.timeSelectBtn, { marginBottom: 16 }]} onPress={() => setShowPicker('returnTime')}>
                     <Text style={styles.timeText}>{formatTime(returnTime)}</Text>
-                    <Feather name="chevron-down" size={16} color="#262D36" />
+                    <Feather name="chevron-down" size={16} color={colors.textPrimary} />
                   </TouchableOpacity>
                 </View>
               )}
@@ -219,7 +222,7 @@ const ScheduleRideScreen = ({ visible, onClose, onContinue }: any) => {
                 <Text style={styles.timingLabel}>Start Month</Text>
                 <TouchableOpacity style={styles.timeSelectBtn} onPress={() => setShowPicker('startMonth')}>
                   <Text style={styles.timeText}>{formatMonthYear(startMonth)}</Text>
-                  <Feather name="chevron-down" size={16} color="#262D36" />
+                  <Feather name="chevron-down" size={16} color={colors.textPrimary} />
                 </TouchableOpacity>
               </View>
             </View>
@@ -265,10 +268,10 @@ const ScheduleRideScreen = ({ visible, onClose, onContinue }: any) => {
   );
 };
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: colors.bgPrimary,
   },
   header: {
     flexDirection: 'row',
@@ -282,7 +285,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.bgSecondary,
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#000',
@@ -295,14 +298,14 @@ const styles = StyleSheet.create({
     fontFamily: 'sans-serif',
     fontSize: 18,
     fontWeight: '600',
-    color: '#262D36',
+    color: colors.textPrimary,
   },
   content: {
     padding: 20,
     paddingBottom: 100,
   },
   card: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.bgSecondary,
     borderRadius: 20,
     padding: 24,
     marginBottom: 16,
@@ -322,16 +325,16 @@ const styles = StyleSheet.create({
     fontFamily: 'sans-serif',
     fontSize: 16,
     fontWeight: '600',
-    color: '#262D36',
+    color: colors.textPrimary,
   },
   typeBtn: {
     flex: 1,
     paddingVertical: 12,
     borderWidth: 1,
-    borderColor: '#E9EAEC',
+    borderColor: colors.border,
     borderRadius: 12,
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.bgSecondary,
   },
   typeBtnSelected: {
     backgroundColor: '#0053B3',
@@ -340,7 +343,7 @@ const styles = StyleSheet.create({
   typeBtnText: {
     fontFamily: 'sans-serif',
     fontSize: 14,
-    color: '#262D36',
+    color: colors.textPrimary,
     fontWeight: '600',
   },
   typeBtnTextSelected: {
@@ -363,12 +366,12 @@ const styles = StyleSheet.create({
   timingLabel: {
     fontFamily: 'sans-serif',
     fontSize: 14,
-    color: '#7C848D',
+    color: colors.textSecondary,
     marginBottom: 4,
   },
   fareSummaryBox: {
     marginTop: 20,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: colors.bgTertiary,
     padding: 16,
     borderRadius: 12,
   },
@@ -378,11 +381,11 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   fareLabel: {
-    color: '#7C848D',
+    color: colors.textSecondary,
     fontSize: 14,
   },
   fareVal: {
-    color: '#262D36',
+    color: colors.textPrimary,
     fontSize: 14,
   },
   discountText: {
@@ -398,15 +401,15 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.bgSecondary,
     borderWidth: 1,
-    borderColor: '#E9EAEC',
+    borderColor: colors.border,
     borderRadius: 12,
   },
   timeText: {
     fontFamily: 'sans-serif',
     fontSize: 14,
-    color: '#262D36',
+    color: colors.textPrimary,
     fontWeight: '500',
   },
   daysRow: {
@@ -420,17 +423,17 @@ const styles = StyleSheet.create({
   dayText: {
     fontFamily: 'sans-serif',
     fontSize: 14,
-    color: '#262D36',
+    color: colors.textPrimary,
   },
   checkbox: {
     width: 24,
     height: 24,
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: '#E9EAEC',
+    borderColor: colors.border,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.bgSecondary,
   },
   checkboxSelected: {
     backgroundColor: '#0053B3',
@@ -443,7 +446,7 @@ const styles = StyleSheet.create({
     right: 0,
     padding: 20,
     paddingBottom: Platform.OS === 'ios' ? 40 : 20,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: colors.bgPrimary,
   },
   continueBtn: {
     backgroundColor: '#0053B3',
@@ -460,7 +463,7 @@ const styles = StyleSheet.create({
     fontFamily: 'sans-serif',
     fontSize: 16,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: colors.bgSecondary,
   },
 });
 

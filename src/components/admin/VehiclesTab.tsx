@@ -6,8 +6,8 @@ import API from '../../services/api';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 
 export default function VehiclesTab() {
-    const { isDark } = useTheme();
-    const styles = getStyles(Colors);
+    const { colors, isDark } = useTheme();
+    const styles = getStyles(colors);
 
   const [vehicles, setVehicles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);

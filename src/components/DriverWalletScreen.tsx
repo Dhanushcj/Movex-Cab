@@ -26,8 +26,8 @@ interface DriverWalletScreenProps {
 }
 
 export default function DriverWalletScreen({ onBack, onNavigateHome, onNavigateHistory, onNavigateAchievements }: DriverWalletScreenProps) {
-    const { isDark } = useTheme();
-    const styles = getStyles(Colors);
+    const { colors, isDark } = useTheme();
+    const styles = getStyles(colors);
 
   const [walletData, setWalletData] = useState<any>(null);
   const [loading, setLoading] = useState(true);

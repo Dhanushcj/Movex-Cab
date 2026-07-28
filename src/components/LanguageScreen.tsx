@@ -5,8 +5,8 @@ import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Platform } from
 import { useLanguage } from '../context/LanguageContext';
 
 export default function LanguageScreen({ onBack }: { onBack: () => void }) {
-  const { isDark } = useTheme();
-  const styles = getStyles(Colors);
+  const { colors, isDark } = useTheme();
+  const styles = getStyles(colors);
   const { language, setLanguage } = useLanguage();
   const [selectedLang, setSelectedLang] = useState<'en' | 'ta'>(language);
 

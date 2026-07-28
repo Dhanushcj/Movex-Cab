@@ -8,8 +8,8 @@ import CustomerPaymentOptionsSheet from './CustomerPaymentOptionsSheet';
 import API from '../services/api';
 
 export default function CustomerQRScannerScreen({ ride, onPaymentComplete, onClose }: any) {
-    const { isDark } = useTheme();
-    const styles = getStyles(Colors);
+    const { colors, isDark } = useTheme();
+    const styles = getStyles(colors);
 
   const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);

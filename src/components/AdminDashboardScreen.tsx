@@ -26,8 +26,8 @@ import ComplaintsTab from './admin/ComplaintsTab';
 import SettingsTab from './admin/SettingsTab';
 
 export default function AdminDashboardScreen({ onNavigateLogout }: { onNavigateLogout?: () => void }) {
-  const { isDark } = useTheme();
-  const styles = getStyles(Colors);
+  const { colors, isDark } = useTheme();
+  const styles = getStyles(colors);
   const { user, logout } = useAuth();
   const [activeModule, setActiveModule] = useState<
     'overview' | 'drivers' | 'vehicles' | 'customers' | 'rides' | 'map' | 'payments' | 'payouts' | 'complaints' | 'settings'

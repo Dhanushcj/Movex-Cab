@@ -7,8 +7,8 @@ import { Feather } from '@expo/vector-icons';
 
 export default function ProfileEditScreen({ onBack, onSave }: { onBack: () => void, onSave: () => void }) {
   const { user, updateProfile } = useAuth();
-  const { isDark } = useTheme();
-  const styles = getStyles(Colors);
+  const { colors, isDark } = useTheme();
+  const styles = getStyles(colors);
 
   const [name, setName] = useState(user?.name || 'Sabari A');
   const [oldPassword, setOldPassword] = useState('');
@@ -213,7 +213,7 @@ const getStyles = (Colors: any) => StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#DEE0E3',
+    backgroundColor: Colors.bgSecondary,
     alignItems: 'center',
     justifyContent: 'center'
   },
@@ -234,7 +234,7 @@ const getStyles = (Colors: any) => StyleSheet.create({
     width: 140,
     height: 140,
     borderRadius: 70,
-    backgroundColor: '#E8EAEE',
+    backgroundColor: Colors.bgSecondary,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 16,
@@ -245,7 +245,7 @@ const getStyles = (Colors: any) => StyleSheet.create({
     height: 73,
     borderRadius: 36.5,
     borderWidth: 3,
-    borderColor: '#0053B3',
+    borderColor: Colors.accent,
     alignItems: 'center',
     justifyContent: 'center'
   },
@@ -260,7 +260,7 @@ const getStyles = (Colors: any) => StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1.75,
-    borderColor: '#0053B3'
+    borderColor: Colors.accent
   },
   plateId: {
     fontSize: 16,
@@ -272,7 +272,7 @@ const getStyles = (Colors: any) => StyleSheet.create({
     marginBottom: 12
   },
   cardBlock: {
-    backgroundColor: '#FCFCFC',
+    backgroundColor: Colors.bgSecondary,
     borderRadius: 16,
     padding: 16,
     gap: 12,
@@ -280,7 +280,7 @@ const getStyles = (Colors: any) => StyleSheet.create({
   },
   inputWrapper: {
     borderWidth: 1,
-    borderColor: '#DEE0E3',
+    borderColor: Colors.bgSecondary,
     borderRadius: 12,
     paddingHorizontal: 12,
     height: 40,
@@ -313,19 +313,19 @@ const getStyles = (Colors: any) => StyleSheet.create({
     flex: 1,
     height: 44,
     borderWidth: 1,
-    borderColor: '#0053B3',
+    borderColor: Colors.accent,
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center'
   },
   cancelText: {
-    color: '#0053B3',
+    color: Colors.accent,
     fontSize: 14
   },
   saveBtn: {
     flex: 1,
     height: 44,
-    backgroundColor: '#0053B3',
+    backgroundColor: Colors.accent,
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center'

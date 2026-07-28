@@ -5,8 +5,8 @@ import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'rea
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 export default function CustomerPaymentOptionsSheet({ amount, onSelect, processing, onCancel }: any) {
-    const { isDark } = useTheme();
-    const styles = getStyles(Colors);
+    const { colors, isDark } = useTheme();
+    const styles = getStyles(colors);
 
   return (
     <View style={styles.sheetContainer}>

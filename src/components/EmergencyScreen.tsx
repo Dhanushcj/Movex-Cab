@@ -19,8 +19,8 @@ interface EmergencyScreenProps {
 }
 
 export default function EmergencyScreen({ visible, onClose }: EmergencyScreenProps) {
-    const { isDark } = useTheme();
-    const styles = getStyles(Colors);
+    const { colors, isDark } = useTheme();
+    const styles = getStyles(colors);
 
   return (
     <Modal visible={visible} animationType="slide" transparent={false} onRequestClose={onClose}>

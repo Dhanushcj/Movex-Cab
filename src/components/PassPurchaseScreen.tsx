@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator, Alert, SafeAreaView, Platform, Dimensions } from 'react-native';
+import { useTheme } from '../context/ThemeContext';
 import Colors from '../constants/colors';
 import { Feather } from '@expo/vector-icons';
 import API from '../services/api';
@@ -12,6 +13,8 @@ interface PassPurchaseScreenProps {
 }
 
 export default function PassPurchaseScreen({ onBack, onPassPurchased }: PassPurchaseScreenProps) {
+  const { colors, isDark } = useTheme();
+  const styles = getStyles(colors);
   const [passes, setPasses] = useState<any[]>([]);
   const [myPass, setMyPass] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -99,13 +102,13 @@ export default function PassPurchaseScreen({ onBack, onPassPurchased }: PassPurc
       <SafeAreaView style={styles.container}>
         <View style={styles.header}>
           <TouchableOpacity style={styles.backButton} onPress={onBack}>
-            <Feather name="chevron-left" size={24} color="#262D36" />
+            <Feather name="chevron-left" size={24} color={colors.textPrimary} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Choose Your Membership</Text>
           <View style={{ width: 40 }} />
         </View>
         <View style={styles.loadingContainer}>
-          <Text style={{ fontFamily: 'sans-serif', fontSize: 16, color: '#7C848D' }}>No passes available.</Text>
+          <Text style={{ fontFamily: 'sans-serif', fontSize: 16, color: colors.textSecondary }}>No passes available.</Text>
         </View>
       </SafeAreaView>
     );
@@ -115,7 +118,7 @@ export default function PassPurchaseScreen({ onBack, onPassPurchased }: PassPurc
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={onBack}>
-          <Feather name="chevron-left" size={24} color="#262D36" />
+          <Feather name="chevron-left" size={24} color={colors.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Choose Your Membership</Text>
         <View style={{ width: 40 }} />
@@ -206,7 +209,7 @@ export default function PassPurchaseScreen({ onBack, onPassPurchased }: PassPurc
             const isGold = pass.name.toLowerCase() === 'gold';
             const isPlatinum = pass.name.toLowerCase() === 'platinum' || pass.name.toLowerCase() === 'diamond';
             
-            let highlightColor = '#7C848D';
+            let highlightColor = colors.textSecondary;
             let subtitle = 'For Regular Commuters';
             
             if (isGold) {
@@ -246,7 +249,7 @@ export default function PassPurchaseScreen({ onBack, onPassPurchased }: PassPurc
                     <Feather name="award" size={32} color={highlightColor} />
                   </View>
                   
-                  <Text style={styles.cardPrice}>₹{pass.price}<Text style={{fontSize: 14, color: '#7C848D'}}>/month</Text></Text>
+                  <Text style={styles.cardPrice}>₹{pass.price}<Text style={{fontSize: 14, color: colors.textSecondary}}>/month</Text></Text>
                 </View>
               </TouchableOpacity>
             );
@@ -276,16 +279,16 @@ export default function PassPurchaseScreen({ onBack, onPassPurchased }: PassPurc
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: colors.bgPrimary,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F3F4F6',
+    backgroundColor: colors.bgPrimary,
   },
   header: {
     flexDirection: 'row',
@@ -299,7 +302,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.bgSecondary,
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#000',
@@ -312,13 +315,13 @@ const styles = StyleSheet.create({
     fontFamily: 'sans-serif',
     fontSize: 18,
     fontWeight: '600',
-    color: '#262D36',
+    color: colors.textPrimary,
   },
   subtitle: {
     fontFamily: 'sans-serif',
     fontSize: 20,
     fontWeight: '600',
-    color: '#262D36',
+    color: colors.textPrimary,
     textAlign: 'center',
     marginTop: 10,
     marginBottom: 30,
@@ -347,18 +350,18 @@ const styles = StyleSheet.create({
   columnHeader: {
     fontFamily: 'sans-serif',
     fontSize: 15,
-    color: '#262D36',
+    color: colors.textPrimary,
     fontWeight: '500',
   },
   featureText: {
     fontFamily: 'sans-serif',
     fontSize: 13,
-    color: '#7C848D',
+    color: colors.textSecondary,
   },
   valueText: {
     fontFamily: 'sans-serif',
     fontSize: 13,
-    color: '#262D36',
+    color: colors.textPrimary,
     fontWeight: '500',
   },
   cardsContainer: {
@@ -369,10 +372,10 @@ const styles = StyleSheet.create({
   passCard: {
     width: 224,
     height: 220,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.bgSecondary,
     borderRadius: 32,
     borderWidth: 1,
-    borderColor: '#E9EAEC',
+    borderColor: colors.border,
     alignItems: 'center',
     justifyContent: 'center',
     padding: 20,
@@ -391,14 +394,14 @@ const styles = StyleSheet.create({
   cardSubtitle: {
     fontFamily: 'sans-serif',
     fontSize: 13,
-    color: '#7C848D',
+    color: colors.textSecondary,
     marginBottom: 20,
   },
   cardIconBox: {
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: colors.bgTertiary,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 20,
@@ -407,7 +410,7 @@ const styles = StyleSheet.create({
     fontFamily: 'sans-serif',
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#262D36',
+    color: colors.textPrimary,
   },
   recommendedBadge: {
     position: 'absolute',
@@ -433,7 +436,7 @@ const styles = StyleSheet.create({
     right: 0,
     padding: 20,
     paddingBottom: Platform.OS === 'ios' ? 40 : 20,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: colors.bgPrimary,
   },
   continueBtn: {
     backgroundColor: '#0053B3',
@@ -450,6 +453,6 @@ const styles = StyleSheet.create({
     fontFamily: 'sans-serif',
     fontSize: 16,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: colors.bgSecondary,
   },
 });

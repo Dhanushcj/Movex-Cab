@@ -25,9 +25,9 @@ interface CustomerWalletScreenProps {
 }
 
 export default function CustomerWalletScreen({ onBack, onNavigateHome, onNavigateHistory }: CustomerWalletScreenProps) {
-    const { isDark } = useTheme();
+    const { colors, isDark } = useTheme();
     const { t } = useLanguage();
-    const styles = getStyles(Colors);
+    const styles = getStyles(colors);
 
   const { user, updateUserWallet } = useAuth();
   

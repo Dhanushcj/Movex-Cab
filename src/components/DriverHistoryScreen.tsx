@@ -8,8 +8,8 @@ import API from '../services/api';
 type FilterType = 'All' | 'Completed' | 'Cancelled';
 
 export default function DriverHistoryScreen({ onNavigateHome, onNavigateAchievements, onNavigateWallet }: { onNavigateHome: () => void, onNavigateAchievements?: () => void, onNavigateWallet?: () => void }) {
-  const { isDark } = useTheme();
-  const styles = getStyles(Colors);
+  const { colors, isDark } = useTheme();
+  const styles = getStyles(colors);
   const [activeFilter, setActiveFilter] = useState<FilterType>('All');
   const [historyData, setHistoryData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);

@@ -5,8 +5,8 @@ import Colors from '../../constants/colors';
 import { Feather } from '@expo/vector-icons';
 
 export default function SettingsTab() {
-    const { isDark } = useTheme();
-    const styles = getStyles(Colors);
+    const { colors, isDark } = useTheme();
+    const styles = getStyles(colors);
 
   return (
     <ScrollView contentContainerStyle={styles.container}>

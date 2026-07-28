@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import API from '../services/api';
 import Colors from '../constants/colors';
 
@@ -22,6 +23,8 @@ interface SettingsScreenProps {
 }
 
 export default function SettingsScreen({ visible, onClose }: SettingsScreenProps) {
+  const { colors, isDark } = useTheme();
+  const styles = getStyles(colors);
   const { user, logout } = useAuth();
   const [pushNotification, setPushNotification] = useState(false);
   const [biometricLock, setBiometricLock] = useState(false);
@@ -130,7 +133,7 @@ export default function SettingsScreen({ visible, onClose }: SettingsScreenProps
           {/* Header */}
           <View style={styles.header}>
             <TouchableOpacity onPress={onClose} style={styles.backButton}>
-              <Feather name="chevron-left" size={24} color="#262D36" />
+              <Feather name="chevron-left" size={24} color={colors.textPrimary} />
             </TouchableOpacity>
             <Text style={styles.headerTitle}>Settings</Text>
             <View style={{ width: 40 }} />
@@ -192,12 +195,12 @@ export default function SettingsScreen({ visible, onClose }: SettingsScreenProps
               <View style={styles.linksCard}>
                 <TouchableOpacity style={styles.linkRow} activeOpacity={0.7} onPress={handlePrivacyPermission}>
                   <Text style={styles.linkLabel}>Privacy & Permission</Text>
-                  <Feather name="chevron-right" size={22} color="#262D36" />
+                  <Feather name="chevron-right" size={22} color={colors.textPrimary} />
                 </TouchableOpacity>
                 <View style={styles.linkDivider} />
                 <TouchableOpacity style={styles.linkRow} activeOpacity={0.7} onPress={handleAboutApp}>
                   <Text style={styles.linkLabel}>About App</Text>
-                  <Feather name="chevron-right" size={22} color="#262D36" />
+                  <Feather name="chevron-right" size={22} color={colors.textPrimary} />
                 </TouchableOpacity>
               </View>
 
@@ -226,14 +229,14 @@ export default function SettingsScreen({ visible, onClose }: SettingsScreenProps
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors: any) => StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: colors.bgPrimary,
   },
   container: {
     flex: 1,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: colors.bgPrimary,
     paddingHorizontal: 16,
   },
   header: {
@@ -247,7 +250,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 24,
-    backgroundColor: '#E9EAEC',
+    backgroundColor: colors.border,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -276,12 +279,12 @@ const styles = StyleSheet.create({
   toggleLabel: {
     fontSize: 14,
     fontWeight: '400',
-    color: '#262D36',
+    color: colors.textPrimary,
   },
   toggleTrack: {
     width: 56,
     height: 28,
-    backgroundColor: '#E9EAEC',
+    backgroundColor: colors.border,
     borderRadius: 16,
     justifyContent: 'center',
   },
@@ -296,7 +299,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FAFAFA',
     left: -3,
     top: -3,
-    shadowColor: '#262D36',
+    shadowColor: colors.textPrimary,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 2,
@@ -308,7 +311,7 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: 1,
-    backgroundColor: '#E9EAEC',
+    backgroundColor: colors.border,
     marginLeft: 50,
   },
   linksCard: {
@@ -325,12 +328,12 @@ const styles = StyleSheet.create({
   },
   linkDivider: {
     height: 1,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: colors.bgPrimary,
   },
   linkLabel: {
     fontSize: 14,
     fontWeight: '400',
-    color: '#262D36',
+    color: colors.textPrimary,
   },
   deleteContainer: {
     alignItems: 'center',

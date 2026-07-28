@@ -6,8 +6,8 @@ import API from '../../services/api';
 import { Feather } from '@expo/vector-icons';
 
 export default function PayoutsTab() {
-    const { isDark } = useTheme();
-    const styles = getStyles(Colors);
+    const { colors, isDark } = useTheme();
+    const styles = getStyles(colors);
 
   const [payouts, setPayouts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);

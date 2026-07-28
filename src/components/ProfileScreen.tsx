@@ -178,12 +178,6 @@ export default function ProfileScreen({
           <View style={styles.divider} />
           {renderOptionRow('appLanguage', false, onNavigateLanguage)}
           <View style={styles.divider} />
-          {renderOptionRow('helpCentre', false, () => {
-            import('react-native').then(({ Linking }) => {
-              Linking.openURL('https://movex-cab.onrender.com/help').catch(() => {});
-            });
-          })}
-          <View style={styles.divider} />
           {renderOptionRow('supportTickets', false, () => setShowSupport(true))}
           <View style={styles.divider} />
           {renderOptionRow('settings', false, () => setShowSettings(true))}
