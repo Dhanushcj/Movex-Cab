@@ -2,7 +2,7 @@ const Booking = require('../models/Booking');
 
 const Driver = require('../models/Driver');
 const User = require('../models/User');
-const { getRouteDetails } = require('../services/routingService');
+const { getRouteDetails, calculateHaversineDistance } = require('../services/routingService');
 const { calculateFare } = require('../services/fareEngine');
 const { matchDriversForBooking } = require('../services/rideMatching');
 const { processPayment } = require('../services/paymentService');
@@ -24,6 +24,11 @@ const estimateFare = async (req, res, next) => {
 
     // 2. Compute fare estimations across all types
     const vehicles = ['any', 'bike', 'auto', 'mini', 'sedan', 'suv'];
+    
+    const searchRadiusKm = parseFloat(process.env.DRIVER_SEARCH_RADIUS_KM || '10');
+    const radiusInRad = searchRadiusKm / 6371;
+    const [pickupLng, pickupLat] = pickup.coordinates;
+
     const estimates = await Promise.all(
       vehicles.map(async (type) => {
         const fare = await calculateFare({
@@ -33,10 +38,39 @@ const estimateFare = async (req, res, next) => {
           promoCode,
           userId: req.user.id
         });
+
+        // 3. Find nearest driver for real arrival timing ETA
+        const query = {
+          approvalStatus: 'approved',
+          isOnline: true,
+          isAvailable: true,
+          currentLocation: {
+            $geoWithin: {
+              $centerSphere: [[pickupLng, pickupLat], radiusInRad]
+            }
+          }
+        };
+        if (type !== 'any') {
+          query.vehicleType = type;
+        }
+
+        const nearestDriver = await Driver.findOne(query).select('currentLocation').lean();
+        
+        let etaMinutes = 4; // Default if no drivers are nearby
+        if (nearestDriver && nearestDriver.currentLocation && nearestDriver.currentLocation.coordinates) {
+          const dist = calculateHaversineDistance(
+            pickupLat, pickupLng,
+            nearestDriver.currentLocation.coordinates[1], nearestDriver.currentLocation.coordinates[0]
+          );
+          // Assuming an average city speed of ~30 km/h
+          etaMinutes = Math.max(1, Math.ceil((dist / 30) * 60));
+        }
+
         return {
           vehicleType: type,
           fareDetails: fare,
-          routeDetails: route
+          routeDetails: route,
+          eta: etaMinutes
         };
       })
     );
