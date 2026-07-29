@@ -32,7 +32,7 @@ const matchDriversForBooking = async (bookingId) => {
     io.to(`ride:${booking._id}`).emit('booking:status', { status: 'searching' });
 
     const [pickupLng, pickupLat] = booking.pickup.location.coordinates;
-    const searchRadiusKm = parseFloat(process.env.DRIVER_SEARCH_RADIUS_KM || '5');
+    const searchRadiusKm = parseFloat(process.env.DRIVER_SEARCH_RADIUS_KM || '10');
     const radiusInRad = searchRadiusKm / 6371; // Convert km to radians for MongoDB GeoJSON query
 
     // Query DB for online, available, approved drivers of matching vehicle type

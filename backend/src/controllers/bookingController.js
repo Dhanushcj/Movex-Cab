@@ -23,7 +23,7 @@ const estimateFare = async (req, res, next) => {
     }
 
     // 2. Compute fare estimations across all types
-    const vehicles = ['any', 'bike', 'auto', 'mini', 'sedan', 'suv'];
+    const vehicles = ['bike', 'auto', 'mini', 'sedan', 'suv'];
     
     const searchRadiusKm = parseFloat(process.env.DRIVER_SEARCH_RADIUS_KM || '10');
     const radiusInRad = searchRadiusKm / 6371;
@@ -54,7 +54,19 @@ const estimateFare = async (req, res, next) => {
           query.vehicleType = type;
         }
 
-        const nearestDriver = await Driver.findOne(query).select('currentLocation').lean();
+        const nearestDrivers = await Driver.find(query).select('currentLocation').lean().limit(10);
+        let nearestDriver = null;
+
+        const { getOnlineDrivers } = require('../config/socket');
+        const onlineDrivers = getOnlineDrivers();
+
+        for (const drv of nearestDrivers) {
+          const socketDriver = onlineDrivers.get(drv._id.toString());
+          if (socketDriver && socketDriver.available) {
+            nearestDriver = drv;
+            break;
+          }
+        }
         
         let etaMinutes = 4; // Default
         let available = false;

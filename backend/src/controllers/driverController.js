@@ -493,7 +493,7 @@ const getAchievements = async (req, res, next) => {
       status: 'completed'
     });
 
-    const totalEarnings = driver.earnings || 0;
+    const totalEarnings = driver.earnings?.total || 0;
     const rating = driver.rating || 0;
 
     const achievements = [
