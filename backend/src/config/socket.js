@@ -53,6 +53,42 @@ const initializeSocket = (server) => {
       socket.join(`driver:${driverId}`);
       console.log(`🟢 Driver ${driverId} is now online`);
       socket.emit('status:updated', { status: 'online' });
+
+      // Check if driver has a pending ride dispatch that was sent via FCM while offline
+      try {
+        const { getActiveDispatches } = require('../services/rideMatching');
+        if (typeof getActiveDispatches === 'function') {
+          const dispatches = getActiveDispatches();
+          for (const [bookingId, dispatch] of dispatches.entries()) {
+            const currentDriverInfo = dispatch.driverList[dispatch.index];
+            if (currentDriverInfo && currentDriverInfo.driver && currentDriverInfo.driver._id.toString() === driverId) {
+              const currentBooking = dispatch.booking;
+              const bookingPayload = {
+                bookingId: currentBooking._id,
+                customBookingId: currentBooking.bookingId,
+                customer: {
+                  name: currentBooking.customer.name,
+                  phone: currentBooking.customer.phone,
+                  rating: 4.8 
+                },
+                pickup: currentBooking.pickup,
+                drop: currentBooking.drop,
+                route: currentBooking.route,
+                fare: currentBooking.fare,
+                offeredFare: currentBooking.fare.offeredFare,
+                preferences: currentBooking.preferences,
+                estimatedEarnings: Number((currentBooking.fare.totalFare * (1 - parseFloat(process.env.COMMISSION_RATE || '0.20'))).toFixed(2)),
+                distanceToPickup: Number(currentDriverInfo.distance.toFixed(2))
+              };
+              console.log(`📨 Re-emitting pending ride request ${bookingId} to driver ${driverId}`);
+              io.to(socket.id).emit('ride:incoming', bookingPayload);
+              break;
+            }
+          }
+        }
+      } catch (err) {
+        console.error('Error checking active dispatches on driver connect:', err);
+      }
     });
 
     // Driver goes offline

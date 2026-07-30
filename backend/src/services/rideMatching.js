@@ -275,5 +275,6 @@ const triggerNextDriver = async (bookingId) => {
     }
   }
 };
+const getActiveDispatches = () => activeDispatches;
 
-module.exports = { matchDriversForBooking, triggerNextDriver };
+module.exports = { matchDriversForBooking, triggerNextDriver, getActiveDispatches };
