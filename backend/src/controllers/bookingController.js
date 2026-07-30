@@ -51,7 +51,7 @@ const estimateFare = async (req, res, next) => {
           }
         };
         if (type !== 'any') {
-          query.vehicleType = type;
+          query['vehicle.type'] = type;
         }
 
         const nearestDrivers = await Driver.find(query).select('currentLocation').lean().limit(10);
