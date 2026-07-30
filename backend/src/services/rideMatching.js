@@ -228,8 +228,17 @@ const dispatchRequestsSequentially = async (booking, driverList, index, options 
     sendNotification(driver.fcmToken, {
       title: 'New Ride Request!',
       body: `Pickup: ${currentBooking.pickup.address.substring(0, 30)}...`,
-      data: { bookingId: currentBooking._id }
-    }).catch(console.error);
+      data: { bookingId: currentBooking._id.toString(), type: 'NEW_RIDE_REQUEST' }
+    }).catch((err) => {
+      console.error('⚠️ FCM Notification failed for driver', driver.name);
+      if (err?.errorInfo?.code === 'messaging/registration-token-not-registered' || err.code === 'messaging/registration-token-not-registered') {
+        if (!socketDriver) {
+          console.log(`⏭️ Driver ${driver.name} is completely unreachable (No Socket & Invalid FCM). Skipping instantly.`);
+          const { triggerNextDriver } = require('./rideMatching');
+          triggerNextDriver(currentBooking._id.toString());
+        }
+      }
+    });
   }
 
   // Set timeout to wait for acceptance
