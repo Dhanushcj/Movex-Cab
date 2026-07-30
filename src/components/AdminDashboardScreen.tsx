@@ -38,7 +38,9 @@ export default function AdminDashboardScreen({ onNavigateLogout }: { onNavigateL
   const [refreshing, setRefreshing] = useState(false);
   
   const [dashboardData, setDashboardData] = useState<any>(null);
+  const [allDrivers, setAllDrivers] = useState<any[]>([]);
   const [pendingDrivers, setPendingDrivers] = useState<any[]>([]);
+  const [driverTab, setDriverTab] = useState<'pending' | 'all'>('pending');
 
   const fetchData = async () => {
     try {
@@ -49,6 +51,7 @@ export default function AdminDashboardScreen({ onNavigateLogout }: { onNavigateL
       
       if (dashRes.data.success) setDashboardData(dashRes.data.data);
       if (driversRes.data.success) {
+        setAllDrivers(driversRes.data.data);
         setPendingDrivers(driversRes.data.data.filter((d: any) => d.approvalStatus === 'pending'));
       }
     } catch (e: any) {
@@ -224,56 +227,80 @@ export default function AdminDashboardScreen({ onNavigateLogout }: { onNavigateL
         )}
 
         {activeModule === 'drivers' && (
-          <ScrollView 
-            contentContainerStyle={styles.scrollContent}
-            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-          >
-            <View style={styles.listContainer}>
-              {pendingDrivers.length === 0 ? (
-                <View style={styles.emptyState}>
-                  <Feather name="check-circle" size={48} color={Colors.success} style={{ marginBottom: 16 }} />
-                  <Text style={styles.emptyTitle}>All Caught Up!</Text>
-                  <Text style={styles.emptySubtitle}>There are no pending driver applications.</Text>
-                </View>
-              ) : (
-                pendingDrivers.map(driver => (
-                  <View key={driver._id} style={styles.driverCard}>
-                    <View style={styles.driverCardHeader}>
-                      <View style={styles.driverAvatar}>
-                        <Text style={styles.driverAvatarText}>{driver.name.charAt(0)}</Text>
-                      </View>
-                      <View style={styles.driverInfo}>
-                        <Text style={styles.driverName}>{driver.name}</Text>
-                        <Text style={styles.driverPhone}>{driver.phone}</Text>
-                      </View>
-                    </View>
-                    
-                    <View style={styles.vehicleInfo}>
-                      <Text style={styles.vehicleText}>
-                        <MaterialCommunityIcons name="car" size={16} /> {driver.vehicle?.color} {driver.vehicle?.make} {driver.vehicle?.model}
-                      </Text>
-                      <Text style={styles.plateText}>{driver.vehicle?.plateNumber}</Text>
-                    </View>
-
-                    <View style={styles.actionRow}>
-                      <TouchableOpacity 
-                        style={[styles.actionBtn, styles.rejectBtn]} 
-                        onPress={() => handleAction(driver._id, 'rejected')}
-                      >
-                        <Text style={styles.rejectBtnText}>Reject</Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity 
-                        style={[styles.actionBtn, styles.approveBtn]} 
-                        onPress={() => handleAction(driver._id, 'approved')}
-                      >
-                        <Text style={styles.approveBtnText}>Approve</Text>
-                      </TouchableOpacity>
-                    </View>
-                  </View>
-                ))
-              )}
+          <View style={{ flex: 1 }}>
+            <View style={{ flexDirection: 'row', padding: 16, backgroundColor: Colors.bgSecondary, borderBottomWidth: 1, borderBottomColor: Colors.border }}>
+              <TouchableOpacity 
+                style={{ flex: 1, paddingVertical: 8, alignItems: 'center', borderBottomWidth: driverTab === 'pending' ? 2 : 0, borderBottomColor: Colors.accent }}
+                onPress={() => setDriverTab('pending')}
+              >
+                <Text style={{ fontWeight: 'bold', color: driverTab === 'pending' ? Colors.accent : Colors.textSecondary }}>Pending Approvals</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={{ flex: 1, paddingVertical: 8, alignItems: 'center', borderBottomWidth: driverTab === 'all' ? 2 : 0, borderBottomColor: Colors.accent }}
+                onPress={() => setDriverTab('all')}
+              >
+                <Text style={{ fontWeight: 'bold', color: driverTab === 'all' ? Colors.accent : Colors.textSecondary }}>All Drivers</Text>
+              </TouchableOpacity>
             </View>
-          </ScrollView>
+            <ScrollView 
+              contentContainerStyle={styles.scrollContent}
+              refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+            >
+              <View style={styles.listContainer}>
+                {(driverTab === 'pending' ? pendingDrivers : allDrivers).length === 0 ? (
+                  <View style={styles.emptyState}>
+                    <Feather name="check-circle" size={48} color={Colors.success} style={{ marginBottom: 16 }} />
+                    <Text style={styles.emptyTitle}>{driverTab === 'pending' ? 'All Caught Up!' : 'No Drivers Found'}</Text>
+                    <Text style={styles.emptySubtitle}>{driverTab === 'pending' ? 'There are no pending driver applications.' : 'No drivers are currently registered.'}</Text>
+                  </View>
+                ) : (
+                  (driverTab === 'pending' ? pendingDrivers : allDrivers).map(driver => (
+                    <View key={driver._id} style={styles.driverCard}>
+                      <View style={styles.driverCardHeader}>
+                        <View style={styles.driverAvatar}>
+                          <Text style={styles.driverAvatarText}>{driver.name.charAt(0)}</Text>
+                        </View>
+                        <View style={styles.driverInfo}>
+                          <Text style={styles.driverName}>{driver.name}</Text>
+                          <Text style={styles.driverPhone}>{driver.phone}</Text>
+                        </View>
+                      </View>
+                      
+                      <View style={styles.vehicleInfo}>
+                        <Text style={styles.vehicleText}>
+                          <MaterialCommunityIcons name="car" size={16} /> {driver.vehicle?.color} {driver.vehicle?.make} {driver.vehicle?.model}
+                        </Text>
+                        <Text style={styles.plateText}>{driver.vehicle?.plateNumber}</Text>
+                      </View>
+
+                      {driver.approvalStatus === 'pending' ? (
+                        <View style={styles.actionRow}>
+                          <TouchableOpacity 
+                            style={[styles.actionBtn, styles.rejectBtn]} 
+                            onPress={() => handleAction(driver._id, 'rejected')}
+                          >
+                            <Text style={styles.rejectBtnText}>Reject</Text>
+                          </TouchableOpacity>
+                          <TouchableOpacity 
+                            style={[styles.actionBtn, styles.approveBtn]} 
+                            onPress={() => handleAction(driver._id, 'approved')}
+                          >
+                            <Text style={styles.approveBtnText}>Approve</Text>
+                          </TouchableOpacity>
+                        </View>
+                      ) : (
+                        <View style={{ marginTop: 4, paddingVertical: 8, alignItems: 'center', backgroundColor: driver.approvalStatus === 'approved' ? 'rgba(0, 200, 150, 0.1)' : 'rgba(229, 57, 53, 0.1)', borderRadius: 8 }}>
+                          <Text style={{ fontWeight: 'bold', color: driver.approvalStatus === 'approved' ? Colors.success : Colors.danger }}>
+                            {driver.approvalStatus.toUpperCase()}
+                          </Text>
+                        </View>
+                      )}
+                    </View>
+                  ))
+                )}
+              </View>
+            </ScrollView>
+          </View>
         )}
 
         {/* --- LIVE MODULES --- */}

@@ -37,16 +37,16 @@ export default function VehiclesTab() {
           <MaterialCommunityIcons name="car" size={24} color={Colors.accent} />
         </View>
         <View style={styles.info}>
-          <Text style={styles.title}>{item.vehicle?.make} {item.vehicle?.model}</Text>
-          <Text style={styles.subtitle}>Driven by: {item.name}</Text>
+          <Text style={styles.title}>{item.make} {item.model}</Text>
+          <Text style={styles.subtitle}>Driven by: {item.driverName}</Text>
         </View>
         <View style={styles.badge}>
-          <Text style={styles.badgeText}>{item.vehicle?.type}</Text>
+          <Text style={styles.badgeText}>{item.type}</Text>
         </View>
       </View>
       <View style={styles.plateRow}>
-        <Text style={styles.plateNumber}>{item.vehicle?.plateNumber}</Text>
-        <Text style={styles.colorText}>{item.vehicle?.color}</Text>
+        <Text style={styles.plateNumber}>{item.plateNumber}</Text>
+        <Text style={styles.colorText}>{item.color}</Text>
       </View>
     </View>
   );
@@ -57,7 +57,7 @@ export default function VehiclesTab() {
     <View style={styles.container}>
       <FlatList
         data={vehicles}
-        keyExtractor={item => item._id}
+        keyExtractor={item => item.driverId}
         renderItem={renderItem}
         contentContainerStyle={{ padding: 16 }}
         ListEmptyComponent={<Text style={styles.emptyText}>No vehicles found</Text>}
