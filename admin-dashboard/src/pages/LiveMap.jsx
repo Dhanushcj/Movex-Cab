@@ -100,6 +100,9 @@ export default function LiveMap() {
                   <div className="p-1">
                     <div className="font-bold text-gray-900 text-base">{driver.name || 'Driver'}</div>
                     <div className="text-xs font-medium text-gray-500 mt-1">{driver.phone || 'No phone number'}</div>
+                    <div className="text-[10px] text-gray-400 font-mono mt-1">
+                      {driver.location.coordinates[1].toFixed(5)}, {driver.location.coordinates[0].toFixed(5)}
+                    </div>
                     <div className="mt-2 text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md inline-block">Online Now</div>
                   </div>
                 </Popup>
