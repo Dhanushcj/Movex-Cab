@@ -57,13 +57,11 @@ const matchDriversForBooking = async (bookingId) => {
     const { getOnlineDrivers } = require('../config/socket');
     const onlineDrivers = getOnlineDrivers();
     
-    // Only consider drivers who are actually connected via WebSocket
-    const activeDrivers = nearbyDrivers.filter(driver => {
-      const socketDriver = onlineDrivers.get(driver._id.toString());
-      return socketDriver && socketDriver.available;
-    });
+    // Instead of strictly requiring a socket, we use the DB's isOnline status. 
+    // Sockets drop when the app backgrounds, but Push Notifications can wake them up!
+    const activeDrivers = nearbyDrivers;
 
-    console.log(`[RideMatching] Found ${nearbyDrivers.length} drivers from DB, ${activeDrivers.length} have active sockets`);
+    console.log(`[RideMatching] Found ${activeDrivers.length} eligible online drivers from DB (Push notifications will be sent if sockets are asleep)`);
 
     if (activeDrivers.length === 0) {
       console.log(`ℹ️ No drivers found for ride ${bookingId}`);
