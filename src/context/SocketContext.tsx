@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 import * as SecureStore from 'expo-secure-store';
+import { useAuth } from './AuthContext';
 
 interface SocketContextType {
   socket: Socket | null;
@@ -12,6 +13,7 @@ const SocketContext = createContext<SocketContextType | undefined>(undefined);
 export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [connected, setConnected] = useState(false);
+  const { user } = useAuth(); // listen to user state to trigger reconnects
 
   useEffect(() => {
     let activeSocket: Socket | null = null;
@@ -19,10 +21,20 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     const connectSocket = async () => {
       try {
         const token = await SecureStore.getItemAsync('userToken');
-        if (!token) return;
+        if (!token) {
+          if (activeSocket) {
+             activeSocket.disconnect();
+             setSocket(null);
+             setConnected(false);
+          }
+          return;
+        }
 
-        if (!activeSocket) {
-          activeSocket = io('https://movex-cab.onrender.com', {
+        if (activeSocket) {
+          activeSocket.disconnect(); // disconnect old before reconnecting
+        }
+
+        activeSocket = io('https://movex-cab.onrender.com', {
           auth: { token },
           transports: ['websocket', 'polling']
         });
@@ -50,7 +62,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         activeSocket.disconnect();
       }
     };
-  }, []);
+  }, [user]); // Re-run effect when user logs in or out
 
   return (
     <SocketContext.Provider value={{ socket, connected }}>
