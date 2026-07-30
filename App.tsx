@@ -360,6 +360,7 @@ function NavigationRoot() {
                   onNavigateProfile={() => props.navigation.navigate('DriverProfile')}
                   onNavigateHistory={() => props.navigation.navigate('DriverHistory')}
                   onNavigateWallet={() => props.navigation.navigate('DriverWallet')}
+                  onNavigateAchievements={() => props.navigation.navigate('DriverAchievements')}
                 />
               )
             )}
@@ -854,6 +855,9 @@ function HomeScreen({ onRideBooked, onNavigateProfile, onNavigateLanguage, activ
   const [bookingMode, setBookingMode] = useState<'ride'|'pass'>('ride');
   const [preferences, setPreferences] = useState<string[]>([]);
   const [showPassConfig, setShowPassConfig] = useState(false);
+  const [promoCodeInput, setPromoCodeInput] = useState('');
+  const [appliedPromo, setAppliedPromo] = useState<string | null>(null);
+  const [promoError, setPromoError] = useState('');
 
   // ── Picker state ──────────────────────────────────────────────────────────
   type PickerMode = null | 'pickup' | 'drop';
@@ -1060,23 +1064,45 @@ function HomeScreen({ onRideBooked, onNavigateProfile, onNavigateLanguage, activ
     }
   };
 
-  const getEstimates = async (puCoords: number[], puAddr: string, drCoords: number[], drAddr: string) => {
+  const getEstimates = async (puCoords: number[], puAddr: string, drCoords: number[], drAddr: string, promoToApply?: string) => {
     setLoadingEstimates(true);
+    if (promoToApply) setPromoError('');
     try {
-      const res = await API.post('/bookings/estimate', {
+      const payload: any = {
         pickup: { address: puAddr, coordinates: puCoords },
         drop: { address: drAddr, coordinates: drCoords },
         vehicleType: 'mini',
-      });
+      };
+      if (promoToApply) {
+        payload.promoCode = promoToApply;
+      } else if (appliedPromo) {
+        payload.promoCode = appliedPromo;
+      }
+
+      const res = await API.post('/bookings/estimate', payload);
       if (res.data.success) {
         setEstimates(res.data.estimates);
         const best = res.data.estimates[0];
         setSelectedVehicle(best);
         setOfferedFare(best.fareDetails.totalFare);
+
+        if (promoToApply) {
+          if (best.fareDetails.promoCode) {
+            setAppliedPromo(best.fareDetails.promoCode);
+            setPromoCodeInput('');
+          } else {
+            setPromoError('Invalid or expired coupon');
+            setAppliedPromo(null);
+          }
+        } else if (appliedPromo && !best.fareDetails.promoCode) {
+          setAppliedPromo(null);
+        }
+
         if (bookingMode === 'pass') handleEstimatePass(best.vehicleType);
       }
     } catch (e: any) {
       Alert.alert('Error', e.response?.data?.message || 'Failed to estimate fare');
+      if (promoToApply) setPromoError('Failed to apply coupon');
     } finally {
       setLoadingEstimates(false);
     }
@@ -1106,6 +1132,9 @@ function HomeScreen({ onRideBooked, onNavigateProfile, onNavigateLanguage, activ
         fare: offeredFare,
         preferences: preferences
       };
+      if (appliedPromo) {
+        payload.promoCode = appliedPromo;
+      }
       if (dropCoords && dropCoords.length === 2) {
         payload.drop = { address: dropAddr, coordinates: dropCoords };
       }
@@ -1504,15 +1533,22 @@ function HomeScreen({ onRideBooked, onNavigateProfile, onNavigateLanguage, activ
             }}>
               <View style={{ paddingHorizontal: 16 }}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <TouchableOpacity onPress={() => handleTabPress('account')} style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                    <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: colors.bgTertiary, overflow: 'hidden', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: colors.borderGlass }}>
-                      <Text style={{ fontSize: 18, fontWeight: '700', color: colors.accent }}>{formatInitials(user?.name || 'U')}</Text>
-                    </View>
-                    <View style={{ flexDirection: 'column', gap: 4 }}>
-                      <Text style={{ fontFamily: 'sans-serif', fontSize: 14, color: colors.textMuted }}>{new Date().getHours() < 12 ? 'Good Morning' : new Date().getHours() < 17 ? 'Good Afternoon' : 'Good Evening'}</Text>
-                      <Text style={{ fontFamily: 'sans-serif', fontSize: 20, color: colors.textPrimary, fontWeight: 'bold' }}>{user?.name?.split(' ')[0] || 'Rider'}</Text>
-                    </View>
-                  </TouchableOpacity>
+                  {dropAddr || (estimates && estimates.length > 0) ? (
+                    <TouchableOpacity onPress={() => { setDropAddr(''); setDropCoords(null); setEstimates([]); setPickerMode(null); }} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: colors.bgTertiary, paddingVertical: 10, paddingHorizontal: 16, borderRadius: 24, borderWidth: 1, borderColor: colors.borderGlass }}>
+                      <Feather name="arrow-left" size={20} color={colors.textPrimary} />
+                      <Text style={{ fontSize: 16, fontWeight: '600', color: colors.textPrimary }}>Back</Text>
+                    </TouchableOpacity>
+                  ) : (
+                    <TouchableOpacity onPress={() => handleTabPress('account')} style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                      <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: colors.bgTertiary, overflow: 'hidden', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: colors.borderGlass }}>
+                        <Text style={{ fontSize: 18, fontWeight: '700', color: colors.accent }}>{formatInitials(user?.name || 'U')}</Text>
+                      </View>
+                      <View style={{ flexDirection: 'column', gap: 4 }}>
+                        <Text style={{ fontFamily: 'sans-serif', fontSize: 14, color: colors.textMuted }}>{new Date().getHours() < 12 ? 'Good Morning' : new Date().getHours() < 17 ? 'Good Afternoon' : 'Good Evening'}</Text>
+                        <Text style={{ fontFamily: 'sans-serif', fontSize: 20, color: colors.textPrimary, fontWeight: 'bold' }}>{user?.name?.split(' ')[0] || 'Rider'}</Text>
+                      </View>
+                    </TouchableOpacity>
+                  )}
 
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
                     <TouchableOpacity onPress={handleSOS} style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#FEECEC', borderWidth: 1.5, borderColor: '#F71313', alignItems: 'center', justifyContent: 'center' }}>
@@ -1614,7 +1650,7 @@ function HomeScreen({ onRideBooked, onNavigateProfile, onNavigateLanguage, activ
                           <Text style={{ fontSize: 18, fontWeight: '600', color: '#262D36' }}>
                             ₹{est.fareDetails.totalFare}
                           </Text>
-                          {est.fareDetails.passDiscount > 0 && (
+                          {(est.fareDetails.passDiscount > 0 || est.fareDetails.discount > 0) && (
                             <Text style={{ fontSize: 12, fontWeight: '500', color: '#7C848D', textDecorationLine: 'line-through' }}>
                               ₹{est.fareDetails.originalFare}
                             </Text>
@@ -1626,6 +1662,66 @@ function HomeScreen({ onRideBooked, onNavigateProfile, onNavigateLanguage, activ
                 </ScrollView>
 
                 <View style={{ marginTop: 24, paddingBottom: Platform.OS === 'ios' ? 20 : 0 }}>
+                  {/* Promo Code UI */}
+                  {bookingMode === 'ride' && (
+                    <View style={{ marginBottom: 16 }}>
+                      <View style={{ flexDirection: 'row', gap: 12 }}>
+                        <TextInput
+                          style={{ flex: 1, backgroundColor: '#F6F8FA', borderWidth: 1, borderColor: '#E9EAEC', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 12, color: '#262D36' }}
+                          placeholder="Enter Promo Code"
+                          placeholderTextColor="#9098A2"
+                          value={promoCodeInput}
+                          onChangeText={(text) => { setPromoCodeInput(text.toUpperCase()); setPromoError(''); }}
+                          autoCapitalize="characters"
+                        />
+                        <TouchableOpacity
+                          style={{ backgroundColor: promoCodeInput ? '#0053B3' : '#E9EAEC', borderRadius: 12, paddingHorizontal: 20, justifyContent: 'center', alignItems: 'center' }}
+                          disabled={!promoCodeInput || loadingEstimates}
+                          onPress={() => {
+                            if (pickupCoords && dropCoords) {
+                              getEstimates(pickupCoords, pickupAddr, dropCoords, dropAddr, promoCodeInput);
+                            }
+                          }}
+                        >
+                          <Text style={{ color: promoCodeInput ? '#FCFCFC' : '#9098A2', fontWeight: '600' }}>Apply</Text>
+                        </TouchableOpacity>
+                      </View>
+                      
+                      {promoError ? (
+                        <Text style={{ color: '#F71313', fontSize: 12, marginTop: 6, marginLeft: 4 }}>{promoError}</Text>
+                      ) : null}
+                      
+                      {appliedPromo && !promoError ? (
+                        <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 6, marginLeft: 4, gap: 4 }}>
+                          <Feather name="check-circle" size={14} color="#0E9F6E" />
+                          <Text style={{ color: '#0E9F6E', fontSize: 13, fontWeight: '500' }}>Coupon {appliedPromo} applied!</Text>
+                          <TouchableOpacity onPress={() => {
+                            setAppliedPromo(null);
+                            setPromoCodeInput('');
+                            if (pickupCoords && dropCoords) {
+                              // We just re-fetch without promo to clear it
+                              const payload: any = {
+                                pickup: { address: pickupAddr, coordinates: pickupCoords },
+                                drop: { address: dropAddr, coordinates: dropCoords },
+                                vehicleType: 'mini'
+                              };
+                              setLoadingEstimates(true);
+                              API.post('/bookings/estimate', payload).then(res => {
+                                if (res.data.success) {
+                                  setEstimates(res.data.estimates);
+                                  setSelectedVehicle(res.data.estimates[0]);
+                                  setOfferedFare(res.data.estimates[0].fareDetails.totalFare);
+                                }
+                              }).finally(() => setLoadingEstimates(false));
+                            }
+                          }} style={{ marginLeft: 8 }}>
+                            <Text style={{ color: '#F71313', fontSize: 13, textDecorationLine: 'underline' }}>Remove</Text>
+                          </TouchableOpacity>
+                        </View>
+                      ) : null}
+                    </View>
+                  )}
+
                   <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                     <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                       <Text style={{ fontSize: 16, color: '#262D36', fontWeight: '500' }}>₹ Cash</Text>
@@ -2614,7 +2710,7 @@ export default function App() {
 
 // --- ADMIN SCREENS ---
 // --- DRIVER SCREENS ---
-function DriverHomeScreen({ onRideAccepted, onNavigateProfile, onNavigateHistory, onNavigateWallet }: { onRideAccepted: (ride: any) => void; onNavigateProfile: () => void; onNavigateHistory: () => void; onNavigateWallet: () => void; }) {
+function DriverHomeScreen({ onRideAccepted, onNavigateProfile, onNavigateHistory, onNavigateWallet, onNavigateAchievements }: { onRideAccepted: (ride: any) => void; onNavigateProfile: () => void; onNavigateHistory: () => void; onNavigateWallet: () => void; onNavigateAchievements: () => void; }) {
   const { colors, isDark } = useTheme();
   const styles = getStyles(colors);
   const { user, updateOnlineStatus, logout } = useAuth();
@@ -2631,10 +2727,12 @@ function DriverHomeScreen({ onRideAccepted, onNavigateProfile, onNavigateHistory
 
   // Fetch earnings
   useEffect(() => {
-    if (!isOnline) {
+    fetchEarnings();
+    const intervalId = setInterval(() => {
       fetchEarnings();
-    }
-  }, [isOnline]);
+    }, 15000);
+    return () => clearInterval(intervalId);
+  }, []);
 
   const fetchEarnings = async () => {
     try {
@@ -3021,15 +3119,18 @@ function DriverHomeScreen({ onRideAccepted, onNavigateProfile, onNavigateHistory
                 </View>
                 
                 <View style={{ flexDirection: 'row', gap: 24, flex: 3, justifyContent: 'space-around' }}>
-                  {[{amt: 250, orders: 10}, {amt: 350, orders: 14}, {amt: 450, orders: 20}].map((target, idx) => (
-                    <View key={idx} style={{ alignItems: 'center', gap: 16 }}>
-                      <Text style={{ fontFamily: 'sans-serif', fontSize: 14, color: '#0053B3', letterSpacing: 0.5 }}>₹ {target.amt}</Text>
-                      <View style={{ width: 24, height: 24, borderRadius: 12, backgroundColor: '#9098A2', alignItems: 'center', justifyContent: 'center' }}>
-                        <Feather name="check" size={14} color="#FCFCFC" />
+                  {[{amt: 250, orders: 10}, {amt: 350, orders: 14}, {amt: 450, orders: 20}].map((target, idx) => {
+                    const isAchieved = getTotalTrips() >= target.orders;
+                    return (
+                      <View key={idx} style={{ alignItems: 'center', gap: 16 }}>
+                        <Text style={{ fontFamily: 'sans-serif', fontSize: 14, color: isAchieved ? '#39B45C' : '#0053B3', letterSpacing: 0.5, fontWeight: isAchieved ? 'bold' : 'normal' }}>₹ {target.amt}</Text>
+                        <View style={{ width: 24, height: 24, borderRadius: 12, backgroundColor: isAchieved ? '#39B45C' : '#9098A2', alignItems: 'center', justifyContent: 'center' }}>
+                          <Feather name="check" size={14} color="#FCFCFC" />
+                        </View>
+                        <Text style={{ fontFamily: 'sans-serif', fontSize: 12, color: colors.textPrimary, letterSpacing: 0.5, fontWeight: isAchieved ? 'bold' : 'normal' }}>{target.orders}</Text>
                       </View>
-                      <Text style={{ fontFamily: 'sans-serif', fontSize: 12, color: colors.textPrimary, letterSpacing: 0.5 }}>{target.orders}</Text>
-                    </View>
-                  ))}
+                    );
+                  })}
                 </View>
               </View>
 
@@ -3105,7 +3206,7 @@ function DriverHomeScreen({ onRideAccepted, onNavigateProfile, onNavigateHistory
               <Feather name="home" size={18} color="#FCFCFC" />
               <Text style={{ color: '#FCFCFC', fontSize: 14 }}>Home</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={{ padding: 8 }}>
+            <TouchableOpacity style={{ padding: 8 }} onPress={onNavigateAchievements}>
               <Feather name="award" size={24} color="#9098A2" />
             </TouchableOpacity>
             <TouchableOpacity style={{ padding: 8 }} onPress={onNavigateWallet}>

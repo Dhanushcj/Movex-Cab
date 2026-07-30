@@ -15,12 +15,13 @@ import {
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useAuth } from '../context/AuthContext';
+import { Feather } from '@expo/vector-icons';
 import Colors from '../constants/colors';
 
 export default function AuthScreen({ onNavigateRegister }: { onNavigateRegister: (data: any) => void }) {
   const { colors, isDark } = useTheme();
   const styles = getStyles(colors);
-  const { loginWithEmail, registerWithEmail, loginWithGoogle, completeGoogleRegistration, loginDriver, loginAdmin, loginWithPassword, registerWithPassword, checkEmailVerification, resendVerificationEmail, resetPassword } = useAuth();
+  const { loginWithEmail, registerWithEmail, loginWithGoogle, completeGoogleRegistration, loginDriver, loginAdmin, loginWithPassword, registerWithPassword, checkEmailVerification, resendVerificationEmail, resetPassword, sendEmailVerificationLink } = useAuth();
   
   const [mode, setMode] = useState<'login' | 'register' | 'verify_email' | 'forgot_password'>('login');
   const [role, setRole] = useState<'customer' | 'driver' | 'admin'>('customer');
@@ -41,6 +42,14 @@ export default function AuthScreen({ onNavigateRegister }: { onNavigateRegister:
   const [loading, setLoading] = useState(false);
   const [isGoogleRegister, setIsGoogleRegister] = useState(false);
   const [googleIdToken, setGoogleIdToken] = useState('');
+  
+  // Email verification state
+  const [emailVerificationSent, setEmailVerificationSent] = useState(false);
+  const [emailVerified, setEmailVerified] = useState(false);
+  const [verifyingEmail, setVerifyingEmail] = useState(false);
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleLogin = async () => {
     if (!email || !email.includes('@')) {
@@ -107,6 +116,10 @@ export default function AuthScreen({ onNavigateRegister }: { onNavigateRegister:
           Alert.alert('Success', 'Google Account linked with a password successfully!');
         }
       } else {
+        if (!emailVerified && !isGoogleRegister) {
+          setLoading(false);
+          return Alert.alert('Error', 'Please verify your email address before continuing.');
+        }
         if (password !== confirmPassword) {
           setLoading(false);
           return Alert.alert('Error', 'Passwords do not match');
@@ -168,8 +181,8 @@ export default function AuthScreen({ onNavigateRegister }: { onNavigateRegister:
       <View style={styles.backgroundOrb1} />
       <View style={styles.backgroundOrb2} />
 
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        
+      {/* Static Top Section */}
+      <View style={{ alignItems: 'center', paddingTop: 80, paddingHorizontal: 16, paddingBottom: 10 }}>
         {/* Logo Frame */}
         <View style={styles.logoContainer}>
           <Image source={require('../../assets/Frame 3.png')} style={styles.logoIcon} resizeMode="contain" />
@@ -196,6 +209,8 @@ export default function AuthScreen({ onNavigateRegister }: { onNavigateRegister:
               onPress={() => {
                 setMode('login');
                 setIsGoogleRegister(false);
+                setEmailVerificationSent(false);
+                setEmailVerified(false);
               }}
             >
               <Text style={[styles.authTabText, mode === 'login' && styles.authTabTextActive]}>Log In</Text>
@@ -205,13 +220,18 @@ export default function AuthScreen({ onNavigateRegister }: { onNavigateRegister:
               onPress={() => {
                 setMode('register');
                 setIsGoogleRegister(false);
+                setEmailVerificationSent(false);
+                setEmailVerified(false);
               }}
             >
               <Text style={[styles.authTabText, mode === 'register' && styles.authTabTextActive]}>Sign Up</Text>
             </TouchableOpacity>
           </View>
         )}
+      </View>
 
+      <ScrollView contentContainerStyle={[styles.scrollContent, { paddingTop: 0 }]} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+        
         {/* Form Inputs */}
         <View style={styles.formContainer}>
           
@@ -280,17 +300,81 @@ export default function AuthScreen({ onNavigateRegister }: { onNavigateRegister:
 
           <View style={styles.inputWrapper}>
             <Text style={styles.inputLabel}>Email Address</Text>
-            <View style={[styles.inputBox, isGoogleRegister && { backgroundColor: '#f0f0f0' }]}>
-              <TextInput
-                placeholder="Enter email"
-                placeholderTextColor={Colors.textMuted}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                style={styles.inputText}
-                value={email}
-                onChangeText={setEmail}
-                editable={!isGoogleRegister}
-              />
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <View style={[styles.inputBox, isGoogleRegister && { backgroundColor: '#f0f0f0' }, { flex: 1 }]}>
+                <TextInput
+                  placeholder="Enter email"
+                  placeholderTextColor={Colors.textMuted}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  style={styles.inputText}
+                  value={email}
+                  onChangeText={(text) => {
+                    setEmail(text);
+                    if (emailVerified) setEmailVerified(false);
+                    if (emailVerificationSent) setEmailVerificationSent(false);
+                  }}
+                  editable={!isGoogleRegister && !emailVerified}
+                />
+              </View>
+              {mode === 'register' && !isGoogleRegister && (
+                <TouchableOpacity 
+                  style={{ 
+                    backgroundColor: emailVerified ? '#39B45C' : '#0053B3', 
+                    paddingHorizontal: 16, 
+                    height: 52, 
+                    borderRadius: 12, 
+                    justifyContent: 'center', 
+                    alignItems: 'center',
+                    borderWidth: 1,
+                    borderColor: emailVerified ? '#39B45C' : '#0053B3'
+                  }}
+                  onPress={async () => {
+                    if (emailVerified) return;
+                    if (!email || !email.includes('@')) {
+                      return Alert.alert('Error', 'Please enter a valid email address');
+                    }
+                    if (emailVerificationSent) {
+                      // Check verification
+                      setVerifyingEmail(true);
+                      try {
+                        const verified = await checkEmailVerification(role);
+                        if (verified) {
+                          setEmailVerified(true);
+                          Alert.alert('Success', 'Email verified successfully!');
+                        } else {
+                          Alert.alert('Pending', 'Email not verified yet. Please click the link sent to your inbox.');
+                        }
+                      } catch (e: any) {
+                        Alert.alert('Error', e.message);
+                      } finally {
+                        setVerifyingEmail(false);
+                      }
+                    } else {
+                      // Send verification
+                      setVerifyingEmail(true);
+                      try {
+                        await sendEmailVerificationLink(email, 'MoveX123!');
+                        setEmailVerificationSent(true);
+                        Alert.alert('Link Sent', 'Please check your inbox (and spam folder) for a verification link.');
+                      } catch (e: any) {
+                        Alert.alert('Error', e.message);
+                      } finally {
+                        setVerifyingEmail(false);
+                      }
+                    }
+                  }}
+                  disabled={verifyingEmail || emailVerified}
+                >
+                  {verifyingEmail ? (
+                    <ActivityIndicator color="#FFF" size="small" />
+                  ) : (
+                    <Text style={{ color: '#FFF', fontWeight: '600', fontSize: 13 }}>
+                      {emailVerified ? 'Verified' : emailVerificationSent ? 'Check' : 'Verify'}
+                    </Text>
+                  )}
+                </TouchableOpacity>
+              )}
             </View>
           </View>
 
@@ -317,11 +401,14 @@ export default function AuthScreen({ onNavigateRegister }: { onNavigateRegister:
                 <TextInput
                   placeholder="Enter password"
                   placeholderTextColor={Colors.textMuted}
-                  secureTextEntry
+                  secureTextEntry={!showPassword}
                   style={styles.inputText}
                   value={password}
                   onChangeText={setPassword}
                 />
+                <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={{ padding: 4 }}>
+                  <Feather name={showPassword ? "eye" : "eye-off"} size={20} color={Colors.textMuted} />
+                </TouchableOpacity>
               </View>
               {mode === 'login' && (
                 <TouchableOpacity onPress={() => setMode('forgot_password')} style={{ alignSelf: 'flex-end', marginTop: 8 }}>
@@ -338,11 +425,14 @@ export default function AuthScreen({ onNavigateRegister }: { onNavigateRegister:
                 <TextInput
                   placeholder="Confirm password"
                   placeholderTextColor={Colors.textMuted}
-                  secureTextEntry
+                  secureTextEntry={!showConfirmPassword}
                   style={styles.inputText}
                   value={confirmPassword}
                   onChangeText={setConfirmPassword}
                 />
+                <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)} style={{ padding: 4 }}>
+                  <Feather name={showConfirmPassword ? "eye" : "eye-off"} size={20} color={Colors.textMuted} />
+                </TouchableOpacity>
               </View>
             </View>
           )}
@@ -374,15 +464,26 @@ export default function AuthScreen({ onNavigateRegister }: { onNavigateRegister:
               </View>
 
               <Text style={styles.inputLabel}>Gender</Text>
-              <View style={styles.genderRow}>
-                {['male', 'female', 'other'].map((g) => (
+              <View style={{ flexDirection: 'row', gap: 24, marginTop: 4, marginBottom: 12 }}>
+                {['male', 'female'].map((g) => (
                   <TouchableOpacity 
                     key={g}
-                    style={[styles.genderBtn, gender === g && styles.genderBtnActive]}
+                    style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}
                     onPress={() => setGender(g)}
                     activeOpacity={0.8}
                   >
-                    <Text style={[styles.genderBtnText, gender === g && styles.genderBtnTextActive]}>
+                    <View style={{
+                      width: 20, height: 20, borderRadius: 10, 
+                      borderWidth: 2, borderColor: gender === g ? '#0053B3' : '#DEE0E3',
+                      alignItems: 'center', justifyContent: 'center'
+                    }}>
+                      {gender === g && <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: '#0053B3' }} />}
+                    </View>
+                    <Text style={{
+                      color: gender === g ? Colors.textPrimary : Colors.textMuted,
+                      fontWeight: '500',
+                      fontSize: 14
+                    }}>
                       {g.charAt(0).toUpperCase() + g.slice(1)}
                     </Text>
                   </TouchableOpacity>
@@ -531,14 +632,14 @@ const getStyles = (Colors: any) => StyleSheet.create({
     marginBottom: 40,
   },
   logoIcon: {
-    width: 120,
-    height: 120,
-    marginBottom: 16,
+    width: 200,
+    height: 200,
+    marginBottom: 0,
   },
   logoTextImg: {
     width: 92,
     height: 19,
-    marginTop: 8,
+    marginTop: 0,
   },
   headerContainer: {
     width: '100%',

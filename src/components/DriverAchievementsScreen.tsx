@@ -77,17 +77,25 @@ const DriverAchievementsScreen: React.FC<DriverAchievementsScreenProps> = ({
             {stats && (
               <View style={styles.statsContainer}>
                 <View style={styles.statBox}>
-                  <Text style={styles.statValue}>{stats.completedRides || 0}</Text>
+                  <Text style={styles.statValue}>
+                    {typeof stats.completedRides === 'object' && stats.completedRides !== null 
+                      ? (stats.completedRides.total || 0) 
+                      : (stats.completedRides || 0)}
+                  </Text>
                   <Text style={styles.statLabel}>Rides</Text>
                 </View>
                 <View style={styles.statDivider} />
                 <View style={styles.statBox}>
-                  <Text style={styles.statValue}>{stats.rating ? stats.rating.toFixed(1) : '0.0'}</Text>
+                  <Text style={styles.statValue}>{stats.rating ? Number(stats.rating).toFixed(1) : '0.0'}</Text>
                   <Text style={styles.statLabel}>Rating</Text>
                 </View>
                 <View style={styles.statDivider} />
                 <View style={styles.statBox}>
-                  <Text style={styles.statValue}>₹{stats.totalEarnings || 0}</Text>
+                  <Text style={styles.statValue}>
+                    ₹{typeof stats.totalEarnings === 'object' && stats.totalEarnings !== null 
+                      ? (stats.totalEarnings.total || 0) 
+                      : (stats.totalEarnings || 0)}
+                  </Text>
                   <Text style={styles.statLabel}>Earned</Text>
                 </View>
               </View>
@@ -113,9 +121,11 @@ const DriverAchievementsScreen: React.FC<DriverAchievementsScreenProps> = ({
                           <View style={[styles.progressBarFill, { width: `${progressPercent}%` }]} />
                         </View>
                         <Text style={styles.progressText}>
-                          {typeof ach.currentProgress === 'number' && ach.currentProgress % 1 !== 0 
-                            ? ach.currentProgress.toFixed(1) 
-                            : ach.currentProgress} / {ach.target}
+                          {typeof ach.currentProgress === 'object' && ach.currentProgress !== null
+                            ? (ach.currentProgress.total || 0)
+                            : (typeof ach.currentProgress === 'number' && ach.currentProgress % 1 !== 0 
+                              ? ach.currentProgress.toFixed(1) 
+                              : (ach.currentProgress || 0))} / {ach.target}
                         </Text>
                       </View>
                     )}

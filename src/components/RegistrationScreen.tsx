@@ -84,9 +84,14 @@ const CustomDropdown = ({ label, options, selectedValue, onSelect, placeholder }
 export default function RegistrationScreen({ onBack, prefillData = null, isCorrection = false }: { onBack: () => void, prefillData?: any, isCorrection?: boolean }) {
   const { colors, isDark } = useTheme();
   const styles = getStyles(colors);
-  const { registerDriverProfile, resubmitDriverProfile } = useAuth();
+  const { registerDriverProfile, resubmitDriverProfile, checkEmailVerification, sendEmailVerificationLink } = useAuth();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  
+  // Email verification state
+  const [emailVerificationSent, setEmailVerificationSent] = useState(false);
+  const [emailVerified, setEmailVerified] = useState(false);
+  const [verifyingEmail, setVerifyingEmail] = useState(false);
 
   // Form State
   const [name, setName] = useState(prefillData?.name || '');
@@ -152,6 +157,9 @@ export default function RegistrationScreen({ onBack, prefillData = null, isCorre
     if (step === 1) {
       if (!name || !phone || !password || !selectedState || !city) {
         return Alert.alert('Error', 'Please fill all mandatory personal details in Step 1');
+      }
+      if (email && !emailVerified) {
+        return Alert.alert('Error', 'Please verify your email address before continuing.');
       }
       if (vehicleOwnership === 'own') {
         if (!vehicleType || !vehicleMake || !vehicleModel || !vehicleColor || !plateNumber || !plateType) {
@@ -390,8 +398,79 @@ export default function RegistrationScreen({ onBack, prefillData = null, isCorre
 
             <View style={styles.inputWrapper}>
               <Text style={styles.inputLabel}>Email Address (Optional)</Text>
-              <View style={styles.inputBox}>
-                <TextInput style={styles.inputText} placeholder="Enter mail" placeholderTextColor={Colors.textMuted} keyboardType="email-address" value={email} onChangeText={setEmail} />
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                <View style={[styles.inputBox, { flex: 1 }]}>
+                  <TextInput 
+                    style={styles.inputText} 
+                    placeholder="Enter mail" 
+                    placeholderTextColor={Colors.textMuted} 
+                    keyboardType="email-address" 
+                    autoCapitalize="none"
+                    value={email} 
+                    onChangeText={(text) => {
+                      setEmail(text);
+                      if (emailVerified) setEmailVerified(false);
+                      if (emailVerificationSent) setEmailVerificationSent(false);
+                    }} 
+                    editable={!emailVerified}
+                  />
+                </View>
+                {email.length > 0 && (
+                  <TouchableOpacity 
+                    style={{ 
+                      backgroundColor: emailVerified ? '#39B45C' : '#0053B3', 
+                      paddingHorizontal: 16, 
+                      height: 52, 
+                      borderRadius: 12, 
+                      justifyContent: 'center', 
+                      alignItems: 'center',
+                      borderWidth: 1,
+                      borderColor: emailVerified ? '#39B45C' : '#0053B3'
+                    }}
+                    onPress={async () => {
+                      if (emailVerified) return;
+                      if (!email || !email.includes('@')) {
+                        return Alert.alert('Error', 'Please enter a valid email address');
+                      }
+                      if (emailVerificationSent) {
+                        setVerifyingEmail(true);
+                        try {
+                          const verified = await checkEmailVerification('driver');
+                          if (verified) {
+                            setEmailVerified(true);
+                            Alert.alert('Success', 'Email verified successfully!');
+                          } else {
+                            Alert.alert('Pending', 'Email not verified yet. Please click the link sent to your inbox.');
+                          }
+                        } catch (e: any) {
+                          Alert.alert('Error', e.message);
+                        } finally {
+                          setVerifyingEmail(false);
+                        }
+                      } else {
+                        setVerifyingEmail(true);
+                        try {
+                          await sendEmailVerificationLink(email, 'MoveX123!');
+                          setEmailVerificationSent(true);
+                          Alert.alert('Link Sent', 'Please check your inbox (and spam folder) for a verification link.');
+                        } catch (e: any) {
+                          Alert.alert('Error', e.message);
+                        } finally {
+                          setVerifyingEmail(false);
+                        }
+                      }
+                    }}
+                    disabled={verifyingEmail || emailVerified}
+                  >
+                    {verifyingEmail ? (
+                      <ActivityIndicator color="#FFF" size="small" />
+                    ) : (
+                      <Text style={{ color: '#FFF', fontWeight: '600', fontSize: 13 }}>
+                        {emailVerified ? 'Verified' : emailVerificationSent ? 'Check' : 'Verify'}
+                      </Text>
+                    )}
+                  </TouchableOpacity>
+                )}
               </View>
             </View>
 
@@ -427,7 +506,31 @@ export default function RegistrationScreen({ onBack, prefillData = null, isCorre
             )}
             
             <Text style={styles.inputLabel}>Gender</Text>
-            {renderRadio(['male', 'female', 'other'], gender, setGender)}
+            <View style={{ flexDirection: 'row', gap: 24, marginTop: 4, marginBottom: 12 }}>
+              {['male', 'female'].map((g) => (
+                <TouchableOpacity 
+                  key={g}
+                  style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}
+                  onPress={() => setGender(g)}
+                  activeOpacity={0.8}
+                >
+                  <View style={{
+                    width: 20, height: 20, borderRadius: 10, 
+                    borderWidth: 2, borderColor: gender === g ? '#0053B3' : '#DEE0E3',
+                    alignItems: 'center', justifyContent: 'center'
+                  }}>
+                    {gender === g && <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: '#0053B3' }} />}
+                  </View>
+                  <Text style={{
+                    color: gender === g ? Colors.textPrimary : Colors.textMuted,
+                    fontWeight: '500',
+                    fontSize: 14
+                  }}>
+                    {g.charAt(0).toUpperCase() + g.slice(1)}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
 
             <Text style={styles.inputLabel}>Vehicle Ownership</Text>
             {renderRadio(['own', 'company'], vehicleOwnership, setVehicleOwnership)}

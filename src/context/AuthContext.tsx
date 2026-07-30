@@ -10,6 +10,7 @@ interface AuthContextType {
   loading: boolean;
   loginWithEmail: (email: string, password: string, role: string) => Promise<boolean>;
   registerWithEmail: (email: string, password: string, name: string, phone: string, role: string) => Promise<boolean>;
+  sendEmailVerificationLink: (email: string, password: string) => Promise<void>;
   loginWithGoogle: (role: string) => Promise<any>;
   completeGoogleRegistration: (role: string, name: string, dob: string, gender: string, phone: string, idToken: string, password?: string) => Promise<boolean>;
   loginWithPassword: (emailOrPhone: string, password: string, role?: string) => Promise<boolean>;
@@ -138,6 +139,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch (error) {
       console.error('Firebase Email register failed:', error);
       throw error;
+    }
+  };
+
+  const sendEmailVerificationLink = async (email: string, password: string): Promise<void> => {
+    try {
+      const userCredential = await createUserWithEmailAndPassword(getAuth() as any, email, password);
+      await sendEmailVerification(userCredential.user as any);
+      // We don't login here, just create the user to send the verification link
+    } catch (error: any) {
+      if (error.code === 'auth/email-already-in-use') {
+        // If the email is already in use, we can try to sign in to send the verification link
+        try {
+          const userCredential = await signInWithEmailAndPassword(getAuth() as any, email, password);
+          await sendEmailVerification(userCredential.user as any);
+        } catch (signInError: any) {
+           console.error('Failed to sign in to send verification email:', signInError);
+           throw new Error('Email is already registered. Please login or reset your password.');
+        }
+      } else {
+        console.error('Failed to send verification link:', error);
+        throw error;
+      }
     }
   };
 
@@ -452,6 +475,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       loading,
       loginWithEmail,
       registerWithEmail,
+      sendEmailVerificationLink,
       loginWithGoogle,
       completeGoogleRegistration,
       loginWithPassword,

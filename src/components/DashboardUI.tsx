@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Platform, Image, StyleSheet, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Platform, Image, StyleSheet, Alert, Share } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '../context/ThemeContext';
@@ -69,42 +69,56 @@ const DashboardUI = ({
       </View>
 
       {/* MONTHLY PASS CARD */}
-      <View style={{ marginHorizontal: 16, marginTop: 12, borderRadius: 20, overflow: 'hidden' }}>
-        <LinearGradient colors={['#ABCAED', '#EBEBEB']} start={{x:0, y:0}} end={{x:1, y:1}} style={{ padding: 20, height: 198 }}>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <View>
-              <Text style={{ fontFamily: 'sans-serif', fontSize: 16, color: colors.textPrimary, fontWeight: 'bold' }}>Monthly Pass</Text>
-              <View style={{ backgroundColor: '#ECFDF2', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 20, marginTop: 8, alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                <Feather name="check" size={10} color="#39B45C" />
-                <Text style={{ color: '#39B45C', fontSize: 10, fontWeight: 'bold' }}>Active</Text>
+      {pass ? (
+        <View style={{ marginHorizontal: 16, marginTop: 12, borderRadius: 20, overflow: 'hidden' }}>
+          <LinearGradient colors={['#ABCAED', '#EBEBEB']} start={{x:0, y:0}} end={{x:1, y:1}} style={{ padding: 20, height: 198 }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+              <View>
+                <Text style={{ fontFamily: 'sans-serif', fontSize: 16, color: colors.textPrimary, fontWeight: 'bold' }}>Monthly Pass</Text>
+                <View style={{ backgroundColor: '#ECFDF2', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 20, marginTop: 8, alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                  <Feather name="check" size={10} color="#39B45C" />
+                  <Text style={{ color: '#39B45C', fontSize: 10, fontWeight: 'bold' }}>Active</Text>
+                </View>
+              </View>
+              <View style={{ backgroundColor: themeColor, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8, alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                <Text style={{ color: '#FCFCFC', fontSize: 10, fontWeight: 'bold' }}>{passName.toUpperCase()}</Text>
+                <Feather name="shield" size={10} color="#FCFCFC" />
               </View>
             </View>
-            <View style={{ backgroundColor: themeColor, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8, alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-              <Text style={{ color: '#FCFCFC', fontSize: 10, fontWeight: 'bold' }}>{passName.toUpperCase()}</Text>
-              <Feather name="shield" size={10} color="#FCFCFC" />
+            
+            <View style={{ marginTop: 40 }}>
+              <Text style={{ color: colors.textSecondary, fontSize: 10 }}>Valid Till</Text>
+              <Text style={{ color: '#FCFCFC', fontSize: 14, fontWeight: 'bold', marginTop: 4 }}>
+                {pass && pass.validUntil 
+                  ? new Date(pass.validUntil).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+                  : 'July 29, 2026'}
+              </Text>
             </View>
-          </View>
-          
-          <View style={{ marginTop: 40 }}>
-            <Text style={{ color: colors.textSecondary, fontSize: 10 }}>Valid Till</Text>
-            <Text style={{ color: '#FCFCFC', fontSize: 14, fontWeight: 'bold', marginTop: 4 }}>
+            <View style={{ marginTop: 12, height: 8, backgroundColor: colors.iconBg, borderRadius: 4, width: '50%', overflow: 'hidden' }}>
+               <View style={{ width: `${progressWidth}%`, height: 8, backgroundColor: '#0053B3', borderRadius: 4 }} />
+            </View>
+            <Text style={{ color: colors.textPrimary, fontSize: 12, marginTop: 4 }}>
               {pass && pass.validUntil 
-                ? new Date(pass.validUntil).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-                : 'July 29, 2026'}
+                ? `${Math.max(0, Math.ceil((new Date(pass.validUntil).getTime() - Date.now()) / (1000 * 3600 * 24)))} Days Left`
+                : (pass && pass.totalRides ? `${pass.totalRides - (pass.ridesCompleted || 0)} Rides Left` : 'Active')}
             </Text>
-          </View>
-          <View style={{ marginTop: 12, height: 8, backgroundColor: colors.iconBg, borderRadius: 4, width: '50%', overflow: 'hidden' }}>
-             <View style={{ width: `${progressWidth}%`, height: 8, backgroundColor: '#0053B3', borderRadius: 4 }} />
-          </View>
-          <Text style={{ color: colors.textPrimary, fontSize: 12, marginTop: 4 }}>
-            {pass && pass.validUntil 
-              ? `${Math.max(0, Math.ceil((new Date(pass.validUntil).getTime() - Date.now()) / (1000 * 3600 * 24)))} Days Left`
-              : (pass && pass.totalRides ? `${pass.totalRides - (pass.ridesCompleted || 0)} Rides Left` : 'Active')}
-          </Text>
-          
-          <Image source={{ uri: 'https://www.pngplay.com/wp-content/uploads/13/White-Tata-Tiago-Transparent-PNG.png' }} style={{ position: 'absolute', right: -20, top: 40, width: 220, height: 120, resizeMode: 'contain' }} />
-        </LinearGradient>
-      </View>
+            
+            <Image source={{ uri: 'https://www.pngplay.com/wp-content/uploads/13/White-Tata-Tiago-Transparent-PNG.png' }} style={{ position: 'absolute', right: -20, top: 40, width: 220, height: 120, resizeMode: 'contain' }} />
+          </LinearGradient>
+        </View>
+      ) : (
+        <TouchableOpacity style={{ marginHorizontal: 16, marginTop: 12, borderRadius: 20, overflow: 'hidden' }} activeOpacity={0.9} onPress={onBuyPass}>
+          <LinearGradient colors={['#FFF8E1', '#F5E6C8']} start={{x:0, y:0}} end={{x:1, y:1}} style={{ padding: 20, height: 120, justifyContent: 'center' }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+              <View style={{ width: '70%' }}>
+                <Text style={{ fontFamily: 'sans-serif', fontSize: 18, color: '#D49F0C', fontWeight: 'bold', marginBottom: 4 }}>Get a Pass</Text>
+                <Text style={{ fontFamily: 'sans-serif', fontSize: 13, color: colors.textPrimary }}>Subscribe to enjoy discounted rides & priority booking.</Text>
+              </View>
+              <Feather name="credit-card" size={40} color="rgba(212, 159, 12, 0.3)" />
+            </View>
+          </LinearGradient>
+        </TouchableOpacity>
+      )}
 
       {/* SCHEDULED RIDE */}
       {scheduledRide && (
@@ -197,28 +211,43 @@ const DashboardUI = ({
           snapToAlignment="center"
         >
           {/* Banner 1 */}
-          <View style={{ width: 300, height: 140, borderRadius: 20, overflow: 'hidden' }}>
-            <LinearGradient colors={['#FF9A9E', '#FECFEF']} start={{x:0, y:0}} end={{x:1, y:1}} style={{ flex: 1, padding: 20, justifyContent: 'center' }}>
-              <Text style={{ fontFamily: 'sans-serif', fontSize: 18, color: '#D81B60', fontWeight: 'bold' }}>Get 20% Off!</Text>
-              <Text style={{ fontFamily: 'sans-serif', fontSize: 13, color: colors.textPrimary, marginTop: 4, width: '60%' }}>On your first outstation ride this weekend.</Text>
-              <View style={{ backgroundColor: '#D81B60', alignSelf: 'flex-start', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12, marginTop: 12 }}>
-                <Text style={{ color: '#FCFCFC', fontSize: 12, fontWeight: 'bold' }}>Claim Now</Text>
-              </View>
-              <Feather name="gift" size={64} color="rgba(216, 27, 96, 0.2)" style={{ position: 'absolute', right: -10, bottom: -10 }} />
-            </LinearGradient>
-          </View>
+          <TouchableOpacity activeOpacity={0.9} onPress={() => {
+            Alert.alert('Promo Code Activated!', 'Use code SAVE50 to get 50% off your ride! Search for a destination to apply it now.');
+            if (onBookRide) onBookRide();
+          }}>
+            <View style={{ width: 300, height: 140, borderRadius: 20, overflow: 'hidden' }}>
+              <LinearGradient colors={['#FF9A9E', '#FECFEF']} start={{x:0, y:0}} end={{x:1, y:1}} style={{ flex: 1, padding: 20, justifyContent: 'center' }}>
+                <Text style={{ fontFamily: 'sans-serif', fontSize: 18, color: '#D81B60', fontWeight: 'bold' }}>Get 50% Off!</Text>
+                <Text style={{ fontFamily: 'sans-serif', fontSize: 13, color: colors.textPrimary, marginTop: 4, width: '60%' }}>On your first ride this weekend.</Text>
+                <View style={{ backgroundColor: '#D81B60', alignSelf: 'flex-start', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12, marginTop: 12 }}>
+                  <Text style={{ color: '#FCFCFC', fontSize: 12, fontWeight: 'bold' }}>Claim Now</Text>
+                </View>
+                <Feather name="gift" size={64} color="rgba(216, 27, 96, 0.2)" style={{ position: 'absolute', right: -10, bottom: -10 }} />
+              </LinearGradient>
+            </View>
+          </TouchableOpacity>
 
           {/* Banner 2 */}
-          <View style={{ width: 300, height: 140, borderRadius: 20, overflow: 'hidden' }}>
-            <LinearGradient colors={['#a18cd1', '#fbc2eb']} start={{x:0, y:0}} end={{x:1, y:1}} style={{ flex: 1, padding: 20, justifyContent: 'center' }}>
-              <Text style={{ fontFamily: 'sans-serif', fontSize: 18, color: '#4A148C', fontWeight: 'bold' }}>Refer & Earn</Text>
-              <Text style={{ fontFamily: 'sans-serif', fontSize: 13, color: colors.textPrimary, marginTop: 4, width: '60%' }}>Invite friends and earn free rides up to ₹500.</Text>
-              <View style={{ backgroundColor: '#4A148C', alignSelf: 'flex-start', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12, marginTop: 12 }}>
-                <Text style={{ color: '#FCFCFC', fontSize: 12, fontWeight: 'bold' }}>Invite Friends</Text>
-              </View>
-              <Feather name="users" size={64} color="rgba(74, 20, 140, 0.2)" style={{ position: 'absolute', right: -10, bottom: -10 }} />
-            </LinearGradient>
-          </View>
+          <TouchableOpacity activeOpacity={0.9} onPress={async () => {
+            try {
+              await Share.share({
+                message: 'Hey! Join me on this amazing Cab App and get ₹500 off your first ride! Use my invite code: JOINCAB500',
+              });
+            } catch (error) {
+              console.log('Error sharing:', error);
+            }
+          }}>
+            <View style={{ width: 300, height: 140, borderRadius: 20, overflow: 'hidden' }}>
+              <LinearGradient colors={['#a18cd1', '#fbc2eb']} start={{x:0, y:0}} end={{x:1, y:1}} style={{ flex: 1, padding: 20, justifyContent: 'center' }}>
+                <Text style={{ fontFamily: 'sans-serif', fontSize: 18, color: '#4A148C', fontWeight: 'bold' }}>Refer & Earn</Text>
+                <Text style={{ fontFamily: 'sans-serif', fontSize: 13, color: colors.textPrimary, marginTop: 4, width: '60%' }}>Invite friends and earn free rides up to ₹500.</Text>
+                <View style={{ backgroundColor: '#4A148C', alignSelf: 'flex-start', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12, marginTop: 12 }}>
+                  <Text style={{ color: '#FCFCFC', fontSize: 12, fontWeight: 'bold' }}>Invite Friends</Text>
+                </View>
+                <Feather name="users" size={64} color="rgba(74, 20, 140, 0.2)" style={{ position: 'absolute', right: -10, bottom: -10 }} />
+              </LinearGradient>
+            </View>
+          </TouchableOpacity>
         </ScrollView>
       </View>
 
