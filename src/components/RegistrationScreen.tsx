@@ -353,7 +353,7 @@ export default function RegistrationScreen({ onBack, prefillData = null, isCorre
   );
 
   return (
-    <KeyboardAvoidingView style={styles.screenContainer} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+    <KeyboardAvoidingView style={styles.screenContainer} behavior="padding" keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}>
       <View style={styles.header}>
         <TouchableOpacity onPress={onBack}>
           <Text style={styles.backBtn}>← Back</Text>

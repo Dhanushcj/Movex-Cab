@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { getMessaging, onMessage, requestPermission, getToken, AuthorizationStatus } from '@react-native-firebase/messaging';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Notifications from 'expo-notifications';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -2713,6 +2714,7 @@ export default function App() {
 function DriverHomeScreen({ onRideAccepted, onNavigateProfile, onNavigateHistory, onNavigateWallet, onNavigateAchievements }: { onRideAccepted: (ride: any) => void; onNavigateProfile: () => void; onNavigateHistory: () => void; onNavigateWallet: () => void; onNavigateAchievements: () => void; }) {
   const { colors, isDark } = useTheme();
   const styles = getStyles(colors);
+  const insets = useSafeAreaInsets();
   const { user, updateOnlineStatus, logout } = useAuth();
   const { t } = useLanguage();
   const { location } = useLocation();
@@ -3201,7 +3203,7 @@ function DriverHomeScreen({ onRideAccepted, onNavigateProfile, onNavigateHistory
           </ScrollView>
 
           {/* Bottom Navigation */}
-          <View style={{ flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', paddingVertical: 12, position: 'absolute', bottom: 16, left: 16, right: 16, borderRadius: 20, backgroundColor: colors.bgSecondary, shadowColor: colors.textPrimary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 10, elevation: 5 }}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', paddingVertical: 12, position: 'absolute', bottom: Math.max(16, insets.bottom + 8), left: 16, right: 16, borderRadius: 20, backgroundColor: colors.bgSecondary, shadowColor: colors.textPrimary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 10, elevation: 5 }}>
             <TouchableOpacity style={{ backgroundColor: '#0053B3', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 16, flexDirection: 'row', alignItems: 'center', gap: 6 }}>
               <Feather name="home" size={18} color="#FCFCFC" />
               <Text style={{ color: '#FCFCFC', fontSize: 14 }}>Home</Text>
