@@ -1020,8 +1020,7 @@ function HomeScreen({ onRideBooked, onNavigateProfile, onNavigateLanguage, activ
 
   // ── Helpers ────────────────────────────────────────────────────────────────
   const isVehicleDisabled = (type: string) => {
-    const est = estimates.find(e => e.vehicleType === type);
-    return est ? est.available === false : false;
+    return false; // Allow selecting all vehicle types even if no drivers are nearby
   };
   
   const handleEstimatePass = async (type: string) => {
