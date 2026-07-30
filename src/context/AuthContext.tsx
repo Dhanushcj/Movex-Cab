@@ -119,7 +119,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw new Error('Please verify your email before logging in. Check your inbox/spam folder.');
       }
       const idToken = await getIdToken(userCredential.user);
-      return await handleFirebaseLogin(idToken, role);
+      return await handleFirebaseLogin(idToken, role, false, { password });
     } catch (error) {
       console.error('Firebase Email login failed:', error);
       throw error;

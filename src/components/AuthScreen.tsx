@@ -64,18 +64,33 @@ export default function AuthScreen({ onNavigateRegister }: { onNavigateRegister:
     setLoading(true);
     try {
       let success = false;
-      if (role === 'driver') {
-        success = await loginWithPassword(email, password, 'driver');
-      } else if (role === 'admin') {
-        success = await loginWithPassword(email, password, 'admin');
-      } else {
-        success = await loginWithPassword(email, password, 'customer');
+      let errorMsg = '';
+      
+      try {
+        // Try Firebase login first to handle password resets via Firebase link
+        success = await loginWithEmail(email, password, role);
+      } catch (fbError: any) {
+        // Fallback to database login if Firebase fails
+        try {
+          if (role === 'driver') {
+            success = await loginWithPassword(email, password, 'driver');
+          } else if (role === 'admin') {
+            success = await loginWithPassword(email, password, 'admin');
+          } else {
+            success = await loginWithPassword(email, password, 'customer');
+          }
+        } catch (dbError: any) {
+          errorMsg = dbError.response?.data?.message || dbError.message || 'Login failed. Please check details.';
+        }
       }
-      if (!success) {
+
+      if (!success && errorMsg) {
+        Alert.alert('Error', errorMsg);
+      } else if (!success) {
         Alert.alert('Error', 'Invalid login credentials');
       }
     } catch (e: any) {
-      Alert.alert('Error', e.response?.data?.message || e.message || 'Login failed. Please check details.');
+      Alert.alert('Error', e.message || 'An unexpected error occurred.');
     } finally {
       setLoading(false);
     }

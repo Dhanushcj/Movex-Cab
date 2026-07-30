@@ -1003,19 +1003,20 @@ function HomeScreen({ onRideBooked, onNavigateProfile, onNavigateLanguage, activ
     if (user) { setProfileName(user.name || ''); setProfileEmail(user.email || ''); }
   }, [user]);
 
-  // Poll nearby drivers based on pickupCoords
+  // Poll nearby drivers based on pickupCoords or location
   useEffect(() => {
-    if (!pickupCoords) return;
     const fetchNearby = async () => {
       try {
-        const res = await API.get(`/drivers/nearby?lng=${pickupCoords[0]}&lat=${pickupCoords[1]}&radius=2`);
+        const lng = pickupCoords ? pickupCoords[0] : (location?.coords.longitude ?? 78.6569);
+        const lat = pickupCoords ? pickupCoords[1] : (location?.coords.latitude ?? 11.1271);
+        const res = await API.get(`/drivers/nearby?lng=${lng}&lat=${lat}&radius=10`);
         if (res.data.success) setNearbyDrivers(res.data.drivers);
       } catch {}
     };
     fetchNearby();
     const iv = setInterval(fetchNearby, 10000);
     return () => clearInterval(iv);
-  }, [pickupCoords]);
+  }, [pickupCoords, location]);
 
   // ── Helpers ────────────────────────────────────────────────────────────────
   const isVehicleDisabled = (type: string) => {

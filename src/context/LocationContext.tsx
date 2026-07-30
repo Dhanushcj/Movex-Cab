@@ -33,6 +33,19 @@ export const LocationProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       });
       setLocation(currentLocation);
       reverseGeocode(currentLocation.coords.latitude, currentLocation.coords.longitude);
+
+      // Start watching for location updates
+      await Location.watchPositionAsync(
+        {
+          accuracy: Location.Accuracy.Balanced,
+          timeInterval: 5000,
+          distanceInterval: 10,
+        },
+        (newLocation) => {
+          setLocation(newLocation);
+        }
+      );
+
       return true;
     } catch (error: any) {
       setErrorMsg(error.message || 'Failed to request location permission');
