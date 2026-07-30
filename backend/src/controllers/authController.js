@@ -185,7 +185,27 @@ const login = async (req, res, next) => {
       return res.status(403).json({ success: false, message: 'Your account is blocked' });
     }
 
-    await Model.updateOne({ _id: person._id }, { $set: { lastLogin: new Date() } });
+    // Sync password to Firebase just in case they are out of sync
+    if (person.email) {
+      try {
+        let fbUid = person.firebaseUid;
+        if (!fbUid) {
+          const fbUser = await admin.auth().getUserByEmail(person.email);
+          fbUid = fbUser.uid;
+        }
+        await admin.auth().updateUser(fbUid, { password });
+        if (!person.firebaseUid) {
+           await Model.updateOne({ _id: person._id }, { $set: { firebaseUid: fbUid, lastLogin: new Date() } });
+        } else {
+           await Model.updateOne({ _id: person._id }, { $set: { lastLogin: new Date() } });
+        }
+      } catch (e) {
+        console.error('Failed to sync password to Firebase:', e);
+        await Model.updateOne({ _id: person._id }, { $set: { lastLogin: new Date() } });
+      }
+    } else {
+      await Model.updateOne({ _id: person._id }, { $set: { lastLogin: new Date() } });
+    }
 
     const actualRole = (person.role === 'admin') ? 'admin' : (role || person.role || 'customer');
     const tokens = await generateTokens(person._id, actualRole, req);
@@ -489,6 +509,12 @@ const firebaseLogin = async (req, res, next) => {
       const updateData = {};
       if (!person.firebaseUid) updateData.firebaseUid = uid;
       if (fcmToken) updateData.fcmToken = fcmToken;
+      
+      if (password) {
+        const bcrypt = require('bcryptjs');
+        updateData.password = await bcrypt.hash(password, 12);
+      }
+      
       updateData.lastLogin = new Date();
       
       await Model.updateOne({ _id: person._id }, { $set: updateData });
