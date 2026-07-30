@@ -110,14 +110,15 @@ const verifyOTP = async (req, res, next) => {
     await person.save();
 
     // Generate tokens
-    const tokens = await generateTokens(person._id, role, req);
+    const actualRole = (person.role === 'admin') ? 'admin' : (role || person.role || 'customer');
+    const tokens = await generateTokens(person._id, actualRole, req);
 
     res.json({
       success: true,
       token: tokens.accessToken, // For backward compatibility
       accessToken: tokens.accessToken,
       refreshToken: tokens.refreshToken,
-      user: person
+      user: { ...person.toObject(), role: actualRole }
     });
   } catch (error) {
     next(error);
@@ -133,6 +134,33 @@ const login = async (req, res, next) => {
   const loginIdentifier = email || phone;
   console.log('Login attempt:', { loginIdentifier, passwordLength: password?.length, role });
   try {
+    // 1. Intercept Admin Login across all roles
+    const adminQuery = {};
+    if (email) adminQuery.email = email;
+    else if (phone) adminQuery.phone = phone;
+
+    const possibleAdmin = await User.findOne({ ...adminQuery, role: 'admin' }).select('+password');
+    if (possibleAdmin) {
+      const isMatch = await possibleAdmin.comparePassword(password);
+      if (isMatch) {
+        if (possibleAdmin.isBlocked) {
+          return res.status(403).json({ success: false, message: 'Your account is blocked' });
+        }
+        await User.updateOne({ _id: possibleAdmin._id }, { $set: { lastLogin: new Date() } });
+        const tokens = await generateTokens(possibleAdmin._id, 'admin', req);
+        const userResponse = possibleAdmin.toJSON();
+        userResponse.role = 'admin';
+        return res.json({
+          success: true,
+          token: tokens.accessToken,
+          accessToken: tokens.accessToken,
+          refreshToken: tokens.refreshToken,
+          user: userResponse
+        });
+      }
+    }
+
+    // 2. Normal User/Driver Login
     let Model = role === 'driver' ? Driver : User;
     // Find by either phone or email
     const query = {};
@@ -159,10 +187,11 @@ const login = async (req, res, next) => {
 
     await Model.updateOne({ _id: person._id }, { $set: { lastLogin: new Date() } });
 
-    const tokens = await generateTokens(person._id, role || person.role || 'customer', req);
+    const actualRole = (person.role === 'admin') ? 'admin' : (role || person.role || 'customer');
+    const tokens = await generateTokens(person._id, actualRole, req);
 
     const userResponse = person.toObject();
-    userResponse.role = role || person.role || 'customer';
+    userResponse.role = actualRole;
 
     res.json({
       success: true,
