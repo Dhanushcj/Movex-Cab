@@ -55,6 +55,7 @@ const estimateFare = async (req, res, next) => {
         }
 
         const nearestDrivers = await Driver.find(query).select('currentLocation').lean().limit(10);
+        let nearestDriver = null;
         if (nearestDrivers.length > 0) {
           nearestDriver = nearestDrivers[0];
         }
