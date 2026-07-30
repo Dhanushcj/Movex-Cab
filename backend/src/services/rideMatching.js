@@ -191,13 +191,13 @@ const dispatchRequestsSequentially = async (booking, driverList, index, options 
   
   console.log(`[RideMatching] Checking driver ${driver._id} - socketDriver exists: ${!!socketDriver}, available: ${socketDriver ? socketDriver.available : false}`);
 
-  if (!socketDriver || !socketDriver.available) {
-    // Driver went offline or became busy, try next driver immediately
-    console.log(`[RideMatching] Skipping driver ${driver._id} because socket is missing or busy`);
+  if (socketDriver && !socketDriver.available) {
+    // Driver became busy, try next driver immediately
+    console.log(`[RideMatching] Skipping driver ${driver._id} because socket is busy`);
     return dispatchRequestsSequentially(booking, driverList, index + 1, options);
   }
 
-  console.log(`📨 Dispatching request to Driver: ${driver.name} (Socket: ${socketDriver.socketId})`);
+  console.log(`📨 Dispatching request to Driver: ${driver.name} (Socket: ${socketDriver ? socketDriver.socketId : 'Asleep/FCM Only'})`);
 
   // Build booking payload for driver
   const bookingPayload = {
@@ -219,7 +219,9 @@ const dispatchRequestsSequentially = async (booking, driverList, index, options 
   };
 
   // Emit to driver socket
-  io.to(socketDriver.socketId).emit('ride:incoming', bookingPayload);
+  if (socketDriver) {
+    io.to(socketDriver.socketId).emit('ride:incoming', bookingPayload);
+  }
 
   // Send push notification to driver (so it appears when app is closed)
   if (driver.fcmToken) {
@@ -241,7 +243,9 @@ const dispatchRequestsSequentially = async (booking, driverList, index, options 
       console.log(`⏰ Driver ${driver.name} request timed out`);
       
       // Notify the driver that request expired
-      io.to(socketDriver.socketId).emit('ride:expired', { bookingId: booking._id });
+      if (socketDriver) {
+        io.to(socketDriver.socketId).emit('ride:expired', { bookingId: booking._id });
+      }
       
       // Try next driver
       dispatchRequestsSequentially(booking, driverList, index + 1, options);

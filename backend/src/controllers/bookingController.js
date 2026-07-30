@@ -55,17 +55,8 @@ const estimateFare = async (req, res, next) => {
         }
 
         const nearestDrivers = await Driver.find(query).select('currentLocation').lean().limit(10);
-        let nearestDriver = null;
-
-        const { getOnlineDrivers } = require('../config/socket');
-        const onlineDrivers = getOnlineDrivers();
-
-        for (const drv of nearestDrivers) {
-          const socketDriver = onlineDrivers.get(drv._id.toString());
-          if (socketDriver && socketDriver.available) {
-            nearestDriver = drv;
-            break;
-          }
+        if (nearestDrivers.length > 0) {
+          nearestDriver = nearestDrivers[0];
         }
         
         let etaMinutes = 4; // Default
