@@ -15,6 +15,8 @@ import Settings from './pages/Settings';
 import Notifications from './pages/Notifications';
 import Banners from './pages/Banners';
 import PassManagement from './pages/PassManagement';
+import Reviews from './pages/Reviews';
+
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [checking, setChecking] = useState(true);
@@ -49,6 +51,7 @@ function App() {
         <Route path="/banners" element={<Banners />} />
         <Route path="/notifications" element={<Notifications />} />
         <Route path="/passes" element={<PassManagement />} />
+        <Route path="/reviews" element={<Reviews />} />
         {/* Fallback routes */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

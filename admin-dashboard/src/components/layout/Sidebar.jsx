@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 
 const Sidebar = () => {
-  const menuItems = [
+const menuItems = [
     { path: '/', name: 'Dashboard', icon: LayoutDashboard },
     { path: '/drivers', name: 'Driver Management', icon: ShieldCheck },
     { path: '/customers', name: 'Customers', icon: Users },
@@ -25,6 +25,7 @@ const Sidebar = () => {
     { path: '/map', name: 'Live Map', icon: MapPin },
     { path: '/fares', name: 'Fares & Pricing', icon: Tag },
     { path: '/passes', name: 'Premium Passes', icon: Star },
+    { path: '/reviews', name: 'Reviews', icon: Star },
     { path: '/banners', name: 'Ad Banners', icon: LayoutDashboard },
     { path: '/notifications', name: 'Notifications', icon: Bell },
     { path: '/complaints', name: 'Complaints', icon: AlertTriangle },
