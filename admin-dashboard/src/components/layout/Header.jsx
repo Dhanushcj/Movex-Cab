@@ -7,7 +7,27 @@ const Header = () => {
   const navigate = useNavigate();
   const [alerts, setAlerts] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [readAlertIds, setReadAlertIds] = useState(() => {
+    try {
+      const saved = localStorage.getItem('adminReadAlertIds');
+      return saved ? JSON.parse(saved) : [];
+    } catch (e) {
+      return [];
+    }
+  });
   const dropdownRef = useRef(null);
+
+  const unreadCount = alerts.filter(a => !readAlertIds.includes(a.id)).length;
+
+  const handleToggleDropdown = () => {
+    const newShow = !showDropdown;
+    setShowDropdown(newShow);
+    if (newShow && alerts.length > 0) {
+      const newReadIds = alerts.map(a => a.id);
+      setReadAlertIds(newReadIds);
+      localStorage.setItem('adminReadAlertIds', JSON.stringify(newReadIds));
+    }
+  };
 
   useEffect(() => {
     const fetchAlerts = async () => {
@@ -65,14 +85,14 @@ const Header = () => {
       <div className="flex items-center gap-6">
         <div className="relative" ref={dropdownRef}>
           <button 
-            onClick={() => setShowDropdown(!showDropdown)}
+            onClick={handleToggleDropdown}
             className="relative p-2 rounded-lg hover:bg-black/5 transition-colors"
           >
             <div className="relative">
               <Bell className="w-5 h-5 text-[var(--text-muted)]" />
-              {alerts.length > 0 && (
+              {unreadCount > 0 && (
                 <span className="absolute -top-1 -right-1 min-w-[1.25rem] h-5 px-1 border-2 border-white bg-rose-500 rounded-full flex items-center justify-center text-[10px] font-bold text-white shadow-sm z-10">
-                  {alerts.length}
+                  {unreadCount}
                 </span>
               )}
             </div>
@@ -83,7 +103,7 @@ const Header = () => {
             <div className="absolute right-0 mt-3 w-80 bg-white rounded-xl shadow-xl border border-[var(--border-glass)] overflow-hidden z-50">
               <div className="p-4 border-b border-[var(--border-glass)] bg-gray-50 flex justify-between items-center">
                 <h3 className="font-semibold text-gray-800">System Alerts</h3>
-                <span className="bg-rose-100 text-rose-600 text-xs font-bold px-2 py-0.5 rounded-full">{alerts.length} New</span>
+                <span className="bg-rose-100 text-rose-600 text-xs font-bold px-2 py-0.5 rounded-full">{unreadCount > 0 ? `${unreadCount} New` : `${alerts.length} Total`}</span>
               </div>
               <div className="max-h-[300px] overflow-y-auto">
                 {alerts.length === 0 ? (
