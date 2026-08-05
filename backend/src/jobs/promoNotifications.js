@@ -62,11 +62,20 @@ const sendPromoNotifications = async () => {
 
     if (tokens.length > 0) {
       // 1. Send the push notification
-      await sendMulticastNotification(tokens, {
+      const result = await sendMulticastNotification(tokens, {
         title: promo.title,
         body: promo.message,
         data: { type: 'promo_notification' }
       });
+
+      if (result && result.failedTokens && result.failedTokens.length > 0) {
+        // Remove invalid tokens from DB
+        await User.updateMany(
+          { fcmToken: { $in: result.failedTokens } },
+          { $set: { fcmToken: null } }
+        );
+        console.log(`[CRON] Removed ${result.failedTokens.length} invalid FCM tokens from database.`);
+      }
 
       console.log(`[CRON] Sent promo notification to ${tokens.length} users: "${promo.title}"`);
 
