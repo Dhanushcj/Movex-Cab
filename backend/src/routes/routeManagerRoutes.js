@@ -7,7 +7,7 @@ const {
   getRoutes,
   assignDriverToRoute
 } = require('../controllers/routeManagerController');
-const { protect, authorize } = require('../middlewares/auth');
+const { protect, authorize } = require('../middleware/auth');
 
 // Public endpoints (for customer app to fetch active routes/junctions)
 router.get('/junctions', getJunctions);
