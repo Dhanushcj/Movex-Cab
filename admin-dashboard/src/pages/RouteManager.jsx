@@ -221,7 +221,29 @@ const RouteManager = () => {
                   />
                 </div>
 
+                
+                {/* Search and Add Junctions */}
+                <div className="mb-4">
+                  <label className="text-xs font-semibold text-[var(--text-muted)] uppercase mb-2 block">Search & Add Junction</label>
+                  <select 
+                    className="glass-input w-full"
+                    onChange={(e) => {
+                      if (e.target.value) {
+                        handleJunctionClick(e.target.value);
+                        e.target.value = ''; // Reset after selection
+                      }
+                    }}
+                  >
+                    <option value="">-- Select a Junction to Add --</option>
+                    {junctions.filter(j => !newRoute.selectedJunctions.includes(j._id)).map(j => (
+                      <option key={j._id} value={j._id}>{j.name}</option>
+                    ))}
+                  </select>
+                  <p className="text-[10px] text-gray-400 mt-1">Select from the dropdown or click on the map.</p>
+                </div>
+
                 <div className="flex-1">
+
                   <label className="text-xs font-semibold text-[var(--text-muted)] uppercase mb-3 block">Route Sequence ({newRoute.selectedJunctions.length})</label>
                   <div className="space-y-3">
                     {newRoute.selectedJunctions.length === 0 && (
@@ -236,7 +258,29 @@ const RouteManager = () => {
                           <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${index === 0 ? 'bg-blue-500 text-white' : index === newRoute.selectedJunctions.length - 1 ? 'bg-emerald-500 text-white' : 'bg-gray-700 text-gray-300'}`}>
                             {index + 1}
                           </div>
-                          <div className="flex-1">
+                          
+                {/* Search and Add Junctions */}
+                <div className="mb-4">
+                  <label className="text-xs font-semibold text-[var(--text-muted)] uppercase mb-2 block">Search & Add Junction</label>
+                  <select 
+                    className="glass-input w-full"
+                    onChange={(e) => {
+                      if (e.target.value) {
+                        handleJunctionClick(e.target.value);
+                        e.target.value = ''; // Reset after selection
+                      }
+                    }}
+                  >
+                    <option value="">-- Select a Junction to Add --</option>
+                    {junctions.filter(j => !newRoute.selectedJunctions.includes(j._id)).map(j => (
+                      <option key={j._id} value={j._id}>{j.name}</option>
+                    ))}
+                  </select>
+                  <p className="text-[10px] text-gray-400 mt-1">Select from the dropdown or click on the map.</p>
+                </div>
+
+                <div className="flex-1">
+
                             <p className="font-semibold text-sm truncate">{j ? j.name : 'Unknown'}</p>
                             <p className="text-[10px] text-gray-400 uppercase">{index === 0 ? 'Start Point' : index === newRoute.selectedJunctions.length - 1 ? 'End Point' : 'Intermediate Stop'}</p>
                           </div>
