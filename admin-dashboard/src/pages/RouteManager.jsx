@@ -1,12 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Box, Typography, Paper, Grid, TextField, Button, Table, TableBody, 
-  TableCell, TableContainer, TableHead, TableRow, IconButton, Chip,
-  Dialog, DialogTitle, DialogContent, DialogActions, FormControl, InputLabel, Select, MenuItem
-} from '@mui/material';
 import { Plus, MapPin, Navigation, Trash2, Edit } from 'lucide-react';
-import axios from 'axios';
-import { toast } from 'react-hot-toast';
+import API from '../services/api';
 
 const RouteManager = () => {
   const [routes, setRoutes] = useState([]);
@@ -19,6 +13,18 @@ const RouteManager = () => {
   // Form States
   const [newJunction, setNewJunction] = useState({ name: '', lat: '', lng: '', description: '' });
   const [newRoute, setNewRoute] = useState({ name: '', selectedJunctions: [] });
+  
+  // Multi-select handling for custom UI
+  const handleJunctionToggle = (juncId) => {
+    setNewRoute(prev => {
+      const isSelected = prev.selectedJunctions.includes(juncId);
+      if (isSelected) {
+        return { ...prev, selectedJunctions: prev.selectedJunctions.filter(id => id !== juncId) };
+      } else {
+        return { ...prev, selectedJunctions: [...prev.selectedJunctions, juncId] };
+      }
+    });
+  };
 
   useEffect(() => {
     fetchData();
@@ -26,247 +32,223 @@ const RouteManager = () => {
 
   const fetchData = async () => {
     try {
-      // Assuming public endpoints or admin endpoints return these
+      // Use the API service configured for the admin dashboard
       const [routeRes, juncRes] = await Promise.all([
-        axios.get('http://localhost:5000/api/route-manager/routes'),
-        axios.get('http://localhost:5000/api/route-manager/junctions')
+        API.get('/route-manager/routes'),
+        API.get('/route-manager/junctions')
       ]);
       setRoutes(routeRes.data.data || []);
       setJunctions(juncRes.data.data || []);
     } catch (err) {
       console.error('Error fetching routing data', err);
-      // Fallback mocks for UI dev
-      setRoutes([{ _id: '1', name: 'Downtown to Airport (Route A)', junctions: [{name: 'Central Station'}, {name: 'Airport T2'}] }]);
-      setJunctions([{ _id: '1', name: 'Central Station' }, { _id: '2', name: 'Airport T2' }]);
     }
   };
 
   const handleCreateJunction = async () => {
     try {
-      // Note: Admin token should be in axios interceptor ideally
-      await axios.post('http://localhost:5000/api/route-manager/junctions', {
+      await API.post('/route-manager/junctions', {
         name: newJunction.name,
         coordinates: [parseFloat(newJunction.lng), parseFloat(newJunction.lat)],
         description: newJunction.description
-      }, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('adminToken')}` }
       });
-      toast.success('Junction created!');
+      alert('Junction created!');
       setOpenJunctionDialog(false);
       setNewJunction({ name: '', lat: '', lng: '', description: '' });
       fetchData();
     } catch (err) {
-      toast.error('Failed to create junction');
+      alert('Failed to create junction');
     }
   };
 
   const handleCreateRoute = async () => {
     try {
-      await axios.post('http://localhost:5000/api/route-manager/routes', {
+      await API.post('/route-manager/routes', {
         name: newRoute.name,
         junctions: newRoute.selectedJunctions
-      }, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('adminToken')}` }
       });
-      toast.success('Route created!');
+      alert('Route created!');
       setOpenRouteDialog(false);
       setNewRoute({ name: '', selectedJunctions: [] });
       fetchData();
     } catch (err) {
-      toast.error('Failed to create route');
+      alert('Failed to create route');
     }
   };
 
   return (
-    <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 4 }}>
-        <Typography variant="h4" fontWeight="600">Route & Junction Manager</Typography>
-        <Box sx={{ display: 'flex', gap: 2 }}>
-          <Button 
-            variant="outlined" 
-            startIcon={<MapPin size={20} />}
+    <div className="space-y-8 animate-fade-in">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div>
+          <h2 className="text-2xl font-bold text-[var(--text-primary)] tracking-tight">Route & Junction Manager</h2>
+          <p className="text-sm text-[var(--text-muted)] mt-1">Configure predefined Metro lines and stops</p>
+        </div>
+        <div className="flex gap-2">
+          <button 
+            className="btn-secondary py-2 px-4 text-sm flex items-center"
             onClick={() => setOpenJunctionDialog(true)}
           >
-            New Junction
-          </Button>
-          <Button 
-            variant="contained" 
-            startIcon={<Navigation size={20} />}
+            <MapPin className="w-4 h-4 mr-2" /> New Junction
+          </button>
+          <button 
+            className="btn-primary py-2 px-4 text-sm flex items-center"
             onClick={() => setOpenRouteDialog(true)}
           >
-            New Route
-          </Button>
-        </Box>
-      </Box>
+            <Navigation className="w-4 h-4 mr-2" /> New Route
+          </button>
+        </div>
+      </div>
 
-      <Grid container spacing={4}>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Active Routes Table */}
-        <Grid item xs={12} md={7}>
-          <Paper sx={{ p: 3, borderRadius: 2 }}>
-            <Typography variant="h6" mb={3} fontWeight="600">Active Routes</Typography>
-            <TableContainer>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Route Name</TableCell>
-                    <TableCell>Junctions</TableCell>
-                    <TableCell>Status</TableCell>
-                    <TableCell align="right">Actions</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {routes.map((route) => (
-                    <TableRow key={route._id}>
-                      <TableCell sx={{ fontWeight: '500' }}>{route.name}</TableCell>
-                      <TableCell>
-                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                          {route.junctions.map((j, i) => (
-                            <Chip key={i} label={j.name} size="small" variant="outlined" />
-                          ))}
-                        </Box>
-                      </TableCell>
-                      <TableCell>
-                        <Chip label="Active" color="success" size="small" />
-                      </TableCell>
-                      <TableCell align="right">
-                        <IconButton size="small" color="primary"><Edit size={18} /></IconButton>
-                        <IconButton size="small" color="error"><Trash2 size={18} /></IconButton>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                  {routes.length === 0 && (
-                    <TableRow>
-                      <TableCell colSpan={4} align="center" sx={{ py: 4, color: 'text.secondary' }}>
-                        No routes created yet.
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Paper>
-        </Grid>
+        <div className="lg:col-span-7">
+          <div className="glass-card overflow-hidden">
+            <div className="p-4 border-b border-[var(--border-glass)]">
+              <h3 className="font-bold text-[var(--text-primary)]">Active Routes</h3>
+            </div>
+            <table className="premium-table w-full">
+              <thead>
+                <tr>
+                  <th className="text-left px-4 py-3">Route Name</th>
+                  <th className="text-left px-4 py-3">Junctions</th>
+                  <th className="text-left px-4 py-3">Status</th>
+                  <th className="text-right px-4 py-3">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {routes.map((route) => (
+                  <tr key={route._id}>
+                    <td className="px-4 py-3 font-semibold text-sm">{route.name}</td>
+                    <td className="px-4 py-3">
+                      <div className="flex flex-wrap gap-1">
+                        {route.junctions.map((j, i) => (
+                          <span key={i} className="text-xs px-2 py-0.5 bg-[var(--bg-tertiary)] border border-[var(--border-glass)] rounded text-[var(--text-muted)]">
+                            {j.name}
+                          </span>
+                        ))}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className="text-xs font-semibold px-2 py-0.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded">Active</span>
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <button className="text-[var(--text-muted)] hover:text-[var(--text-primary)] mr-3"><Edit size={16} /></button>
+                      <button className="text-[var(--text-muted)] hover:text-rose-500"><Trash2 size={16} /></button>
+                    </td>
+                  </tr>
+                ))}
+                {routes.length === 0 && (
+                  <tr>
+                    <td colSpan="4" className="px-4 py-8 text-center text-[var(--text-muted)] text-sm">No routes created yet.</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
 
         {/* Junctions List */}
-        <Grid item xs={12} md={5}>
-          <Paper sx={{ p: 3, borderRadius: 2 }}>
-            <Typography variant="h6" mb={3} fontWeight="600">All Junctions</Typography>
-            <TableContainer>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Junction Name</TableCell>
-                    <TableCell align="right">Actions</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {junctions.map((junc) => (
-                    <TableRow key={junc._id}>
-                      <TableCell sx={{ fontWeight: '500' }}>{junc.name}</TableCell>
-                      <TableCell align="right">
-                        <IconButton size="small" color="error"><Trash2 size={18} /></IconButton>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                  {junctions.length === 0 && (
-                    <TableRow>
-                      <TableCell colSpan={2} align="center" sx={{ py: 4, color: 'text.secondary' }}>
-                        No junctions created yet.
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Paper>
-        </Grid>
-      </Grid>
+        <div className="lg:col-span-5">
+          <div className="glass-card overflow-hidden">
+            <div className="p-4 border-b border-[var(--border-glass)]">
+              <h3 className="font-bold text-[var(--text-primary)]">All Junctions</h3>
+            </div>
+            <table className="premium-table w-full">
+              <thead>
+                <tr>
+                  <th className="text-left px-4 py-3">Junction Name</th>
+                  <th className="text-right px-4 py-3">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {junctions.map((junc) => (
+                  <tr key={junc._id}>
+                    <td className="px-4 py-3 font-semibold text-sm">{junc.name}</td>
+                    <td className="px-4 py-3 text-right">
+                      <button className="text-[var(--text-muted)] hover:text-rose-500"><Trash2 size={16} /></button>
+                    </td>
+                  </tr>
+                ))}
+                {junctions.length === 0 && (
+                  <tr>
+                    <td colSpan="2" className="px-4 py-8 text-center text-[var(--text-muted)] text-sm">No junctions created yet.</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
 
       {/* New Junction Dialog */}
-      <Dialog open={openJunctionDialog} onClose={() => setOpenJunctionDialog(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>Create New Junction</DialogTitle>
-        <DialogContent dividers sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <TextField 
-            label="Junction Name" 
-            fullWidth 
-            value={newJunction.name}
-            onChange={(e) => setNewJunction({...newJunction, name: e.target.value})}
-          />
-          <Grid container spacing={2}>
-            <Grid item xs={6}>
-              <TextField 
-                label="Latitude" 
-                fullWidth 
-                type="number"
-                value={newJunction.lat}
-                onChange={(e) => setNewJunction({...newJunction, lat: e.target.value})}
-              />
-            </Grid>
-            <Grid item xs={6}>
-              <TextField 
-                label="Longitude" 
-                fullWidth 
-                type="number"
-                value={newJunction.lng}
-                onChange={(e) => setNewJunction({...newJunction, lng: e.target.value})}
-              />
-            </Grid>
-          </Grid>
-          <TextField 
-            label="Description (Optional)" 
-            fullWidth 
-            multiline rows={2}
-            value={newJunction.description}
-            onChange={(e) => setNewJunction({...newJunction, description: e.target.value})}
-          />
-        </DialogContent>
-        <DialogActions sx={{ p: 2 }}>
-          <Button onClick={() => setOpenJunctionDialog(false)}>Cancel</Button>
-          <Button variant="contained" onClick={handleCreateJunction}>Create Junction</Button>
-        </DialogActions>
-      </Dialog>
+      {openJunctionDialog && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="glass-card w-full max-w-md p-6 relative">
+            <h3 className="text-xl font-bold mb-4">Create New Junction</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="text-xs font-semibold text-[var(--text-muted)] uppercase mb-1 block">Junction Name</label>
+                <input type="text" className="glass-input w-full" value={newJunction.name} onChange={e => setNewJunction({...newJunction, name: e.target.value})} />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs font-semibold text-[var(--text-muted)] uppercase mb-1 block">Latitude</label>
+                  <input type="number" className="glass-input w-full" value={newJunction.lat} onChange={e => setNewJunction({...newJunction, lat: e.target.value})} />
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-[var(--text-muted)] uppercase mb-1 block">Longitude</label>
+                  <input type="number" className="glass-input w-full" value={newJunction.lng} onChange={e => setNewJunction({...newJunction, lng: e.target.value})} />
+                </div>
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-[var(--text-muted)] uppercase mb-1 block">Description</label>
+                <input type="text" className="glass-input w-full" value={newJunction.description} onChange={e => setNewJunction({...newJunction, description: e.target.value})} />
+              </div>
+            </div>
+            <div className="mt-6 flex justify-end gap-3">
+              <button className="btn-secondary py-2 px-4" onClick={() => setOpenJunctionDialog(false)}>Cancel</button>
+              <button className="btn-primary py-2 px-4" onClick={handleCreateJunction}>Create</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* New Route Dialog */}
-      <Dialog open={openRouteDialog} onClose={() => setOpenRouteDialog(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>Create New Route</DialogTitle>
-        <DialogContent dividers sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-          <TextField 
-            label="Route Name" 
-            fullWidth 
-            value={newRoute.name}
-            onChange={(e) => setNewRoute({...newRoute, name: e.target.value})}
-          />
-          
-          <FormControl fullWidth>
-            <InputLabel>Select Junctions</InputLabel>
-            <Select
-              multiple
-              value={newRoute.selectedJunctions}
-              label="Select Junctions"
-              onChange={(e) => setNewRoute({...newRoute, selectedJunctions: e.target.value})}
-              renderValue={(selected) => (
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                  {selected.map((value) => {
-                    const jName = junctions.find(j => j._id === value)?.name || value;
-                    return <Chip key={value} label={jName} size="small" />;
-                  })}
-                </Box>
-              )}
-            >
-              {junctions.map((junc) => (
-                <MenuItem key={junc._id} value={junc._id}>
-                  {junc.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </DialogContent>
-        <DialogActions sx={{ p: 2 }}>
-          <Button onClick={() => setOpenRouteDialog(false)}>Cancel</Button>
-          <Button variant="contained" onClick={handleCreateRoute}>Create Route</Button>
-        </DialogActions>
-      </Dialog>
-    </Box>
+      {openRouteDialog && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="glass-card w-full max-w-md p-6 relative">
+            <h3 className="text-xl font-bold mb-4">Create New Route</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="text-xs font-semibold text-[var(--text-muted)] uppercase mb-1 block">Route Name</label>
+                <input type="text" className="glass-input w-full" value={newRoute.name} onChange={e => setNewRoute({...newRoute, name: e.target.value})} />
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-[var(--text-muted)] uppercase mb-1 block">Select Junctions</label>
+                <div className="bg-[var(--bg-tertiary)] border border-[var(--border-glass)] rounded-xl p-3 max-h-48 overflow-y-auto space-y-2">
+                  {junctions.map(j => (
+                    <label key={j._id} className="flex items-center gap-2 cursor-pointer p-1 hover:bg-white/5 rounded">
+                      <input 
+                        type="checkbox" 
+                        className="rounded border-[var(--border-glass)]"
+                        checked={newRoute.selectedJunctions.includes(j._id)}
+                        onChange={() => handleJunctionToggle(j._id)}
+                      />
+                      <span className="text-sm">{j.name}</span>
+                    </label>
+                  ))}
+                  {junctions.length === 0 && <p className="text-xs text-[var(--text-muted)]">Create junctions first.</p>}
+                </div>
+              </div>
+            </div>
+            <div className="mt-6 flex justify-end gap-3">
+              <button className="btn-secondary py-2 px-4" onClick={() => setOpenRouteDialog(false)}>Cancel</button>
+              <button className="btn-primary py-2 px-4" onClick={handleCreateRoute}>Create</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 
