@@ -182,7 +182,7 @@ const RouteManager = () => {
 
       {/* New Junction Dialog */}
       {openJunctionDialog && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
           <div className="glass-card w-full max-w-md p-6 relative">
             <h3 className="text-xl font-bold mb-4">Create New Junction</h3>
             <div className="space-y-4">
@@ -215,7 +215,7 @@ const RouteManager = () => {
 
       {/* New Route Dialog */}
       {openRouteDialog && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
           <div className="glass-card w-full max-w-md p-6 relative">
             <h3 className="text-xl font-bold mb-4">Create New Route</h3>
             <div className="space-y-4">
