@@ -24,13 +24,14 @@ import PaymentsTab from './admin/PaymentsTab';
 import PayoutsTab from './admin/PayoutsTab';
 import ComplaintsTab from './admin/ComplaintsTab';
 import SettingsTab from './admin/SettingsTab';
+import RoutesTab from './admin/RoutesTab';
 
 export default function AdminDashboardScreen({ onNavigateLogout }: { onNavigateLogout?: () => void }) {
   const { colors, isDark } = useTheme();
   const styles = getStyles(colors);
   const { user, logout } = useAuth();
   const [activeModule, setActiveModule] = useState<
-    'overview' | 'drivers' | 'vehicles' | 'customers' | 'rides' | 'map' | 'payments' | 'payouts' | 'complaints' | 'settings'
+    'overview' | 'drivers' | 'vehicles' | 'customers' | 'rides' | 'map' | 'payments' | 'payouts' | 'complaints' | 'routes' | 'settings'
   >('overview');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   
@@ -146,6 +147,7 @@ export default function AdminDashboardScreen({ onNavigateLogout }: { onNavigateL
                 { id: 'vehicles', icon: 'truck', label: 'Vehicle Management' },
                 { id: 'customers', icon: 'user', label: 'Customer Management' },
                 { id: 'rides', icon: 'map', label: 'Ride Management' },
+                { id: 'routes', icon: 'git-merge', label: 'Metro Routes' },
                 { id: 'map', icon: 'navigation', label: 'Live Location Map' },
                 { id: 'payments', icon: 'credit-card', label: 'Payments / Wallet' },
                 { id: 'payouts', icon: 'dollar-sign', label: 'Driver Payouts' },
@@ -307,6 +309,7 @@ export default function AdminDashboardScreen({ onNavigateLogout }: { onNavigateL
         {activeModule === 'vehicles' && <VehiclesTab />}
         {activeModule === 'customers' && <CustomersTab />}
         {activeModule === 'rides' && <RidesTab />}
+        {activeModule === 'routes' && <RoutesTab />}
         {activeModule === 'map' && <LiveMapTab />}
         {activeModule === 'payments' && <PaymentsTab />}
         {activeModule === 'payouts' && <PayoutsTab />}
