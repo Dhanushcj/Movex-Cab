@@ -19,6 +19,7 @@ import {
 const Sidebar = () => {
 const menuItems = [
     { path: '/', name: 'Dashboard', icon: LayoutDashboard },
+    { path: '/route-manager', name: 'Route Manager', icon: MapPin },
     { path: '/drivers', name: 'Driver Management', icon: ShieldCheck },
     { path: '/customers', name: 'Customers', icon: Users },
     { path: '/bookings', name: 'Bookings', icon: CalendarDays },

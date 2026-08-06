@@ -147,6 +147,21 @@ const driverSchema = new mongoose.Schema({
     type: Boolean,
     default: true
   },
+  // Metro Routing Details
+  assignedRoute: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Route',
+    default: null
+  },
+  currentJunction: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Junction',
+    default: null
+  },
+  availableSeats: {
+    type: Number,
+    default: 0
+  },
   // Current location (GeoJSON)
   currentLocation: {
     type: {

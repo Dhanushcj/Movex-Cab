@@ -4,6 +4,7 @@ import { ShieldCheck, UserX, AlertTriangle, Image, ExternalLink, X, Check, Activ
 
 const Drivers = () => {
   const [drivers, setDrivers] = useState([]);
+  const [routes, setRoutes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedDriver, setSelectedDriver] = useState(null);
   const [rejectReason, setRejectReason] = useState('');
@@ -17,6 +18,7 @@ const Drivers = () => {
   // Edit Form State
   const [editForm, setEditForm] = useState({
     employeeId: '',
+    assignedRoute: '',
     vehicle: { make: '', model: '', year: '', plateNumber: '', color: '', type: 'bike' },
     documents: {
       profilePhoto: { url: '' },
@@ -94,6 +96,7 @@ const Drivers = () => {
     setSelectedDriver(driver);
     setEditForm({
       employeeId: driver.employeeId || '',
+      assignedRoute: driver.assignedRoute || '',
       vehicle: { 
         make: driver.vehicle?.make || '', 
         model: driver.vehicle?.model || '', 
@@ -144,6 +147,20 @@ const Drivers = () => {
     }
   };
 
+
+  const fetchRoutes = async () => {
+    try {
+      const response = await API.get('/route-manager/routes');
+      setRoutes(response.data.data || []);
+    } catch (err) {
+      console.error('Failed to load routes:', err);
+    }
+  };
+
+  useEffect(() => {
+    fetchRoutes();
+  }, []);
+
   useEffect(() => {
     fetchDrivers();
   }, []);
@@ -154,6 +171,8 @@ const Drivers = () => {
       await API.put(`/admin/drivers/${driverId}`, {
         approvalStatus: 'approved',
         employeeId: editForm.employeeId,
+        assignedRoute: editForm.assignedRoute,
+        assignedRoute: editForm.assignedRoute,
         vehicle: editForm.vehicle,
         documents: editForm.documents
       });
@@ -171,6 +190,8 @@ const Drivers = () => {
     try {
       await API.put(`/admin/drivers/${driverId}`, {
         employeeId: editForm.employeeId,
+        assignedRoute: editForm.assignedRoute,
+        assignedRoute: editForm.assignedRoute,
         vehicle: editForm.vehicle,
         documents: editForm.documents
       });
@@ -390,6 +411,23 @@ const Drivers = () => {
                     ? "Leave empty to auto-generate upon approval."
                     : "Employee ID cannot be changed after assignment."}
                 </p>
+              </div>
+
+              
+              {/* Route Assignment */}
+              <div className="p-4 bg-[var(--bg-tertiary)] border border-[var(--border-glass)] rounded-xl mb-4">
+                <h5 className="text-sm font-semibold text-[var(--text-primary)] mb-2">Metro Route Assignment</h5>
+                <select 
+                  className="glass-input w-full" 
+                  value={editForm.assignedRoute || ''} 
+                  onChange={(e) => setEditForm({...editForm, assignedRoute: e.target.value})}
+                >
+                  <option value="">-- No Route Assigned --</option>
+                  {routes.map(r => (
+                    <option key={r._id} value={r._id}>{r.name}</option>
+                  ))}
+                </select>
+                <p className="text-[10px] text-[var(--text-muted)] mt-1">Assign this driver to a predefined Metro/Bus route.</p>
               </div>
 
               {/* Vehicle Details */}

@@ -88,6 +88,7 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/public', publicRoutes);
 app.use('/api/subscriptions', subscriptionRoutes);
 app.use('/api/scheduled-rides', scheduledRideRoutes);
+app.use('/api/route-manager', require('./src/routes/routeManagerRoutes'));
 
 // Health check
 app.get('/api/health', (req, res) => {

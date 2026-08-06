@@ -1,0 +1,181 @@
+.bookingContainer {
+  display: flex;
+  height: calc(100vh - 160px);
+  gap: 24px;
+}
+
+.leftPanel {
+  flex: 1;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.mapPanel {
+  flex: 2;
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+  position: relative;
+  background: var(--bg-darker);
+  border: 1px solid var(--glass-border);
+}
+
+.mapPlaceholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  color: var(--text-muted);
+  background: radial-gradient(circle, rgba(108, 92, 231, 0.1) 0%, transparent 70%);
+}
+
+.searchCard {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--border-radius-lg);
+  padding: 24px;
+}
+
+.inputGroup {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.iconWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--success);
+}
+
+.line {
+  width: 2px;
+  height: 24px;
+  background: var(--glass-border);
+}
+
+.square {
+  width: 12px;
+  height: 12px;
+  background: var(--primary);
+}
+
+.inputs {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.input {
+  width: 100%;
+  padding: 12px 16px;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--border-radius);
+  color: var(--text-main);
+}
+
+.input:focus {
+  border-color: var(--primary);
+}
+
+.vehicleOptions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.vehicleCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.vehicleCard.selected {
+  border-color: var(--primary);
+  background: var(--primary-light);
+}
+
+.vehicleInfo {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.vehicleIcon {
+  width: 48px;
+  height: 48px;
+  background: var(--bg-card);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary);
+}
+
+.vehicleDetails h4 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.vehicleDetails p {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.vehiclePrice {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.btnBook {
+  width: 100%;
+  padding: 16px;
+  background: var(--primary);
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: var(--border-radius);
+  transition: var(--transition-fast);
+}
+
+.btnBook:hover {
+  background: var(--primary-hover);
+}
+
+@media (max-width: 900px) {
+  .bookingContainer {
+    flex-direction: column;
+    height: auto;
+  }
+  
+  .leftPanel {
+    max-width: 100%;
+  }
+  
+  .mapPanel {
+    height: 300px;
+    flex: none;
+  }
+}
