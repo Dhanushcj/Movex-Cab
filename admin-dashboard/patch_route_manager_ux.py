@@ -1,4 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import sys
+import re
+
+file_path = r'g:\Dhanush\New folder\Movex-Cab\admin-dashboard\src\pages\RouteManager.jsx'
+
+with open(file_path, 'r', encoding='utf-8') as f:
+    content = f.read()
+
+# I will rewrite the entire RouteManager.jsx to ensure a clean UX implementation
+
+new_content = """import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { Plus, MapPin, Navigation, Trash2, Edit, X, ArrowUp, ArrowDown } from 'lucide-react';
 import API from '../services/api';
@@ -517,3 +527,9 @@ const RouteManager = () => {
 };
 
 export default RouteManager;
+"""
+
+with open(file_path, 'w', encoding='utf-8') as f:
+    f.write(new_content)
+
+print("Overhauled UX for RouteManager complete!")
