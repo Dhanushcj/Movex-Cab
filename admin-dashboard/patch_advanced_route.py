@@ -1,4 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import sys
+import os
+
+file_path = r'g:\Dhanush\New folder\Movex-Cab\admin-dashboard\src\pages\RouteManager.jsx'
+
+content = """import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { Plus, MapPin, Navigation, Trash2, Edit, X } from 'lucide-react';
 import API from '../services/api';
@@ -343,3 +348,9 @@ const RouteManager = () => {
 };
 
 export default RouteManager;
+"""
+
+with open(file_path, 'w', encoding='utf-8') as f:
+    f.write(content)
+
+print("RouteManager advanced map builder written successfully!")
