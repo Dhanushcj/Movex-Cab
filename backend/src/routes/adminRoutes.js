@@ -36,6 +36,12 @@ const {
   updatePass,
   getAlerts
 } = require('../controllers/adminController');
+const {
+  createJunction,
+  getJunctions,
+  createRoute,
+  getRoutes
+} = require('../controllers/routeManagerController');
 
 // All endpoints in admin router are protected and limited to the admin role
 router.use(protect);
@@ -89,5 +95,34 @@ router.get('/passes', getPasses);
 router.put('/passes/:id', updatePass);
 
 router.post('/fee-tiers/seed', seedFeeTiers);
+
+// Route & Junction management
+router.get('/routes', async (req, res, next) => {
+  try {
+    const Route = require('../models/Route');
+    const routes = await Route.find({}).populate('junctions').sort({ createdAt: -1 });
+    res.json({ success: true, count: routes.length, data: routes });
+  } catch (e) { next(e); }
+});
+router.post('/routes', createRoute);
+router.delete('/routes/:id', async (req, res, next) => {
+  try {
+    const Route = require('../models/Route');
+    const route = await Route.findByIdAndUpdate(req.params.id, { isActive: false }, { new: true });
+    if (!route) return res.status(404).json({ success: false, error: 'Route not found' });
+    res.json({ success: true, data: route });
+  } catch (e) { next(e); }
+});
+
+router.get('/junctions', getJunctions);
+router.post('/junctions', createJunction);
+router.delete('/junctions/:id', async (req, res, next) => {
+  try {
+    const Junction = require('../models/Junction');
+    const j = await Junction.findByIdAndUpdate(req.params.id, { isActive: false }, { new: true });
+    if (!j) return res.status(404).json({ success: false, error: 'Junction not found' });
+    res.json({ success: true, data: j });
+  } catch (e) { next(e); }
+});
 
 module.exports = router;
