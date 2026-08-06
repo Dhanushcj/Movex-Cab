@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Plus, MapPin, Navigation, Trash2, Edit } from 'lucide-react';
 import API from '../services/api';
 
@@ -181,7 +182,7 @@ const RouteManager = () => {
       </div>
 
       {/* New Junction Dialog */}
-      {openJunctionDialog && (
+      {openJunctionDialog && createPortal(
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
           <div className="glass-card w-full max-w-md p-6 relative">
             <h3 className="text-xl font-bold mb-4">Create New Junction</h3>
@@ -210,11 +211,12 @@ const RouteManager = () => {
               <button className="btn-primary py-2 px-4" onClick={handleCreateJunction}>Create</button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* New Route Dialog */}
-      {openRouteDialog && (
+      {openRouteDialog && createPortal(
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
           <div className="glass-card w-full max-w-md p-6 relative">
             <h3 className="text-xl font-bold mb-4">Create New Route</h3>
@@ -246,7 +248,8 @@ const RouteManager = () => {
               <button className="btn-primary py-2 px-4" onClick={handleCreateRoute}>Create</button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
