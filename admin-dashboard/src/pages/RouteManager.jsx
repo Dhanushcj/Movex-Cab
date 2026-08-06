@@ -166,7 +166,7 @@ const RouteManager = () => {
     }
   };
 
-  const handleSaveTempJunction = async () => {
+  const handleSaveTempJunction = async (assignmentType) => {
     if (!tempJunction.name) return alert('Enter a name for the new junction');
     try {
       const res = await API.post('/route-manager/junctions', {
@@ -176,9 +176,17 @@ const RouteManager = () => {
       });
       const newJunc = res.data.data;
       setJunctions(prev => [...prev, newJunc]);
-      if (!startPoint) setStartPoint(newJunc._id);
-      else if (!endPoint) setEndPoint(newJunc._id);
-      else setIntermediatePoints(prev => [...prev, newJunc._id]);
+      
+      if (assignmentType === 'start') setStartPoint(newJunc._id);
+      else if (assignmentType === 'end') setEndPoint(newJunc._id);
+      else if (assignmentType === 'intermediate') setIntermediatePoints(prev => [...prev, newJunc._id]);
+      else {
+        // Auto assignment
+        if (!startPoint) setStartPoint(newJunc._id);
+        else if (!endPoint) setEndPoint(newJunc._id);
+        else setIntermediatePoints(prev => [...prev, newJunc._id]);
+      }
+      
       setTempJunction(null);
     } catch (err) {
       alert('Failed to create junction');
@@ -450,32 +458,56 @@ const RouteManager = () => {
                     />
                   )}
 
-                  {/* Temporary Junction Marker (when clicking empty space) */}
+                  {/* Temporary Junction Marker */}
                   {tempJunction && (
-                    <Marker position={[tempJunction.lat, tempJunction.lng]} icon={defaultIcon}>
-                      <Popup onClose={() => setTempJunction(null)}>
-                        <div className="p-1 space-y-2">
-                          <h4 className="font-bold text-sm">New Junction</h4>
-                          <input 
-                            type="text" 
-                            className="border p-1 text-sm w-full rounded text-black" 
-                            placeholder="Junction Name"
-                            autoFocus
-                            value={tempJunction.name}
-                            onChange={(e) => setTempJunction({...tempJunction, name: e.target.value})}
-                          />
-                          <button 
-                            className="bg-indigo-600 text-white text-xs px-3 py-1 rounded w-full font-bold hover:bg-indigo-700"
-                            onClick={handleSaveTempJunction}
-                          >
-                            Save & Add to Route
-                          </button>
-                        </div>
-                      </Popup>
-                    </Marker>
+                    <Marker position={[tempJunction.lat, tempJunction.lng]} icon={defaultIcon} />
                   )}
                 </MapContainer>
                 
+                
+                {/* Floating Temp Junction Action Card */}
+                {tempJunction && (
+                  <div className="absolute top-20 left-1/2 -translate-x-1/2 z-[2000] w-11/12 max-w-lg bg-white rounded-xl shadow-2xl border-2 border-blue-500 overflow-hidden animate-fade-in">
+                    <div className="bg-blue-50 px-4 py-3 border-b border-blue-100 flex justify-between items-center">
+                      <h4 className="font-bold text-blue-800 flex items-center"><MapPin className="w-4 h-4 mr-2" /> New Location Found</h4>
+                      <button onClick={() => setTempJunction(null)} className="text-gray-400 hover:text-red-500"><X size={18} /></button>
+                    </div>
+                    <div className="p-4 space-y-4">
+                      <div>
+                        <label className="text-xs font-semibold text-gray-500 uppercase mb-1 block">Junction Name</label>
+                        <input 
+                          type="text" 
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-black outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200" 
+                          placeholder="e.g. Krishnagiri Bus Stand"
+                          autoFocus
+                          value={tempJunction.name}
+                          onChange={(e) => setTempJunction({...tempJunction, name: e.target.value})}
+                        />
+                      </div>
+                      <div className="grid grid-cols-3 gap-2 pt-2">
+                        <button 
+                          className="bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 py-2 rounded-lg text-xs font-bold transition-colors"
+                          onClick={() => handleSaveTempJunction('start')}
+                        >
+                          Set as Start
+                        </button>
+                        <button 
+                          className="bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 py-2 rounded-lg text-xs font-bold transition-colors"
+                          onClick={() => handleSaveTempJunction('end')}
+                        >
+                          Set as End
+                        </button>
+                        <button 
+                          className="bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200 py-2 rounded-lg text-xs font-bold transition-colors"
+                          onClick={() => handleSaveTempJunction('intermediate')}
+                        >
+                          Add as Stop
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* Floating Map Helper text */}
                 <div className="absolute bottom-6 right-6 z-[1000] bg-white/90 backdrop-blur px-4 py-2 rounded-lg shadow-lg border border-gray-200 pointer-events-none">
                   <p className="text-xs font-semibold text-gray-700 flex items-center gap-2">
