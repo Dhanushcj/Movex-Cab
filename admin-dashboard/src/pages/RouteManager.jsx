@@ -41,13 +41,39 @@ const RouteManager = () => {
   const [startPoint, setStartPoint] = useState('');
   const [endPoint, setEndPoint] = useState('');
   const [intermediatePoints, setIntermediatePoints] = useState([]);
+  const [tempJunction, setTempJunction] = useState(null); // { lat, lng, name }
+
+  // Search States
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
 
   // Compute total sequence dynamically
   const routeSequence = [startPoint, ...intermediatePoints, endPoint].filter(Boolean);
 
-  const [tempJunction, setTempJunction] = useState(null); // { lat, lng, name }
-
   const [roadPolyline, setRoadPolyline] = useState(null);
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      const [routeRes, juncRes] = await Promise.all([
+        API.get('/route-manager/routes'),
+        API.get('/route-manager/junctions')
+      ]);
+      setRoutes(routeRes.data.data || []);
+      const fetchedJunctions = juncRes.data.data || [];
+      setJunctions(fetchedJunctions);
+      
+      if (fetchedJunctions.length > 0 && fetchedJunctions[0].location?.coordinates) {
+        setMapCenter([fetchedJunctions[0].location.coordinates[1], fetchedJunctions[0].location.coordinates[0]]);
+      }
+    } catch (err) {
+      console.error('Error fetching routing data', err);
+    }
+  };
 
   // Fetch real road route from OSRM when junctions change
   useEffect(() => {
@@ -82,11 +108,6 @@ const RouteManager = () => {
     fetchRoute();
   }, [routeSequence, junctions]);
 
-
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
-  const [isSearching, setIsSearching] = useState(false);
-
   const handleLocationSearch = async (e) => {
     e.preventDefault();
     if (!searchQuery.trim()) return;
@@ -109,29 +130,6 @@ const RouteManager = () => {
     setTempJunction({ lat, lng, name: result.name || result.display_name.split(',')[0] });
     setSearchResults([]);
     setSearchQuery('');
-  };
-
-
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
-    try {
-      const [routeRes, juncRes] = await Promise.all([
-        API.get('/route-manager/routes'),
-        API.get('/route-manager/junctions')
-      ]);
-      setRoutes(routeRes.data.data || []);
-      const fetchedJunctions = juncRes.data.data || [];
-      setJunctions(fetchedJunctions);
-      
-      if (fetchedJunctions.length > 0 && fetchedJunctions[0].location?.coordinates) {
-        setMapCenter([fetchedJunctions[0].location.coordinates[1], fetchedJunctions[0].location.coordinates[0]]);
-      }
-    } catch (err) {
-      console.error('Error fetching routing data', err);
-    }
   };
 
   const handleJunctionClick = (juncId) => {
@@ -306,72 +304,53 @@ const RouteManager = () => {
                   />
                 </div>
 
-                
-                {/* Search and Add Junctions */}
+                {/* Start Point */}
                 <div className="mb-4">
-                  <label className="text-xs font-semibold text-[var(--text-muted)] uppercase mb-2 block">Search & Add Junction</label>
+                  <label className="text-xs font-semibold text-blue-500 uppercase mb-1 block">Start Point</label>
+                  <select className="glass-input w-full border-blue-500/30" value={startPoint} onChange={e => setStartPoint(e.target.value)}>
+                    <option value="">-- Select Start Junction --</option>
+                    {junctions.map(j => <option key={j._id} value={j._id}>{j.name}</option>)}
+                  </select>
+                </div>
+                
+                {/* End Point */}
+                <div className="mb-4">
+                  <label className="text-xs font-semibold text-emerald-500 uppercase mb-1 block">End Point (Destination)</label>
+                  <select className="glass-input w-full border-emerald-500/30" value={endPoint} onChange={e => setEndPoint(e.target.value)}>
+                    <option value="">-- Select Destination Junction --</option>
+                    {junctions.map(j => <option key={j._id} value={j._id}>{j.name}</option>)}
+                  </select>
+                </div>
+
+                {/* Intermediate Junctions */}
+                <div className="flex-1 mt-4">
+                  <label className="text-xs font-semibold text-[var(--text-muted)] uppercase mb-2 block">Intermediate Junctions</label>
+                  
                   <select 
-                    className="glass-input w-full"
+                    className="glass-input w-full mb-3 text-sm"
                     onChange={(e) => {
-                      if (e.target.value) {
-                        handleJunctionClick(e.target.value);
-                        e.target.value = ''; // Reset after selection
+                      if (e.target.value && !intermediatePoints.includes(e.target.value)) {
+                        setIntermediatePoints([...intermediatePoints, e.target.value]);
                       }
+                      e.target.value = ''; 
                     }}
                   >
-                    <option value="">-- Select a Junction to Add --</option>
-                    {junctions.filter(j => !newRoute.selectedJunctions.includes(j._id)).map(j => (
+                    <option value="">+ Add Intermediate Stop</option>
+                    {junctions.filter(j => j._id !== startPoint && j._id !== endPoint && !intermediatePoints.includes(j._id)).map(j => (
                       <option key={j._id} value={j._id}>{j.name}</option>
                     ))}
                   </select>
-                  <p className="text-[10px] text-gray-400 mt-1">Select from the dropdown or click on the map.</p>
-                </div>
 
-                <div className="flex-1">
-
-                  <label className="text-xs font-semibold text-[var(--text-muted)] uppercase mb-3 block">Route Sequence ({newRoute.selectedJunctions.length})</label>
-                  <div className="space-y-3">
-                    {newRoute.selectedJunctions.length === 0 && (
-                      <div className="text-sm text-gray-400 p-4 border border-dashed border-gray-600 rounded-xl text-center">
-                        Click on junctions in the map to start building your route.
-                      </div>
+                  <div className="space-y-2 max-h-48 overflow-y-auto">
+                    {intermediatePoints.length === 0 && (
+                      <p className="text-xs text-gray-500 italic p-2">No intermediate stops added.</p>
                     )}
-                    {newRoute.selectedJunctions.map((jId, index) => {
+                    {intermediatePoints.map((jId, idx) => {
                       const j = junctions.find(junc => junc._id === jId);
                       return (
-                        <div key={`${jId}-${index}`} className="flex items-center gap-3 bg-white/5 p-3 rounded-xl border border-[var(--border-glass)] relative">
-                          <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${index === 0 ? 'bg-blue-500 text-white' : index === newRoute.selectedJunctions.length - 1 ? 'bg-emerald-500 text-white' : 'bg-gray-700 text-gray-300'}`}>
-                            {index + 1}
-                          </div>
-                          
-                {/* Search and Add Junctions */}
-                <div className="mb-4">
-                  <label className="text-xs font-semibold text-[var(--text-muted)] uppercase mb-2 block">Search & Add Junction</label>
-                  <select 
-                    className="glass-input w-full"
-                    onChange={(e) => {
-                      if (e.target.value) {
-                        handleJunctionClick(e.target.value);
-                        e.target.value = ''; // Reset after selection
-                      }
-                    }}
-                  >
-                    <option value="">-- Select a Junction to Add --</option>
-                    {junctions.filter(j => !newRoute.selectedJunctions.includes(j._id)).map(j => (
-                      <option key={j._id} value={j._id}>{j.name}</option>
-                    ))}
-                  </select>
-                  <p className="text-[10px] text-gray-400 mt-1">Select from the dropdown or click on the map.</p>
-                </div>
-
-                <div className="flex-1">
-
-                            <p className="font-semibold text-sm truncate">{j ? j.name : 'Unknown'}</p>
-                            <p className="text-[10px] text-gray-400 uppercase">{index === 0 ? 'Start Point' : index === newRoute.selectedJunctions.length - 1 ? 'End Point' : 'Intermediate Stop'}</p>
-                          </div>
-                          <button onClick={() => handleJunctionClick(jId)} className="text-gray-500 hover:text-rose-500">
-                            <X size={16} />
-                          </button>
+                        <div key={jId} className="flex justify-between items-center bg-white/5 p-2 rounded border border-gray-700/50">
+                          <span className="text-sm font-medium">{j ? j.name : 'Unknown'}</span>
+                          <button onClick={() => setIntermediatePoints(prev => prev.filter(id => id !== jId))} className="text-gray-400 hover:text-red-500"><X size={14} /></button>
                         </div>
                       )
                     })}
@@ -385,7 +364,6 @@ const RouteManager = () => {
                 </div>
               </div>
 
-              
               {/* Right Panel: Map */}
               <div className="w-2/3 h-full relative">
                 
@@ -480,7 +458,7 @@ const RouteManager = () => {
                           <h4 className="font-bold text-sm">New Junction</h4>
                           <input 
                             type="text" 
-                            className="border p-1 text-sm w-full rounded" 
+                            className="border p-1 text-sm w-full rounded text-black" 
                             placeholder="Junction Name"
                             autoFocus
                             value={tempJunction.name}
