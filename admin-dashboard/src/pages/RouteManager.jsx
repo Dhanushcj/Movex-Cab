@@ -37,21 +37,28 @@ const RouteManager = () => {
   const [mapCenter, setMapCenter] = useState(center);
   
   // Form States
-  const [newRoute, setNewRoute] = useState({ name: '', selectedJunctions: [] });
+  const [newRoute, setNewRoute] = useState({ name: '' });
+  const [startPoint, setStartPoint] = useState('');
+  const [endPoint, setEndPoint] = useState('');
+  const [intermediatePoints, setIntermediatePoints] = useState([]);
+
+  // Compute total sequence dynamically
+  const routeSequence = [startPoint, ...intermediatePoints, endPoint].filter(Boolean);
+
   const [tempJunction, setTempJunction] = useState(null); // { lat, lng, name }
 
   const [roadPolyline, setRoadPolyline] = useState(null);
 
   // Fetch real road route from OSRM when junctions change
   useEffect(() => {
-    if (newRoute.selectedJunctions.length < 2) {
+    if (routeSequence.length < 2) {
       setRoadPolyline(null);
       return;
     }
     
     const fetchRoute = async () => {
       try {
-        const coords = newRoute.selectedJunctions.map(jId => {
+        const coords = routeSequence.map(jId => {
           const j = junctions.find(junc => junc._id === jId);
           return j && j.location ? `${j.location.coordinates[0]},${j.location.coordinates[1]}` : null;
         }).filter(Boolean);
@@ -73,7 +80,7 @@ const RouteManager = () => {
     };
     
     fetchRoute();
-  }, [newRoute.selectedJunctions, junctions]);
+  }, [routeSequence, junctions]);
 
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -128,28 +135,33 @@ const RouteManager = () => {
   };
 
   const handleJunctionClick = (juncId) => {
-    setNewRoute(prev => {
-      const isSelected = prev.selectedJunctions.includes(juncId);
-      if (isSelected) {
-        return { ...prev, selectedJunctions: prev.selectedJunctions.filter(id => id !== juncId) };
-      } else {
-        return { ...prev, selectedJunctions: [...prev.selectedJunctions, juncId] };
-      }
-    });
+    // If clicked on map, behavior depends on what's missing
+    if (!startPoint) { setStartPoint(juncId); return; }
+    if (!endPoint && startPoint !== juncId) { setEndPoint(juncId); return; }
+    
+    // If it's already an intermediate point, remove it
+    if (intermediatePoints.includes(juncId)) {
+      setIntermediatePoints(prev => prev.filter(id => id !== juncId));
+    } else if (startPoint !== juncId && endPoint !== juncId) {
+      setIntermediatePoints(prev => [...prev, juncId]);
+    }
   };
 
   const handleCreateRoute = async () => {
-    if (!newRoute.name || newRoute.selectedJunctions.length < 2) {
-      return alert('Please provide a name and select at least 2 junctions (Start and End).');
+    if (!newRoute.name || !startPoint || !endPoint) {
+      return alert('Please provide a name, and select BOTH a Start Point and an End Point.');
     }
     try {
       await API.post('/route-manager/routes', {
         name: newRoute.name,
-        junctions: newRoute.selectedJunctions
+        junctions: routeSequence
       });
       alert('Route created!');
       setOpenRouteDialog(false);
-      setNewRoute({ name: '', selectedJunctions: [] });
+      setNewRoute({ name: '' });
+      setStartPoint('');
+      setEndPoint('');
+      setIntermediatePoints([]);
       fetchData();
     } catch (err) {
       alert('Failed to create route');
@@ -166,7 +178,9 @@ const RouteManager = () => {
       });
       const newJunc = res.data.data;
       setJunctions(prev => [...prev, newJunc]);
-      setNewRoute(prev => ({ ...prev, selectedJunctions: [...prev.selectedJunctions, newJunc._id] }));
+      if (!startPoint) setStartPoint(newJunc._id);
+      else if (!endPoint) setEndPoint(newJunc._id);
+      else setIntermediatePoints(prev => [...prev, newJunc._id]);
       setTempJunction(null);
     } catch (err) {
       alert('Failed to create junction');
@@ -184,7 +198,7 @@ const RouteManager = () => {
   };
 
   // Calculate Polyline coordinates for the selected route
-  const selectedPolylineCoords = newRoute.selectedJunctions.map(jId => {
+  const selectedPolylineCoords = routeSequence.map(jId => {
     const j = junctions.find(junc => junc._id === jId);
     return j && j.location ? [j.location.coordinates[1], j.location.coordinates[0]] : null;
   }).filter(Boolean);
@@ -267,7 +281,13 @@ const RouteManager = () => {
                 <h3 className="text-xl font-bold">Interactive Route Builder</h3>
                 <p className="text-xs text-[var(--text-muted)] mt-1">Click existing junctions on the map to add them to the route, or click anywhere to create a new junction.</p>
               </div>
-              <button onClick={() => { setOpenRouteDialog(false); setTempJunction(null); }} className="p-2 hover:bg-white/10 rounded-full">
+              <button onClick={() => { 
+                setOpenRouteDialog(false); 
+                setTempJunction(null); 
+                setStartPoint(''); 
+                setEndPoint(''); 
+                setIntermediatePoints([]); 
+              }} className="p-2 hover:bg-white/10 rounded-full">
                 <X size={20} />
               </button>
             </div>
@@ -409,8 +429,12 @@ const RouteManager = () => {
                   {/* Draw existing junctions */}
                   {junctions.map((junc) => {
                     if (!junc.location?.coordinates) return null;
-                    const isSelected = newRoute.selectedJunctions.includes(junc._id);
-                    const orderIndex = newRoute.selectedJunctions.indexOf(junc._id);
+                    const isSelected = routeSequence.includes(junc._id);
+                    let label = "";
+                    if (junc._id === startPoint) label = "Start Point";
+                    else if (junc._id === endPoint) label = "End Point";
+                    else if (intermediatePoints.includes(junc._id)) label = "Intermediate Stop";
+                    
                     return (
                       <Marker 
                         key={junc._id}
@@ -422,9 +446,9 @@ const RouteManager = () => {
                       >
                         <Popup>
                           <div className="font-bold">{junc.name}</div>
-                          {isSelected && <div className="text-xs text-blue-600 mt-1">Stop #{orderIndex + 1} in route</div>}
+                          {isSelected && <div className="text-xs text-blue-600 mt-1 font-bold">{label}</div>}
                           <div className="text-xs text-gray-500 mt-1 cursor-pointer hover:underline" onClick={(e) => { e.stopPropagation(); handleJunctionClick(junc._id); }}>
-                            {isSelected ? 'Remove from Route' : 'Add to Route'}
+                            {isSelected ? 'Remove from Route' : 'Add to Route (Click to toggle)'}
                           </div>
                         </Popup>
                       </Marker>
