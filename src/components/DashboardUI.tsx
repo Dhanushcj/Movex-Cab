@@ -12,6 +12,7 @@ const DashboardUI = ({
   onProfilePress,
   onBookRide, 
   onBuyPass, 
+  onSearchClick,
   onScheduleRide,
   onTrackRide,
   scheduledRide,
@@ -170,7 +171,7 @@ const DashboardUI = ({
       )}
 
       {/* SEARCH BAR */}
-      <TouchableOpacity style={{ marginHorizontal: 16, marginTop: 16, backgroundColor: colors.bgSecondary, borderRadius: 20, padding: 16, flexDirection: 'row', alignItems: 'center', gap: 12, borderWidth: 1, borderColor: colors.border }} onPress={onBookRide}>
+      <TouchableOpacity style={{ marginHorizontal: 16, marginTop: 16, backgroundColor: colors.bgSecondary, borderRadius: 20, padding: 16, flexDirection: 'row', alignItems: 'center', gap: 12, borderWidth: 1, borderColor: colors.border }} onPress={onSearchClick || onBookRide}>
         <Feather name="search" size={20} color="#7C848D" />
         <Text style={{ color: colors.textSecondary, fontSize: 14 }}>Search destination</Text>
       </TouchableOpacity>

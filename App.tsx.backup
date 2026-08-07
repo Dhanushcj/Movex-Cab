@@ -61,7 +61,7 @@ import RegistrationScreen from './src/components/RegistrationScreen';
 import ProfileScreen from './src/components/ProfileScreen';
 import PassPurchaseScreen from './src/components/PassPurchaseScreen';
 import DashboardUI from './src/components/DashboardUI';
-import MetroBookingMap from './src/components/MetroBookingMap';
+import RouteBookingSheet from './src/components/RouteBookingSheet';
 
 const schedulePassNotifications = async (passes: any[]) => {
   try {
@@ -506,7 +506,7 @@ const decodePolyline = (t: string, e: number = 5) => {
 };
 
 
-// Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡ Location Picker Screen (moveable center-pin map) Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡
+// ΓöÇΓöÇΓöÇ Location Picker Screen (moveable center-pin map) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
 function LocationPickerScreen({
   initialPickup,
   initialDrop,
@@ -842,7 +842,7 @@ function HomeScreen({ onRideBooked, onNavigateProfile, onNavigateLanguage, activ
   const { toggleTheme } = useTheme();
   const { location, locationAddress, geocodeSearch } = useLocation();
 
-  // Î“Ã¶Ã‡Î“Ã¶Ã‡ Location / booking state Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡
+  // ΓöÇΓöÇ Location / booking state ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
   const [pickupAddr, setPickupAddr] = useState('');
   const [pickupCoords, setPickupCoords] = useState<number[] | null>(null);
   const [dropAddr, setDropAddr] = useState('');
@@ -852,7 +852,6 @@ function HomeScreen({ onRideBooked, onNavigateProfile, onNavigateLanguage, activ
   const [loadingEstimates, setLoadingEstimates] = useState(false);
   const [bookingRide, setBookingRide] = useState(false);
   const [showMap, setShowMap] = useState(false);
-  const [showMetroBookingMap, setShowMetroBookingMap] = useState(false);
   const [showRouteBookingSheet, setShowRouteBookingSheet] = useState(false);
   const [selectedMetroRoute, setSelectedMetroRoute] = useState<{route: any, color: string} | null>(null);
   const mapRef = useRef<MapView>(null);
@@ -864,15 +863,15 @@ function HomeScreen({ onRideBooked, onNavigateProfile, onNavigateLanguage, activ
   const [appliedPromo, setAppliedPromo] = useState<string | null>(null);
   const [promoError, setPromoError] = useState('');
 
-  // Î“Ã¶Ã‡Î“Ã¶Ã‡ Picker state Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡
+  // ΓöÇΓöÇ Picker state ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
   type PickerMode = null | 'pickup' | 'drop';
   const [pickerMode, setPickerMode] = useState<PickerMode>(null);
 
-  // Î“Ã¶Ã‡Î“Ã¶Ã‡ Tab bar Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡
+  // ΓöÇΓöÇ Tab bar ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
   type TabName = 'home' | 'services' | 'trips' | 'account' | 'wallet';
   const [activeTab, setActiveTab] = useState<TabName>('home');
 
-  // Î“Ã¶Ã‡Î“Ã¶Ã‡ Modals Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡
+  // ΓöÇΓöÇ Modals ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
   const [showWalletModal, setShowWalletModal] = useState(false);
   const [showEmergencyScreen, setShowEmergencyScreen] = useState(false);
   const [showNotificationScreen, setShowNotificationScreen] = useState(false);
@@ -894,7 +893,7 @@ function HomeScreen({ onRideBooked, onNavigateProfile, onNavigateLanguage, activ
   const [monthlyFareAmount, setMonthlyFareAmount] = useState(0);
   const [processingMonthlyPayment, setProcessingMonthlyPayment] = useState(false);
 
-  // Î“Ã¶Ã‡Î“Ã¶Ã‡ Profile fields Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡
+  // ΓöÇΓöÇ Profile fields ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
   const [profileName, setProfileName] = useState(user?.name || '');
   const [profileEmail, setProfileEmail] = useState(user?.email || '');
   const [updatingProfile, setUpdatingProfile] = useState(false);
@@ -906,7 +905,7 @@ function HomeScreen({ onRideBooked, onNavigateProfile, onNavigateLanguage, activ
   const [tripSearchQuery, setTripSearchQuery] = useState('');
   const [offeredFare, setOfferedFare] = useState(0);
 
-  // Î“Ã¶Ã‡Î“Ã¶Ã‡ Banners Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡
+  // ΓöÇΓöÇ Banners ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
   const [banner1List, setBanner1List] = useState<any[]>([]);
   const [banner2List, setBanner2List] = useState<any[]>([]);
   const [banner1Index, setBanner1Index] = useState(0);
@@ -980,7 +979,7 @@ function HomeScreen({ onRideBooked, onNavigateProfile, onNavigateLanguage, activ
     }
   }, [banner1List]);
 
-  // Î“Ã¶Ã‡Î“Ã¶Ã‡ Nearby drivers Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡
+  // ΓöÇΓöÇ Nearby drivers ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
   const [nearbyDrivers, setNearbyDrivers] = useState<any[]>([]);
 
   // Radar search anim
@@ -1023,7 +1022,7 @@ function HomeScreen({ onRideBooked, onNavigateProfile, onNavigateLanguage, activ
     return () => clearInterval(iv);
   }, [pickupCoords, location]);
 
-  // Î“Ã¶Ã‡Î“Ã¶Ã‡ Helpers Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡
+  // ΓöÇΓöÇ Helpers ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
   const isVehicleDisabled = (type: string) => {
     return false; // Allow selecting all vehicle types even if no drivers are nearby
   };
@@ -1221,7 +1220,7 @@ function HomeScreen({ onRideBooked, onNavigateProfile, onNavigateLanguage, activ
     setLoadingWallet(true);
     try {
       await updateUserWallet(Number(walletAmount));
-      Alert.alert('Success', `Î“Ã©â•£${walletAmount} added to wallet!`);
+      Alert.alert('Success', `Γé╣${walletAmount} added to wallet!`);
       setWalletAmount(''); setShowWalletModal(false);
     } catch (e: any) {
       Alert.alert('Error', e.response?.data?.message || 'Failed to add money');
@@ -1232,14 +1231,14 @@ function HomeScreen({ onRideBooked, onNavigateProfile, onNavigateLanguage, activ
 
   const formatInitials = (name: string) => (name || 'R').split(' ').map(p => p[0]).join('').toUpperCase().substring(0, 2);
   const formatTripDate = (dateStr: string) => new Date(dateStr).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
-  const getVehicleEmoji = (type: string) => ({ bike: 'â‰¡Æ’Ã…Ã¬âˆ©â••Ã…', auto: 'â‰¡Æ’Â¢â•‘', mini: 'â‰¡Æ’ÃœÃ¹', sedan: 'â‰¡Æ’ÃœÃ¿', suv: 'â‰¡Æ’ÃœÃ–' }[type] || 'â‰¡Æ’ÃœÃ¹');
+  const getVehicleEmoji = (type: string) => ({ bike: '≡ƒÅì∩╕Å', auto: '≡ƒ¢║', mini: '≡ƒÜù', sedan: '≡ƒÜÿ', suv: '≡ƒÜÖ' }[type] || '≡ƒÜù');
 
   const handleTabPress = (tab: TabName) => {
     setActiveTab(tab);
     if (tab === 'trips') { fetchMyRides(); }
   };
 
-  // Î“Ã¶Ã‡Î“Ã¶Ã‡ If picker is open Î“Ã‡Ã¶ show full-screen picker Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡
+  // ΓöÇΓöÇ If picker is open ΓÇö show full-screen picker ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
   if (pickerMode) {
     const initialPickup = pickupCoords ? { address: pickupAddr, coordinates: pickupCoords } : null;
     const initialDrop = dropCoords ? { address: dropAddr, coordinates: dropCoords } : null;
@@ -1274,7 +1273,7 @@ function HomeScreen({ onRideBooked, onNavigateProfile, onNavigateLanguage, activ
     );
   }
 
-  // Î“Ã¶Ã‡Î“Ã¶Ã‡ Main home screen Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡
+  // ΓöÇΓöÇ Main home screen ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
   return (
     <View style={styles.homeContainer}>
       <EmergencyScreen visible={showEmergencyScreen} onClose={() => setShowEmergencyScreen(false)} />
@@ -1404,18 +1403,18 @@ function HomeScreen({ onRideBooked, onNavigateProfile, onNavigateLanguage, activ
         </Modal>
       )}
 
-      {/* Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡ HOME TAB Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡ */}
+      {/* ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ HOME TAB ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */}
       {activeTab === 'home' && (
         <View style={{ flex: 1 }}>
-          {(!dropAddr && (!estimates || estimates.length === 0) && pickerMode === null && !bookingRide && !showMap && !showRouteBookingSheet && !showMetroBookingMap) ? (
+          {(!dropAddr && (!estimates || estimates.length === 0) && pickerMode === null && !bookingRide && !showMap && !showRouteBookingSheet) ? (
             <DashboardUI 
               user={user}
               activePasses={activePasses}
               onProfilePress={onNavigateProfile}
               onNotificationPress={() => setShowNotificationScreen(true)}
               onBuyPass={() => setShowPassConfig(true)}
-              onBookRide={() => setShowMetroBookingMap(true)}
-              onSearchClick={() => setShowMetroBookingMap(true)}
+              onBookRide={() => setShowRouteBookingSheet(true)}
+              onSearchClick={() => setPickerMode('drop')}
               onScheduleRide={() => { setIsScheduling(true); setShowScheduleRideScreen(true); }}
               onTrackRide={() => {
                 if (scheduledRide.status === 'scheduled') {
@@ -1461,33 +1460,6 @@ function HomeScreen({ onRideBooked, onNavigateProfile, onNavigateLanguage, activ
                 );
               }}
             />
-          ) : showMetroBookingMap ? (
-            <MetroBookingMap 
-              userLocation={location?.coords}
-              nearbyDrivers={nearbyDrivers}
-              onClose={() => setShowMetroBookingMap(false)}
-              onBookTicket={async (details: any) => {
-                 setShowMetroBookingMap(false);
-                 setBookingRide(true);
-                 try {
-                   const payload = {
-                     pickup: { address: details.pickupJunction.name, coordinates: details.pickupJunction.coordinates },
-                     drop: { address: details.dropoffJunction.name, coordinates: details.dropoffJunction.coordinates },
-                     vehicleType: 'any',
-                     paymentMethod: 'cash',
-                     route: details.route._id
-                   };
-                   const res = await API.post('/bookings', payload);
-                   if (res.data.success) {
-                     onRideBooked(res.data.data);
-                   }
-                 } catch (e: any) {
-                   Alert.alert('Error', e.response?.data?.message || 'Failed to book Metro ride');
-                 } finally {
-                   setBookingRide(false);
-                 }
-              }}
-            />
           ) : (
             <View style={{ flex: 1 }}>
               {showMap && (
@@ -1495,12 +1467,12 @@ function HomeScreen({ onRideBooked, onNavigateProfile, onNavigateLanguage, activ
                   <Feather name="arrow-left" size={24} color="#000" />
                 </TouchableOpacity>
               )}
-              {/* Full-screen map */}
-              <View style={styles.homeMapPreview}>
-                <MapView provider={PROVIDER_GOOGLE}
-                  style={{ flex: 1 }}
-                  customMapStyle={LIGHT_MAP_STYLE}
-                  showsUserLocation={true}
+          {/* Full-screen map */}
+          <View style={styles.homeMapPreview}>
+            <MapView provider={PROVIDER_GOOGLE}
+              style={{ flex: 1 }}
+              customMapStyle={LIGHT_MAP_STYLE}
+              showsUserLocation={true}
               showsMyLocationButton={false}
               initialRegion={{
                 latitude:      location?.coords.latitude  ?? 11.1271,
@@ -1613,18 +1585,18 @@ function HomeScreen({ onRideBooked, onNavigateProfile, onNavigateLanguage, activ
             <TouchableOpacity style={styles.homePickupStrip} activeOpacity={0.85} onPress={() => setPickerMode('pickup')}>
               <View style={styles.homePickupDot} />
               <Text style={styles.homePickupText} numberOfLines={1}>
-                {pickupAddr || 'Detecting your locationÎ“Ã‡Âª'}
+                {pickupAddr || 'Detecting your locationΓÇª'}
               </Text>
               <Feather name="chevron-down" size={16} color={colors.textSecondary} />
             </TouchableOpacity>
           </View>
 
-          {/* Î“Ã¶Ã‡Î“Ã¶Ã‡ BOTTOM CARD Î“Ã¶Ã‡Î“Ã¶Ã‡ */}
+          {/* ΓöÇΓöÇ BOTTOM CARD ΓöÇΓöÇ */}
           <View style={styles.homeBottomCard}>
             <View style={styles.sheetHandle} />
 
             {/* WHERE TO GO search bar */}
-            <TouchableOpacity style={styles.homeSearchBar} activeOpacity={0.85} onPress={() => setShowMetroBookingMap(true)}>
+            <TouchableOpacity style={styles.homeSearchBar} activeOpacity={0.85} onPress={() => setPickerMode('drop')}>
               <View style={styles.homeSearchIconWrap}>
                 <Feather name="search" size={16} color={colors.accent} />
               </View>
@@ -1641,7 +1613,7 @@ function HomeScreen({ onRideBooked, onNavigateProfile, onNavigateLanguage, activ
             {loadingEstimates && (
               <View style={styles.estimateLoaderWrapper}>
                 <ActivityIndicator color={colors.accent} size="small" />
-                <Text style={styles.loaderLabel}>Computing route & surge faresÎ“Ã‡Âª</Text>
+                <Text style={styles.loaderLabel}>Computing route & surge faresΓÇª</Text>
               </View>
             )}
 
@@ -1694,11 +1666,11 @@ function HomeScreen({ onRideBooked, onNavigateProfile, onNavigateLanguage, activ
                       {!isVehicleDisabled(est.vehicleType) && (
                         <View style={{ alignItems: 'flex-end' }}>
                           <Text style={{ fontSize: 18, fontWeight: '600', color: '#262D36' }}>
-                            Î“Ã©â•£{est.fareDetails.totalFare}
+                            Γé╣{est.fareDetails.totalFare}
                           </Text>
                           {(est.fareDetails.passDiscount > 0 || est.fareDetails.discount > 0) && (
                             <Text style={{ fontSize: 12, fontWeight: '500', color: '#7C848D', textDecorationLine: 'line-through' }}>
-                              Î“Ã©â•£{est.fareDetails.originalFare}
+                              Γé╣{est.fareDetails.originalFare}
                             </Text>
                           )}
                         </View>
@@ -1770,7 +1742,7 @@ function HomeScreen({ onRideBooked, onNavigateProfile, onNavigateLanguage, activ
 
                   <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                     <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                      <Text style={{ fontSize: 16, color: '#262D36', fontWeight: '500' }}>Î“Ã©â•£ Cash</Text>
+                      <Text style={{ fontSize: 16, color: '#262D36', fontWeight: '500' }}>Γé╣ Cash</Text>
                       <Feather name="chevron-right" size={16} color="#262D36" />
                     </TouchableOpacity>
                     
@@ -1780,7 +1752,7 @@ function HomeScreen({ onRideBooked, onNavigateProfile, onNavigateLanguage, activ
                       disabled={bookingRide || isVehicleDisabled(selectedVehicle?.vehicleType)}
                     >
                       {bookingRide ? <ActivityIndicator color="#FCFCFC" /> : (
-                        <Text style={{ color: '#FCFCFC', fontSize: 16, fontWeight: '600' }}>Confirm Ride Î“Ã©â•£{offeredFare}</Text>
+                        <Text style={{ color: '#FCFCFC', fontSize: 16, fontWeight: '600' }}>Confirm Ride Γé╣{offeredFare}</Text>
                       )}
                     </TouchableOpacity>
                   </View>
@@ -1796,7 +1768,7 @@ function HomeScreen({ onRideBooked, onNavigateProfile, onNavigateLanguage, activ
                     { icon: '\uD83C\uDFCD\uFE0F', label: t('home.serviceBike') || 'Bike', mode: 'ride' },
                     { icon: '\uD83D\uDEFA', label: t('home.serviceAuto') || 'Auto', mode: 'ride' },
                   ].map((s, i) => (
-                    <TouchableOpacity key={i} style={[styles.homeServiceChip, { width: '31%' }]} activeOpacity={0.8} onPress={() => { setBookingMode(s.mode as any); setShowMetroBookingMap(true); }}>
+                    <TouchableOpacity key={i} style={[styles.homeServiceChip, { width: '31%' }]} activeOpacity={0.8} onPress={() => { setBookingMode(s.mode as any); setPickerMode('drop'); }}>
                       <Text style={{ fontSize: 24 }}>{s.icon}</Text>
                       <Text style={styles.homeServiceLabel} numberOfLines={1}>{s.label}</Text>
                     </TouchableOpacity>
@@ -1834,7 +1806,7 @@ function HomeScreen({ onRideBooked, onNavigateProfile, onNavigateLanguage, activ
                   <TouchableOpacity 
                     style={[styles.promoBanner2, { padding: 0, overflow: 'hidden', height: 120 }]} 
                     activeOpacity={0.9} 
-                    onPress={() => banner2List[0]?.linkUrl ? Linking.openURL(banner2List[0].linkUrl) : setShowMetroBookingMap(true)}
+                    onPress={() => banner2List[0]?.linkUrl ? Linking.openURL(banner2List[0].linkUrl) : setPickerMode('drop')}
                   >
                     <Image 
                       source={{ uri: banner2List[0]?.imageUrl ? (banner2List[0].imageUrl.startsWith('http') ? banner2List[0].imageUrl : `https://movex-cab.onrender.com${banner2List[0].imageUrl}`) : undefined }} 
@@ -1842,7 +1814,7 @@ function HomeScreen({ onRideBooked, onNavigateProfile, onNavigateLanguage, activ
                     />
                   </TouchableOpacity>
                 ) : (
-                  <TouchableOpacity style={styles.promoBanner2} activeOpacity={0.9} onPress={() => setShowMetroBookingMap(true)}>
+                  <TouchableOpacity style={styles.promoBanner2} activeOpacity={0.9} onPress={() => setPickerMode('drop')}>
                     <View style={{ flex: 1 }}>
                       <Text style={styles.promoBanner2Title}>{t('home.tapSearchBar') || 'Tap the search bar above'}</Text>
                       <Text style={styles.promoBanner2Sub}>{t('home.enterDestination') || 'and enter your destination'}</Text>
@@ -1864,7 +1836,7 @@ function HomeScreen({ onRideBooked, onNavigateProfile, onNavigateLanguage, activ
         </View>
       )}
 
-      {/* Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡ PASS TAB (REDESIGNED) Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡ */}
+      {/* ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ PASS TAB (REDESIGNED) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */}
       {activeTab === 'wallet' && (
         <MyPassScreen
           user={user}
@@ -1894,11 +1866,11 @@ function HomeScreen({ onRideBooked, onNavigateProfile, onNavigateLanguage, activ
                   <Text style={{ color: '#FCFCFC', fontSize: 16, fontWeight: '600', fontFamily: 'sans-serif' }}>{user?.name || 'Rider'}</Text>
                   <Text style={{ color: colors.textSecondary, fontSize: 14, marginTop: 4, letterSpacing: 1 }}>{user?.id?.substring(0, 9).toUpperCase() || 'FE2889108'}</Text>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2, marginTop: 4 }}>
-                    <Text style={{ color: '#FED101', fontSize: 14 }}>Î“Ã¿Ã </Text>
-                    <Text style={{ color: '#FED101', fontSize: 14 }}>Î“Ã¿Ã </Text>
-                    <Text style={{ color: '#FED101', fontSize: 14 }}>Î“Ã¿Ã </Text>
-                    <Text style={{ color: '#FED101', fontSize: 14 }}>Î“Ã¿Ã </Text>
-                    <Text style={{ color: '#8DABCE', fontSize: 14 }}>Î“Ã¿Ã </Text>
+                    <Text style={{ color: '#FED101', fontSize: 14 }}>Γÿà</Text>
+                    <Text style={{ color: '#FED101', fontSize: 14 }}>Γÿà</Text>
+                    <Text style={{ color: '#FED101', fontSize: 14 }}>Γÿà</Text>
+                    <Text style={{ color: '#FED101', fontSize: 14 }}>Γÿà</Text>
+                    <Text style={{ color: '#8DABCE', fontSize: 14 }}>Γÿà</Text>
                     <Text style={{ color: '#FCFCFC', fontSize: 14, fontWeight: '500', marginLeft: 4 }}>4.9</Text>
                   </View>
                 </View>
@@ -1908,7 +1880,7 @@ function HomeScreen({ onRideBooked, onNavigateProfile, onNavigateLanguage, activ
 
             {/* Referral Bonus */}
             <TouchableOpacity style={{ backgroundColor: colors.bgSecondary, borderRadius: 16, padding: 20, marginBottom: 20, flexDirection: 'column', gap: 4 }}>
-              <Text style={{ color: colors.textPrimary, fontSize: 14, fontWeight: '400' }}>Upto Î“Ã©â•£4,500 referral bonus</Text>
+              <Text style={{ color: colors.textPrimary, fontSize: 14, fontWeight: '400' }}>Upto Γé╣4,500 referral bonus</Text>
               <Text style={{ color: colors.textMuted, fontSize: 12 }}>Refer your friend and earn</Text>
             </TouchableOpacity>
 
@@ -1980,7 +1952,7 @@ function HomeScreen({ onRideBooked, onNavigateProfile, onNavigateLanguage, activ
         </SafeAreaView>
       )}
 
-      {/* Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡ TRIPS TAB Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡ */}
+      {/* ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ TRIPS TAB ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */}
       {activeTab === 'trips' && (
         <View style={styles.custTabPage}>
           <View style={{ marginTop: Platform.OS === 'ios' ? 40 : 60, paddingHorizontal: 16, marginBottom: 20 }}>
@@ -2016,7 +1988,7 @@ function HomeScreen({ onRideBooked, onNavigateProfile, onNavigateLanguage, activ
           {loadingRides ? (
             <View style={styles.ridesLoader}>
               <ActivityIndicator size="large" color={colors.accent} />
-              <Text style={styles.ridesLoaderText}>Loading tripsÎ“Ã‡Âª</Text>
+              <Text style={styles.ridesLoaderText}>Loading tripsΓÇª</Text>
             </View>
           ) : (
             <FlatList
@@ -2087,7 +2059,7 @@ function HomeScreen({ onRideBooked, onNavigateProfile, onNavigateLanguage, activ
       )}
 
 
-      {/* Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡ WALLET TAB Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡ */}
+      {/* ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ WALLET TAB ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */}
       {activeTab === 'services' && (
         <CustomerWalletScreen
           onBack={() => setActiveTab('home')}
@@ -2096,7 +2068,7 @@ function HomeScreen({ onRideBooked, onNavigateProfile, onNavigateLanguage, activ
         />
       )}
 
-      {/* Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡ BOTTOM TAB BAR (REDESIGNED) Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡ */}
+      {/* ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ BOTTOM TAB BAR (REDESIGNED) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */}
       {!(activeTab === 'home' && (!!dropAddr || (estimates && estimates.length > 0) || pickerMode !== null || showMap)) && (
         <View style={{ flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', paddingVertical: 12, position: 'absolute', bottom: 16, left: 16, right: 16, borderRadius: 20, backgroundColor: colors.bgSecondary, shadowColor: colors.textPrimary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 10, elevation: 5 }}>
         {([
@@ -2122,7 +2094,7 @@ function HomeScreen({ onRideBooked, onNavigateProfile, onNavigateLanguage, activ
         </View>
       )}
 
-      {/* Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡ MANAGE PASS MODAL Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡ */}
+      {/* ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ MANAGE PASS MODAL ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */}
       <Modal visible={!!managePass} animationType="slide" transparent onRequestClose={() => setManagePass(null)}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalInnerContent}>
@@ -2175,7 +2147,7 @@ function HomeScreen({ onRideBooked, onNavigateProfile, onNavigateLanguage, activ
         </View>
       </Modal>
 
-      {/* Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡ WALLET MODAL Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡ */}
+      {/* ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ WALLET MODAL ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */}
       <Modal visible={showWalletModal} animationType="slide" transparent onRequestClose={() => setShowWalletModal(false)}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalInnerContent}>
@@ -2222,7 +2194,30 @@ function HomeScreen({ onRideBooked, onNavigateProfile, onNavigateLanguage, activ
         </View>
       )}
     
-
+      {/* Route Booking Bottom Sheet */}
+      {showRouteBookingSheet && (
+        <View style={[StyleSheet.absoluteFillObject, { zIndex: 1000 }]}>
+          <RouteBookingSheet 
+            onCancel={() => setShowRouteBookingSheet(false)}
+            onRouteSelected={(route: any, color: string) => {
+              setSelectedMetroRoute({ route, color });
+              setShowRouteBookingSheet(false);
+              setShowMap(true);
+              
+              // Try to fit the route on the map
+              if (route.polyline && mapRef.current) {
+                const coords = decodePolyline(route.polyline);
+                setTimeout(() => {
+                  mapRef.current?.fitToCoordinates(coords, {
+                    edgePadding: { top: 100, right: 50, bottom: 50, left: 50 },
+                    animated: true
+                  });
+                }, 500);
+              }
+            }}
+          />
+        </View>
+      )}
     </View>
   );
 }
@@ -2269,7 +2264,7 @@ function TrackingScreen({ ride, onClose }: { ride: any; onClose: () => void }) {
     return () => clearInterval(interval);
   }, [rideStatus, ride]);
 
-  // Î“Ã¶Ã‡Î“Ã¶Ã‡ Customer-side Navigation State Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡
+  // ΓöÇΓöÇ Customer-side Navigation State ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
   const [navStepIndex, setNavStepIndex]   = useState(0);
   const [distToTurn, setDistToTurn]       = useState(0);
   const [remainingDist, setRemainingDist] = useState((ride?.route?.distance || 0) * 1000);
@@ -2325,7 +2320,7 @@ function TrackingScreen({ ride, onClose }: { ride: any; onClose: () => void }) {
     }
   }, [driverLoc]);
 
-  // Î“Ã¶Ã‡Î“Ã¶Ã‡ Socket listeners Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡
+  // ΓöÇΓöÇ Socket listeners ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
   useEffect(() => {
     if (!socket || !ride) return;
 
@@ -2373,7 +2368,7 @@ function TrackingScreen({ ride, onClose }: { ride: any; onClose: () => void }) {
     };
   }, [socket, ride]);
 
-  // Î“Ã¶Ã‡Î“Ã¶Ã‡ Customer live navigation (fires when GPS updates & trip is active) Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡
+  // ΓöÇΓöÇ Customer live navigation (fires when GPS updates & trip is active) ΓöÇΓöÇΓöÇΓöÇ
   useEffect(() => {
     if (!location || rideStatus !== 'in_progress') return;
 
@@ -2387,7 +2382,7 @@ function TrackingScreen({ ride, onClose }: { ride: any; onClose: () => void }) {
       setRemainingDist(nav.remainingDist);
       setRemainingETA(nav.remainingETA);
     } else if (polylinePoints.length > 0) {
-      // Fallback: nearest polyline point Î“Ã¥Ã† remaining distance
+      // Fallback: nearest polyline point ΓåÆ remaining distance
       let nearestIdx = 0, nearestDist = Infinity;
       polylinePoints.forEach((pt: any, i: number) => {
         const d = haversineDistance(latitude, longitude, pt.latitude, pt.longitude);
@@ -2404,7 +2399,7 @@ function TrackingScreen({ ride, onClose }: { ride: any; onClose: () => void }) {
       setRemainingDist(rem);
       setRemainingETA(Math.ceil((rem / 1000 / 30) * 60));
 
-      // Distance to next turn (bearing change > 25â”¬â–‘)
+      // Distance to next turn (bearing change > 25┬░)
       let turnDist = 0, foundTurn = false;
       for (let i = nearestIdx; i < polylinePoints.length - 2 && !foundTurn; i++) {
         const b1 = computeBearing(
@@ -2475,7 +2470,7 @@ function TrackingScreen({ ride, onClose }: { ride: any; onClose: () => void }) {
     }
   }, [rideStatus]);
 
-  // Î“Ã¶Ã‡Î“Ã¶Ã‡ Nav HUD data Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡
+  // ΓöÇΓöÇ Nav HUD data ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
   const currentStep = steps[navStepIndex] || null;
   const maneuver    = getManeuverIcon(
     currentStep?.maneuver?.type     || 'straight',
@@ -2483,7 +2478,7 @@ function TrackingScreen({ ride, onClose }: { ride: any; onClose: () => void }) {
   );
   const nextStreet = currentStep?.name || ride?.drop?.address || 'Destination';
 
-  // Î“Ã¶Ã‡Î“Ã¶Ã‡ Helpers Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡
+  // ΓöÇΓöÇ Helpers ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
   const handleCancelRide = () => {
     Alert.alert(
       'Cancel Ride',
@@ -2527,7 +2522,7 @@ function TrackingScreen({ ride, onClose }: { ride: any; onClose: () => void }) {
     return currentIdx >= stepIdx ? styles.stepDotActive : styles.stepDotInactive;
   };
 
-  // Î“Ã¶Ã‡Î“Ã¶Ã‡ Render Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡
+  // ΓöÇΓöÇ Render ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
   if (!ride) return null;
 
   if (rideStatus === 'payment_pending') {
@@ -2543,7 +2538,7 @@ function TrackingScreen({ ride, onClose }: { ride: any; onClose: () => void }) {
   return (
     <View style={styles.container}>
 
-      {/* Î“Ã¶Ã‡Î“Ã¶Ã‡ MAP Î“Ã¶Ã‡Î“Ã¶Ã‡ */}
+      {/* ΓöÇΓöÇ MAP ΓöÇΓöÇ */}
       <MapView provider={PROVIDER_GOOGLE}
         ref={mapRef}
         style={styles.map}
@@ -2616,7 +2611,7 @@ function TrackingScreen({ ride, onClose }: { ride: any; onClose: () => void }) {
         )}
       </MapView>
 
-      {/* Î“Ã¶Ã‡Î“Ã¶Ã‡ CUSTOMER NAVIGATION HUD (in_progress only) Î“Ã¶Ã‡Î“Ã¶Ã‡ */}
+      {/* ΓöÇΓöÇ CUSTOMER NAVIGATION HUD (in_progress only) ΓöÇΓöÇ */}
       {rideStatus === 'in_progress' && (
         <View style={styles.custNavHudWrapper} pointerEvents="none">
 
@@ -2624,7 +2619,7 @@ function TrackingScreen({ ride, onClose }: { ride: any; onClose: () => void }) {
           <View style={styles.custNavBanner}>
             <View style={styles.custNavBannerDot} />
             <Text style={styles.custNavBannerText}>You're on your way</Text>
-            <Text style={styles.custNavBannerSub}>  â”¬â•–  {formatDistance(remainingDist)} remaining</Text>
+            <Text style={styles.custNavBannerSub}>  ┬╖  {formatDistance(remainingDist)} remaining</Text>
           </View>
 
           {/* Turn instruction card */}
@@ -2645,15 +2640,15 @@ function TrackingScreen({ ride, onClose }: { ride: any; onClose: () => void }) {
               <View style={[styles.custNavProgressFill, { width: `${Math.round(routeProgress * 100)}%` }]} />
             </View>
             <View style={styles.navEtaRow}>
-              <Text style={styles.custNavEtaText}>â‰¡Æ’Ã²Ã† {remainingETA} min</Text>
-              <Text style={styles.custNavEtaText}>â‰¡Æ’Ã´Ã¬ {formatDistance(remainingDist)}</Text>
-              <Text style={styles.custNavEtaText}>Î“Ã¥Ã´ {ride.drop?.address?.split(',')[0]}</Text>
+              <Text style={styles.custNavEtaText}>≡ƒòÆ {remainingETA} min</Text>
+              <Text style={styles.custNavEtaText}>≡ƒôì {formatDistance(remainingDist)}</Text>
+              <Text style={styles.custNavEtaText}>Γåô {ride.drop?.address?.split(',')[0]}</Text>
             </View>
           </View>
         </View>
       )}
 
-      {/* Î“Ã¶Ã‡Î“Ã¶Ã‡ Pre-trip sheet Î“Ã‡Ã¶ rendered as absolute overlay directly on screen Î“Ã¶Ã‡Î“Ã¶Ã‡ */}
+      {/* ΓöÇΓöÇ Pre-trip sheet ΓÇö rendered as absolute overlay directly on screen ΓöÇΓöÇ */}
       {(rideStatus === 'accepted' || rideStatus === 'arrived') && (
         <CustomerBookedRideSheet
           driverInfo={driverInfo}
@@ -2665,12 +2660,12 @@ function TrackingScreen({ ride, onClose }: { ride: any; onClose: () => void }) {
         />
       )}
 
-      {/* Î“Ã¶Ã‡Î“Ã¶Ã‡ BOTTOM SHEET (searching / in_progress / completed only) Î“Ã¶Ã‡Î“Ã¶Ã‡ */}
+      {/* ΓöÇΓöÇ BOTTOM SHEET (searching / in_progress / completed only) ΓöÇΓöÇ */}
       {(rideStatus === 'requested' || rideStatus === 'searching' || rideStatus === 'in_progress' || rideStatus === 'completed') && (
       <View style={rideStatus === 'in_progress' ? styles.custNavBottomSheet : styles.custNavBottomSheet}>
         <View style={styles.sheetHandle} />
 
-        {/* Î“Ã¶Ã‡Î“Ã¶Ã‡ Searching Î“Ã¶Ã‡Î“Ã¶Ã‡ */}
+        {/* ΓöÇΓöÇ Searching ΓöÇΓöÇ */}
         {(rideStatus === 'requested' || rideStatus === 'searching') && (
           <View style={{ paddingVertical: 20, alignItems: 'center' }}>
             <ActivityIndicator size="large" color={colors.accent} />
@@ -2687,7 +2682,7 @@ function TrackingScreen({ ride, onClose }: { ride: any; onClose: () => void }) {
           </View>
         )}
 
-        {/* Î“Ã¶Ã‡Î“Ã¶Ã‡ In-progress compact bottom row Î“Ã¶Ã‡Î“Ã¶Ã‡ */}
+        {/* ΓöÇΓöÇ In-progress compact bottom row ΓöÇΓöÇ */}
         {rideStatus === 'in_progress' && (
           <CustomerInRideOptions
             rideId={localRide._id}
@@ -2698,7 +2693,7 @@ function TrackingScreen({ ride, onClose }: { ride: any; onClose: () => void }) {
           />
         )}
 
-        {/* Î“Ã¶Ã‡Î“Ã¶Ã‡ Completed / Rating Î“Ã¶Ã‡Î“Ã¶Ã‡ */}
+        {/* ΓöÇΓöÇ Completed / Rating ΓöÇΓöÇ */}
         {rideStatus === 'completed' && (
           <View style={styles.ratingSection}>
             <Text style={styles.ratingTitleText}>How was your MoveX trip?</Text>
@@ -2706,7 +2701,7 @@ function TrackingScreen({ ride, onClose }: { ride: any; onClose: () => void }) {
             <View style={styles.starsWrapper}>
               {[1, 2, 3, 4, 5].map((star) => (
                 <TouchableOpacity key={star} onPress={() => setRating(star)}>
-                  <Text style={[styles.starEmoji, rating >= star && { color: colors.warning }]}>Î“Ã¿Ã </Text>
+                  <Text style={[styles.starEmoji, rating >= star && { color: colors.warning }]}>Γÿà</Text>
                 </TouchableOpacity>
               ))}
             </View>
@@ -3118,14 +3113,14 @@ function DriverHomeScreen({ onRideAccepted, onNavigateProfile, onNavigateHistory
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
               <View style={{ flexDirection: 'column', gap: 8 }}>
                 <Text style={{ fontFamily: 'sans-serif', fontSize: 14, color: '#6F839A' }}>Today's Earnings</Text>
-                <Text style={{ fontFamily: 'sans-serif', fontSize: 28, fontWeight: '500', color: colors.textPrimary }}>Î“Ã©â•£ {getTodayEarnings()}</Text>
+                <Text style={{ fontFamily: 'sans-serif', fontSize: 28, fontWeight: '500', color: colors.textPrimary }}>Γé╣ {getTodayEarnings()}</Text>
               </View>
               <TouchableOpacity 
                 style={{ backgroundColor: colors.bgPrimary, paddingHorizontal: 16, paddingVertical: 10, borderRadius: 20, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8 }}
               >
                 <Feather name="briefcase" size={18} color={earningsData?.walletBalance < 0 ? '#DC2626' : '#0053B3'} />
                 <Text style={{ fontSize: 16, fontWeight: '600', color: earningsData?.walletBalance < 0 ? '#DC2626' : colors.textPrimary }}>
-                  Î“Ã©â•£ {earningsData?.walletBalance !== undefined ? earningsData.walletBalance.toFixed(2) : '0.00'}
+                  Γé╣ {earningsData?.walletBalance !== undefined ? earningsData.walletBalance.toFixed(2) : '0.00'}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -3172,7 +3167,7 @@ function DriverHomeScreen({ onRideAccepted, onNavigateProfile, onNavigateHistory
                     const isAchieved = getTotalTrips() >= target.orders;
                     return (
                       <View key={idx} style={{ alignItems: 'center', gap: 16 }}>
-                        <Text style={{ fontFamily: 'sans-serif', fontSize: 14, color: isAchieved ? '#39B45C' : '#0053B3', letterSpacing: 0.5, fontWeight: isAchieved ? 'bold' : 'normal' }}>Î“Ã©â•£ {target.amt}</Text>
+                        <Text style={{ fontFamily: 'sans-serif', fontSize: 14, color: isAchieved ? '#39B45C' : '#0053B3', letterSpacing: 0.5, fontWeight: isAchieved ? 'bold' : 'normal' }}>Γé╣ {target.amt}</Text>
                         <View style={{ width: 24, height: 24, borderRadius: 12, backgroundColor: isAchieved ? '#39B45C' : '#9098A2', alignItems: 'center', justifyContent: 'center' }}>
                           <Feather name="check" size={14} color="#FCFCFC" />
                         </View>
@@ -3208,7 +3203,7 @@ function DriverHomeScreen({ onRideAccepted, onNavigateProfile, onNavigateHistory
               <Text style={{ color: '#00A7CC', fontSize: 18, letterSpacing: 0.5, marginBottom: 12, fontWeight: 'bold' }}>Earn More.</Text>
               
               <Text style={{ color: '#F6F8FE', fontSize: 8, letterSpacing: 0.5 }}>Ride the future</Text>
-              <Text style={{ color: '#038CAB', fontSize: 12, letterSpacing: 0.5, marginBottom: 12 }}>Î“Ã©â•£ 141/day</Text>
+              <Text style={{ color: '#038CAB', fontSize: 12, letterSpacing: 0.5, marginBottom: 12 }}>Γé╣ 141/day</Text>
 
               <TouchableOpacity style={{ backgroundColor: '#00A7CC', borderRadius: 4, paddingVertical: 4, paddingHorizontal: 12, alignSelf: 'flex-start' }}>
                 <Text style={{ color: colors.textPrimary, fontSize: 10, letterSpacing: 0.5 }}>Know more</Text>
@@ -3223,7 +3218,7 @@ function DriverHomeScreen({ onRideAccepted, onNavigateProfile, onNavigateHistory
             <View style={{ backgroundColor: '#E0F2FE', borderRadius: 12, padding: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16, borderWidth: 1, borderColor: '#BAE6FD' }}>
               <View style={{ flex: 1, paddingRight: 12 }}>
                 <Text style={{ fontSize: 16, fontWeight: '700', color: '#0369A1', marginBottom: 4 }}>Get Driver Insurance</Text>
-                <Text style={{ fontSize: 12, color: '#0284C7', marginBottom: 10 }}>Protect yourself and your vehicle starting at Î“Ã©â•£199/month.</Text>
+                <Text style={{ fontSize: 12, color: '#0284C7', marginBottom: 10 }}>Protect yourself and your vehicle starting at Γé╣199/month.</Text>
                 <TouchableOpacity style={{ backgroundColor: '#0284C7', alignSelf: 'flex-start', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 4 }}>
                   <Text style={{ color: colors.bgSecondary, fontSize: 12, fontWeight: '600' }}>Apply Now</Text>
                 </TouchableOpacity>
@@ -3271,7 +3266,7 @@ function DriverHomeScreen({ onRideAccepted, onNavigateProfile, onNavigateHistory
 
 
 
-      {/* Î“Ã¶Ã‡Î“Ã¶Ã‡ New Ride Request Overlay Î“Ã¶Ã‡Î“Ã¶Ã‡ */}
+      {/* ΓöÇΓöÇ New Ride Request Overlay ΓöÇΓöÇ */}
       {incomingRequest && (
         <View style={styles.incomingOverlayLight}>
           <View style={styles.incomingSheetLight}>
@@ -3308,7 +3303,7 @@ function DriverHomeScreen({ onRideAccepted, onNavigateProfile, onNavigateHistory
               <View style={styles.incomingStatChipLight}>
                 <Text style={styles.incomingStatLabelLight}>Est. Earnings</Text>
                 <Text style={styles.incomingStatValLight}>
-                  {'Î“Ã©â•£'}{incomingRequest.estimatedEarnings}
+                  {'Γé╣'}{incomingRequest.estimatedEarnings}
                 </Text>
               </View>
             </View>
@@ -3337,7 +3332,7 @@ function DriverHomeScreen({ onRideAccepted, onNavigateProfile, onNavigateHistory
   );
 }
 
-// Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡ Navigation Helper Functions Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡
+// ΓöÇΓöÇΓöÇ Navigation Helper Functions ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
 
 /** Distance in metres between two lat/lon points (Haversine) */
 function haversineDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
@@ -3351,7 +3346,7 @@ function haversineDistance(lat1: number, lon1: number, lat2: number, lon2: numbe
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
-/** Bearing in degrees (0Î“Ã‡Ã´360) from point A to point B */
+/** Bearing in degrees (0ΓÇô360) from point A to point B */
 function computeBearing(lat1: number, lon1: number, lat2: number, lon2: number): number {
   const dLon = (lon2 - lon1) * Math.PI / 180;
   const y = Math.sin(dLon) * Math.cos(lat2 * Math.PI / 180);
@@ -3363,20 +3358,20 @@ function computeBearing(lat1: number, lon1: number, lat2: number, lon2: number):
 
 /** Map an OSRM maneuver type+modifier to a display icon and label */
 function getManeuverIcon(type: string, modifier: string): { icon: string; label: string } {
-  if (type === 'arrive') return { icon: 'â‰¡Æ’Ã…Ã¼', label: 'Arrive at destination' };
-  if (type === 'depart') return { icon: 'Î“Ã»â•¢', label: 'Depart' };
-  if (type === 'rotary' || type === 'roundabout') return { icon: 'â‰¡Æ’Ã¶Ã¤', label: 'Take the roundabout' };
+  if (type === 'arrive') return { icon: '≡ƒÅü', label: 'Arrive at destination' };
+  if (type === 'depart') return { icon: 'Γû╢', label: 'Depart' };
+  if (type === 'rotary' || type === 'roundabout') return { icon: '≡ƒöä', label: 'Take the roundabout' };
 
   switch (modifier) {
-    case 'uturn':          return { icon: 'Î“Ã¥âŒ', label: 'Make a U-turn' };
-    case 'sharp right':   return { icon: 'Î“Ã¥â–’', label: 'Sharp right' };
-    case 'right':         return { icon: 'Î“Ã¥Ã†', label: 'Turn right' };
-    case 'slight right':  return { icon: 'Î“Ã¥Ã¹', label: 'Keep slight right' };
-    case 'straight':      return { icon: 'Î“Ã¥Ã¦', label: 'Continue straight' };
-    case 'slight left':   return { icon: 'Î“Ã¥Ã»', label: 'Keep slight left' };
-    case 'left':          return { icon: 'Î“Ã¥Ã‰', label: 'Turn left' };
-    case 'sharp left':    return { icon: 'Î“Ã¥â–‘', label: 'Sharp left' };
-    default:              return { icon: 'Î“Ã¥Ã¦', label: 'Continue' };
+    case 'uturn':          return { icon: 'Γå⌐', label: 'Make a U-turn' };
+    case 'sharp right':   return { icon: 'Γå▒', label: 'Sharp right' };
+    case 'right':         return { icon: 'ΓåÆ', label: 'Turn right' };
+    case 'slight right':  return { icon: 'Γåù', label: 'Keep slight right' };
+    case 'straight':      return { icon: 'Γåæ', label: 'Continue straight' };
+    case 'slight left':   return { icon: 'Γåû', label: 'Keep slight left' };
+    case 'left':          return { icon: 'ΓåÉ', label: 'Turn left' };
+    case 'sharp left':    return { icon: 'Γå░', label: 'Sharp left' };
+    default:              return { icon: 'Γåæ', label: 'Continue' };
   }
 }
 
@@ -3438,7 +3433,7 @@ function getActiveNavStep(
   };
 }
 
-// Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡ Driver Active Ride Screen Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡
+// ΓöÇΓöÇΓöÇ Driver Active Ride Screen ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
 
 function DriverActiveRideScreen({ ride, onClose }: { ride: any; onClose: () => void }) {
   const { colors, isDark } = useTheme();
@@ -3494,9 +3489,9 @@ function DriverActiveRideScreen({ ride, onClose }: { ride: any; onClose: () => v
   const [remainingDist, setRemainingDist]     = useState((rideData.route?.distance || 0) * 1000);
   const [remainingETA, setRemainingETA]       = useState(rideData.route?.duration || 0);
   const [driverHeading, setDriverHeading]     = useState(0);
-  const [routeProgress, setRouteProgress]     = useState(0); // 0Î“Ã‡Ã´1
+  const [routeProgress, setRouteProgress]     = useState(0); // 0ΓÇô1
 
-  // Decoded polyline points (memoised Î“Ã‡Ã¶ only changes if ride changes)
+  // Decoded polyline points (memoised ΓÇö only changes if ride changes)
   const polylinePoints = React.useMemo(
     () => (rideData.route?.polyline ? decodePolyline(rideData.route.polyline) : []),
     [rideData.route?.polyline]
@@ -3505,7 +3500,7 @@ function DriverActiveRideScreen({ ride, onClose }: { ride: any; onClose: () => v
   const totalRouteDist = (rideData.route?.distance || 0) * 1000; // metres
   const steps: any[]  = rideData.route?.steps || [];
 
-  // Î“Ã¶Ã‡Î“Ã¶Ã‡ Live navigation computation Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡
+  // ΓöÇΓöÇ Live navigation computation ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
   useEffect(() => {
     if (!location || rideStatus !== 'in_progress') return;
 
@@ -3541,7 +3536,7 @@ function DriverActiveRideScreen({ ride, onClose }: { ride: any; onClose: () => v
       setRemainingDist(rem);
       setRemainingETA(Math.ceil((rem / 1000 / 30) * 60)); // 30 km/h avg
 
-      // Distance to next significant turn (bearing change > 25â”¬â–‘)
+      // Distance to next significant turn (bearing change > 25┬░)
       let turnDist = 0;
       let foundTurn = false;
       for (let i = nearestIdx; i < polylinePoints.length - 2 && !foundTurn; i++) {
@@ -3584,7 +3579,7 @@ function DriverActiveRideScreen({ ride, onClose }: { ride: any; onClose: () => v
     }
   }, [location, rideStatus]);
 
-  // Î“Ã¶Ã‡Î“Ã¶Ã‡ Animate to pickup location when ride is first accepted Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡
+  // ΓöÇΓöÇ Animate to pickup location when ride is first accepted ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
   useEffect(() => {
     if (mapRef.current && ride.pickup?.location?.coordinates) {
       const pickupLat = ride.pickup.location.coordinates[1];
@@ -3603,7 +3598,7 @@ function DriverActiveRideScreen({ ride, onClose }: { ride: any; onClose: () => v
     }
   }, []);
 
-  // Î“Ã¶Ã‡Î“Ã¶Ã‡ Initial camera tilt when trip starts Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡
+  // ΓöÇΓöÇ Initial camera tilt when trip starts ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
   useEffect(() => {
     if (rideStatus === 'in_progress' && mapRef.current) {
       setTimeout(() => {
@@ -3617,7 +3612,7 @@ function DriverActiveRideScreen({ ride, onClose }: { ride: any; onClose: () => v
     }
   }, [rideStatus]);
 
-  // Î“Ã¶Ã‡Î“Ã¶Ã‡ Current step info Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡
+  // ΓöÇΓöÇ Current step info ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
   const currentStep = steps[navStepIndex] || null;
   const maneuver    = getManeuverIcon(
     currentStep?.maneuver?.type     || 'straight',
@@ -3625,7 +3620,7 @@ function DriverActiveRideScreen({ ride, onClose }: { ride: any; onClose: () => v
   );
   const nextStreet = currentStep?.name || ride.drop?.address || 'Destination';
 
-  // Î“Ã¶Ã‡Î“Ã¶Ã‡ Status handlers Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡
+  // ΓöÇΓöÇ Status handlers ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
   const handleArrived = async () => {
     setLoading(true);
     try {
@@ -3670,7 +3665,7 @@ function DriverActiveRideScreen({ ride, onClose }: { ride: any; onClose: () => v
         if (response.data.isWalletNegative) {
           Alert.alert(
             'Insufficient Balance',
-            `Your wallet balance is Î“Ã©â•£${response.data.walletBalance}. You cannot accept new rides until you add funds.`
+            `Your wallet balance is Γé╣${response.data.walletBalance}. You cannot accept new rides until you add funds.`
           );
         }
 
@@ -3688,7 +3683,7 @@ function DriverActiveRideScreen({ ride, onClose }: { ride: any; onClose: () => v
     } finally { setLoading(false); }
   };
 
-  // Î“Ã¶Ã‡Î“Ã¶Ã‡ Render Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡
+  // ΓöÇΓöÇ Render ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
   if (rideStatus === 'arrived') {
     return (
       <View style={styles.container}>
@@ -3770,7 +3765,7 @@ function DriverActiveRideScreen({ ride, onClose }: { ride: any; onClose: () => v
     );
   }
 
-  // Î“Ã¶Ã‡Î“Ã¶Ã‡ Completed state: show payment collection screen Î“Ã¶Ã‡Î“Ã¶Ã‡
+  // ΓöÇΓöÇ Completed state: show payment collection screen ΓöÇΓöÇ
   if (rideStatus === 'completed' || rideStatus === 'payment_pending') {
     return (
       <View style={styles.container}>
@@ -3816,7 +3811,7 @@ function DriverActiveRideScreen({ ride, onClose }: { ride: any; onClose: () => v
 
   return (
     <View style={styles.container}>
-      {/* Î“Ã¶Ã‡Î“Ã¶Ã‡ MAP Î“Ã¶Ã‡Î“Ã¶Ã‡ */}
+      {/* ΓöÇΓöÇ MAP ΓöÇΓöÇ */}
       <MapView provider={PROVIDER_GOOGLE}
         ref={mapRef}
         style={styles.map}
@@ -3863,7 +3858,7 @@ function DriverActiveRideScreen({ ride, onClose }: { ride: any; onClose: () => v
           />
         )}
 
-        {/* Route polyline Î“Ã‡Ã¶ remaining portion highlighted */}
+        {/* Route polyline ΓÇö remaining portion highlighted */}
         {rideStatus !== 'accepted' && polylinePoints.length > 0 && (
           <Polyline
             coordinates={polylinePoints}
@@ -3875,7 +3870,7 @@ function DriverActiveRideScreen({ ride, onClose }: { ride: any; onClose: () => v
         )}
       </MapView>
 
-      {/* Î“Ã¶Ã‡Î“Ã¶Ã‡ NAVIGATION HUD (only during active trip) Î“Ã¶Ã‡Î“Ã¶Ã‡ */}
+      {/* ΓöÇΓöÇ NAVIGATION HUD (only during active trip) ΓöÇΓöÇ */}
       {rideStatus === 'in_progress' && (
         <View style={styles.navHudWrapper} pointerEvents="none">
 
@@ -3904,20 +3899,20 @@ function DriverActiveRideScreen({ ride, onClose }: { ride: any; onClose: () => v
             </View>
             <View style={styles.navEtaRow}>
               <Text style={styles.navEtaText}>
-                â‰¡Æ’Ã²Ã† {remainingETA} min
+                ≡ƒòÆ {remainingETA} min
               </Text>
               <Text style={styles.navEtaText}>
-                â‰¡Æ’Ã´Ã¬ {formatDistance(remainingDist)}
+                ≡ƒôì {formatDistance(remainingDist)}
               </Text>
               <Text style={styles.navEtaText}>
-                Î“Ã¥Ã´ {ride.drop?.address?.split(',')[0] || 'Destination'}
+                Γåô {ride.drop?.address?.split(',')[0] || 'Destination'}
               </Text>
             </View>
           </View>
         </View>
       )}
 
-      {/* Î“Ã¶Ã‡Î“Ã¶Ã‡ Heading to pickup top bar Î“Ã¶Ã‡Î“Ã¶Ã‡ */}
+      {/* ΓöÇΓöÇ Heading to pickup top bar ΓöÇΓöÇ */}
       {rideStatus === 'accepted' && (
         <View style={{ position: 'absolute', top: Platform.OS === 'ios' ? 60 : 40, left: 16, right: 16, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
            <TouchableOpacity style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: colors.bgSecondary, alignItems: 'center', justifyContent: 'center', shadowColor: colors.textPrimary, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 4 }}>
@@ -3932,7 +3927,7 @@ function DriverActiveRideScreen({ ride, onClose }: { ride: any; onClose: () => v
         </View>
       )}
 
-      {/* Î“Ã¶Ã‡Î“Ã¶Ã‡ Pre-trip info header (arrived only) Î“Ã¶Ã‡Î“Ã¶Ã‡ */}
+      {/* ΓöÇΓöÇ Pre-trip info header (arrived only) ΓöÇΓöÇ */}
       {rideStatus === 'arrived' && (
         <View style={styles.navPreTripHeader}>
           <View style={styles.navPreTripRow}>
@@ -3944,14 +3939,14 @@ function DriverActiveRideScreen({ ride, onClose }: { ride: any; onClose: () => v
             <Text style={styles.navPreTripAddr} numberOfLines={1}>{ride.drop?.address}</Text>
           </View>
           <View style={styles.navPreTripMeta}>
-            <Text style={styles.navPreTripMetaText}>â‰¡Æ’Ã´Ã… {ride.route?.distance || 'Î“Ã‡Ã¶'} km</Text>
-            <Text style={styles.navPreTripMetaText}>Î“Ã…â–’ {ride.route?.duration ? `${Math.ceil(ride.route.duration)} min` : 'Î“Ã‡Ã¶'}</Text>
-            <Text style={[styles.navPreTripMetaText, { color: colors.success }]}>Î“Ã©â•£ {ride.fare?.driverShare || Math.round(ride.fare?.totalFare * 0.8) || 'Î“Ã‡Ã¶'}</Text>
+            <Text style={styles.navPreTripMetaText}>≡ƒôÅ {ride.route?.distance || 'ΓÇö'} km</Text>
+            <Text style={styles.navPreTripMetaText}>ΓÅ▒ {ride.route?.duration ? `${Math.ceil(ride.route.duration)} min` : 'ΓÇö'}</Text>
+            <Text style={[styles.navPreTripMetaText, { color: colors.success }]}>Γé╣ {ride.fare?.driverShare || Math.round(ride.fare?.totalFare * 0.8) || 'ΓÇö'}</Text>
           </View>
         </View>
       )}
 
-      {/* Î“Ã¶Ã‡Î“Ã¶Ã‡ Bottom action sheet Î“Ã¶Ã‡Î“Ã¶Ã‡ */}
+      {/* ΓöÇΓöÇ Bottom action sheet ΓöÇΓöÇ */}
       {rideStatus === 'accepted' ? (
         <View style={{
           position: 'absolute',
@@ -4069,7 +4064,7 @@ function DriverActiveRideScreen({ ride, onClose }: { ride: any; onClose: () => v
           {rideStatus === 'arrived' && (
             <View style={{ gap: 14 }}>
               <View style={styles.premiumInputWrapper}>
-                <Text style={styles.premiumInputIcon}>â‰¡Æ’Ã¶Ã¦</Text>
+                <Text style={styles.premiumInputIcon}>≡ƒöæ</Text>
                 <TextInput
                   placeholder="Enter customer verification OTP"
                   placeholderTextColor={colors.textSecondary}
@@ -4701,7 +4696,7 @@ const getStyles = (colors: any) => StyleSheet.create({
     justifyContent: 'center'
   },
 
-  // Î“Ã¶Ã‡Î“Ã¶Ã‡ Light Theme Incoming Request (Figma) Î“Ã¶Ã‡Î“Ã¶Ã‡
+  // ΓöÇΓöÇ Light Theme Incoming Request (Figma) ΓöÇΓöÇ
   incomingOverlayLight: {
     position: 'absolute',
     bottom: 80,
@@ -5411,7 +5406,7 @@ const getStyles = (colors: any) => StyleSheet.create({
     color: colors.accent,
   },
 
-  // Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡ Navigation HUD Styles Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡
+  // ΓöÇΓöÇΓöÇ Navigation HUD Styles ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
 
   /** Outer wrapper: sits at the top of the screen above the map */
   navHudWrapper: {
@@ -5422,7 +5417,7 @@ const getStyles = (colors: any) => StyleSheet.create({
     zIndex: 20,
   },
 
-  /** Glassmorphism card Î“Ã‡Ã¶ turn arrow + instruction text */
+  /** Glassmorphism card ΓÇö turn arrow + instruction text */
   navHudCard: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -5451,7 +5446,7 @@ const getStyles = (colors: any) => StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.25)',
   },
 
-  /** Large turn-direction icon (Î“Ã¥Ã¦ Î“Ã¥Ã† Î“Ã¥Ã‰ etc.) */
+  /** Large turn-direction icon (Γåæ ΓåÆ ΓåÉ etc.) */
   navArrowIcon: {
     fontSize: 36,
     color: colors.bgSecondary,
@@ -5463,7 +5458,7 @@ const getStyles = (colors: any) => StyleSheet.create({
     flex: 1,
   },
 
-  /** "In 320 m" Î“Ã‡Ã¶ main distance to the next turn */
+  /** "In 320 m" ΓÇö main distance to the next turn */
   navDistText: {
     fontSize: 24,
     fontWeight: '800',
@@ -5479,7 +5474,7 @@ const getStyles = (colors: any) => StyleSheet.create({
     marginTop: 2,
   },
 
-  /** Street name Î“Ã‡Ã¶ "onto Anna Salai" */
+  /** Street name ΓÇö "onto Anna Salai" */
   navStreetText: {
     fontSize: 12,
     color: 'rgba(255,255,255,0.65)',
@@ -5599,7 +5594,7 @@ const getStyles = (colors: any) => StyleSheet.create({
     backgroundColor: colors.bgSecondary,
   },
 
-  /** Bottom action row during in_progress Î“Ã‡Ã¶ compact layout */
+  /** Bottom action row during in_progress ΓÇö compact layout */
   navBottomRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -5637,7 +5632,7 @@ const getStyles = (colors: any) => StyleSheet.create({
     flexShrink: 0,
   },
 
-  // Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡ Customer Navigation HUD Styles Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡
+  // ΓöÇΓöÇΓöÇ Customer Navigation HUD Styles ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
 
   /** Outer wrapper sits at the top of the screen */
   custNavHudWrapper: {
@@ -5684,11 +5679,11 @@ const getStyles = (colors: any) => StyleSheet.create({
     fontWeight: '500',
   },
 
-  /** Turn instruction card Î“Ã‡Ã¶ cyan/teal theme for the customer */
+  /** Turn instruction card ΓÇö cyan/teal theme for the customer */
   custNavHudCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.accentCyan,        // #00C896 Î“Ã‡Ã¶ Mint green
+    backgroundColor: colors.accentCyan,        // #00C896 ΓÇö Mint green
     borderRadius: 20,
     paddingVertical: 14,
     paddingHorizontal: 16,
@@ -5738,7 +5733,7 @@ const getStyles = (colors: any) => StyleSheet.create({
     fontWeight: '500',
   },
 
-  /** ETA strip Î“Ã‡Ã¶ white card with cyan progress bar */
+  /** ETA strip ΓÇö white card with cyan progress bar */
   custNavEtaStrip: {
     backgroundColor: 'rgba(255,255,255,0.96)',
     borderRadius: 14,
@@ -5765,7 +5760,7 @@ const getStyles = (colors: any) => StyleSheet.create({
     fontWeight: '600',
   },
 
-  /** Customer live position pin Î“Ã‡Ã¶ teal themed */
+  /** Customer live position pin ΓÇö teal themed */
   custNavPin: {
     width: 26,
     height: 26,
@@ -5789,7 +5784,7 @@ const getStyles = (colors: any) => StyleSheet.create({
     backgroundColor: colors.bgSecondary,
   },
 
-  /** Compact bottom sheet during in_progress Î“Ã‡Ã¶ less height */
+  /** Compact bottom sheet during in_progress ΓÇö less height */
   custNavBottomSheet: {
     position: 'absolute',
     bottom: 0,
@@ -5870,7 +5865,7 @@ const getStyles = (colors: any) => StyleSheet.create({
     textAlign: 'center',
   },
 
-  // Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡ Location Picker Styles Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡
+  // ΓöÇΓöÇΓöÇ Location Picker Styles ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
   pickerHeader: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -5925,7 +5920,7 @@ const getStyles = (colors: any) => StyleSheet.create({
   pickerConfirmBtn: { backgroundColor: '#1A1A1A', borderRadius: 8, paddingVertical: 16, alignItems: 'center' },
   pickerConfirmText: { color: colors.bgSecondary, fontSize: 16, fontWeight: '700' },
 
-  // Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡ New Home Screen Styles Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡
+  // ΓöÇΓöÇΓöÇ New Home Screen Styles ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
   homeContainer: { flex: 1, backgroundColor: colors.bgPrimary },
   homeMapPreview: { height: '38%', width: '100%' },
   
@@ -6040,7 +6035,7 @@ const getStyles = (colors: any) => StyleSheet.create({
     fontWeight: '700'
   },
 
-  // Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡ Customer Home Î“Ã‡Ã´ Map Header Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡
+  // ΓöÇΓöÇΓöÇ Customer Home ΓÇô Map Header ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
   custMapHeader: {
     position: 'absolute',
     top: Platform.OS === 'ios' ? 54 : 36,
@@ -6109,7 +6104,7 @@ const getStyles = (colors: any) => StyleSheet.create({
     color: colors.accent,
   },
 
-  // Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡ Search bar update Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡
+  // ΓöÇΓöÇΓöÇ Search bar update ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
   homeSearchIconWrap: {
     width: 32,
     height: 32,
@@ -6127,7 +6122,7 @@ const getStyles = (colors: any) => StyleSheet.create({
     marginVertical: 3,
   },
 
-  // Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡ Estimate cards update Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡
+  // ΓöÇΓöÇΓöÇ Estimate cards update ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
   estTypeActive: {
     color: colors.accent,
     fontWeight: '800',
@@ -6136,7 +6131,7 @@ const getStyles = (colors: any) => StyleSheet.create({
     color: colors.accent,
   },
 
-  // Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡ Customer Tab Pages Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡
+  // ΓöÇΓöÇΓöÇ Customer Tab Pages ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
   custTabPage: {
     flex: 1,
     backgroundColor: colors.bgPrimary,
@@ -6162,7 +6157,7 @@ const getStyles = (colors: any) => StyleSheet.create({
     letterSpacing: -0.5,
   },
 
-  // Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡ Profile Card Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡
+  // ΓöÇΓöÇΓöÇ Profile Card ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
   custProfileCard: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -6231,7 +6226,7 @@ const getStyles = (colors: any) => StyleSheet.create({
     color: '#92400E',
   },
 
-  // Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡ Wallet Card Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡
+  // ΓöÇΓöÇΓöÇ Wallet Card ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
   custWalletCard: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -6291,7 +6286,7 @@ const getStyles = (colors: any) => StyleSheet.create({
     fontWeight: '700',
   },
 
-  // Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡ Menu Card Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡
+  // ΓöÇΓöÇΓöÇ Menu Card ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
   custMenuCard: {
     backgroundColor: colors.bgSecondary,
     marginHorizontal: 20,
@@ -6331,7 +6326,7 @@ const getStyles = (colors: any) => StyleSheet.create({
     color: colors.textPrimary,
   },
 
-  // Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡ Edit Profile Card Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡
+  // ΓöÇΓöÇΓöÇ Edit Profile Card ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
   custEditCard: {
     backgroundColor: colors.bgSecondary,
     marginHorizontal: 20,
@@ -6353,7 +6348,7 @@ const getStyles = (colors: any) => StyleSheet.create({
     marginBottom: 14,
   },
 
-  // Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡ Logout Button Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡
+  // ΓöÇΓöÇΓöÇ Logout Button ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
   custLogoutBtn: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -6373,7 +6368,7 @@ const getStyles = (colors: any) => StyleSheet.create({
     fontWeight: '700',
   },
 
-  // Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡ Trips / Ride Card Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡
+  // ΓöÇΓöÇΓöÇ Trips / Ride Card ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
   custRideCard: {
     backgroundColor: colors.bgSecondary,
     marginHorizontal: 20,
@@ -6443,7 +6438,7 @@ const getStyles = (colors: any) => StyleSheet.create({
     backgroundColor: colors.danger,
   },
 
-  // Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡ Services Grid Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡Î“Ã¶Ã‡
+  // ΓöÇΓöÇΓöÇ Services Grid ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
   custServiceCard: {
     width: '47%',
     backgroundColor: colors.bgSecondary,
