@@ -72,6 +72,26 @@ exports.createRoute = async (req, res, next) => {
   }
 };
 
+// @desc    Update an existing route
+// @route   PUT /api/route-manager/routes/:id
+// @access  Admin
+exports.updateRoute = async (req, res, next) => {
+  try {
+    const { name, junctions, polyline } = req.body;
+    const route = await Route.findByIdAndUpdate(
+      req.params.id,
+      { name, junctions, polyline },
+      { new: true, runValidators: true }
+    );
+    if (!route) {
+      return res.status(404).json({ success: false, error: 'Route not found' });
+    }
+    res.status(200).json({ success: true, data: route });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // @desc    Get all active routes
 // @route   GET /api/route-manager/routes
 // @access  Public

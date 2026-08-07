@@ -7,7 +7,8 @@ const {
   getRoutes,
   deleteRoute,
   assignDriverToRoute,
-  updateJunction
+  updateJunction,
+  updateRoute
 } = require('../controllers/routeManagerController');
 const { protect, authorize } = require('../middleware/auth');
 
@@ -18,6 +19,7 @@ router.get('/routes', getRoutes);
 // Admin only endpoints
 router.post('/junctions', protect, authorize('admin'), createJunction);
 router.post('/routes', protect, authorize('admin'), createRoute);
+router.put('/routes/:id', protect, authorize('admin'), updateRoute);
 router.delete('/routes/:id', protect, authorize('admin'), deleteRoute);
 router.put('/drivers/:id/assign', protect, authorize('admin'), assignDriverToRoute);
 router.put('/junctions/:id', protect, authorize('admin'), updateJunction);

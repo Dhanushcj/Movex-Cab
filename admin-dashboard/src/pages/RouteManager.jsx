@@ -70,6 +70,7 @@ const RouteManager = () => {
   // Form States
   const [newRoute, setNewRoute] = useState({ name: '', sequence: [] });
   const [tempJunction, setTempJunction] = useState(null); // { lat, lng, name }
+  const [editingRouteId, setEditingRouteId] = useState(null);
 
   const [roadPolyline, setRoadPolyline] = useState(null);
 
@@ -102,6 +103,15 @@ const RouteManager = () => {
     } catch (err) {
       console.error('Error fetching routing data', err);
     }
+  };
+
+  const handleEditRoute = (route) => {
+    setEditingRouteId(route._id);
+    setNewRoute({
+      name: route.name,
+      sequence: route.junctions.map(j => j._id)
+    });
+    setOpenRouteDialog(true);
   };
 
   const handleDeleteRoute = async (id) => {
@@ -240,18 +250,28 @@ const RouteManager = () => {
     }
     
     try {
-      await API.post('/route-manager/routes', {
-        name: newRoute.name,
-        junctions: newRoute.sequence,
-        polyline: polylineStr
-      });
-      alert('Route created!');
+      if (editingRouteId) {
+        await API.put(`/route-manager/routes/${editingRouteId}`, {
+          name: newRoute.name,
+          junctions: newRoute.sequence,
+          polyline: polylineStr
+        });
+        alert('Route updated!');
+      } else {
+        await API.post('/route-manager/routes', {
+          name: newRoute.name,
+          junctions: newRoute.sequence,
+          polyline: polylineStr
+        });
+        alert('Route created!');
+      }
       setOpenRouteDialog(false);
       setNewRoute({ name: '', sequence: [] });
+      setEditingRouteId(null);
       fetchData();
     } catch (err) {
-      console.error('Error creating route:', err);
-      alert(err.response?.data?.message || err.response?.data?.error || 'Failed to create route');
+      console.error('Error saving route:', err);
+      alert(err.response?.data?.message || err.response?.data?.error || 'Failed to save route');
     }
   };
 
@@ -357,8 +377,9 @@ const RouteManager = () => {
                     </td>
                     <td className="px-4 py-3">
                       <span className="text-xs font-semibold px-2 py-0.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded">Active</span>
-                    </td>
+                     </td>
                     <td className="px-4 py-3 text-right">
+                      <button onClick={() => handleEditRoute(route)} className="text-[var(--text-muted)] hover:text-blue-500 mr-4"><Edit size={16} /></button>
                       <button onClick={() => handleDeleteRoute(route._id)} className="text-[var(--text-muted)] hover:text-rose-500"><Trash2 size={16} /></button>
                     </td>
                   </tr>
@@ -380,13 +401,17 @@ const RouteManager = () => {
           <div className="glass-card w-full max-w-6xl h-[85vh] relative flex flex-col overflow-hidden shadow-2xl border border-gray-700">
             <div className="p-4 border-b border-[var(--border-glass)] flex justify-between items-center bg-gray-900 text-white">
               <div>
-                <h3 className="text-xl font-bold flex items-center gap-2"><Navigation size={20} className="text-blue-400" /> Interactive Route Builder</h3>
+                <h3 className="text-xl font-bold flex items-center gap-2">
+                  <Navigation size={20} className="text-blue-400" /> 
+                  {editingRouteId ? 'Edit Route' : 'Interactive Route Builder'}
+                </h3>
                 <p className="text-xs text-gray-400 mt-1">Select locations to build a clear, ordered transit route.</p>
               </div>
               <button onClick={() => { 
                 setOpenRouteDialog(false); 
                 setTempJunction(null); 
                 setNewRoute({ name: '', sequence: [] });
+                setEditingRouteId(null);
               }} className="p-2 hover:bg-gray-800 rounded-full transition-colors">
                 <X size={20} />
               </button>
@@ -472,7 +497,7 @@ const RouteManager = () => {
 
                 <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
                   <button className="bg-blue-600 hover:bg-blue-700 text-white w-full py-3 rounded-xl font-bold transition-colors shadow-lg shadow-blue-600/20" onClick={handleCreateRoute}>
-                    Save & Activate Route
+                    {editingRouteId ? 'Save Changes' : 'Save & Activate Route'}
                   </button>
                 </div>
               </div>
