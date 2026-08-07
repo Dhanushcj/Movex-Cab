@@ -215,7 +215,7 @@ const MetroBookingMap = ({ onClose, onBookTicket, userLocation, nearbyDrivers = 
                 />
               )}
               
-              {r.junctions?.map((j: any) => {
+              {r.junctions?.filter((_: any, i: number, arr: any[]) => i === 0 || i === arr.length - 1).map((j: any) => {
                 const isSelectedPickup = pickupJunction?._id === j._id;
                 const isSelectedDrop = dropJunction?._id === j._id;
                 const isSelected = isSelectedPickup || isSelectedDrop;

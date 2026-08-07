@@ -1014,7 +1014,7 @@ function HomeScreen({ onRideBooked, onNavigateProfile, onNavigateLanguage, activ
       try {
         const lng = pickupCoords ? pickupCoords[0] : (location?.coords.longitude ?? 78.6569);
         const lat = pickupCoords ? pickupCoords[1] : (location?.coords.latitude ?? 11.1271);
-        const res = await API.get(`/drivers/nearby?lng=${lng}&lat=${lat}&radius=10`);
+        const res = await API.get(`/drivers/nearby?lng=${lng}&lat=${lat}&radius=500`);
         if (res.data.success) setNearbyDrivers(res.data.drivers);
       } catch {}
     };
