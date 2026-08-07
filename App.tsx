@@ -2773,15 +2773,36 @@ function DriverHomeScreen({ onRideAccepted, onNavigateProfile, onNavigateHistory
   const [scanAnim] = useState(new Animated.Value(0));
 
   const [earningsData, setEarningsData] = useState<any>(null);
+  const [driverRouteData, setDriverRouteData] = useState<any>(null);
 
-  // Fetch earnings
+  // Fetch earnings & route
   useEffect(() => {
     fetchEarnings();
+    fetchDriverRoute();
     const intervalId = setInterval(() => {
       fetchEarnings();
     }, 15000);
     return () => clearInterval(intervalId);
-  }, []);
+  }, [user?.assignedRoute]);
+
+  const fetchDriverRoute = async () => {
+    if (!user?.assignedRoute) return;
+    try {
+      const routeId = typeof user.assignedRoute === 'object' ? user.assignedRoute._id : user.assignedRoute;
+      const res = await API.get('/route-manager/routes');
+      if (res.data && res.data.data) {
+        const found = res.data.data.find((r: any) => r._id === routeId);
+        if (found) {
+          setDriverRouteData({
+            ...found,
+            decodedPolyline: found.polyline ? decodePolyline(found.polyline) : []
+          });
+        }
+      }
+    } catch (e) {
+      console.log('Failed to fetch route');
+    }
+  };
 
   const fetchEarnings = async () => {
     try {
@@ -2950,9 +2971,12 @@ function DriverHomeScreen({ onRideAccepted, onNavigateProfile, onNavigateHistory
                   longitudeDelta: 0.03
                 }}
               >
-                {user?.assignedRoute?.polyline && (
+                {driverRouteData && (driverRouteData.decodedPolyline?.length > 0 || driverRouteData.junctions?.length > 0) && (
                   <Polyline 
-                    coordinates={decodePolyline(user.assignedRoute.polyline)}
+                    coordinates={driverRouteData.decodedPolyline?.length > 0 ? driverRouteData.decodedPolyline : driverRouteData.junctions.map((j: any) => ({
+                      latitude: j.location?.coordinates?.[1] || 0,
+                      longitude: j.location?.coordinates?.[0] || 0
+                    }))}
                     strokeColor="#10B981"
                     strokeWidth={6}
                     lineCap="round"
