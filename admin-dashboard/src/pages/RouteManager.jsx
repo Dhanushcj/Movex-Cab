@@ -31,28 +31,27 @@ const selectedIcon = new L.Icon({
 
 const center = [28.7041, 77.1025]; // Default center
 
-const encodePolyline = (coordinates) => {
-  let result = '';
-  let prevLat = 0; let prevLng = 0;
-  coordinates.forEach(([lat, lng]) => {
-    const latE5 = Math.round(lat * 1e5);
-    const lngE5 = Math.round(lng * 1e5);
-    const dLat = latE5 - prevLat;
-    const dLng = lngE5 - prevLng;
-    prevLat = latE5; prevLng = lngE5;
-    [dLat, dLng].forEach(val => {
-      let shifted = val << 1;
-      if (val < 0) shifted = ~shifted;
-      let enc = '';
-      while (shifted >= 0x20) {
-        enc += String.fromCharCode((0x20 | (shifted & 0x1f)) + 63);
-        shifted >>= 5;
-      }
-      enc += String.fromCharCode(shifted + 63);
-      result += enc;
-    });
-  });
-  return result;
+const decodePolyline = (t) => {
+  let n, o, a = 0, r = 0, s = 0, l = 0, i = [];
+  for (; a < t.length;) {
+    n = 0, o = 0;
+    do {
+      o |= (31 & (n = t.charCodeAt(a++) - 63)) << l;
+      l += 5;
+    } while (n >= 32);
+    const d = 1 & o ? ~(o >> 1) : o >> 1;
+    r += d;
+    l = 0, n = 0, o = 0;
+    do {
+      o |= (31 & (n = t.charCodeAt(a++) - 63)) << l;
+      l += 5;
+    } while (n >= 32);
+    const u = 1 & o ? ~(o >> 1) : o >> 1;
+    s += u;
+    l = 0;
+    i.push([r / 1e5, s / 1e5]);
+  }
+  return i;
 };
 
 const RouteManager = () => {
@@ -77,7 +76,8 @@ const RouteManager = () => {
   const [suggestedStops, setSuggestedStops] = useState([]);
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
 
-  const [roadPolyline, setRoadPolyline] = useState(null);
+  const [roadPolyline, setRoadPolyline] = useState(null); // Array of [lat, lng] for Map
+  const [rawPolyline, setRawPolyline] = useState(''); // Encoded string for DB
 
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '',
@@ -146,12 +146,13 @@ const RouteManager = () => {
       try {
         const coords = validStops.map(s => `${s.lng},${s.lat}`);
         const coordString = coords.join(';');
-        const res = await fetch(`https://router.project-osrm.org/route/v1/driving/${coordString}?overview=full&geometries=geojson`);
+        const res = await fetch(`https://router.project-osrm.org/route/v1/driving/${coordString}?overview=full&geometries=polyline`);
         const data = await res.json();
         
         if (data.routes && data.routes.length > 0) {
-          const latLngs = data.routes[0].geometry.coordinates.map(coord => [coord[1], coord[0]]);
-          setRoadPolyline(latLngs);
+          const encoded = data.routes[0].geometry;
+          setRawPolyline(encoded);
+          setRoadPolyline(decodePolyline(encoded));
         }
       } catch (err) {
         console.error("OSRM Routing Error:", err);
@@ -414,11 +415,8 @@ const RouteManager = () => {
         }
       }
 
-      // 2. Encode Polyline
-      let polylineStr = '';
-      if (roadPolyline && roadPolyline.length > 0) {
-        polylineStr = encodePolyline(roadPolyline);
-      }
+      // 2. Use raw encoded Polyline
+      let polylineStr = rawPolyline || '';
       
       // 3. Save Route
       if (editingRouteId) {
