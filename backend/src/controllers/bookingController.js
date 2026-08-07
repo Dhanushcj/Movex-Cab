@@ -357,7 +357,11 @@ const startTrip = async (req, res, next) => {
     if (!booking) return res.status(404).json({ success: false, message: 'Booking not found' });
 
     // Ensure the scanned QR data matches the booking ID
-    if (!qrData || String(qrData) !== String(booking._id)) {
+    const safeQrData = qrData ? String(qrData).trim() : '';
+    const expectedId = String(booking._id).trim();
+    
+    if (!safeQrData || safeQrData !== expectedId) {
+      console.log(`[QR Mismatch] Expected: ${expectedId}, Scanned: ${safeQrData}`);
       return res.status(400).json({ success: false, message: 'Invalid Pass QR Code' });
     }
 
