@@ -2072,7 +2072,7 @@ function HomeScreen({ onRideBooked, onNavigateProfile, onNavigateLanguage, activ
                     <Text style={styles.rideDriver}>Driver: {item.driver?.name || (item.status === 'searching' ? 'Searching...' : 'Partner')}</Text>
                     <Text style={styles.ridePrice}>{'\u20B9'}{item.fare?.totalFare || 0}</Text>
                   </View>
-                  {(item.status === 'searching' || item.status === 'requested') && (
+                  {['searching', 'requested', 'accepted', 'arrived'].includes(item.status) && (
                     <TouchableOpacity 
                       style={{ marginTop: 12, backgroundColor: colors.danger || '#FF3B30', paddingVertical: 8, borderRadius: 8, alignItems: 'center' }}
                       onPress={() => handleCancelHistoryRide(item._id)}
