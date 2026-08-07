@@ -158,7 +158,8 @@ const createBooking = async (req, res, next) => {
       fare: calculatedFare,
       paymentMethod: finalPaymentMethod,
       rideOTP,
-      status: 'searching'
+      status: 'searching',
+      metroRouteId: req.body.routeId || null
     });
 
     res.status(201).json({
@@ -368,20 +369,7 @@ const completeTrip = async (req, res, next) => {
 
     booking.fare.finalFare = booking.fare.totalFare + (booking.tipAmount || 0);
 
-    if (booking.paymentMethod === 'qr') {
-      booking.status = 'payment_pending';
-      await booking.save();
-      
-      const io = require('../config/socket').getIO();
-      if (io) io.to(`ride:${booking._id}`).emit('booking:status', { status: 'payment_pending' });
-      
-      return res.json({
-        success: true,
-        message: 'Waiting for customer QR payment',
-        data: booking,
-        isPaymentPending: true
-      });
-    }
+    // Payment pending logic removed since rides are free
 
     booking.status = 'completed';
     booking.completedAt = new Date();

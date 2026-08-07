@@ -51,6 +51,10 @@ const matchDriversForBooking = async (bookingId) => {
       query['vehicle.type'] = booking.vehicleType;
     }
 
+    if (booking.metroRouteId) {
+      query.assignedRoute = booking.metroRouteId;
+    }
+
     console.log(`[RideMatching] Querying DB with:`, JSON.stringify(query));
     const nearbyDrivers = await Driver.find(query).limit(10); // Check up to 10 closest drivers
 

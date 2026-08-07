@@ -405,7 +405,11 @@ const getMe = async (req, res, next) => {
   try {
     const role = req.user.role;
     let Model = role === 'driver' ? Driver : User;
-    const person = await Model.findById(req.user.id);
+    let query = Model.findById(req.user.id);
+    if (role === 'driver') {
+      query = query.populate('assignedRoute');
+    }
+    const person = await query;
     if (!person) {
       return res.status(404).json({ success: false, message: 'User not found' });
     }

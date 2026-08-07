@@ -21,6 +21,11 @@ const bookingSchema = new mongoose.Schema({
     ref: 'UserPass',
     default: null
   },
+  metroRouteId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Route',
+    default: null
+  },
   scheduledRideId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'ScheduledRide',
