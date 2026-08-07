@@ -220,10 +220,17 @@ const MetroBookingMap = ({ onClose, onBookTicket, userLocation, nearbyDrivers = 
                 const isSelectedDrop = dropJunction?._id === j._id;
                 const isSelected = isSelectedPickup || isSelectedDrop;
                 
+                const lineCoords = r.decodedPolyline?.length > 0 ? r.decodedPolyline : r.junctions.map((j2: any) => ({
+                   latitude: j2.location?.coordinates?.[1] || 0,
+                   longitude: j2.location?.coordinates?.[0] || 0
+                }));
+                const rawCoord = { latitude: j.location?.coordinates?.[1] || 0, longitude: j.location?.coordinates?.[0] || 0 };
+                const snappedCoord = getClosestPointOnLine(rawCoord, lineCoords);
+
                 return (
                   <Marker 
                     key={j._id} 
-                    coordinate={{ latitude: j.location?.coordinates?.[1] || 0, longitude: j.location?.coordinates?.[0] || 0 }}
+                    coordinate={snappedCoord}
                     anchor={{x: 0.5, y: 0.5}}
                     onPress={() => {
                       if (!selectedRoute) {
@@ -393,7 +400,6 @@ const MetroBookingMap = ({ onClose, onBookTicket, userLocation, nearbyDrivers = 
                      <Text style={{ fontSize: 16, fontWeight: 'bold', color: colors.textPrimary }}>{type}</Text>
                      <Text style={{ fontSize: 13, color: colors.textSecondary }}>Nearest in 2 mins</Text>
                    </View>
-                   <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#10B981' }}>Free</Text>
                  </TouchableOpacity>
                ))}
              </View>
