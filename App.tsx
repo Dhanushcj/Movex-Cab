@@ -1232,7 +1232,7 @@ function HomeScreen({ onRideBooked, onNavigateProfile, onNavigateLanguage, activ
 
   const formatInitials = (name: string) => (name || 'R').split(' ').map(p => p[0]).join('').toUpperCase().substring(0, 2);
   const formatTripDate = (dateStr: string) => new Date(dateStr).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
-  const getVehicleEmoji = (type: string) => ({ bike: 'â‰¡Æ’Ã…Ã¬âˆ©â••Ã…', auto: 'â‰¡Æ’Â¢â•‘', mini: 'â‰¡Æ’ÃœÃ¹', sedan: 'â‰¡Æ’ÃœÃ¿', suv: 'â‰¡Æ’ÃœÃ–' }[type] || 'â‰¡Æ’ÃœÃ¹');
+  const getVehicleEmoji = (type: string) => ({ bike: '🏍️', auto: '🛺', mini: '🚗', sedan: '🚘', suv: '🚙' }[type] || '🚗');
 
   const handleTabPress = (tab: TabName) => {
     setActiveTab(tab);

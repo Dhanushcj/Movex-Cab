@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Platform, ActivityIndicator, Image } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE, Polyline } from 'react-native-maps';
 import { Feather } from '@expo/vector-icons';
+import * as Location from 'expo-location';
 import { useTheme } from '../context/ThemeContext';
 import API from '../services/api';
 
@@ -183,7 +184,7 @@ const MetroBookingMap = ({ onClose, onBookTicket, userLocation, nearbyDrivers = 
                   lineJoin="round"
                   zIndex={5}
                   tappable={true}
-                  onPress={(e) => {
+                  onPress={async (e) => {
                     if (!selectedRoute) {
                       handleRouteSelect(r);
                       return;
@@ -199,12 +200,29 @@ const MetroBookingMap = ({ onClose, onBookTicket, userLocation, nearbyDrivers = 
                       
                       const snappedCoord = getClosestPointOnLine(coord, lineCoords);
                       
+                      const isPickup = !pickupJunction || (pickupJunction && dropJunction);
+                      const defaultName = isPickup ? 'Custom Pickup' : 'Custom Drop-off';
+                      let locationName = defaultName;
+                      
+                      try {
+                        const result = await Location.reverseGeocodeAsync({ 
+                          latitude: snappedCoord.latitude, 
+                          longitude: snappedCoord.longitude 
+                        });
+                        if (result && result.length > 0) {
+                          const a = result[0];
+                          locationName = a.name || a.street || a.district || a.city || defaultName;
+                        }
+                      } catch (err) {
+                        console.log('Reverse geocode failed', err);
+                      }
+                      
                       const customJunction = {
                         _id: `temp-${Date.now()}`,
-                        name: !pickupJunction ? 'Custom Pickup' : 'Custom Drop-off',
+                        name: locationName,
                         location: { coordinates: [snappedCoord.longitude, snappedCoord.latitude] }
                       };
-                      if (!pickupJunction || (pickupJunction && dropJunction)) {
+                      if (isPickup) {
                         setPickupJunction(customJunction);
                         setDropJunction(null);
                       } else {
