@@ -3864,7 +3864,7 @@ function DriverActiveRideScreen({ ride, onClose }: { ride: any; onClose: () => v
         )}
 
         {/* Route polyline Î“Ã‡Ã¶ remaining portion highlighted */}
-        {rideStatus !== 'accepted' && polylinePoints.length > 0 && (
+        {polylinePoints.length > 0 && (
           <Polyline
             coordinates={polylinePoints}
             strokeColor={rideStatus === 'in_progress' ? '#001456' : colors.accent}
