@@ -351,18 +351,14 @@ const customerReached = async (req, res, next) => {
  * PUT /api/bookings/:id/start
  */
 const startTrip = async (req, res, next) => {
-  const { qrData } = req.body;
+  const { otp } = req.body;
   try {
     const booking = await Booking.findById(req.params.id);
     if (!booking) return res.status(404).json({ success: false, message: 'Booking not found' });
 
-    // Verify QR data - accept if scanned data matches or contains the booking ID
-    if (qrData !== undefined && qrData !== null) {
-      const safeQrData = String(qrData).trim();
-      const expectedId = String(booking._id).trim();
-      console.log('[QR Verify] Expected: ' + expectedId + ', Scanned: ' + safeQrData);
-      if (safeQrData !== expectedId && !safeQrData.includes(expectedId)) {
-        return res.status(400).json({ success: false, message: 'Invalid Pass QR Code - does not match booking' });
+    if (otp !== undefined && otp !== null) {
+      if (String(booking.rideOTP) !== String(otp)) {
+        return res.status(400).json({ success: false, message: 'Invalid OTP verification code' });
       }
     }
 
