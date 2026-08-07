@@ -3696,7 +3696,7 @@ function DriverActiveRideScreen({ ride, onClose }: { ride: any; onClose: () => v
         return true;
       }
     } catch (e: any) {
-      Alert.alert('Error', 'Invalid QR pass code');
+      Alert.alert('Error', e.response?.data?.message || 'Invalid QR pass code');
     } finally { setLoading(false); }
     return false;
   };
