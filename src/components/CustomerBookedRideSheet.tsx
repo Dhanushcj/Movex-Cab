@@ -325,7 +325,7 @@ export default function CustomerBookedRideSheet({
         </View>
       </View>
 
-      </View>
+
 
       {/* Slide to reach pickup (or Verify Pass if already reached) */}
       <View style={{ marginTop: 16 }}>
