@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { Plus, MapPin, Navigation, Trash2, Edit, X, ArrowUp, ArrowDown } from 'lucide-react';
 import API from '../services/api';
 import { MapContainer, TileLayer, Marker, Polyline, Popup, useMapEvents } from 'react-leaflet';
-import { useLoadScript, Autocomplete } from '@react-google-maps/api';
+import { useLoadScript } from '@react-google-maps/api';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
@@ -12,20 +12,20 @@ const libraries = ['places'];
 // Fix for default marker icons in Leaflet with React
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
-  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+  iconRetinaUrl: '/images/marker-icon-2x.png',
+  iconUrl: '/images/marker-icon.png',
+  shadowUrl: '/images/marker-shadow.png',
 });
 
 // Custom Icons
 const defaultIcon = new L.Icon({
-  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-grey.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+  iconUrl: '/images/marker-icon-2x-grey.png',
+  shadowUrl: '/images/marker-shadow.png',
   iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41]
 });
 const selectedIcon = new L.Icon({
-  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+  iconUrl: '/images/marker-icon-2x-red.png',
+  shadowUrl: '/images/marker-shadow.png',
   iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41]
 });
 
@@ -77,7 +77,10 @@ const RouteManager = () => {
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '',
     libraries,
   });
-  const [autocomplete, setAutocomplete] = useState(null);
+
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -145,18 +148,40 @@ const RouteManager = () => {
     fetchRoute();
   }, [newRoute.sequence, junctions]);
 
-  const onLoad = (autoC) => setAutocomplete(autoC);
+  const handleSearchChange = (e) => {
+    const val = e.target.value;
+    setSearchQuery(val);
+    if (!val.trim()) {
+      setSearchResults([]);
+      return;
+    }
+    
+    if (isLoaded && window.google) {
+      const service = new window.google.maps.places.AutocompleteService();
+      service.getPlacePredictions({ input: val }, (predictions, status) => {
+        if (status === window.google.maps.places.PlacesServiceStatus.OK && predictions) {
+          setSearchResults(predictions);
+        } else {
+          setSearchResults([]);
+        }
+      });
+    }
+  };
 
-  const onPlaceChanged = () => {
-    if (autocomplete !== null) {
-      const place = autocomplete.getPlace();
-      if (place.geometry && place.geometry.location) {
+  const handleSelectPlace = (placeId, description) => {
+    if (!window.google) return;
+    const mapDiv = document.createElement('div');
+    const service = new window.google.maps.places.PlacesService(mapDiv);
+    service.getDetails({ placeId, fields: ['name', 'geometry'] }, (place, status) => {
+      if (status === window.google.maps.places.PlacesServiceStatus.OK && place.geometry && place.geometry.location) {
         const lat = place.geometry.location.lat();
         const lng = place.geometry.location.lng();
         setMapCenter([lat, lng]);
-        setTempJunction({ lat, lng, name: place.name || place.formatted_address.split(',')[0] });
+        setTempJunction({ lat, lng, name: place.name || description.split(',')[0] });
+        setSearchResults([]);
+        setSearchQuery('');
       }
-    }
+    });
   };
 
   const handleJunctionClick = (juncId) => {
@@ -244,6 +269,23 @@ const RouteManager = () => {
       setTempJunction(null);
     } catch (err) {
       alert('Failed to create junction');
+    }
+  };
+
+  const handleUpdateJunction = async (juncId, lat, lng) => {
+    try {
+      await API.put(`/route-manager/junctions/${juncId}`, {
+        coordinates: [lng, lat]
+      });
+      // Update local state
+      setJunctions(prev => prev.map(j => 
+        j._id === juncId 
+          ? { ...j, location: { ...j.location, coordinates: [lng, lat] } } 
+          : j
+      ));
+    } catch (err) {
+      console.error('Failed to update junction', err);
+      alert('Failed to update junction location');
     }
   };
 
@@ -441,16 +483,29 @@ const RouteManager = () => {
                 {/* Global Location Search Bar */}
                 <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[1000] w-3/4 max-w-md">
                   {isLoaded ? (
-                    <Autocomplete
-                      onLoad={onLoad}
-                      onPlaceChanged={onPlaceChanged}
-                    >
+                    <div className="relative">
                       <input 
                         type="text" 
+                        value={searchQuery}
+                        onChange={handleSearchChange}
                         className="w-full px-5 py-4 shadow-2xl rounded-xl border border-gray-200/50 bg-white/90 backdrop-blur outline-none text-sm font-semibold placeholder-gray-500"
                         placeholder="Search for a location via Google Maps..."
                       />
-                    </Autocomplete>
+                      {searchResults.length > 0 && (
+                        <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden max-h-60 overflow-y-auto z-[1001]">
+                          {searchResults.map((res) => (
+                            <div 
+                              key={res.place_id} 
+                              className="px-5 py-4 hover:bg-blue-50 cursor-pointer border-b border-gray-100 last:border-0 text-sm text-gray-800 transition-colors"
+                              onClick={() => handleSelectPlace(res.place_id, res.description)}
+                            >
+                              <div className="font-bold text-blue-900">{res.structured_formatting?.main_text || res.description}</div>
+                              <div className="text-xs text-gray-500 mt-1 truncate">{res.structured_formatting?.secondary_text || ''}</div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   ) : (
                     <div className="w-full px-5 py-4 shadow-2xl rounded-xl border border-gray-200/50 bg-white/90 backdrop-blur outline-none text-sm font-semibold placeholder-gray-500 text-center text-gray-500">
                       Loading Google Maps...
@@ -513,11 +568,17 @@ const RouteManager = () => {
                         key={junc._id}
                         position={[junc.location.coordinates[1], junc.location.coordinates[0]]}
                         icon={isSelected ? selectedIcon : defaultIcon}
+                        draggable={true}
                         eventHandlers={{
                           click: () => {
                             if (isSelected) removeJunctionFromSequence(junc._id);
                             else handleJunctionClick(junc._id);
                           },
+                          dragend: (e) => {
+                            const marker = e.target;
+                            const position = marker.getLatLng();
+                            handleUpdateJunction(junc._id, position.lat, position.lng);
+                          }
                         }}
                       >
                         <Popup>

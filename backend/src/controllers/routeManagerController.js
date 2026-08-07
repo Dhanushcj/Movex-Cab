@@ -34,6 +34,31 @@ exports.getJunctions = async (req, res, next) => {
   }
 };
 
+// @desc    Update a junction
+// @route   PUT /api/route-manager/junctions/:id
+// @access  Admin
+exports.updateJunction = async (req, res, next) => {
+  try {
+    const { coordinates } = req.body;
+    
+    const junction = await Junction.findByIdAndUpdate(
+      req.params.id,
+      {
+        'location.coordinates': coordinates
+      },
+      { new: true, runValidators: true }
+    );
+
+    if (!junction) {
+      return res.status(404).json({ success: false, error: 'Junction not found' });
+    }
+
+    res.status(200).json({ success: true, data: junction });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // @desc    Create a new route
 // @route   POST /api/route-manager/routes
 // @access  Admin
