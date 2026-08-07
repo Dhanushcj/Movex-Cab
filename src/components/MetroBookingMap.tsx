@@ -147,6 +147,26 @@ const MetroBookingMap = ({ onClose, onBookTicket, userLocation, nearbyDrivers = 
                   lineCap="round"
                   lineJoin="round"
                   zIndex={5}
+                  tappable={true}
+                  onPress={(e) => {
+                    if (!selectedRoute) {
+                      handleRouteSelect(r);
+                      return;
+                    }
+                    if (selectedRoute._id === r._id) {
+                      const coord = e.nativeEvent.coordinate;
+                      const customJunction = {
+                        _id: `temp-${Date.now()}`,
+                        name: !pickupJunction ? 'Custom Pickup' : 'Custom Drop-off',
+                        location: { coordinates: [coord.longitude, coord.latitude] }
+                      };
+                      if (!pickupJunction) {
+                        setPickupJunction(customJunction);
+                      } else if (!dropJunction) {
+                        setDropJunction(customJunction);
+                      }
+                    }
+                  }}
                 />
               )}
               
@@ -188,6 +208,36 @@ const MetroBookingMap = ({ onClose, onBookTicket, userLocation, nearbyDrivers = 
                     }}>
                        {isSelectedPickup && <View style={{width: 8, height: 8, borderRadius: 4, backgroundColor: '#FFF'}}/>}
                        {isSelectedDrop && <View style={{width: 8, height: 8, borderRadius: 4, backgroundColor: '#FFF'}}/>}
+                    </View>
+                  </Marker>
+                );
+              })}
+
+              {/* Render custom pickup/dropoff points if they were tapped on the polyline */}
+              {[pickupJunction, dropJunction].map((j, idx) => {
+                if (!j || !j._id.startsWith('temp-')) return null;
+                const isPickup = idx === 0;
+                return (
+                  <Marker 
+                    key={j._id} 
+                    coordinate={{ latitude: j.location?.coordinates?.[1] || 0, longitude: j.location?.coordinates?.[0] || 0 }}
+                    onPress={() => {
+                      if (isPickup) {
+                        setPickupJunction(null);
+                        setDropJunction(null);
+                      } else {
+                        setDropJunction(null);
+                      }
+                    }}
+                    style={{ zIndex: 12 }}
+                  >
+                    <View style={{ 
+                      width: 22, height: 22, borderRadius: 11, 
+                      backgroundColor: isPickup ? '#10B981' : '#EF4444', 
+                      shadowColor: '#000', shadowOffset: {width:0,height:1}, shadowOpacity:0.3, shadowRadius:2, elevation:3,
+                      alignItems: 'center', justifyContent: 'center'
+                    }}>
+                       <View style={{width: 8, height: 8, borderRadius: 4, backgroundColor: '#FFF'}}/>
                     </View>
                   </Marker>
                 );
