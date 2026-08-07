@@ -72,6 +72,9 @@ const RouteManager = () => {
   const [tempJunction, setTempJunction] = useState(null); // { lat, lng, name }
   const [editingRouteId, setEditingRouteId] = useState(null);
 
+  const [suggestedStops, setSuggestedStops] = useState([]);
+  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
+
   const [roadPolyline, setRoadPolyline] = useState(null);
 
   const { isLoaded } = useLoadScript({
@@ -157,6 +160,71 @@ const RouteManager = () => {
     
     fetchRoute();
   }, [newRoute.sequence, junctions]);
+
+  // Fetch suggested stops when roadPolyline changes
+  useEffect(() => {
+    if (!roadPolyline || roadPolyline.length < 2) {
+      setSuggestedStops([]);
+      return;
+    }
+
+    const fetchSuggestions = async () => {
+      setIsLoadingSuggestions(true);
+      try {
+        // Sample points along the polyline (max 10 points to avoid massive queries)
+        const sampleSize = Math.max(1, Math.floor(roadPolyline.length / 10));
+        const sampledPoints = roadPolyline.filter((_, i) => i % sampleSize === 0);
+        
+        // Ensure first and last points are included
+        if (sampledPoints[sampledPoints.length - 1] !== roadPolyline[roadPolyline.length - 1]) {
+          sampledPoints.push(roadPolyline[roadPolyline.length - 1]);
+        }
+
+        const pointCoordsStr = sampledPoints.map(p => `${p[0]},${p[1]}`).join(',');
+        
+        // Query Overpass API for towns/villages/suburbs within 3000m of these points
+        const query = `[out:json];node(around:3000,${pointCoordsStr})["place"~"town|village|city|suburb"];out;`;
+        
+        const res = await fetch('https://overpass-api.de/api/interpreter', {
+          method: 'POST',
+          body: query
+        });
+        
+        const data = await res.json();
+        
+        if (data && data.elements) {
+          const stops = data.elements
+            .filter(e => e.tags && e.tags.name)
+            .map(e => ({
+              id: e.id,
+              name: e.tags.name,
+              lat: e.lat,
+              lng: e.lon,
+              type: e.tags.place
+            }));
+            
+          // Filter out stops that are already in the sequence (by name)
+          const existingNames = junctions.filter(j => newRoute.sequence.includes(j._id)).map(j => j.name.toLowerCase());
+          const uniqueStops = stops.filter(s => !existingNames.includes(s.name.toLowerCase()));
+          
+          // Deduplicate by name
+          const uniqueByName = Array.from(new Map(uniqueStops.map(item => [item.name, item])).values());
+          
+          setSuggestedStops(uniqueByName);
+        }
+      } catch (err) {
+        console.error("Failed to fetch suggested stops", err);
+      } finally {
+        setIsLoadingSuggestions(false);
+      }
+    };
+    
+    const timeoutId = setTimeout(() => {
+      fetchSuggestions();
+    }, 1000); // 1s debounce
+    
+    return () => clearTimeout(timeoutId);
+  }, [roadPolyline, newRoute.sequence, junctions]);
 
   const handleSearchChange = (e) => {
     const val = e.target.value;
@@ -306,6 +374,22 @@ const RouteManager = () => {
     } catch (err) {
       console.error('Failed to update junction', err);
       alert('Failed to update junction location');
+    }
+  };
+
+  const handleAddSuggestedStop = async (stop) => {
+    try {
+      const res = await API.post('/route-manager/junctions', {
+        name: stop.name,
+        coordinates: [stop.lng, stop.lat],
+        description: `Auto-fetched ${stop.type}`
+      });
+      const newJunc = res.data.data;
+      setJunctions(prev => [...prev, newJunc]);
+      setNewRoute(prev => ({ ...prev, sequence: [...prev.sequence, newJunc._id] }));
+      setSuggestedStops(prev => prev.filter(s => s.id !== stop.id));
+    } catch (err) {
+      alert('Failed to add suggested stop');
     }
   };
 
@@ -494,6 +578,30 @@ const RouteManager = () => {
                     })}
                   </div>
                 </div>
+
+                {/* Suggested Stops */}
+                {newRoute.sequence.length >= 2 && (
+                  <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 flex items-center justify-between">
+                      Suggested Stops Along Route
+                      {isLoadingSuggestions && <span className="text-blue-500 text-[10px] animate-pulse">Scanning route...</span>}
+                    </label>
+                    <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                      {!isLoadingSuggestions && suggestedStops.length === 0 && (
+                        <div className="text-xs text-gray-400 italic">No suggestions found.</div>
+                      )}
+                      {suggestedStops.map(stop => (
+                        <button 
+                          key={stop.id}
+                          onClick={() => handleAddSuggestedStop(stop)}
+                          className="shrink-0 flex items-center gap-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-3 py-1.5 rounded-full text-xs font-bold border border-indigo-200 transition-colors"
+                        >
+                          <Plus size={12} /> {stop.name}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
                   <button className="bg-blue-600 hover:bg-blue-700 text-white w-full py-3 rounded-xl font-bold transition-colors shadow-lg shadow-blue-600/20" onClick={handleCreateRoute}>
