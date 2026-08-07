@@ -78,44 +78,8 @@ export default function CustomerInRideOptions({
 
       <View style={styles.divider} />
 
-      {/* Payment Selection */}
-      <Text style={styles.sectionTitle}>Payment Mode</Text>
-      <View style={styles.paymentModesRow}>
-        <TouchableOpacity
-          style={[styles.payOption, paymentMethod === 'cash' && styles.payOptionActive]}
-          onPress={() => handleUpdate('cash', tip)}
-          disabled={loading}
-        >
-          <Feather name="dollar-sign" size={18} color={paymentMethod === 'cash' ? '#0053B3' : Colors.textSecondary} />
-          <Text style={[styles.payOptionText, paymentMethod === 'cash' && styles.payOptionTextActive]}>Cash</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity
-          style={[styles.payOption, paymentMethod === 'qr' && styles.payOptionActive]}
-          onPress={() => handleUpdate('qr', tip)}
-          disabled={loading}
-        >
-          <MaterialCommunityIcons name="qrcode-scan" size={18} color={paymentMethod === 'qr' ? '#0053B3' : Colors.textSecondary} />
-          <Text style={[styles.payOptionText, paymentMethod === 'qr' && styles.payOptionTextActive]}>QR / Online</Text>
-        </TouchableOpacity>
-      </View>
+      {/* Payment Selection & Tip removed per request */}
 
-      {/* Tip Selection */}
-      <View style={styles.tipSectionHeader}>
-        <Text style={styles.sectionTitle}>Add a Tip (100% goes to driver)</Text>
-        {loading && <ActivityIndicator size="small" color="#0053B3" />}
-      </View>
-      
-      <View style={styles.tipsRow}>
-        {[10, 20, 50, 100].map(renderTipOption)}
-        <TouchableOpacity
-          style={[styles.tipButton, tip === 0 && styles.tipButtonActive]}
-          onPress={() => handleUpdate(paymentMethod, 0)}
-          disabled={loading}
-        >
-          <Text style={[styles.tipText, tip === 0 && styles.tipTextActive]}>No Tip</Text>
-        </TouchableOpacity>
-      </View>
     </View>
   );
 }

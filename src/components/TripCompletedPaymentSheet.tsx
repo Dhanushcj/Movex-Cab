@@ -125,9 +125,8 @@ export default function TripCompletedPaymentSheet({
             )}
 
             <Text style={styles.collectedTitle}>
-              {ride.status === 'payment_pending' ? 'Waiting for Payment...' : 'Payment Collected'}
+              Trip Completed
             </Text>
-            <Text style={styles.collectedAmount}>₹{totalCollected}</Text>
           </View>
 
           {/* ── Divider ── */}
@@ -153,36 +152,7 @@ export default function TripCompletedPaymentSheet({
             </View>
           </View>
 
-          {/* ── If QR Payment: Show QR Code ── */}
-          {isQR && (
-            <View style={styles.qrSection}>
-              <Text style={styles.qrSectionTitle}>Customer QR Payment</Text>
-              <Text style={styles.qrSubtitle}>Customer scans to pay via Platform</Text>
-              <View style={styles.qrContainer}>
-                <QRCode
-                  value={qrValue}
-                  size={160}
-                  backgroundColor={Colors.bgSecondary}
-                  color={Colors.textPrimary}
-                />
-              </View>
-              <View style={styles.paymentLogosRow}>
-                <View style={styles.paymentLogo}>
-                  <MaterialCommunityIcons name="google" size={20} color="#4285F4" />
-                  <Text style={styles.paymentLogoSmall}>Pay</Text>
-                </View>
-                <View style={styles.paymentLogo}>
-                  <Text style={styles.paymentLogoPaytm}>Paytm</Text>
-                </View>
-                <View style={styles.paymentLogo}>
-                  <MaterialCommunityIcons name="alpha-p-circle" size={22} color="#5F259F" />
-                </View>
-                <View style={styles.paymentLogo}>
-                  <Text style={styles.paymentLogoCred}>CRED</Text>
-                </View>
-              </View>
-            </View>
-          )}
+          {/* QR payment removed */}
 
           {/* ── Action ── */}
           <View style={{ marginTop: 24, marginBottom: 40 }}>

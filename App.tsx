@@ -2950,8 +2950,15 @@ function DriverHomeScreen({ onRideAccepted, onNavigateProfile, onNavigateHistory
                   longitudeDelta: 0.03
                 }}
               >
-</MapView>
-              
+                {user?.assignedRoute?.polyline && (
+                  <Polyline 
+                    coordinates={decodePolyline(user.assignedRoute.polyline)}
+                    strokeColor="#10B981"
+                    strokeWidth={6}
+                    lineCap="round"
+                  />
+                )}
+              </MapView>
               {/* Radar Effect Overlay removed */}
             </View>
           )}
