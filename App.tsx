@@ -1471,9 +1471,9 @@ function HomeScreen({ onRideBooked, onNavigateProfile, onNavigateLanguage, activ
                  setBookingRide(true);
                  try {
                    const payload = {
-                     pickup: { address: details.pickupJunction.name, coordinates: details.pickupJunction.coordinates },
-                     drop: { address: details.dropoffJunction.name, coordinates: details.dropoffJunction.coordinates },
-                     vehicleType: 'any',
+                     pickup: { address: details.pickupJunction.name, coordinates: details.pickupJunction.location.coordinates },
+                     drop: { address: details.dropoffJunction.name, coordinates: details.dropoffJunction.location.coordinates },
+                     vehicleType: details.vehicleType || 'any',
                      paymentMethod: 'cash',
                      route: details.route._id
                    };
