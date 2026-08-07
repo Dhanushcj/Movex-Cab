@@ -223,6 +223,7 @@ const MetroBookingMap = ({ onClose, onBookTicket, userLocation, nearbyDrivers = 
                   <Marker 
                     key={j._id} 
                     coordinate={{ latitude: j.location?.coordinates?.[1] || 0, longitude: j.location?.coordinates?.[0] || 0 }}
+                    anchor={{x: 0.5, y: 0.5}}
                     onPress={() => {
                       if (!selectedRoute) {
                         handleRouteSelect(r);
@@ -265,6 +266,7 @@ const MetroBookingMap = ({ onClose, onBookTicket, userLocation, nearbyDrivers = 
                   <Marker 
                     key={j._id} 
                     coordinate={{ latitude: j.location?.coordinates?.[1] || 0, longitude: j.location?.coordinates?.[0] || 0 }}
+                    anchor={{x: 0.5, y: 0.5}}
                     onPress={() => {
                       if (isPickup) {
                         setPickupJunction(null);
@@ -290,21 +292,26 @@ const MetroBookingMap = ({ onClose, onBookTicket, userLocation, nearbyDrivers = 
           );
         })}
 
-        {(nearbyDrivers || []).map((d: any, i: number) => (
-          <Marker key={`driver-${d._id || i}`} coordinate={{ latitude: d.currentLocation?.coordinates?.[1] || 0, longitude: d.currentLocation?.coordinates?.[0] || 0 }} tracksViewChanges={false}>
-             <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#FFF', padding: 4, shadowColor: '#000', shadowOpacity: 0.2, shadowRadius: 3, elevation: 4 }}>
-                <Image 
-                  source={(function(type) {
-                    const t = (type||'').toLowerCase();
-                    if (t === 'bike') return require('../../assets/bike_realistic.jpg');
-                    if (t === 'auto') return require('../../assets/auto_realistic.jpg');
-                    return require('../../assets/mini_realistic.jpg');
-                  })(d.vehicle?.type)} 
-                  style={{ width: 28, height: 28, resizeMode: 'contain' }} 
-                />
-             </View>
-          </Marker>
-        ))}
+        {(nearbyDrivers || []).map((d: any, i: number) => {
+          const lat = d.currentLocation?.coordinates?.[1] || d.location?.lat || d.latitude || 0;
+          const lng = d.currentLocation?.coordinates?.[0] || d.location?.lng || d.longitude || 0;
+          if (lat === 0 && lng === 0) return null;
+          return (
+            <Marker key={`driver-${d._id || i}`} coordinate={{ latitude: lat, longitude: lng }} anchor={{x: 0.5, y: 0.5}} zIndex={100} tracksViewChanges={false}>
+               <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#FFF', padding: 4, shadowColor: '#000', shadowOpacity: 0.2, shadowRadius: 3, elevation: 4 }}>
+                  <Image 
+                    source={(function(type) {
+                      const t = (type||'').toLowerCase();
+                      if (t === 'bike') return require('../../assets/bike_realistic.jpg');
+                      if (t === 'auto') return require('../../assets/auto_realistic.jpg');
+                      return require('../../assets/mini_realistic.jpg');
+                    })(d.vehicle?.type)} 
+                    style={{ width: 28, height: 28, resizeMode: 'contain' }} 
+                  />
+               </View>
+            </Marker>
+          );
+        })}
         {(userLocation && isBooked && pickupJunction) && (
           <Polyline
             coordinates={[
@@ -335,7 +342,7 @@ const MetroBookingMap = ({ onClose, onBookTicket, userLocation, nearbyDrivers = 
         position: 'absolute', bottom: 0, left: 0, right: 0,
         backgroundColor: colors.bgPrimary, 
         borderTopLeftRadius: 32, borderTopRightRadius: 32,
-        padding: 24, paddingBottom: Platform.OS === 'ios' ? 40 : 24,
+        padding: 24, paddingBottom: Platform.OS === 'ios' ? 100 : 80,
         shadowColor: '#000', shadowOffset: { width: 0, height: -4 }, shadowOpacity: 0.1, shadowRadius: 15, elevation: 15
       }}>
         {loading ? (
