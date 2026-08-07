@@ -532,71 +532,87 @@ const RouteManager = () => {
                   <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider block mb-4">Route Stops</label>
                   
                   {/* Sequence List */}
-                  <div className="space-y-4 max-h-96 overflow-y-auto pr-2 pb-4 flex-1">
+                  <div className="relative space-y-3 max-h-96 overflow-y-auto pr-2 pb-4 flex-1 mt-2">
+                    {/* Timeline vertical line */}
+                    <div className="absolute left-4 top-6 bottom-14 w-0.5 bg-gray-300 dark:bg-gray-600 z-0"></div>
+
                     {newRoute.sequence.map((stop, index) => {
                       const isStart = index === 0;
                       const isEnd = index === newRoute.sequence.length - 1 && newRoute.sequence.length > 1;
                       
                       return (
-                        <div key={stop.id} className="relative group">
-                          <div className={`flex items-start gap-3 p-3 rounded-xl border transition-all ${activeInputId === stop.id ? 'ring-2 ring-blue-500 border-blue-500' : 'border-gray-200 dark:border-gray-700'} ${isStart ? 'bg-blue-50/50 dark:bg-blue-900/20' : isEnd ? 'bg-emerald-50/50 dark:bg-emerald-900/20' : 'bg-white dark:bg-gray-900'}`}>
+                        <div key={stop.id} className="relative group flex items-center gap-3 z-10">
+                          
+                          {/* Timeline Icon */}
+                          <div className="w-8 flex justify-center shrink-0">
+                            {isStart ? (
+                              <div className="w-4 h-4 rounded-full border-4 border-blue-500 bg-white dark:bg-gray-900 z-10 shadow-sm"></div>
+                            ) : isEnd ? (
+                              <MapPin size={20} className="text-red-500 fill-red-500 z-10 drop-shadow-md" />
+                            ) : (
+                              <div className="w-3 h-3 rounded-full bg-gray-400 dark:bg-gray-500 z-10 shadow-sm"></div>
+                            )}
+                          </div>
+                          
+                          {/* Input Container */}
+                          <div className={`flex-1 flex items-center min-w-0 bg-gray-100 dark:bg-gray-800 rounded-lg border transition-all ${activeInputId === stop.id ? 'border-blue-500 shadow-md ring-1 ring-blue-500/50' : 'border-transparent hover:border-gray-300 dark:hover:border-gray-600'}`}>
                             
-                            {/* Reordering Controls */}
-                            <div className="flex flex-col gap-1 mt-1">
-                              <button disabled={index === 0} onClick={() => moveStop(index, 'up')} className="text-gray-400 hover:text-blue-500 disabled:opacity-30"><ArrowUp size={14} /></button>
-                              <button disabled={index === newRoute.sequence.length - 1} onClick={() => moveStop(index, 'down')} className="text-gray-400 hover:text-blue-500 disabled:opacity-30"><ArrowDown size={14} /></button>
-                            </div>
-                            
-                            <div className="flex-1 min-w-0 relative">
+                            <div className="flex-1 min-w-0 relative px-4 py-2.5">
                               <input 
                                 type="text"
                                 value={stop.name}
                                 onChange={(e) => handleStopSearchChange(stop.id, e.target.value)}
                                 onFocus={() => setActiveInputId(stop.id)}
-                                placeholder={isStart ? "Choose starting point..." : isEnd ? "Choose destination..." : "Add a stop..."}
-                                className="w-full bg-transparent border-none outline-none font-bold text-sm text-gray-900 dark:text-white truncate pb-1"
+                                placeholder={isStart ? "Choose starting point, or click on the map..." : isEnd ? "Choose destination, or click on the map..." : "Add a stop..."}
+                                className="w-full bg-transparent border-none outline-none font-medium text-sm text-gray-900 dark:text-white truncate placeholder-gray-500"
                               />
-                              <p className={`text-[10px] font-bold uppercase tracking-wider ${isStart ? 'text-blue-600' : isEnd ? 'text-emerald-600' : 'text-gray-500'}`}>
-                                {isStart ? 'Start Point' : isEnd ? 'End Destination' : 'Stop'}
-                              </p>
 
                               {/* Search Results Dropdown */}
                               {stop.isSearching && stop.searchResults.length > 0 && (
-                                <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-lg shadow-xl border border-gray-100 overflow-hidden z-50">
+                                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden z-50">
                                   {stop.searchResults.map((res) => (
                                     <div 
                                       key={res.place_id} 
-                                      className="px-4 py-3 hover:bg-blue-50 cursor-pointer border-b border-gray-50 last:border-0 text-xs transition-colors"
+                                      className="px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-50 last:border-0 text-sm transition-colors flex items-center gap-3"
                                       onClick={() => handleSelectStopPlace(stop.id, res.place_id, res.description)}
                                     >
-                                      <div className="font-bold text-blue-900">{res.structured_formatting?.main_text || res.description}</div>
-                                      <div className="text-gray-500 truncate">{res.structured_formatting?.secondary_text || ''}</div>
+                                      <MapPin size={16} className="text-gray-400 shrink-0" />
+                                      <div className="min-w-0">
+                                        <div className="font-semibold text-gray-900 truncate">{res.structured_formatting?.main_text || res.description}</div>
+                                        <div className="text-xs text-gray-500 truncate">{res.structured_formatting?.secondary_text || ''}</div>
+                                      </div>
                                     </div>
                                   ))}
                                 </div>
                               )}
                             </div>
                             
-                            <button onClick={() => removeStop(stop.id)} className="text-gray-400 hover:text-rose-500 p-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                              <X size={16} />
-                            </button>
+                            {/* Actions within Input */}
+                            <div className="flex items-center gap-1 pr-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                              {!isStart && !isEnd && (
+                                <button onClick={() => removeStop(stop.id)} className="text-gray-400 hover:text-red-500 p-1.5 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700">
+                                  <X size={14} />
+                                </button>
+                              )}
+                              <div className="flex flex-col gap-0.5 px-1 border-l border-gray-300 dark:border-gray-600 pl-1">
+                                <button disabled={index === 0} onClick={() => moveStop(index, 'up')} className="text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 disabled:opacity-20"><ArrowUp size={12} /></button>
+                                <button disabled={index === newRoute.sequence.length - 1} onClick={() => moveStop(index, 'down')} className="text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 disabled:opacity-20"><ArrowDown size={12} /></button>
+                              </div>
+                            </div>
                           </div>
                           
-                          {/* Add intermediate stop button */}
-                          {!isEnd && (
-                            <div className="flex justify-center -my-2 relative z-10 opacity-0 group-hover:opacity-100 transition-opacity">
-                              <button onClick={() => addStop(index)} className="bg-white border border-gray-200 text-blue-600 rounded-full p-1 shadow-sm hover:bg-blue-50">
-                                <Plus size={14} />
-                              </button>
-                            </div>
-                          )}
                         </div>
                       )
                     })}
                     
-                    <button onClick={() => addStop(newRoute.sequence.length - 1)} className="w-full py-2 border-2 border-dashed border-gray-300 rounded-xl text-gray-500 text-xs font-bold hover:bg-gray-50 hover:text-blue-600 transition-colors flex justify-center items-center gap-1">
-                      <Plus size={14} /> Add Destination
-                    </button>
+                    <div className="flex items-center gap-3 mt-2">
+                      <div className="w-8 flex justify-center shrink-0">
+                        <Plus size={16} className="text-blue-600" />
+                      </div>
+                      <button onClick={() => addStop(newRoute.sequence.length - 1)} className="text-blue-600 text-sm font-semibold hover:text-blue-800 transition-colors">
+                        Add destination
+                      </button>
+                    </div>
 
                   </div>
                 </div>
