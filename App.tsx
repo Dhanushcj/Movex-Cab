@@ -2332,6 +2332,21 @@ function TrackingScreen({ ride, onClose }: { ride: any; onClose: () => void }) {
 
     const joinTracking = () => {
       socket.emit('tracking:join', { bookingId: ride._id });
+      // Fetch latest state to recover from missed events during disconnects
+      API.get(`/bookings/${ride._id}`).then((res) => {
+        if (res.data.success) {
+          const b = res.data.data;
+          if (b.driver) {
+            setDriverInfo({
+              name: b.driver.name || null,
+              phone: b.driver.phone || null,
+              vehicle: b.driver.vehicle || null
+            });
+          }
+          setRideStatus(b.status);
+          setLocalRide(b);
+        }
+      }).catch(() => {});
     };
 
     joinTracking();
