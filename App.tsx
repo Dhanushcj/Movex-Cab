@@ -2819,7 +2819,7 @@ function DriverHomeScreen({ onRideAccepted, onNavigateProfile, onNavigateHistory
           found = user.assignedRoute;
         }
         if (found) {
-          let decoded = [];
+          let decoded: any[] = [];
           if (found.polyline) {
             try { decoded = decodePolyline(found.polyline); } catch (e) { console.log('Decode error', e); }
           }
