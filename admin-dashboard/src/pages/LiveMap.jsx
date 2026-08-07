@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../services/api';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
@@ -12,15 +12,47 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
 
-// Custom Green Icon for Drivers
-const driverIcon = new L.Icon({
-  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41]
-});
+const getDriverIcon = (vehicleType) => {
+  const type = (vehicleType || '').toLowerCase();
+  let emoji = '🚗';
+  if (type === 'bike') emoji = '🏍️';
+  if (type === 'auto') emoji = '🛺';
+  
+  return L.divIcon({
+    className: 'custom-div-icon',
+    html: `<div style="background-color: white; border-radius: 50%; padding: 5px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.3); font-size: 20px;">${emoji}</div>`,
+    iconSize: [36, 36],
+    iconAnchor: [18, 18],
+    popupAnchor: [0, -18]
+  });
+};
+
+const decodePolyline = (t) => {
+  let points = [];
+  let index = 0, len = t.length;
+  let lat = 0, lng = 0;
+  while (index < len) {
+    let b, shift = 0, result = 0;
+    do {
+      b = t.charCodeAt(index++) - 63;
+      result |= (b & 0x1f) << shift;
+      shift += 5;
+    } while (b >= 0x20);
+    let dlat = ((result & 1) ? ~(result >> 1) : (result >> 1));
+    lat += dlat;
+    shift = 0;
+    result = 0;
+    do {
+      b = t.charCodeAt(index++) - 63;
+      result |= (b & 0x1f) << shift;
+      shift += 5;
+    } while (b >= 0x20);
+    let dlng = ((result & 1) ? ~(result >> 1) : (result >> 1));
+    lng += dlng;
+    points.push([lat / 1E5, lng / 1E5]);
+  }
+  return points;
+};
 
 const center = [28.7041, 77.1025]; // Default center (Delhi)
 
@@ -86,6 +118,14 @@ export default function LiveMap() {
             url="https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}"
             attribution='&copy; Google Maps'
           />
+          {mapData.routes?.map(r => r.polyline && (
+             <Polyline 
+               key={r._id} 
+               positions={decodePolyline(r.polyline)} 
+               color="#0053B3"
+               weight={5}
+             />
+          ))}
           {mapData.onlineDrivers?.map((driver) => (
             driver.location?.coordinates ? (
               <Marker
@@ -94,7 +134,7 @@ export default function LiveMap() {
                   driver.location.coordinates[1], // lat
                   driver.location.coordinates[0]  // lng
                 ]}
-                icon={driverIcon}
+                icon={getDriverIcon(driver.vehicle?.type)}
               >
                 <Popup className="rounded-xl overflow-hidden shadow-lg border-0">
                   <div className="p-1">
