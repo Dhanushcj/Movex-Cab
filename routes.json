@@ -1,0 +1,305 @@
+﻿{
+    "success":  true,
+    "count":  4,
+    "data":  [
+                 {
+                     "_id":  "6a7450ac6191d9766577e7cf",
+                     "name":  "Red Line (Central to Airport)",
+                     "junctions":  [
+                                       {
+                                           "location":  {
+                                                            "type":  "Point",
+                                                            "coordinates":  [
+                                                                                78.6795,
+                                                                                10.805
+                                                                            ]
+                                                        },
+                                           "_id":  "6a7450ac6191d9766577e7c5",
+                                           "name":  "Central Bus Stand",
+                                           "isActive":  true,
+                                           "createdAt":  "2026-08-06T09:15:24.357Z",
+                                           "updatedAt":  "2026-08-06T09:15:24.357Z",
+                                           "__v":  0
+                                       },
+                                       {
+                                           "location":  {
+                                                            "type":  "Point",
+                                                            "coordinates":  [
+                                                                                78.6942,
+                                                                                10.7925
+                                                                            ]
+                                                        },
+                                           "_id":  "6a7450ac6191d9766577e7c7",
+                                           "name":  "TVS Tollgate",
+                                           "isActive":  true,
+                                           "createdAt":  "2026-08-06T09:15:24.441Z",
+                                           "updatedAt":  "2026-08-06T09:15:24.441Z",
+                                           "__v":  0
+                                       },
+                                       {
+                                           "location":  {
+                                                            "type":  "Point",
+                                                            "coordinates":  [
+                                                                                78.71,
+                                                                                10.78
+                                                                            ]
+                                                        },
+                                           "_id":  "6a7450ac6191d9766577e7c9",
+                                           "name":  "Pudukkottai Road Jn",
+                                           "isActive":  true,
+                                           "createdAt":  "2026-08-06T09:15:24.444Z",
+                                           "updatedAt":  "2026-08-06T09:15:24.444Z",
+                                           "__v":  0
+                                       },
+                                       {
+                                           "location":  {
+                                                            "type":  "Point",
+                                                            "coordinates":  [
+                                                                                78.7186,
+                                                                                10.7656
+                                                                            ]
+                                                        },
+                                           "_id":  "6a7450ac6191d9766577e7cb",
+                                           "name":  "Trichy Airport",
+                                           "isActive":  true,
+                                           "createdAt":  "2026-08-06T09:15:24.448Z",
+                                           "updatedAt":  "2026-08-06T09:15:24.448Z",
+                                           "__v":  0
+                                       }
+                                   ],
+                     "polyline":  "gj}`A{af_NbmA{zAbmAwaB~xAwt@",
+                     "isActive":  true,
+                     "createdAt":  "2026-08-06T09:15:24.455Z",
+                     "updatedAt":  "2026-08-06T09:15:24.455Z",
+                     "__v":  0
+                 },
+                 {
+                     "_id":  "6a7450ac6191d9766577e7db",
+                     "name":  "Blue Line (Chatram to NIT)",
+                     "junctions":  [
+                                       {
+                                           "location":  {
+                                                            "type":  "Point",
+                                                            "coordinates":  [
+                                                                                78.6881,
+                                                                                10.8288
+                                                                            ]
+                                                        },
+                                           "_id":  "6a7450ac6191d9766577e7d1",
+                                           "name":  "Chatram Bus Stand",
+                                           "isActive":  true,
+                                           "createdAt":  "2026-08-06T09:15:24.459Z",
+                                           "updatedAt":  "2026-08-06T09:15:24.459Z",
+                                           "__v":  0
+                                       },
+                                       {
+                                           "location":  {
+                                                            "type":  "Point",
+                                                            "coordinates":  [
+                                                                                78.6975,
+                                                                                10.829
+                                                                            ]
+                                                        },
+                                           "_id":  "6a7450ac6191d9766577e7d3",
+                                           "name":  "Main Guard Gate",
+                                           "isActive":  true,
+                                           "createdAt":  "2026-08-06T09:15:24.462Z",
+                                           "updatedAt":  "2026-08-06T09:15:24.462Z",
+                                           "__v":  0
+                                       },
+                                       {
+                                           "location":  {
+                                                            "type":  "Point",
+                                                            "coordinates":  [
+                                                                                78.682,
+                                                                                10.819
+                                                                            ]
+                                                        },
+                                           "_id":  "6a7450ac6191d9766577e7d5",
+                                           "name":  "Thillai Nagar",
+                                           "isActive":  true,
+                                           "createdAt":  "2026-08-06T09:15:24.464Z",
+                                           "updatedAt":  "2026-08-06T09:15:24.464Z",
+                                           "__v":  0
+                                       },
+                                       {
+                                           "location":  {
+                                                            "type":  "Point",
+                                                            "coordinates":  [
+                                                                                78.7613,
+                                                                                10.7681
+                                                                            ]
+                                                        },
+                                           "_id":  "6a7450ac6191d9766577e7d7",
+                                           "name":  "BHEL Training Centre",
+                                           "isActive":  true,
+                                           "createdAt":  "2026-08-06T09:15:24.469Z",
+                                           "updatedAt":  "2026-08-06T09:15:24.469Z",
+                                           "__v":  0
+                                       },
+                                       {
+                                           "location":  {
+                                                            "type":  "Point",
+                                                            "coordinates":  [
+                                                                                78.8132,
+                                                                                10.7615
+                                                                            ]
+                                                        },
+                                           "_id":  "6a7450ac6191d9766577e7d9",
+                                           "name":  "NIT Trichy",
+                                           "isActive":  true,
+                                           "createdAt":  "2026-08-06T09:15:24.472Z",
+                                           "updatedAt":  "2026-08-06T09:15:24.472Z",
+                                           "__v":  0
+                                       }
+                                   ],
+                     "polyline":  "__baAswg_Ng@wy@n}@z_Bb}HsnNfh@kcI",
+                     "isActive":  true,
+                     "createdAt":  "2026-08-06T09:15:24.511Z",
+                     "updatedAt":  "2026-08-06T09:15:24.511Z",
+                     "__v":  0
+                 },
+                 {
+                     "_id":  "6a7450ac6191d9766577e7e5",
+                     "name":  "Green Line (Srirangam to Central)",
+                     "junctions":  [
+                                       {
+                                           "location":  {
+                                                            "type":  "Point",
+                                                            "coordinates":  [
+                                                                                78.6896,
+                                                                                10.8624
+                                                                            ]
+                                                        },
+                                           "_id":  "6a7450ac6191d9766577e7dd",
+                                           "name":  "Srirangam Temple",
+                                           "isActive":  true,
+                                           "createdAt":  "2026-08-06T09:15:24.517Z",
+                                           "updatedAt":  "2026-08-06T09:15:24.517Z",
+                                           "__v":  0
+                                       },
+                                       {
+                                           "location":  {
+                                                            "type":  "Point",
+                                                            "coordinates":  [
+                                                                                78.683,
+                                                                                10.852
+                                                                            ]
+                                                        },
+                                           "_id":  "6a7450ac6191d9766577e7df",
+                                           "name":  "Amma Mandapam",
+                                           "isActive":  true,
+                                           "createdAt":  "2026-08-06T09:15:24.519Z",
+                                           "updatedAt":  "2026-08-06T09:15:24.519Z",
+                                           "__v":  0
+                                       },
+                                       {
+                                           "location":  {
+                                                            "type":  "Point",
+                                                            "coordinates":  [
+                                                                                78.692,
+                                                                                10.84
+                                                                            ]
+                                                        },
+                                           "_id":  "6a7450ac6191d9766577e7e1",
+                                           "name":  "Cauvery Bridge",
+                                           "isActive":  true,
+                                           "createdAt":  "2026-08-06T09:15:24.520Z",
+                                           "updatedAt":  "2026-08-06T09:15:24.520Z",
+                                           "__v":  0
+                                       },
+                                       {
+                                           "location":  {
+                                                            "type":  "Point",
+                                                            "coordinates":  [
+                                                                                78.6795,
+                                                                                10.805
+                                                                            ]
+                                                        },
+                                           "_id":  "6a7450ac6191d9766577e7e3",
+                                           "name":  "Central Bus Stand",
+                                           "isActive":  true,
+                                           "createdAt":  "2026-08-06T09:15:24.523Z",
+                                           "updatedAt":  "2026-08-06T09:15:24.523Z",
+                                           "__v":  0
+                                       }
+                                   ],
+                     "polyline":  "_qhaA_ah_N~_Afh@~iAgw@vyEbmA",
+                     "isActive":  true,
+                     "createdAt":  "2026-08-06T09:15:24.526Z",
+                     "updatedAt":  "2026-08-06T09:15:24.526Z",
+                     "__v":  0
+                 },
+                 {
+                     "_id":  "6a7456af9f1d45b113a35829",
+                     "name":  "Krishnagiri - Bargur",
+                     "junctions":  [
+                                       {
+                                           "location":  {
+                                                            "type":  "Point",
+                                                            "coordinates":  [
+                                                                                78.2195,
+                                                                                12.5273
+                                                                            ]
+                                                        },
+                                           "_id":  "6a7456af9f1d45b113a35820",
+                                           "name":  "Krishnagiri New Bus Stand",
+                                           "isActive":  true,
+                                           "createdAt":  "2026-08-06T09:41:03.280Z",
+                                           "updatedAt":  "2026-08-06T09:41:03.280Z",
+                                           "__v":  0
+                                       },
+                                       {
+                                           "location":  {
+                                                            "type":  "Point",
+                                                            "coordinates":  [
+                                                                                78.2589,
+                                                                                12.5401
+                                                                            ]
+                                                        },
+                                           "_id":  "6a7456af9f1d45b113a35823",
+                                           "name":  "Toll Gate",
+                                           "isActive":  true,
+                                           "createdAt":  "2026-08-06T09:41:03.299Z",
+                                           "updatedAt":  "2026-08-06T09:41:03.299Z",
+                                           "__v":  0
+                                       },
+                                       {
+                                           "location":  {
+                                                            "type":  "Point",
+                                                            "coordinates":  [
+                                                                                78.309,
+                                                                                12.552
+                                                                            ]
+                                                        },
+                                           "_id":  "6a7456af9f1d45b113a35825",
+                                           "name":  "Orappam",
+                                           "isActive":  true,
+                                           "createdAt":  "2026-08-06T09:41:03.326Z",
+                                           "updatedAt":  "2026-08-06T09:41:03.326Z",
+                                           "__v":  0
+                                       },
+                                       {
+                                           "location":  {
+                                                            "type":  "Point",
+                                                            "coordinates":  [
+                                                                                78.361,
+                                                                                12.551
+                                                                            ]
+                                                        },
+                                           "_id":  "6a7456af9f1d45b113a35827",
+                                           "name":  "Bargur Bus Stand",
+                                           "isActive":  true,
+                                           "createdAt":  "2026-08-06T09:41:03.327Z",
+                                           "updatedAt":  "2026-08-06T09:41:03.327Z",
+                                           "__v":  0
+                                       }
+                                   ],
+                     "polyline":  "svmkA{fl|M_oAguFkiAcxHfE_dI",
+                     "isActive":  true,
+                     "createdAt":  "2026-08-06T09:41:03.329Z",
+                     "updatedAt":  "2026-08-06T09:41:03.329Z",
+                     "__v":  0
+                 }
+             ]
+}

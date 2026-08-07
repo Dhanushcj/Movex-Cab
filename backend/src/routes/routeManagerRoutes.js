@@ -5,6 +5,7 @@ const {
   getJunctions,
   createRoute,
   getRoutes,
+  deleteRoute,
   assignDriverToRoute
 } = require('../controllers/routeManagerController');
 const { protect, authorize } = require('../middleware/auth');
@@ -16,6 +17,7 @@ router.get('/routes', getRoutes);
 // Admin only endpoints
 router.post('/junctions', protect, authorize('admin'), createJunction);
 router.post('/routes', protect, authorize('admin'), createRoute);
+router.delete('/routes/:id', protect, authorize('admin'), deleteRoute);
 router.put('/drivers/:id/assign', protect, authorize('admin'), assignDriverToRoute);
 
 module.exports = router;

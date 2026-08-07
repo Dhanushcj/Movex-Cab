@@ -59,6 +59,28 @@ exports.getRoutes = async (req, res, next) => {
   }
 };
 
+// @desc    Delete a route
+// @route   DELETE /api/route-manager/routes/:id
+// @access  Admin
+exports.deleteRoute = async (req, res, next) => {
+  try {
+    const route = await Route.findById(req.params.id);
+    
+    if (!route) {
+      return res.status(404).json({ success: false, error: 'Route not found' });
+    }
+
+    await route.deleteOne();
+
+    res.status(200).json({
+      success: true,
+      data: {}
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // @desc    Assign a driver to a route
 // @route   PUT /api/route-manager/drivers/:id/assign
 // @access  Admin

@@ -28,6 +28,34 @@ const selectedIcon = new L.Icon({
 
 const center = [28.7041, 77.1025]; // Default center (Delhi)
 
+const encodePolyline = (coordinates) => {
+  let result = '';
+  let prevLat = 0;
+  let prevLng = 0;
+
+  coordinates.forEach(([lat, lng]) => {
+    const latE5 = Math.round(lat * 1e5);
+    const lngE5 = Math.round(lng * 1e5);
+    const dLat = latE5 - prevLat;
+    const dLng = lngE5 - prevLng;
+    prevLat = latE5;
+    prevLng = lngE5;
+
+    [dLat, dLng].forEach(val => {
+      let shifted = val << 1;
+      if (val < 0) shifted = ~shifted;
+      let enc = '';
+      while (shifted >= 0x20) {
+        enc += String.fromCharCode((0x20 | (shifted & 0x1f)) + 63);
+        shifted >>= 5;
+      }
+      enc += String.fromCharCode(shifted + 63);
+      result += enc;
+    });
+  });
+
+  return result;
+};
 const RouteManager = () => {
   const [routes, setRoutes] = useState([]);
   const [junctions, setJunctions] = useState([]);
@@ -66,6 +94,17 @@ const RouteManager = () => {
       }
     } catch (err) {
       console.error('Error fetching routing data', err);
+    }
+  };
+
+  const handleDeleteRoute = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this route?')) return;
+    try {
+      await API.delete(`/admin/routes/${id}`);
+      setRoutes(routes.filter(r => r._id !== id));
+    } catch (err) {
+      console.error('Error deleting route:', err);
+      alert('Failed to delete route');
     }
   };
 
@@ -152,10 +191,18 @@ const RouteManager = () => {
     if (!newRoute.name || newRoute.sequence.length < 2) {
       return alert('Please provide a name, and select at least 2 stops for the route.');
     }
+    
+    // Encode the detailed OSRM road route to Google Polyline string for the backend
+    let polylineStr = '';
+    if (roadPolyline && roadPolyline.length > 0) {
+      polylineStr = encodePolyline(roadPolyline);
+    }
+    
     try {
       await API.post('/route-manager/routes', {
         name: newRoute.name,
-        junctions: newRoute.sequence
+        junctions: newRoute.sequence,
+        polyline: polylineStr
       });
       alert('Route created!');
       setOpenRouteDialog(false);
@@ -253,7 +300,7 @@ const RouteManager = () => {
                       <span className="text-xs font-semibold px-2 py-0.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded">Active</span>
                     </td>
                     <td className="px-4 py-3 text-right">
-                      <button className="text-[var(--text-muted)] hover:text-rose-500"><Trash2 size={16} /></button>
+                      <button onClick={() => handleDeleteRoute(route._id)} className="text-[var(--text-muted)] hover:text-rose-500"><Trash2 size={16} /></button>
                     </td>
                   </tr>
                 ))}
