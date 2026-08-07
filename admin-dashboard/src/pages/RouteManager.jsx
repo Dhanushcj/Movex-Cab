@@ -225,7 +225,8 @@ const RouteManager = () => {
       setNewRoute({ name: '', sequence: [] });
       fetchData();
     } catch (err) {
-      alert('Failed to create route');
+      console.error('Error creating route:', err);
+      alert(err.response?.data?.message || err.response?.data?.error || 'Failed to create route');
     }
   };
 
