@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import os
+
+content = """import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { Plus, MapPin, Navigation, Trash2, Edit, X, ArrowUp, ArrowDown } from 'lucide-react';
 import API from '../services/api';
@@ -708,3 +710,7 @@ const RouteManager = () => {
 };
 
 export default RouteManager;
+"""
+
+with open('src/pages/RouteManager.jsx', 'w', encoding='utf-8') as f:
+    f.write(content)
