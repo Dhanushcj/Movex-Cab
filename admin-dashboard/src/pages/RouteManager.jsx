@@ -229,19 +229,40 @@ const RouteManager = () => {
       })
     }));
 
-    if (!val.trim() || !window.google) return;
+    if (!val.trim()) return;
+    
+    if (!window.google) {
+      console.warn("Google Maps API not loaded yet");
+      return;
+    }
+
     const service = new window.google.maps.places.AutocompleteService();
-    service.getPlacePredictions({ input: val }, (predictions, status) => {
+    service.getPlacePredictions({ input: val, componentRestrictions: { country: "in" } }, (predictions, status) => {
       if (status === window.google.maps.places.PlacesServiceStatus.OK && predictions) {
         setNewRoute(prev => ({
           ...prev,
           sequence: prev.sequence.map(s => s.id === id ? { ...s, searchResults: predictions } : s)
+        }));
+      } else {
+        console.error("Places API error or no results:", status);
+        // Provide a dummy result so the user sees the error
+        setNewRoute(prev => ({
+          ...prev,
+          sequence: prev.sequence.map(s => s.id === id ? { 
+            ...s, 
+            searchResults: [{ 
+              place_id: 'error', 
+              description: status === 'REQUEST_DENIED' ? 'API Key Error. Check console.' : 'No results found',
+              structured_formatting: { main_text: 'No locations found', secondary_text: status }
+            }] 
+          } : s)
         }));
       }
     });
   };
 
   const handleSelectStopPlace = (id, placeId, description) => {
+    if (placeId === 'error') return;
     if (!window.google) return;
     const mapDiv = document.createElement('div');
     const service = new window.google.maps.places.PlacesService(mapDiv);
