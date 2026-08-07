@@ -49,6 +49,35 @@ const decodePolyline = (t: string) => {
   return i;
 };
 
+const getClosestPointOnLine = (pt: any, line: any[]) => {
+  if (!line || line.length < 2) return pt;
+  let minDistance = Infinity;
+  let closestPoint = null;
+  
+  for (let i = 0; i < line.length - 1; i++) {
+    const p1 = line[i];
+    const p2 = line[i+1];
+    
+    const l2 = Math.pow(p1.latitude - p2.latitude, 2) + Math.pow(p1.longitude - p2.longitude, 2);
+    if (l2 === 0) continue;
+    
+    let t = ((pt.latitude - p1.latitude) * (p2.latitude - p1.latitude) + (pt.longitude - p1.longitude) * (p2.longitude - p1.longitude)) / l2;
+    t = Math.max(0, Math.min(1, t));
+    
+    const proj = {
+      latitude: p1.latitude + t * (p2.latitude - p1.latitude),
+      longitude: p1.longitude + t * (p2.longitude - p1.longitude)
+    };
+    
+    const dist = Math.sqrt(Math.pow(pt.latitude - proj.latitude, 2) + Math.pow(pt.longitude - proj.longitude, 2));
+    if (dist < minDistance) {
+      minDistance = dist;
+      closestPoint = proj;
+    }
+  }
+  return closestPoint || pt;
+};
+
 const routeColors = ['#0053B3', '#D49F0C', '#10B981', '#EF4444', '#8B5CF6'];
 
 const MetroBookingMap = ({ onClose, onBookTicket, userLocation, nearbyDrivers = [] }: any) => {
@@ -64,6 +93,7 @@ const MetroBookingMap = ({ onClose, onBookTicket, userLocation, nearbyDrivers = 
   
   const [vehicleType, setVehicleType] = useState<string | null>(null);
   const [isSelectingVehicle, setIsSelectingVehicle] = useState(false);
+  const [isBooked, setIsBooked] = useState(false);
 
   useEffect(() => {
     API.get('/route-manager/routes')
@@ -103,16 +133,21 @@ const MetroBookingMap = ({ onClose, onBookTicket, userLocation, nearbyDrivers = 
     setDropJunction(null);
     setVehicleType(null);
     setIsSelectingVehicle(false);
+    setIsBooked(false);
   };
 
   const handleConfirm = () => {
     if (!selectedRoute || !pickupJunction || !dropJunction || !vehicleType) return;
-    onBookTicket({
-      route: selectedRoute,
-      pickupJunction,
-      dropoffJunction: dropJunction,
-      vehicleType
-    });
+    setIsBooked(true);
+    // Notify parent component of booking (in real app, this might trigger navigation)
+    setTimeout(() => {
+      onBookTicket({
+        route: selectedRoute,
+        pickupJunction,
+        dropoffJunction: dropJunction,
+        vehicleType
+      });
+    }, 2000); // 2 second delay to show navigation UI
   };
 
   return (
@@ -153,14 +188,21 @@ const MetroBookingMap = ({ onClose, onBookTicket, userLocation, nearbyDrivers = 
                       handleRouteSelect(r);
                       return;
                     }
-                    if (selectedRoute._id === r._id) {
+                    if (selectedRoute._id === r._id && !isBooked) {
                       const coord = e.nativeEvent.coordinate;
-                      if (!coord) return; // Fix: TS 'coord' is possibly 'undefined'
+                      if (!coord) return;
+                      
+                      const lineCoords = r.decodedPolyline?.length > 0 ? r.decodedPolyline : r.junctions.map((j: any) => ({
+                        latitude: j.location?.coordinates?.[1] || 0,
+                        longitude: j.location?.coordinates?.[0] || 0
+                      }));
+                      
+                      const snappedCoord = getClosestPointOnLine(coord, lineCoords);
                       
                       const customJunction = {
                         _id: `temp-${Date.now()}`,
                         name: !pickupJunction ? 'Custom Pickup' : 'Custom Drop-off',
-                        location: { coordinates: [coord.longitude, coord.latitude] }
+                        location: { coordinates: [snappedCoord.longitude, snappedCoord.latitude] }
                       };
                       if (!pickupJunction) {
                         setPickupJunction(customJunction);
@@ -263,6 +305,18 @@ const MetroBookingMap = ({ onClose, onBookTicket, userLocation, nearbyDrivers = 
              </View>
           </Marker>
         ))}
+        {(userLocation && isBooked && pickupJunction) && (
+          <Polyline
+            coordinates={[
+              { latitude: userLocation.latitude, longitude: userLocation.longitude },
+              { latitude: pickupJunction.location.coordinates[1], longitude: pickupJunction.location.coordinates[0] }
+            ]}
+            strokeColor="#10B981"
+            strokeWidth={4}
+            lineDashPattern={[10, 10]}
+            zIndex={4}
+          />
+        )}
       </MapView>
 
       <TouchableOpacity 
@@ -287,34 +341,22 @@ const MetroBookingMap = ({ onClose, onBookTicket, userLocation, nearbyDrivers = 
         {loading ? (
            <View style={{ padding: 40, alignItems: 'center' }}>
              <ActivityIndicator size="large" color={colors.accent} />
-             <Text style={{ marginTop: 16, color: colors.textSecondary }}>Fetching live metro routes...</Text>
+              <Text style={{ marginTop: 16, color: colors.textSecondary }}>Fetching live metro routes...</Text>
+           </View>
+        ) : isBooked ? (
+           <View style={{ alignItems: 'center', paddingVertical: 20 }}>
+             <ActivityIndicator size="large" color="#10B981" />
+             <Text style={{ fontSize: 20, fontWeight: 'bold', color: colors.textPrimary, marginTop: 16 }}>Finding your driver...</Text>
+             <Text style={{ fontSize: 14, color: colors.textSecondary, marginTop: 8, textAlign: 'center' }}>
+               Navigating from your location to {pickupJunction?.name}.
+             </Text>
            </View>
         ) : !selectedRoute ? (
            <View>
-             <Text style={{ fontSize: 22, fontWeight: 'bold', color: colors.textPrimary, marginBottom: 16 }}>Select a Route</Text>
-             {routes.length === 0 ? (
-                <Text style={{ color: colors.textSecondary }}>No routes active currently.</Text>
-             ) : (
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingRight: 24, gap: 12 }}>
-                  {(routes || []).map(r => (
-                    <TouchableOpacity 
-                      key={r._id} 
-                      onPress={() => handleRouteSelect(r)}
-                      style={{ 
-                        width: 220, padding: 16, borderRadius: 20, 
-                        backgroundColor: r.displayColor + '15',
-                        borderWidth: 1, borderColor: r.displayColor + '40'
-                      }}
-                    >
-                       <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: r.displayColor, alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>
-                          <Feather name="map" size={20} color="#FFF" />
-                       </View>
-                       <Text style={{ fontSize: 18, fontWeight: 'bold', color: colors.textPrimary, marginBottom: 4 }} numberOfLines={1}>{r.name}</Text>
-                       <Text style={{ fontSize: 13, color: colors.textSecondary }}>{r.junctions?.length || 0} Stops ΓÇó Tap to select</Text>
-                    </TouchableOpacity>
-                  ))}
-                </ScrollView>
-             )}
+             <Text style={{ fontSize: 22, fontWeight: 'bold', color: colors.textPrimary, marginBottom: 8 }}>Select a Route</Text>
+             <Text style={{ fontSize: 14, color: colors.textSecondary, marginBottom: 16 }}>
+               Tap on any route line on the map above to select it and begin booking.
+             </Text>
            </View>
         ) : isSelectingVehicle ? (
            <View>
@@ -399,7 +441,7 @@ const MetroBookingMap = ({ onClose, onBookTicket, userLocation, nearbyDrivers = 
                    paddingVertical: 18, borderRadius: 16, alignItems: 'center', marginTop: 12
                  }}
                >
-                  <Text style={{ color: '#FFF', fontSize: 16, fontWeight: 'bold' }}>Continue</Text>
+                  <Text style={{ color: '#FFF', fontSize: 16, fontWeight: 'bold' }}>Book Ride</Text>
                </TouchableOpacity>
              </View>
            </View>
