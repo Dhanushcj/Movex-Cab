@@ -146,6 +146,12 @@ export default function CustomerBookedRideSheet({
           <Text style={styles.arrivedSubtitle}>
             Your driver is waiting at your pickup location
           </Text>
+          <TouchableOpacity
+            onPress={onCancel}
+            style={{ marginTop: 12, paddingVertical: 8, paddingHorizontal: 24, backgroundColor: '#FEE2E2', borderRadius: 20, borderWidth: 1, borderColor: '#FCA5A5' }}
+          >
+            <Text style={{ color: '#EF4444', fontWeight: '700', fontSize: 13 }}>Cancel Ride</Text>
+          </TouchableOpacity>
         </View>
 
         {/* Driver card */}
