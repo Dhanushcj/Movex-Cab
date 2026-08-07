@@ -230,67 +230,65 @@ const RouteManager = () => {
     }));
 
     if (!val.trim()) return;
-    
-    if (!window.google) {
-      console.warn("Google Maps API not loaded yet");
-      return;
-    }
 
-    const service = new window.google.maps.places.AutocompleteService();
-    service.getPlacePredictions({ input: val, componentRestrictions: { country: "in" } }, (predictions, status) => {
-      if (status === window.google.maps.places.PlacesServiceStatus.OK && predictions) {
-        setNewRoute(prev => ({
-          ...prev,
-          sequence: prev.sequence.map(s => s.id === id ? { ...s, searchResults: predictions } : s)
-        }));
-      } else {
-        console.error("Places API error or no results:", status);
-        // Provide a dummy result so the user sees the error
-        setNewRoute(prev => ({
-          ...prev,
-          sequence: prev.sequence.map(s => s.id === id ? { 
-            ...s, 
-            searchResults: [{ 
-              place_id: 'error', 
-              description: status === 'REQUEST_DENIED' ? 'API Key Error. Check console.' : 'No results found',
-              structured_formatting: { main_text: 'No locations found', secondary_text: status }
-            }] 
-          } : s)
-        }));
+    // Use Nominatim (OpenStreetMap) instead of Google Maps to avoid API key errors
+    setTimeout(async () => {
+      try {
+        const query = encodeURIComponent(val);
+        const url = `https://nominatim.openstreetmap.org/search?q=${query}&format=json&addressdetails=1&limit=5&countrycodes=in`;
+        const res = await fetch(url, { headers: { 'User-Agent': 'MovexCabAdmin/1.0' } });
+        const data = await res.json();
+        
+        if (data && data.length > 0) {
+          setNewRoute(prev => ({
+            ...prev,
+            sequence: prev.sequence.map(s => s.id === id ? { ...s, searchResults: data } : s)
+          }));
+        } else {
+          setNewRoute(prev => ({
+            ...prev,
+            sequence: prev.sequence.map(s => s.id === id ? { 
+              ...s, 
+              searchResults: [{ 
+                place_id: 'error', 
+                display_name: 'No locations found'
+              }] 
+            } : s)
+          }));
+        }
+      } catch (err) {
+        console.error("Nominatim Search Error", err);
       }
-    });
+    }, 500); // 500ms debounce
   };
 
-  const handleSelectStopPlace = (id, placeId, description) => {
-    if (placeId === 'error') return;
-    if (!window.google) return;
-    const mapDiv = document.createElement('div');
-    const service = new window.google.maps.places.PlacesService(mapDiv);
-    service.getDetails({ placeId, fields: ['name', 'geometry'] }, (place, status) => {
-      if (status === window.google.maps.places.PlacesServiceStatus.OK && place.geometry && place.geometry.location) {
-        const lat = place.geometry.location.lat();
-        const lng = place.geometry.location.lng();
-        setMapCenter([lat, lng]);
-        
-        setNewRoute(prev => ({
-          ...prev,
-          sequence: prev.sequence.map(s => {
-            if (s.id === id) {
-              return { 
-                ...s, 
-                name: place.name || description.split(',')[0], 
-                lat, 
-                lng, 
-                juncId: null,
-                isSearching: false, 
-                searchResults: [] 
-              };
-            }
-            return s;
-          })
-        }));
-      }
-    });
+  const handleSelectStopPlace = (id, place) => {
+    if (place.place_id === 'error') return;
+    
+    const lat = parseFloat(place.lat);
+    const lng = parseFloat(place.lon);
+    
+    if (isNaN(lat) || isNaN(lng)) return;
+    
+    setMapCenter([lat, lng]);
+    
+    setNewRoute(prev => ({
+      ...prev,
+      sequence: prev.sequence.map(s => {
+        if (s.id === id) {
+          return { 
+            ...s, 
+            name: place.name || place.display_name.split(',')[0], 
+            lat, 
+            lng, 
+            juncId: null,
+            isSearching: false, 
+            searchResults: [] 
+          };
+        }
+        return s;
+      })
+    }));
   };
 
   const addStop = (index) => {
@@ -595,12 +593,12 @@ const RouteManager = () => {
                                     <div 
                                       key={res.place_id} 
                                       className="px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-50 last:border-0 text-sm transition-colors flex items-center gap-3"
-                                      onClick={() => handleSelectStopPlace(stop.id, res.place_id, res.description)}
+                                      onClick={() => handleSelectStopPlace(stop.id, res)}
                                     >
                                       <MapPin size={16} className="text-gray-400 shrink-0" />
                                       <div className="min-w-0">
-                                        <div className="font-semibold text-gray-900 truncate">{res.structured_formatting?.main_text || res.description}</div>
-                                        <div className="text-xs text-gray-500 truncate">{res.structured_formatting?.secondary_text || ''}</div>
+                                        <div className="font-semibold text-gray-900 truncate">{res.name || (res.display_name && res.display_name.split(',')[0]) || res.display_name}</div>
+                                        <div className="text-xs text-gray-500 truncate">{res.display_name || ''}</div>
                                       </div>
                                     </div>
                                   ))}
