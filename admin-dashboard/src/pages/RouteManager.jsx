@@ -229,48 +229,47 @@ const RouteManager = () => {
       })
     }));
 
-    if (!val.trim()) return;
+    if (!val.trim() || !window.google) return;
 
-    // Use Nominatim (OpenStreetMap) instead of Google Maps to avoid API key errors
-    setTimeout(async () => {
-      try {
-        const query = encodeURIComponent(val);
-        const url = `https://nominatim.openstreetmap.org/search?q=${query}&format=json&addressdetails=1&limit=5&countrycodes=in`;
-        const res = await fetch(url, { headers: { 'User-Agent': 'MovexCabAdmin/1.0' } });
-        const data = await res.json();
-        
-        if (data && data.length > 0) {
-          setNewRoute(prev => ({
-            ...prev,
-            sequence: prev.sequence.map(s => s.id === id ? { ...s, searchResults: data } : s)
-          }));
-        } else {
-          setNewRoute(prev => ({
-            ...prev,
-            sequence: prev.sequence.map(s => s.id === id ? { 
-              ...s, 
-              searchResults: [{ 
-                place_id: 'error', 
-                display_name: 'No locations found'
-              }] 
-            } : s)
-          }));
-        }
-      } catch (err) {
-        console.error("Nominatim Search Error", err);
+    // Use standard PlacesService textSearch instead of deprecated AutocompleteService
+    const mapDiv = document.createElement('div');
+    const service = new window.google.maps.places.PlacesService(mapDiv);
+    
+    service.textSearch({ query: val + " India" }, (results, status) => {
+      if (status === window.google.maps.places.PlacesServiceStatus.OK && results) {
+        setNewRoute(prev => ({
+          ...prev,
+          sequence: prev.sequence.map(s => s.id === id ? { 
+            ...s, 
+            searchResults: results.slice(0, 5).map(r => ({
+              place_id: r.place_id,
+              name: r.name,
+              formatted_address: r.formatted_address,
+              lat: r.geometry.location.lat(),
+              lng: r.geometry.location.lng()
+            }))
+          } : s)
+        }));
+      } else {
+        setNewRoute(prev => ({
+          ...prev,
+          sequence: prev.sequence.map(s => s.id === id ? { 
+            ...s, 
+            searchResults: [{ 
+              place_id: 'error', 
+              name: 'No exact matches found',
+              formatted_address: 'Try typing the town name clearly or click on the map.'
+            }] 
+          } : s)
+        }));
       }
-    }, 500); // 500ms debounce
+    });
   };
 
   const handleSelectStopPlace = (id, place) => {
     if (place.place_id === 'error') return;
     
-    const lat = parseFloat(place.lat);
-    const lng = parseFloat(place.lon);
-    
-    if (isNaN(lat) || isNaN(lng)) return;
-    
-    setMapCenter([lat, lng]);
+    setMapCenter([place.lat, place.lng]);
     
     setNewRoute(prev => ({
       ...prev,
@@ -278,9 +277,9 @@ const RouteManager = () => {
         if (s.id === id) {
           return { 
             ...s, 
-            name: place.name || place.display_name.split(',')[0], 
-            lat, 
-            lng, 
+            name: place.name, 
+            lat: place.lat, 
+            lng: place.lng, 
             juncId: null,
             isSearching: false, 
             searchResults: [] 
@@ -597,8 +596,8 @@ const RouteManager = () => {
                                     >
                                       <MapPin size={16} className="text-gray-400 shrink-0" />
                                       <div className="min-w-0">
-                                        <div className="font-semibold text-gray-900 truncate">{res.name || (res.display_name && res.display_name.split(',')[0]) || res.display_name}</div>
-                                        <div className="text-xs text-gray-500 truncate">{res.display_name || ''}</div>
+                                        <div className="font-semibold text-gray-900 truncate">{res.name}</div>
+                                        <div className="text-xs text-gray-500 truncate">{res.formatted_address || ''}</div>
                                       </div>
                                     </div>
                                   ))}
