@@ -3,8 +3,11 @@ import { createPortal } from 'react-dom';
 import { Plus, MapPin, Navigation, Trash2, Edit, X, ArrowUp, ArrowDown } from 'lucide-react';
 import API from '../services/api';
 import { MapContainer, TileLayer, Marker, Polyline, Popup, useMapEvents } from 'react-leaflet';
+import { useLoadScript, Autocomplete } from '@react-google-maps/api';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
+
+const libraries = ['places'];
 
 // Fix for default marker icons in Leaflet with React
 delete L.Icon.Default.prototype._getIconUrl;
@@ -68,12 +71,13 @@ const RouteManager = () => {
   const [newRoute, setNewRoute] = useState({ name: '', sequence: [] });
   const [tempJunction, setTempJunction] = useState(null); // { lat, lng, name }
 
-  // Search States
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
-  const [isSearching, setIsSearching] = useState(false);
-
   const [roadPolyline, setRoadPolyline] = useState(null);
+
+  const { isLoaded } = useLoadScript({
+    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '',
+    libraries,
+  });
+  const [autocomplete, setAutocomplete] = useState(null);
 
   useEffect(() => {
     fetchData();
@@ -141,28 +145,18 @@ const RouteManager = () => {
     fetchRoute();
   }, [newRoute.sequence, junctions]);
 
-  const handleLocationSearch = async (e) => {
-    e.preventDefault();
-    if (!searchQuery.trim()) return;
-    setIsSearching(true);
-    try {
-      const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(searchQuery)}&format=json&limit=5`);
-      const data = await res.json();
-      setSearchResults(data);
-    } catch (err) {
-      console.error('Search error', err);
-    } finally {
-      setIsSearching(false);
-    }
-  };
+  const onLoad = (autoC) => setAutocomplete(autoC);
 
-  const selectSearchResult = (result) => {
-    const lat = parseFloat(result.lat);
-    const lng = parseFloat(result.lon);
-    setMapCenter([lat, lng]);
-    setTempJunction({ lat, lng, name: result.name || result.display_name.split(',')[0] });
-    setSearchResults([]);
-    setSearchQuery('');
+  const onPlaceChanged = () => {
+    if (autocomplete !== null) {
+      const place = autocomplete.getPlace();
+      if (place.geometry && place.geometry.location) {
+        const lat = place.geometry.location.lat();
+        const lng = place.geometry.location.lng();
+        setMapCenter([lat, lng]);
+        setTempJunction({ lat, lng, name: place.name || place.formatted_address.split(',')[0] });
+      }
+    }
   };
 
   const handleJunctionClick = (juncId) => {
@@ -192,10 +186,32 @@ const RouteManager = () => {
       return alert('Please provide a name, and select at least 2 stops for the route.');
     }
     
+    let currentPolyline = roadPolyline;
+
+    if (!currentPolyline || currentPolyline.length === 0) {
+      try {
+        const coords = newRoute.sequence.map(jId => {
+          const j = junctions.find(junc => junc._id === jId);
+          return j && j.location ? `${j.location.coordinates[0]},${j.location.coordinates[1]}` : null;
+        }).filter(Boolean);
+        
+        if (coords.length >= 2) {
+          const coordString = coords.join(';');
+          const res = await fetch(`https://router.project-osrm.org/route/v1/driving/${coordString}?overview=full&geometries=geojson`);
+          const data = await res.json();
+          if (data.routes && data.routes.length > 0) {
+            currentPolyline = data.routes[0].geometry.coordinates.map(coord => [coord[1], coord[0]]);
+          }
+        }
+      } catch (err) {
+        console.error("OSRM Routing Error before save:", err);
+      }
+    }
+
     // Encode the detailed OSRM road route to Google Polyline string for the backend
     let polylineStr = '';
-    if (roadPolyline && roadPolyline.length > 0) {
-      polylineStr = encodePolyline(roadPolyline);
+    if (currentPolyline && currentPolyline.length > 0) {
+      polylineStr = encodePolyline(currentPolyline);
     }
     
     try {
@@ -423,30 +439,20 @@ const RouteManager = () => {
                 
                 {/* Global Location Search Bar */}
                 <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[1000] w-3/4 max-w-md">
-                  <form onSubmit={handleLocationSearch} className="flex shadow-2xl rounded-xl overflow-hidden border border-gray-200/50 bg-white/90 backdrop-blur">
-                    <input 
-                      type="text" 
-                      className="flex-1 px-5 py-4 bg-transparent text-gray-900 outline-none text-sm font-semibold placeholder-gray-500"
-                      placeholder="Search for a location (e.g. Airport)..."
-                      value={searchQuery}
-                      onChange={e => setSearchQuery(e.target.value)}
-                    />
-                    <button type="submit" className="bg-blue-600 text-white px-6 font-bold hover:bg-blue-700 transition-colors">
-                      {isSearching ? '...' : 'Search'}
-                    </button>
-                  </form>
-                  {searchResults.length > 0 && (
-                    <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden max-h-60 overflow-y-auto z-[1001]">
-                      {searchResults.map((res, i) => (
-                        <div 
-                          key={i} 
-                          className="px-5 py-4 hover:bg-blue-50 cursor-pointer border-b border-gray-100 last:border-0 text-sm text-gray-800 transition-colors"
-                          onClick={() => selectSearchResult(res)}
-                        >
-                          <div className="font-bold text-blue-900">{res.name || res.display_name.split(',')[0]}</div>
-                          <div className="text-xs text-gray-500 mt-1 truncate">{res.display_name}</div>
-                        </div>
-                      ))}
+                  {isLoaded ? (
+                    <Autocomplete
+                      onLoad={onLoad}
+                      onPlaceChanged={onPlaceChanged}
+                    >
+                      <input 
+                        type="text" 
+                        className="w-full px-5 py-4 shadow-2xl rounded-xl border border-gray-200/50 bg-white/90 backdrop-blur outline-none text-sm font-semibold placeholder-gray-500"
+                        placeholder="Search for a location via Google Maps..."
+                      />
+                    </Autocomplete>
+                  ) : (
+                    <div className="w-full px-5 py-4 shadow-2xl rounded-xl border border-gray-200/50 bg-white/90 backdrop-blur outline-none text-sm font-semibold placeholder-gray-500 text-center text-gray-500">
+                      Loading Google Maps...
                     </div>
                   )}
                 </div>
