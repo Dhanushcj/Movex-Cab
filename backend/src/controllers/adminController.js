@@ -412,6 +412,10 @@ const getPayments = async (req, res, next) => {
 
 const getMapData = async (req, res, next) => {
   try {
+    const Driver = require('../models/Driver');
+    const Booking = require('../models/Booking');
+    const Route = require('../models/Route');
+
     // Get online drivers and active bookings
     const onlineDrivers = await Driver.find({ isOnline: true })
       .select('name phone currentLocation vehicle status isOnline')
@@ -425,6 +429,10 @@ const getMapData = async (req, res, next) => {
       .select('pickup dropoff status driver customer')
       .lean();
 
+    const routes = await Route.find({ isActive: true })
+      .select('name polyline decodedPolyline')
+      .lean();
+
     res.json({ 
       success: true, 
       data: {
@@ -432,7 +440,8 @@ const getMapData = async (req, res, next) => {
           ...d,
           location: d.currentLocation
         })),
-        activeBookings
+        activeBookings,
+        routes
       } 
     });
   } catch (error) {
