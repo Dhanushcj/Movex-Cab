@@ -115,6 +115,8 @@ export default function CustomerBookedRideSheet({
   const plate  = driverInfo?.vehicle?.plateNumber || '—';
   const rating = driverInfo?.rating ? Number(driverInfo.rating).toFixed(1) : '4.8';
   // Removed OTP since we're using Pass verification now
+  const bookingId = String(rideInfo?._id || rideInfo?.bookingId || '');
+  console.log('[CustomerBookedRideSheet] rideInfo._id:', rideInfo?._id, '| bookingId resolved:', bookingId);
   const fare   = rideInfo?.fare?.totalFare ? `₹${rideInfo.fare.totalFare}` : '₹—';
   const dist   = rideInfo?.route?.distance ? `${rideInfo.route.distance} km` : '—';
   const eta    = rideInfo?.route?.duration ? `${Math.ceil(rideInfo.route.duration)} min` : '—';
@@ -191,12 +193,12 @@ export default function CustomerBookedRideSheet({
             <View style={{backgroundColor: '#FFF', padding: 24, borderRadius: 20, alignItems: 'center'}}>
               <Text style={{fontSize: 18, fontWeight: 'bold', marginBottom: 20, color: '#111827'}}>Scan to start ride</Text>
               <QRCode
-                value={rideInfo?._id || 'invalid_booking'}
+                value={bookingId || 'invalid_booking'}
                 size={220}
                 color="#000"
                 backgroundColor="#FFF"
               />
-              <Text style={{marginTop: 20, fontSize: 12, color: '#6B7280'}}>Booking ID: {rideInfo?._id}</Text>
+              <Text style={{marginTop: 20, fontSize: 12, color: '#6B7280'}}>Booking ID: {bookingId || 'N/A'}</Text>
               <TouchableOpacity 
                 style={{marginTop: 24, paddingVertical: 12, paddingHorizontal: 30, backgroundColor: '#EF4444', borderRadius: 12}}
                 onPress={() => setShowQRModal(false)}
