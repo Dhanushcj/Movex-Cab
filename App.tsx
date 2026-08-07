@@ -2791,16 +2791,23 @@ function DriverHomeScreen({ onRideAccepted, onNavigateProfile, onNavigateHistory
       const routeId = typeof user.assignedRoute === 'object' ? user.assignedRoute._id : user.assignedRoute;
       const res = await API.get('/route-manager/routes');
       if (res.data && res.data.data) {
-        const found = res.data.data.find((r: any) => r._id === routeId);
+        let found = res.data.data.find((r: any) => String(r._id) === String(routeId));
+        if (!found && typeof user.assignedRoute === 'object') {
+          found = user.assignedRoute;
+        }
         if (found) {
+          let decoded = [];
+          if (found.polyline) {
+            try { decoded = decodePolyline(found.polyline); } catch (e) { console.log('Decode error', e); }
+          }
           setDriverRouteData({
             ...found,
-            decodedPolyline: found.polyline ? decodePolyline(found.polyline) : []
+            decodedPolyline: decoded
           });
         }
       }
     } catch (e) {
-      console.log('Failed to fetch route');
+      console.error('Failed to fetch route', e);
     }
   };
 
