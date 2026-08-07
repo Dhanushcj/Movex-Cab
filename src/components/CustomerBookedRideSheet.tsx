@@ -14,7 +14,6 @@ import {
   Modal
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import QRCode from 'react-native-qrcode-svg';
 
 const { width, height } = Dimensions.get('window');
 
@@ -45,7 +44,6 @@ export default function CustomerBookedRideSheet({
   const fadeAnim   = useRef(new Animated.Value(0)).current;
   const isArrived  = rideStatus === 'arrived';
   const [customerReached, setCustomerReached] = React.useState(false);
-  const [showQRModal, setShowQRModal] = React.useState(false);
 
   // Swipe slider logic
   const pan = useRef(new Animated.ValueXY()).current;
@@ -114,9 +112,7 @@ export default function CustomerBookedRideSheet({
     : 'Vehicle';
   const plate  = driverInfo?.vehicle?.plateNumber || '—';
   const rating = driverInfo?.rating ? Number(driverInfo.rating).toFixed(1) : '4.8';
-  // Removed OTP since we're using Pass verification now
-  const bookingId = String(rideInfo?._id || rideInfo?.bookingId || '');
-  console.log('[CustomerBookedRideSheet] rideInfo._id:', rideInfo?._id, '| bookingId resolved:', bookingId);
+  const otp = String(rideInfo?.rideOTP || '----');
   const fare   = rideInfo?.fare?.totalFare ? `₹${rideInfo.fare.totalFare}` : '₹—';
   const dist   = rideInfo?.route?.distance ? `${rideInfo.route.distance} km` : '—';
   const eta    = rideInfo?.route?.duration ? `${Math.ceil(rideInfo.route.duration)} min` : '—';
@@ -179,41 +175,20 @@ export default function CustomerBookedRideSheet({
           </View>
         </View>
 
-        {/* Pass Verification Section */}
+        {/* OTP Verification Section */}
         <View style={styles.arrivedOtpCard}>
-          <TouchableOpacity 
-            style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center', padding: 12, backgroundColor: '#4338CA', borderRadius: 12, gap: 8}}
-            onPress={() => setShowQRModal(true)}
-          >
-            <Feather name="maximize" size={18} color="#FFF" />
-            <Text style={{color: '#FFF', fontWeight: 'bold', fontSize: 16}}>Verify Pass</Text>
-          </TouchableOpacity>
-          <Text style={{textAlign: 'center', fontSize: 11, color: '#6366F1', marginTop: 8}}>
-            Show this QR code to your driver to start the ride
+          <Text style={styles.arrivedOtpLabel}>Your Verification OTP</Text>
+          <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 12, marginVertical: 12 }}>
+            {otp.split('').map((digit: string, i: number) => (
+              <View key={i} style={{ width: 48, height: 56, backgroundColor: '#F3F4F6', borderRadius: 12, justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: '#E5E7EB' }}>
+                <Text style={{ fontSize: 24, fontWeight: 'bold', color: '#1F2937' }}>{digit}</Text>
+              </View>
+            ))}
+          </View>
+          <Text style={{textAlign: 'center', fontSize: 11, color: '#6B7280', marginTop: 12}}>
+            Please share this PIN with your driver to start the trip
           </Text>
         </View>
-
-        {/* QR Code Modal */}
-        <Modal visible={showQRModal} transparent={true} animationType="fade">
-          <View style={{flex: 1, backgroundColor: 'rgba(0,0,0,0.8)', justifyContent: 'center', alignItems: 'center'}}>
-            <View style={{backgroundColor: '#FFF', padding: 24, borderRadius: 20, alignItems: 'center'}}>
-              <Text style={{fontSize: 18, fontWeight: 'bold', marginBottom: 20, color: '#111827'}}>Scan to start ride</Text>
-              <QRCode
-                value={bookingId || 'invalid_booking'}
-                size={220}
-                color="#000"
-                backgroundColor="#FFF"
-              />
-              <Text style={{marginTop: 20, fontSize: 12, color: '#6B7280'}}>Booking ID: {bookingId || 'N/A'}</Text>
-              <TouchableOpacity 
-                style={{marginTop: 24, paddingVertical: 12, paddingHorizontal: 30, backgroundColor: '#EF4444', borderRadius: 12}}
-                onPress={() => setShowQRModal(false)}
-              >
-                <Text style={{color: '#FFF', fontWeight: '600'}}>Close</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </Modal>
 
         {/* Stats strip */}
         <View style={styles.arrivedStatsRow}>
@@ -335,39 +310,29 @@ export default function CustomerBookedRideSheet({
 
 
 
-      {/* Slide to reach pickup (or Verify Pass if already reached) */}
+      {/* Slide to reach pickup */}
       <View style={{ marginTop: 16 }}>
-        {customerReached ? (
-          <TouchableOpacity 
-            style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center', padding: 16, backgroundColor: '#4338CA', borderRadius: 30, gap: 8}}
-            onPress={() => setShowQRModal(true)}
+        <View style={{ backgroundColor: '#EEF2FF', height: 56, borderRadius: 28, overflow: 'hidden', justifyContent: 'center' }}>
+          <Text style={{ position: 'absolute', alignSelf: 'center', color: '#4338CA', fontWeight: 'bold', zIndex: 0 }}>Slide if reached pickup {'>>'}</Text>
+          <Animated.View
+            {...panResponder.panHandlers}
+            style={[
+              {
+                width: 50,
+                height: 50,
+                borderRadius: 25,
+                backgroundColor: '#4338CA',
+                justifyContent: 'center',
+                alignItems: 'center',
+                marginLeft: 3,
+                zIndex: 1
+              },
+              { transform: [{ translateX: pan.x.interpolate({ inputRange: [0, maxSlide], outputRange: [0, maxSlide], extrapolate: 'clamp' }) }] }
+            ]}
           >
-            <Feather name="maximize" size={18} color="#FFF" />
-            <Text style={{color: '#FFF', fontWeight: 'bold', fontSize: 16}}>Verify Pass</Text>
-          </TouchableOpacity>
-        ) : (
-          <View style={{ backgroundColor: '#EEF2FF', height: 56, borderRadius: 28, overflow: 'hidden', justifyContent: 'center' }}>
-            <Text style={{ position: 'absolute', alignSelf: 'center', color: '#4338CA', fontWeight: 'bold', zIndex: 0 }}>Slide if reached pickup {'>>'}</Text>
-            <Animated.View
-              {...panResponder.panHandlers}
-              style={[
-                {
-                  width: 50,
-                  height: 50,
-                  borderRadius: 25,
-                  backgroundColor: '#4338CA',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  marginLeft: 3,
-                  zIndex: 1
-                },
-                { transform: [{ translateX: pan.x.interpolate({ inputRange: [0, maxSlide], outputRange: [0, maxSlide], extrapolate: 'clamp' }) }] }
-              ]}
-            >
-              <Feather name="chevron-right" size={24} color="#FFF" />
-            </Animated.View>
-          </View>
-        )}
+            <Feather name="chevron-right" size={24} color="#FFF" />
+          </Animated.View>
+        </View>
       </View>
     </Animated.View>
   );

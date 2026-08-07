@@ -3350,13 +3350,6 @@ function DriverHomeScreen({ onRideAccepted, onNavigateProfile, onNavigateHistory
                 <Text style={styles.incomingStatLabelLight}>Distance</Text>
                 <Text style={styles.incomingStatValLight}>{incomingRequest.route.distance} km</Text>
               </View>
-              <View style={styles.incomingStatDividerLight} />
-              <View style={styles.incomingStatChipLight}>
-                <Text style={styles.incomingStatLabelLight}>Est. Earnings</Text>
-                <Text style={styles.incomingStatValLight}>
-                  {'Î“Ã©â•£'}{incomingRequest.estimatedEarnings}
-                </Text>
-              </View>
             </View>
 
             <View style={styles.incomingBtnRowLight}>
@@ -3496,7 +3489,7 @@ function DriverActiveRideScreen({ ride, onClose }: { ride: any; onClose: () => v
   const [rideStatus, setRideStatus] = useState(ride.status);
   const [isOtpVerified, setIsOtpVerified] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [showQRScannerHome, setShowQRScannerHome] = React.useState(false);
+
   const mapRef = useRef<MapView>(null);
 
   useEffect(() => {
@@ -3685,10 +3678,10 @@ function DriverActiveRideScreen({ ride, onClose }: { ride: any; onClose: () => v
     } finally { setLoading(false); }
   };
 
-  const handleStartTrip = async (scannedQRData: string) => {
+  const handleStartTrip = async (otp: string) => {
     setLoading(true);
     try {
-      const response = await API.put(`/bookings/${ride._id}/start`, { qrData: scannedQRData });
+      const response = await API.put(`/bookings/${ride._id}/start`, { otp });
       if (response.data.success) {
         setRideStatus('in_progress');
         setIsOtpVerified(true);
@@ -3696,12 +3689,10 @@ function DriverActiveRideScreen({ ride, onClose }: { ride: any; onClose: () => v
         return true;
       }
     } catch (e: any) {
-      Alert.alert('Error', e.response?.data?.message || 'Invalid QR pass code');
+      Alert.alert('Error', e.response?.data?.message || 'Invalid OTP');
     } finally { setLoading(false); }
     return false;
   };
-
-  const [showQRScanner, setShowQRScanner] = React.useState(false);
 
   const handleCompleteTrip = async () => {
     setLoading(true);
@@ -3789,27 +3780,17 @@ function DriverActiveRideScreen({ ride, onClose }: { ride: any; onClose: () => v
           )}
         </MapView>
         
-        {/* Replace OTP Slider with Scan Pass Button */}
-        <View style={{ position: 'absolute', bottom: Platform.OS === 'ios' ? 40 : 30, left: 20, right: 20 }}>
-           <TouchableOpacity 
-             style={{ backgroundColor: colors.accent, padding: 16, borderRadius: 30, alignItems: 'center', elevation: 5 }}
-             onPress={() => setShowQRScanner(true)}
-           >
-             <Text style={{ color: '#FFF', fontSize: 16, fontWeight: 'bold' }}>Scan Pass to Start Ride</Text>
-           </TouchableOpacity>
+        {/* OTP Slider */}
+        <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0 }}>
+          <SlideToStartScreen
+            pickupAddress={ride.pickup?.address || 'Pickup'}
+            customerName={ride.customer?.name || ride.user?.name || 'Customer'}
+            customerPhone={ride.customer?.phone || ride.user?.phone || ''}
+            onStart={async (otp) => {
+              await handleStartTrip(otp);
+            }}
+          />
         </View>
-
-        <DriverQRScannerModal 
-          visible={showQRScanner}
-          onClose={() => setShowQRScanner(false)}
-          onScan={async (data) => {
-             const success = await handleStartTrip(data);
-             if (success) {
-               setShowQRScanner(false);
-             }
-             return success;
-          }}
-        />
       </View>
     );
   }
@@ -3990,7 +3971,6 @@ function DriverActiveRideScreen({ ride, onClose }: { ride: any; onClose: () => v
           <View style={styles.navPreTripMeta}>
             <Text style={styles.navPreTripMetaText}>â‰¡Æ’Ã´Ã… {ride.route?.distance || 'Î“Ã‡Ã¶'} km</Text>
             <Text style={styles.navPreTripMetaText}>Î“Ã…â–’ {ride.route?.duration ? `${Math.ceil(ride.route.duration)} min` : 'Î“Ã‡Ã¶'}</Text>
-            <Text style={[styles.navPreTripMetaText, { color: colors.success }]}>Î“Ã©â•£ {ride.fare?.driverShare || Math.round(ride.fare?.totalFare * 0.8) || 'Î“Ã‡Ã¶'}</Text>
           </View>
         </View>
       )}
@@ -4111,42 +4091,27 @@ function DriverActiveRideScreen({ ride, onClose }: { ride: any; onClose: () => v
           )}
 
           {rideStatus === 'arrived' && (
-            <View style={{ gap: 14 }}>
-              <TouchableOpacity
-                style={[styles.premiumButton, { backgroundColor: colors.accent }]}
-                onPress={() => setShowQRScannerHome(true)}
-                disabled={loading}
-              >
-                {loading
-                  ? <ActivityIndicator color={colors.bgSecondary} />
-                  : <Text style={styles.premiumButtonText}>Scan Pass to Start Ride</Text>
+            <SlideToStartScreen
+              pickupAddress={rideData.pickup?.address || 'Pickup'}
+              customerName={rideData.customer?.name || rideData.user?.name || 'Customer'}
+              customerPhone={rideData.customer?.phone || rideData.user?.phone || ''}
+              onStart={async (otp) => {
+                setLoading(true);
+                try {
+                  const response = await API.put(`/bookings/${rideData._id}/start`, { otp });
+                  if (response.data.success) {
+                    setRideStatus('in_progress');
+                    setIsOtpVerified(true);
+                    if (socket) socket.emit('ride:started', { bookingId: rideData._id });
+                  }
+                } catch (e: any) {
+                  Alert.alert('Error', e.response?.data?.message || 'Invalid OTP');
+                } finally {
+                  setLoading(false);
                 }
-              </TouchableOpacity>
-            </View>
+              }}
+            />
           )}
-
-          <DriverQRScannerModal
-            visible={showQRScannerHome}
-            onClose={() => setShowQRScannerHome(false)}
-            onScan={async (data) => {
-              setLoading(true);
-              try {
-                const response = await API.put(`/bookings/${rideData._id}/start`, { qrData: data.trim() });
-                if (response.data.success) {
-                  setRideStatus('in_progress');
-                  setIsOtpVerified(true);
-                  setShowQRScannerHome(false);
-                  if (socket) socket.emit('ride:started', { bookingId: rideData._id });
-                  return true;
-                }
-              } catch (e) {
-                Alert.alert('Error', (e && e.response && e.response.data && e.response.data.message) || 'Invalid QR Pass');
-              } finally {
-                setLoading(false);
-              }
-              return false;
-            }}
-          />
 
 
         </View>
