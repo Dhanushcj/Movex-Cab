@@ -460,7 +460,7 @@ const RouteManager = () => {
 
                 {/* Floating Temp Junction Action Card */}
                 {tempJunction && (
-                  <div className="absolute top-24 left-1/2 -translate-x-1/2 z-[2000] w-11/12 max-w-sm bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden animate-fade-in">
+                  <div className="absolute bottom-6 left-6 z-[2000] w-80 bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden animate-fade-in">
                     <div className="bg-indigo-600 px-4 py-3 flex justify-between items-center text-white">
                       <h4 className="font-bold flex items-center text-sm"><MapPin className="w-4 h-4 mr-2" /> Add Location to Map</h4>
                       <button onClick={() => setTempJunction(null)} className="text-white/70 hover:text-white"><X size={18} /></button>
@@ -468,6 +468,7 @@ const RouteManager = () => {
                     <div className="p-5 space-y-4">
                       <div>
                         <label className="text-xs font-bold text-gray-500 uppercase mb-1 block">Location Name</label>
+                        <p className="text-[10px] text-indigo-600 font-medium mb-2">Tip: Drag the pin on the map for precise placement.</p>
                         <input 
                           type="text" 
                           className="w-full px-4 py-3 border border-gray-300 rounded-lg text-black outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 font-semibold" 
@@ -550,14 +551,25 @@ const RouteManager = () => {
 
                   {/* Temporary Junction Marker */}
                   {tempJunction && (
-                    <Marker position={[tempJunction.lat, tempJunction.lng]} icon={defaultIcon} />
+                    <Marker 
+                      position={[tempJunction.lat, tempJunction.lng]} 
+                      icon={defaultIcon} 
+                      draggable={true}
+                      eventHandlers={{
+                        dragend: (e) => {
+                          const marker = e.target;
+                          const position = marker.getLatLng();
+                          setTempJunction(prev => ({ ...prev, lat: position.lat, lng: position.lng }));
+                        },
+                      }}
+                    />
                   )}
                 </MapContainer>
                 
                 {/* Floating Map Helper text */}
                 <div className="absolute bottom-6 right-6 z-[1000] bg-white/90 backdrop-blur px-5 py-3 rounded-xl shadow-xl border border-gray-200 pointer-events-none">
                   <p className="text-sm font-bold text-gray-700 flex items-center gap-2">
-                    <MapPin size={16} className="text-blue-600" /> Map Builder Active
+                    <MapPin size={16} className="text-blue-600" /> Click anywhere to drop a pin
                   </p>
                 </div>
               </div>
