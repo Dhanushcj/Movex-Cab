@@ -155,6 +155,8 @@ const MetroBookingMap = ({ onClose, onBookTicket, userLocation, nearbyDrivers = 
                     }
                     if (selectedRoute._id === r._id) {
                       const coord = e.nativeEvent.coordinate;
+                      if (!coord) return; // Fix: TS 'coord' is possibly 'undefined'
+                      
                       const customJunction = {
                         _id: `temp-${Date.now()}`,
                         name: !pickupJunction ? 'Custom Pickup' : 'Custom Drop-off',
