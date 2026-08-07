@@ -204,9 +204,10 @@ const MetroBookingMap = ({ onClose, onBookTicket, userLocation, nearbyDrivers = 
                         name: !pickupJunction ? 'Custom Pickup' : 'Custom Drop-off',
                         location: { coordinates: [snappedCoord.longitude, snappedCoord.latitude] }
                       };
-                      if (!pickupJunction) {
+                      if (!pickupJunction || (pickupJunction && dropJunction)) {
                         setPickupJunction(customJunction);
-                      } else if (!dropJunction) {
+                        setDropJunction(null);
+                      } else {
                         setDropJunction(customJunction);
                       }
                     }
@@ -228,10 +229,9 @@ const MetroBookingMap = ({ onClose, onBookTicket, userLocation, nearbyDrivers = 
                       if (!selectedRoute) {
                         handleRouteSelect(r);
                       } else if (selectedRoute._id === r._id) {
-                        if (!pickupJunction) {
+                        if (!pickupJunction || (pickupJunction && dropJunction)) {
                           setPickupJunction(j);
-                        } else if (!dropJunction && pickupJunction._id !== j._id) {
-                          setDropJunction(j);
+                          setDropJunction(null);
                         } else if (pickupJunction._id === j._id) {
                           setPickupJunction(null);
                           setDropJunction(null);
@@ -393,7 +393,7 @@ const MetroBookingMap = ({ onClose, onBookTicket, userLocation, nearbyDrivers = 
                      <Text style={{ fontSize: 16, fontWeight: 'bold', color: colors.textPrimary }}>{type}</Text>
                      <Text style={{ fontSize: 13, color: colors.textSecondary }}>Nearest in 2 mins</Text>
                    </View>
-                   <Text style={{ fontSize: 16, fontWeight: 'bold', color: colors.textPrimary }}>₹{Math.floor(Math.random() * 50) + 30}</Text>
+                   <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#10B981' }}>Free</Text>
                  </TouchableOpacity>
                ))}
              </View>
