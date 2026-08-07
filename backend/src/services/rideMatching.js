@@ -53,6 +53,8 @@ const matchDriversForBooking = async (bookingId) => {
 
     if (booking.metroRouteId) {
       query.assignedRoute = booking.metroRouteId;
+    } else {
+      query.assignedRoute = null; // Drivers with a Metro Route should only receive Metro rides
     }
 
     console.log(`[RideMatching] Querying DB with:`, JSON.stringify(query));

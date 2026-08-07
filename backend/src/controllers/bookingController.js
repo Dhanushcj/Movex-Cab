@@ -321,17 +321,44 @@ const verifyOTP = async (req, res, next) => {
 };
 
 /**
- * Start Trip (Verify OTP)
+ * Customer Reached Pickup
+ * PUT /api/bookings/:id/customer-reached
+ */
+const customerReached = async (req, res, next) => {
+  try {
+    const booking = await Booking.findById(req.params.id);
+    if (!booking) return res.status(404).json({ success: false, message: 'Booking not found' });
+    
+    // We could add a status like 'customer_arrived', but for now we just notify the driver
+    // and return success so the frontend knows to show the Verify Pass UI.
+    const driver = await Driver.findById(booking.driver);
+    if (driver && driver.fcmToken) {
+      await sendNotification(driver.fcmToken, {
+        title: 'Customer at Pickup',
+        body: 'The customer has arrived at the pickup point.',
+        data: { bookingId: booking._id }
+      });
+    }
+
+    res.json({ success: true, message: 'Driver notified' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Start Trip (Verify Pass QR)
  * PUT /api/bookings/:id/start
  */
 const startTrip = async (req, res, next) => {
-  const { otp } = req.body;
+  const { qrData } = req.body;
   try {
     const booking = await Booking.findById(req.params.id);
     if (!booking) return res.status(404).json({ success: false, message: 'Booking not found' });
 
-    if (booking.rideOTP !== otp) {
-      return res.status(400).json({ success: false, message: 'Invalid OTP verification code' });
+    // Ensure the scanned QR data matches the booking ID
+    if (!qrData || String(qrData) !== String(booking._id)) {
+      return res.status(400).json({ success: false, message: 'Invalid Pass QR Code' });
     }
 
     booking.status = 'in_progress';
@@ -655,6 +682,7 @@ module.exports = {
   createBooking,
   acceptBooking,
   driverArrived,
+  customerReached,
   startTrip,
   completeTrip,
   payTrip,
