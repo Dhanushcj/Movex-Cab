@@ -1473,7 +1473,7 @@ function HomeScreen({ onRideBooked, onNavigateProfile, onNavigateLanguage, activ
                    const payload = {
                      pickup: { address: details.pickupJunction.name, coordinates: details.pickupJunction.location.coordinates },
                      drop: { address: details.dropoffJunction.name, coordinates: details.dropoffJunction.location.coordinates },
-                     vehicleType: details.vehicleType || 'any',
+                     vehicleType: details.vehicleType ? details.vehicleType.toLowerCase() : 'any',
                      paymentMethod: 'cash',
                      route: details.route._id
                    };
