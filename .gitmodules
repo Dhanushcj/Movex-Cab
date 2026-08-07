@@ -1,4 +1,4 @@
 [submodule "customer-app"]
 	path = customer-app
 	url = https://github.com/Dhanushcj/Movex-Cab.git
-	branch = master
+	branch = mobile-map-fix
