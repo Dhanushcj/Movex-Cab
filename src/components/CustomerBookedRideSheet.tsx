@@ -339,7 +339,7 @@ export default function CustomerBookedRideSheet({
           </TouchableOpacity>
         ) : (
           <View style={{ backgroundColor: '#EEF2FF', height: 56, borderRadius: 28, overflow: 'hidden', justifyContent: 'center' }}>
-            <Text style={{ position: 'absolute', alignSelf: 'center', color: '#4338CA', fontWeight: 'bold', zIndex: 0 }}>Slide if reached pickup >></Text>
+            <Text style={{ position: 'absolute', alignSelf: 'center', color: '#4338CA', fontWeight: 'bold', zIndex: 0 }}>Slide if reached pickup {'>>'}</Text>
             <Animated.View
               {...panResponder.panHandlers}
               style={[
