@@ -140,13 +140,15 @@ const getDrivers = async (req, res, next) => {
 };
 
 const updateDriverStatus = async (req, res, next) => {
-  const { approvalStatus, rejectionReason, correctionFields, isBlocked, employeeId, vehicle, documents } = req.body;
+  const { approvalStatus, rejectionReason, correctionFields, isBlocked, employeeId, assignedRoute, vehicle, documents } = req.body;
   try {
     const updateObj = {};
     if (approvalStatus) updateObj.approvalStatus = approvalStatus;
     if (rejectionReason) updateObj.rejectionReason = rejectionReason;
     if (correctionFields) updateObj.correctionFields = correctionFields;
     if (isBlocked !== undefined) updateObj.isBlocked = isBlocked;
+    if (employeeId !== undefined) updateObj.employeeId = employeeId;
+    if (assignedRoute !== undefined) updateObj.assignedRoute = assignedRoute || null;
     
     // Explicit updates for nested vehicle/docs from the admin
     if (vehicle) updateObj.vehicle = vehicle;
