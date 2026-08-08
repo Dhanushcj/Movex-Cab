@@ -62,194 +62,269 @@
   box-shadow: 0 6px 16px rgba(108, 92, 231, 0.4);
 }
 
-/* Hero Section */
+/* Hero Section (Ola Style) */
 .heroSection {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 80px 5%;
   flex: 1;
-  gap: 40px;
+  position: relative;
+  overflow: hidden;
 }
 
-.heroContent {
-  flex: 1;
-  max-width: 600px;
+.heroBackground {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url('https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?q=80&w=2070&auto=format&fit=crop');
+  background-size: cover;
+  background-position: center;
+  z-index: 1;
+}
+
+.heroBackground::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(to right, rgba(0,0,0,0.7) 0%, transparent 60%);
+  z-index: 1;
+  pointer-events: none;
+}
+
+.heroTextContainer {
+  position: absolute;
+  top: 40%;
+  left: 450px;
+  z-index: 2;
+  color: white;
+  max-width: 500px;
 }
 
 .heroTitle {
-  font-size: 64px;
-  line-height: 1.1;
-  margin-bottom: 24px;
+  font-size: 48px;
   font-weight: 700;
-}
-
-.highlight {
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+  margin-bottom: 16px;
+  line-height: 1.2;
 }
 
 .heroSubtitle {
-  font-size: 18px;
-  color: var(--text-muted);
-  margin-bottom: 40px;
-  line-height: 1.6;
-}
-
-.heroActions {
-  display: flex;
-  gap: 20px;
-}
-
-.btnPrimaryLarge {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: var(--primary);
-  color: white;
-  padding: 16px 32px;
-  font-size: 16px;
-  font-weight: 600;
-  border-radius: var(--border-radius-lg);
-  transition: var(--transition-normal);
-  box-shadow: 0 8px 24px rgba(108, 92, 231, 0.3);
-}
-
-.btnPrimaryLarge:hover {
-  background: var(--primary-hover);
-  transform: translateY(-2px);
-  box-shadow: 0 12px 32px rgba(108, 92, 231, 0.4);
-}
-
-.btnSecondaryLarge {
-  background: var(--glass-bg);
-  backdrop-filter: blur(12px);
-  border: 1px solid var(--glass-border);
-  color: var(--text-main);
-  padding: 16px 32px;
-  font-size: 16px;
-  font-weight: 600;
-  border-radius: var(--border-radius-lg);
-  transition: var(--transition-normal);
-}
-
-.btnSecondaryLarge:hover {
-  background: rgba(255, 255, 255, 0.05);
-  transform: translateY(-2px);
-}
-
-/* Graphic Area */
-.heroGraphic {
-  flex: 1;
-  position: relative;
-  min-height: 400px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.glassCard {
-  background: var(--glass-bg);
-  backdrop-filter: blur(16px);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--border-radius-lg);
-  padding: 24px;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  box-shadow: var(--shadow-lg);
-  position: absolute;
-  animation: float 6s ease-in-out infinite;
-}
-
-.floatingCard1 {
-  top: 10%;
-  left: 10%;
-  animation-delay: 0s;
-}
-
-.floatingCard2 {
-  bottom: 10%;
-  right: 10%;
-  animation-delay: 3s;
-}
-
-.glassCard h3 {
-  font-size: 16px;
-  margin-bottom: 4px;
-}
-
-.glassCard p {
-  font-size: 14px;
-  color: var(--text-muted);
-}
-
-@keyframes float {
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-20px); }
-  100% { transform: translateY(0px); }
-}
-
-/* Features */
-.featuresSection {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 32px;
-  padding: 80px 5%;
-  background: linear-gradient(to top, rgba(15, 23, 42, 1), transparent);
-}
-
-.featureCard {
-  background: var(--bg-card);
-  padding: 40px 32px;
-  border-radius: var(--border-radius-lg);
-  border: 1px solid var(--glass-border);
-  transition: var(--transition-normal);
-}
-
-.featureCard:hover {
-  transform: translateY(-8px);
-  box-shadow: var(--shadow-lg);
-  border-color: rgba(108, 92, 231, 0.3);
-}
-
-.featureIcon {
-  color: var(--secondary);
-  width: 40px;
-  height: 40px;
-  margin-bottom: 24px;
-}
-
-.featureCard h3 {
   font-size: 20px;
-  margin-bottom: 12px;
+  color: #f1f1f1;
 }
 
-.featureCard p {
+/* Booking Widget */
+.bookingWidget {
+  position: relative;
+  z-index: 2;
+  background: white;
+  width: 420px;
+  height: 100%;
+  min-height: calc(100vh - 80px);
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+  color: #333;
+}
+
+.tabs {
+  display: flex;
+  background: #f8f8f8;
+  border-bottom: 1px solid #eee;
+}
+
+.tab {
+  flex: 1;
+  padding: 20px 16px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 13px;
+  color: #888;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  transition: 0.2s;
+  letter-spacing: 0.5px;
+}
+
+.tab:hover {
+  background: #f1f1f1;
+}
+
+.activeTab {
+  color: #000;
+  border-bottom-color: #d1e231; /* Ola Yellowish-green */
+}
+
+.tabContent {
+  padding: 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* Forms */
+.inputGroup {
+  display: flex;
+  align-items: center;
+  background: #f1f1f1;
+  border-radius: 4px;
+  margin-bottom: 12px;
+  padding: 0 16px;
+}
+
+.inputLabel {
+  font-size: 11px;
+  font-weight: 800;
+  color: #999;
+  width: 54px;
+  letter-spacing: 0.5px;
+}
+
+.input {
+  flex: 1;
+  padding: 18px 0;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #111;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.availableRides, .routesSection, .passesSection {
+  margin-top: 24px;
+}
+
+.rideOption, .routeCard, .passCard {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.rideOption:hover, .routeCard:hover, .passCard:hover {
+  border-color: #ccc;
+  background: #fafafa;
+}
+
+.rideIcon {
+  width: 48px;
+  height: 48px;
+  background: #f8f8f8;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 16px;
+  color: #333;
+}
+
+.rideDetails h4, .routeCard h4, .passCard h4 {
+  margin: 0 0 4px 0;
+  font-size: 16px;
+  color: #000;
+}
+
+.rideDetails p, .routeCard p, .passCard p {
+  margin: 0;
+  font-size: 12px;
+  color: #888;
+}
+
+.passCard, .routeCard {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.passCard > div {
+  width: 100%;
+}
+
+.btnFull {
+  width: 100%;
+  padding: 16px;
+  background: black;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 16px;
+  transition: 0.2s;
+}
+
+.btnFull:hover {
+  background: #333;
+}
+
+/* Map Section */
+.mapSection {
+  padding: 80px 5%;
+  background: var(--bg-main);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.mapHeader {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.mapHeader h2 {
+  font-size: 32px;
+  margin-bottom: 12px;
+  color: var(--text-main);
+}
+
+.mapHeader p {
+  font-size: 16px;
   color: var(--text-muted);
-  line-height: 1.6;
+}
+
+.mapContainer {
+  width: 100%;
+  max-width: 1200px;
+  height: 500px;
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+  border: 1px solid var(--border-light);
 }
 
 /* Responsive */
 @media (max-width: 900px) {
   .heroSection {
-    flex-direction: column;
-    text-align: center;
-    padding-top: 40px;
+    flex-direction: column-reverse;
+    overflow-y: auto;
+  }
+  
+  .bookingWidget {
+    width: 100%;
+    height: auto;
+    min-height: unset;
+  }
+
+  .heroBackground {
+    position: relative;
+    height: 300px;
+  }
+
+  .heroTextContainer {
+    left: 24px;
+    top: 50px;
+    right: 24px;
   }
   
   .heroTitle {
-    font-size: 48px;
-  }
-  
-  .heroActions {
-    justify-content: center;
-  }
-  
-  .heroGraphic {
-    width: 100%;
-    min-height: 300px;
+    font-size: 32px;
   }
 }

@@ -9,9 +9,11 @@ import CustomerDashboard from './pages/CustomerDashboard';
 import CustomerBooking from './pages/CustomerBooking';
 import CustomerHistory from './pages/CustomerHistory';
 import CustomerProfile from './pages/CustomerProfile';
+import CustomerTracking from './pages/CustomerTracking';
 
 import DriverLayout from './components/DriverLayout';
 import DriverDashboard from './pages/DriverDashboard';
+import DriverActiveRide from './pages/DriverActiveRide';
 import DriverTrip from './pages/DriverTrip';
 import DriverWallet from './pages/DriverWallet';
 import DriverProfile from './pages/DriverProfile';
@@ -29,6 +31,7 @@ function App() {
           <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<CustomerDashboard />} />
           <Route path="book" element={<CustomerBooking />} />
+          <Route path="tracking/:id" element={<CustomerTracking />} />
           <Route path="history" element={<CustomerHistory />} />
           <Route path="profile" element={<CustomerProfile />} />
         </Route>
@@ -37,6 +40,7 @@ function App() {
         <Route path="/driver" element={<DriverLayout />}>
           <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<DriverDashboard />} />
+          <Route path="active-ride/:id" element={<DriverActiveRide />} />
           <Route path="trip" element={<DriverTrip />} />
           <Route path="wallet" element={<DriverWallet />} />
           <Route path="documents" element={<DriverProfile />} />

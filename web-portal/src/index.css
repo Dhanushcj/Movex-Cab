@@ -49,12 +49,9 @@ input, textarea, select {
   background: var(--text-muted);
 }
 
-/* Glassmorphism utility */
+/* Standard Panel utility (formerly glass-panel) */
 .glass-panel {
-  background: var(--glass-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--border-radius-lg);
-  box-shadow: var(--shadow-lg);
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--border-radius);
 }

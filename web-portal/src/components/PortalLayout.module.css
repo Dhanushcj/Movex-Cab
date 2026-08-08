@@ -22,10 +22,7 @@
 
 .sidebarHeader h2 {
   font-size: 24px;
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--primary);
   margin: 0;
 }
 
@@ -100,9 +97,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid var(--glass-border);
-  background: rgba(15, 23, 42, 0.8);
-  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-light);
+  background: var(--bg-card);
 }
 
 .headerTitle {
@@ -139,14 +135,13 @@
   border-radius: 50%;
   background: var(--success);
   margin-left: 8px;
-  box-shadow: 0 0 8px var(--success);
 }
 
 .contentArea {
   flex: 1;
   padding: 40px;
   overflow-y: auto;
-  background: radial-gradient(circle at top right, rgba(108, 92, 231, 0.05), transparent 40%);
+  background: var(--bg-dark);
 }
 
 @media (max-width: 768px) {

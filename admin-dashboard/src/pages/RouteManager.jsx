@@ -134,7 +134,7 @@ const RouteManager = () => {
     }
   };
 
-  // Fetch real road route from Google Maps Directions API when sequence changes
+  // Fetch real road route using OSRM when sequence changes
   useEffect(() => {
     const validStops = newRoute.sequence.filter(s => s.lat && s.lng);
     if (validStops.length < 2) {
@@ -143,37 +143,23 @@ const RouteManager = () => {
       return;
     }
     
-    if (!window.google) return;
-    
     const fetchRoute = async () => {
       try {
-        const directionsService = new window.google.maps.DirectionsService();
-        const origin = { lat: validStops[0].lat, lng: validStops[0].lng };
-        const destination = { lat: validStops[validStops.length - 1].lat, lng: validStops[validStops.length - 1].lng };
-        const waypoints = validStops.slice(1, -1).map(s => ({
-          location: { lat: s.lat, lng: s.lng },
-          stopover: true
-        }));
-
-        directionsService.route(
-          {
-            origin: origin,
-            destination: destination,
-            waypoints: waypoints,
-            travelMode: window.google.maps.TravelMode.DRIVING,
-          },
-          (result, status) => {
-            if (status === window.google.maps.DirectionsStatus.OK) {
-              const encoded = result.routes[0].overview_polyline;
-              setRawPolyline(encoded);
-              setRoadPolyline(decodePolyline(encoded));
-            } else {
-              console.error("Directions API Error:", status);
-            }
-          }
-        );
+        const coordinatesString = validStops.map(s => `${s.lng},${s.lat}`).join(';');
+        const url = `https://router.project-osrm.org/route/v1/driving/${coordinatesString}?overview=full&geometries=polyline`;
+        
+        const response = await fetch(url);
+        const result = await response.json();
+        
+        if (result.code === 'Ok' && result.routes && result.routes.length > 0) {
+          const encoded = result.routes[0].geometry;
+          setRawPolyline(encoded);
+          setRoadPolyline(decodePolyline(encoded));
+        } else {
+          console.error("OSRM API Error:", result);
+        }
       } catch (err) {
-        console.error("Directions Routing Error:", err);
+        console.error("OSRM Routing Error:", err);
       }
     };
     

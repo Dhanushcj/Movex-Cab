@@ -42,7 +42,7 @@ const matchDriversForBooking = async (bookingId) => {
       isAvailable: true,
       currentLocation: {
         $geoWithin: {
-          $centerSphere: [[pickupLng, pickupLat], radiusInRad]
+          $centerSphere: [[parseFloat(pickupLng), parseFloat(pickupLat)], radiusInRad]
         }
       }
     };
@@ -52,13 +52,23 @@ const matchDriversForBooking = async (bookingId) => {
     }
 
     if (booking.metroRouteId) {
-      query.assignedRoute = booking.metroRouteId;
+      query.$or = [
+        { assignedRoute: booking.metroRouteId },
+        { assignedRoute: null },
+        { assignedRoute: { $exists: false } }
+      ];
     } else {
-      query.assignedRoute = null; // Drivers with a Metro Route should only receive Metro rides
+      query.$or = [
+        { assignedRoute: null },
+        { assignedRoute: { $exists: false } }
+      ];
     }
 
+    console.log(`[RideMatching] pickupLng: ${pickupLng}, pickupLat: ${pickupLat}`);
     console.log(`[RideMatching] Querying DB with:`, JSON.stringify(query));
     const nearbyDrivers = await Driver.find(query).limit(10); // Check up to 10 closest drivers
+    console.log(`[RideMatching] DB returned ${nearbyDrivers.length} drivers`);
+    require('fs').appendFileSync('match_logs.txt', `\n[RideMatching] pickupLng: ${pickupLng}, pickupLat: ${pickupLat}\n[RideMatching] Querying DB with: ${JSON.stringify(query)}\n[RideMatching] DB returned ${nearbyDrivers.length} drivers\n`);
 
     const { getOnlineDrivers } = require('../config/socket');
     const onlineDrivers = getOnlineDrivers();

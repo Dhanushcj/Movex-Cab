@@ -1,63 +1,63 @@
 :root {
-  /* Colors */
-  --primary: #6C5CE7;
-  --primary-hover: #5a4bcf;
-  --primary-light: rgba(108, 92, 231, 0.1);
-  --secondary: #00CEC9;
+  /* Colors - Classic Uber/Ola style: Black, White, Grey, and a minimal accent color */
+  --primary: #000000;
+  --primary-hover: #333333;
+  --primary-light: #e5e5e5;
+  --secondary: #276ef1; /* Typical cab app blue */
   
   /* Neutral / Backgrounds */
-  --bg-dark: #0f172a;
-  --bg-darker: #0b1120;
-  --bg-card: #1e293b;
-  --bg-card-hover: #26344b;
+  --bg-dark: #f6f6f6; /* Use light theme by default */
+  --bg-darker: #ffffff;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f3f3f3;
   
   /* Text */
-  --text-main: #f8fafc;
-  --text-muted: #94a3b8;
+  --text-main: #000000;
+  --text-muted: #545454;
   
   /* Borders */
-  --border-light: rgba(255, 255, 255, 0.1);
+  --border-light: #e2e2e2;
   
   /* Status */
-  --success: #10B981;
-  --warning: #F59E0B;
-  --error: #EF4444;
+  --success: #05a357;
+  --warning: #f5a623;
+  --error: #e11900;
 
   /* Fonts */
-  --font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   
   /* Layout */
   --max-width: 1200px;
-  --border-radius: 12px;
-  --border-radius-lg: 16px;
+  --border-radius: 4px; /* Sharper corners for a traditional manual look */
+  --border-radius-lg: 8px;
   
-  /* Shadows & Glass */
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
-  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.3);
-  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.4);
-  --glass-bg: rgba(30, 41, 59, 0.7);
-  --glass-border: rgba(255, 255, 255, 0.08);
+  /* Shadows & Glass - ALL REMOVED/FLATTENED */
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --glass-bg: #ffffff;
+  --glass-border: #e2e2e2;
   
   /* Animations */
-  --transition-fast: 0.2s ease;
-  --transition-normal: 0.3s ease;
+  --transition-fast: 0s;
+  --transition-normal: 0.1s ease;
 }
 
-/* Light Theme Variables */
+/* Light Theme Variables (Forced light theme for flat design) */
 [data-theme="light"] {
-  --bg-dark: #f8fafc;
-  --bg-darker: #e2e8f0;
+  --bg-dark: #f6f6f6;
+  --bg-darker: #e5e5e5;
   --bg-card: #ffffff;
-  --bg-card-hover: #f1f5f9;
+  --bg-card-hover: #f3f3f3;
   
-  --text-main: #0f172a;
-  --text-muted: #64748b;
+  --text-main: #000000;
+  --text-muted: #545454;
   
-  --border-light: rgba(0, 0, 0, 0.1);
-  --glass-bg: rgba(255, 255, 255, 0.8);
-  --glass-border: rgba(0, 0, 0, 0.1);
+  --border-light: #e2e2e2;
+  --glass-bg: #ffffff;
+  --glass-border: #e2e2e2;
   
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
-  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
-  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
 }

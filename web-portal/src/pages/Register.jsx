@@ -1,11 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { User, Mail, Lock, Phone } from 'lucide-react';
 import styles from './Auth.module.css';
+import API from '../services/api';
+import { AuthContext } from '../context/AuthContext';
 
 const Register = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { login } = useContext(AuthContext);
   const [role, setRole] = useState('customer'); // 'customer' or 'driver'
   const [formData, setFormData] = useState({
     name: '',
@@ -34,18 +37,28 @@ const Register = () => {
     setLoading(true);
     
     try {
-      // Simulate API call for now
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      const endpoint = role === 'driver' ? '/auth/driver/register' : '/auth/register';
+      const payload = { ...formData };
       
-      // In reality we would call: axios.post('/api/auth/register', { ...formData, role })
+      // Add default driver requirements
+      if (role === 'driver') {
+        payload.vehicle = { type: 'mini', make: 'Generic', model: 'Car', year: 2020, plateNumber: 'XXX-000', color: 'White' };
+      }
       
-      if (role === 'customer') {
-        navigate('/customer/dashboard');
+      const response = await API.post(endpoint, payload);
+      
+      if (response.data.success) {
+        login(response.data.data, response.data.token, role);
+        if (role === 'customer') {
+          navigate('/customer/dashboard');
+        } else {
+          navigate('/driver/dashboard');
+        }
       } else {
-        navigate('/driver/dashboard');
+        setError(response.data.message || 'Registration failed');
       }
     } catch (err) {
-      setError('Registration failed. Please try again.');
+      setError(err.response?.data?.message || 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
     }
