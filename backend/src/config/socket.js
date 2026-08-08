@@ -158,6 +158,12 @@ const initializeSocket = (server) => {
       // Track active ride
       activeRides.set(bookingId, { driverId, status: 'accepted' });
 
+      // Clear from active dispatches to prevent re-dispatching if driver reconnects
+      const { getActiveDispatches } = require('../services/rideMatching');
+      if (typeof getActiveDispatches === 'function') {
+        getActiveDispatches().delete(bookingId.toString());
+      }
+
       // Notify customer
       io.to(`ride:${bookingId}`).emit('ride:accepted', {
         bookingId,
@@ -235,6 +241,12 @@ const initializeSocket = (server) => {
             if (driverData) {
               driverData.available = false;
               onlineDrivers.set(driverId, driverData);
+            }
+
+            // Clear from active dispatches to prevent re-dispatching
+            const { getActiveDispatches } = require('../services/rideMatching');
+            if (typeof getActiveDispatches === 'function') {
+              getActiveDispatches().delete(bookingId.toString());
             }
 
             // Notify Driver

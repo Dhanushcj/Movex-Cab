@@ -509,6 +509,12 @@ const cancelBooking = async (req, res, next) => {
     booking.cancelledAt = new Date();
     await booking.save();
 
+    // Clear from active dispatches if it was searching
+    const { getActiveDispatches } = require('../services/rideMatching');
+    if (typeof getActiveDispatches === 'function') {
+      getActiveDispatches().delete(booking._id.toString());
+    }
+
     // Restore driver availability if ride was assigned
     if (booking.driver) {
       await Driver.findByIdAndUpdate(booking.driver, { $set: { isAvailable: true } });
