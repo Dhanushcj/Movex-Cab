@@ -48,6 +48,9 @@ try {
   if (!/already exists/.test(error.message)) {
     console.error('Firebase Admin Initialization Error:', error.message);
     console.warn('Authentication will fail without proper Firebase credentials configured.');
+    try {
+      admin.initializeApp({ projectId: 'dummy-project' });
+    } catch (e) {}
   }
 }
 
