@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Mail, Lock, Phone } from 'lucide-react';
 import styles from './Auth.module.css';
-import axios from 'axios'; // We will use this later
+import API from '../services/api';
+import { AuthContext } from '../context/AuthContext';
 
 const Login = () => {
   const navigate = useNavigate();
+  const { login } = useContext(AuthContext);
   const [role, setRole] = useState('customer'); // 'customer' or 'driver'
   const [loginMethod, setLoginMethod] = useState('email'); // 'email' or 'phone'
   const [identifier, setIdentifier] = useState('');
@@ -19,18 +21,32 @@ const Login = () => {
     setLoading(true);
     
     try {
-      // Simulate API call for now
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      const endpoint = '/auth/login';
+      const payload = {
+        password,
+        role
+      };
       
-      // In reality we would call: axios.post('/api/auth/login', { identifier, password, role })
-      
-      if (role === 'customer') {
-        navigate('/customer/dashboard');
+      if (identifier.includes('@')) {
+        payload.email = identifier;
       } else {
-        navigate('/driver/dashboard');
+        payload.phone = identifier;
+      }
+
+      const response = await API.post(endpoint, payload);
+      
+      if (response.data.success) {
+        login(response.data.data, response.data.token, role);
+        if (role === 'customer') {
+          navigate('/customer/dashboard');
+        } else {
+          navigate('/driver/dashboard');
+        }
+      } else {
+        setError(response.data.message || 'Login failed');
       }
     } catch (err) {
-      setError('Invalid credentials. Please try again.');
+      setError(err.response?.data?.message || 'Invalid credentials. Please try again.');
     } finally {
       setLoading(false);
     }

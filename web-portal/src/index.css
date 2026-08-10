@@ -170,9 +170,9 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: var(--shadow-sm);
 }
 
-.btn-outline-blue:hover {
-  background-color: var(--bg-soft-blue);
-  color: var(--forge-blue-deep);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
+/* Standard Panel utility (formerly glass-panel) */
+.glass-panel {
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--border-radius);
 }

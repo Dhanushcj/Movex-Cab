@@ -1,99 +1,146 @@
 .bookingContainer {
   display: flex;
-  height: calc(100vh - 160px);
+  height: calc(100vh - 120px);
   gap: 24px;
 }
 
-.leftPanel {
+.bookingPanel {
   flex: 1;
   max-width: 400px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--border-radius-lg);
   display: flex;
   flex-direction: column;
-  gap: 24px;
-}
-
-.mapPanel {
-  flex: 2;
-  border-radius: var(--border-radius-lg);
   overflow: hidden;
+  box-shadow: var(--shadow-sm);
   position: relative;
-  background: var(--bg-darker);
-  border: 1px solid var(--glass-border);
 }
 
-.mapPlaceholder {
-  width: 100%;
-  height: 100%;
+.panelHeader {
+  padding: 24px;
+  border-bottom: 1px solid var(--border-light);
+  background: var(--bg-dark);
+  color: white;
+}
+
+.panelHeader h2 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.panelHeader p {
+  margin: 4px 0 0 0;
+  color: #aaa;
+  font-size: 14px;
+}
+
+.panelContent {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+}
+
+.stepSection {
+  margin-bottom: 32px;
+}
+
+.stepTitle {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: var(--text-main);
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.routesList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.routeCard {
   display: flex;
   align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  color: var(--text-muted);
-  background: radial-gradient(circle, rgba(108, 92, 231, 0.1) 0%, transparent 70%);
+  padding: 16px;
+  background: var(--bg-main);
+  border: 1px solid var(--border-light);
+  border-left-width: 4px;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: var(--transition-fast);
 }
 
-.searchCard {
-  background: var(--glass-bg);
-  backdrop-filter: blur(12px);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--border-radius-lg);
-  padding: 24px;
+.routeCard:hover {
+  background: #f9fafb;
+  border-right-color: #ccc;
+  border-top-color: #ccc;
+  border-bottom-color: #ccc;
+}
+
+.routeCardInfo {
+  flex: 1;
+}
+
+.routeCardInfo h4 {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text-main);
+}
+
+.routeCardInfo p {
+  margin: 4px 0 0 0;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.selectedRouteBanner {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  padding: 16px;
+  border-radius: var(--border-radius);
+}
+
+.btnLink {
+  background: none;
+  border: none;
+  color: var(--primary);
+  padding: 0;
+  font-size: 12px;
+  margin-top: 4px;
+  cursor: pointer;
+  text-decoration: underline;
 }
 
 .inputGroup {
   display: flex;
   align-items: center;
-  gap: 16px;
-  margin-bottom: 16px;
-}
-
-.iconWrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-}
-
-.dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: var(--success);
-}
-
-.line {
-  width: 2px;
-  height: 24px;
-  background: var(--glass-border);
-}
-
-.square {
-  width: 12px;
-  height: 12px;
-  background: var(--primary);
-}
-
-.inputs {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.input {
-  width: 100%;
-  padding: 12px 16px;
-  background: rgba(15, 23, 42, 0.5);
-  border: 1px solid var(--glass-border);
+  background: var(--bg-main);
+  border: 1px solid var(--border-light);
   border-radius: var(--border-radius);
+  padding: 0 16px;
+  height: 48px;
+}
+
+.inputIcon {
+  margin-right: 12px;
+  display: flex;
+  align-items: center;
+}
+
+.selectInput {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  height: 100%;
+  font-size: 14px;
   color: var(--text-main);
+  cursor: pointer;
 }
 
-.input:focus {
-  border-color: var(--primary);
-}
-
-.vehicleOptions {
+.vehiclesList {
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -102,51 +149,40 @@
 .vehicleCard {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   padding: 16px;
-  background: rgba(15, 23, 42, 0.5);
-  border: 1px solid var(--glass-border);
+  background: var(--bg-main);
+  border: 1px solid var(--border-light);
   border-radius: var(--border-radius);
   cursor: pointer;
   transition: var(--transition-fast);
 }
 
-.vehicleCard.selected {
+.selectedVehicle {
   border-color: var(--primary);
-  background: var(--primary-light);
+  background: #f0fdfa;
 }
 
 .vehicleInfo {
-  display: flex;
-  align-items: center;
-  gap: 16px;
+  flex: 1;
+  margin-left: 16px;
 }
 
-.vehicleIcon {
-  width: 48px;
-  height: 48px;
-  background: var(--bg-card);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--primary);
-}
-
-.vehicleDetails h4 {
+.vehicleInfo h4 {
   margin: 0;
   font-size: 16px;
+  color: var(--text-main);
 }
 
-.vehicleDetails p {
-  margin: 4px 0 0;
+.vehicleMeta {
+  margin-top: 4px;
   font-size: 12px;
   color: var(--text-muted);
 }
 
 .vehiclePrice {
-  font-weight: 600;
+  font-weight: 700;
   font-size: 16px;
+  color: var(--text-main);
 }
 
 .btnBook {
@@ -154,9 +190,12 @@
   padding: 16px;
   background: var(--primary);
   color: white;
+  border: none;
+  border-radius: var(--border-radius);
   font-size: 16px;
   font-weight: 600;
-  border-radius: var(--border-radius);
+  cursor: pointer;
+  margin-top: 16px;
   transition: var(--transition-fast);
 }
 
@@ -164,18 +203,52 @@
   background: var(--primary-hover);
 }
 
-@media (max-width: 900px) {
-  .bookingContainer {
-    flex-direction: column;
-    height: auto;
-  }
-  
-  .leftPanel {
-    max-width: 100%;
-  }
-  
-  .mapPanel {
-    height: 300px;
-    flex: none;
-  }
+.btnBook:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.mapPanel {
+  flex: 2;
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--border-light);
+  background: #eaeaea;
+}
+
+.mapLoading {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #888;
+}
+
+.loadingOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.9);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--border-light);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
