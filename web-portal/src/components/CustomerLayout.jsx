@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { Home, MapPin, Clock, User, LogOut } from 'lucide-react';
+import { Home, MapPin, Clock, User, LogOut, CreditCard } from 'lucide-react';
 import { AuthContext } from '../context/AuthContext';
 import styles from './PortalLayout.module.css';
 
@@ -13,6 +13,7 @@ const CustomerLayout = () => {
     { name: 'Dashboard', path: '/customer/dashboard', icon: Home },
     { name: 'Book a Ride', path: '/customer/book', icon: MapPin },
     { name: 'My Rides', path: '/customer/history', icon: Clock },
+    { name: 'Passes', path: '/customer/passes', icon: CreditCard },
     { name: 'Profile', path: '/customer/profile', icon: User },
   ];
 

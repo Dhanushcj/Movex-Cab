@@ -10,6 +10,7 @@ import CustomerBooking from './pages/CustomerBooking';
 import CustomerHistory from './pages/CustomerHistory';
 import CustomerProfile from './pages/CustomerProfile';
 import CustomerTracking from './pages/CustomerTracking';
+import CustomerPass from './pages/CustomerPass';
 
 import DriverLayout from './components/DriverLayout';
 import DriverDashboard from './pages/DriverDashboard';
@@ -31,6 +32,7 @@ function App() {
           <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<CustomerDashboard />} />
           <Route path="book" element={<CustomerBooking />} />
+          <Route path="passes" element={<CustomerPass />} />
           <Route path="tracking/:id" element={<CustomerTracking />} />
           <Route path="history" element={<CustomerHistory />} />
           <Route path="profile" element={<CustomerProfile />} />

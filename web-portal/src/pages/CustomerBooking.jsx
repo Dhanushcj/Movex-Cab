@@ -84,11 +84,11 @@ const CustomerBooking = () => {
   const mapRef = useRef(null);
 
   const vehicles = [
-    { id: 'bike', name: 'MoveX Bike', desc: 'Fastest in traffic', price: 6.50, capacity: 1, time: '2 min', icon: Bike },
-    { id: 'auto', name: 'MoveX Auto', desc: 'Breeze through streets', price: 9.00, capacity: 3, time: '3 min', icon: CarFront },
-    { id: 'mini', name: 'MoveX Mini', desc: 'Compact rides for daily commutes', price: 12.50, capacity: 3, time: '3 min', icon: CarFront },
-    { id: 'sedan', name: 'MoveX Sedan', desc: 'Comfortable rides for longer trips', price: 18.00, capacity: 4, time: '5 min', icon: CarFront },
-    { id: 'suv', name: 'MoveX XL', desc: 'Extra space for groups and luggage', price: 26.50, capacity: 6, time: '8 min', icon: CarFront },
+    { id: 'bike', name: 'MoveX Bike', desc: 'Fastest in traffic', capacity: 1, time: '2 min', icon: Bike },
+    { id: 'auto', name: 'MoveX Auto', desc: 'Breeze through streets', capacity: 3, time: '3 min', icon: CarFront },
+    { id: 'mini', name: 'MoveX Mini', desc: 'Compact rides for daily commutes', capacity: 3, time: '3 min', icon: CarFront },
+    { id: 'sedan', name: 'MoveX Sedan', desc: 'Comfortable rides for longer trips', capacity: 4, time: '5 min', icon: CarFront },
+    { id: 'suv', name: 'MoveX XL', desc: 'Extra space for groups and luggage', capacity: 6, time: '8 min', icon: CarFront },
   ];
 
   useEffect(() => {
@@ -109,21 +109,6 @@ const CustomerBooking = () => {
     };
     fetchRoutes();
   }, []);
-
-  // Fetch driver locations for the selected route
-  useEffect(() => {
-    if (!selectedRoute) return;
-    
-    // In a real app, this would be a socket listener for real-time locations or an API call filtered by route
-    // Mocking active drivers around the route for visual effect
-    const mockDrivers = [];
-    if (selectedRoute.decodedPolyline.length > 5) {
-      mockDrivers.push({ id: 'd1', lat: selectedRoute.decodedPolyline[2].lat, lng: selectedRoute.decodedPolyline[2].lng, type: 'sedan' });
-      mockDrivers.push({ id: 'd2', lat: selectedRoute.decodedPolyline[Math.floor(selectedRoute.decodedPolyline.length/2)].lat, lng: selectedRoute.decodedPolyline[Math.floor(selectedRoute.decodedPolyline.length/2)].lng, type: 'auto' });
-      mockDrivers.push({ id: 'd3', lat: selectedRoute.decodedPolyline[selectedRoute.decodedPolyline.length - 3].lat, lng: selectedRoute.decodedPolyline[selectedRoute.decodedPolyline.length - 3].lng, type: 'bike' });
-    }
-    setActiveDrivers(mockDrivers);
-  }, [selectedRoute]);
 
   const handleRouteSelect = (route) => {
     setSelectedRoute(route);
@@ -306,9 +291,6 @@ const CustomerBooking = () => {
                       <h4>{v.name} <Users size={12} className={styles.capacityIcon}/> {v.capacity}</h4>
                       <p>{v.time} away</p>
                     </div>
-                    <div className={styles.vehiclePrice}>
-                      ${v.price.toFixed(2)}
-                    </div>
                   </div>
                 )
               })}
@@ -380,10 +362,9 @@ const CustomerBooking = () => {
               ]
             }}
           >
-            {routes.map((route) => {
+            {routes.filter(r => !selectedRoute || selectedRoute._id === r._id).map((route) => {
               const isSelected = selectedRoute?._id === route._id;
-              const isVisible = !selectedRoute || isSelected;
-
+              
               return (
                 <Polyline
                   key={route._id}
@@ -394,7 +375,6 @@ const CustomerBooking = () => {
                     strokeWeight: isSelected ? 6 : 4,
                     clickable: true,
                     zIndex: isSelected ? 10 : 1,
-                    visible: isVisible
                   }}
                   onClick={(e) => handlePolylineClick(e, route)}
                 />
@@ -432,22 +412,6 @@ const CustomerBooking = () => {
                 title="Drop-off Point"
               />
             )}
-
-            {/* Mock Drivers (Only shown when route selected) */}
-            {selectedRoute && activeDrivers.map((driver) => (
-              <Marker
-                key={driver.id}
-                position={{ lat: driver.lat, lng: driver.lng }}
-                icon={{
-                  url: driver.type === 'bike' ? 'https://cdn-icons-png.flaticon.com/512/2972/2972166.png' : 
-                       driver.type === 'auto' ? 'https://cdn-icons-png.flaticon.com/512/1048/1048313.png' :
-                       'https://cdn-icons-png.flaticon.com/512/3204/3204966.png',
-                  scaledSize: new window.google.maps.Size(32, 32),
-                  origin: new window.google.maps.Point(0, 0),
-                  anchor: new window.google.maps.Point(16, 16)
-                }}
-              />
-            ))}
           </GoogleMap>
         ) : (
           <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
