@@ -1,6 +1,6 @@
 import React from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { Home, Navigation, Wallet, FileText, User, LogOut } from 'lucide-react';
+import { Home, Navigation, LifeBuoy, FileText, User, LogOut } from 'lucide-react';
 import styles from './PortalLayout.module.css';
 
 const DriverLayout = () => {
@@ -10,7 +10,7 @@ const DriverLayout = () => {
   const navItems = [
     { name: 'Dashboard', path: '/driver/dashboard', icon: Home },
     { name: 'Active Trip', path: '/driver/trip', icon: Navigation },
-    { name: 'Earnings', path: '/driver/wallet', icon: Wallet },
+    { name: 'Support', path: '/driver/support', icon: LifeBuoy },
     { name: 'Documents', path: '/driver/documents', icon: FileText },
     { name: 'Profile', path: '/driver/profile', icon: User },
   ];

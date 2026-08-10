@@ -15,7 +15,7 @@ import DriverLayout from './components/DriverLayout';
 import DriverDashboard from './pages/DriverDashboard';
 import DriverActiveRide from './pages/DriverActiveRide';
 import DriverTrip from './pages/DriverTrip';
-import DriverWallet from './pages/DriverWallet';
+import DriverSupport from './pages/DriverSupport';
 import DriverProfile from './pages/DriverProfile';
 
 function App() {
@@ -42,7 +42,7 @@ function App() {
           <Route path="dashboard" element={<DriverDashboard />} />
           <Route path="active-ride/:id" element={<DriverActiveRide />} />
           <Route path="trip" element={<DriverTrip />} />
-          <Route path="wallet" element={<DriverWallet />} />
+          <Route path="support" element={<DriverSupport />} />
           <Route path="documents" element={<DriverProfile />} />
           <Route path="profile" element={<DriverProfile />} />
         </Route>
