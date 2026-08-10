@@ -204,14 +204,33 @@ const CustomerTracking = () => {
                 </div>
               </div>
 
-              {status === 'completed' && (
+              {status === 'completed' ? (
                 <button 
                   className={styles.btnPrimary} 
                   onClick={() => navigate('/customer/dashboard')}
                 >
                   Done
                 </button>
-              )}
+              ) : (status === 'searching' || status === 'accepted') ? (
+                <button 
+                  className={styles.btnSecondary} 
+                  style={{ width: '100%', borderColor: 'var(--error)', color: 'var(--error)' }}
+                  onClick={async () => {
+                    if (window.confirm("Are you sure you want to cancel this ride?")) {
+                      try {
+                        const res = await API.put(`/bookings/${ride._id}/cancel`, { reason: 'User requested cancellation' });
+                        if (res.data.success) {
+                          navigate('/customer/history');
+                        }
+                      } catch (err) {
+                        alert(err.response?.data?.message || 'Failed to cancel ride');
+                      }
+                    }
+                  }}
+                >
+                  Cancel Ride
+                </button>
+              ) : null}
             </>
           )}
         </div>

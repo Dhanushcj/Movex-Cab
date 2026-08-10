@@ -22,6 +22,23 @@ const CustomerHistory = () => {
     fetchHistory();
   }, []);
 
+  const handleCancelRide = async (id) => {
+    if (window.confirm("Are you sure you want to cancel this ride?")) {
+      try {
+        const res = await API.put(`/bookings/${id}/cancel`, { reason: 'User requested cancellation' });
+        if (res.data.success) {
+          // Update the specific ride status in state
+          setPastRides(prev => prev.map(ride => 
+            ride._id === id ? { ...ride, status: 'cancelled' } : ride
+          ));
+        }
+      } catch (err) {
+        console.error('Failed to cancel ride', err);
+        alert(err.response?.data?.message || 'Failed to cancel ride');
+      }
+    }
+  };
+
   return (
     <div>
       <h1 style={{ fontSize: '32px', marginBottom: '24px' }}>Ride History</h1>
@@ -47,7 +64,9 @@ const CustomerHistory = () => {
               : (ride.fare || 0);
 
             const isCancelled = ride.status === 'cancelled';
-            const displayStatus = isCancelled ? 'Cancelled' : (ride.status === 'completed' ? 'Completed' : 'In Progress');
+            const isCompleted = ride.status === 'completed';
+            const canCancel = !isCancelled && !isCompleted && ride.status !== 'failed';
+            const displayStatus = isCancelled ? 'Cancelled' : (isCompleted ? 'Completed' : 'In Progress');
 
             return (
               <div key={ride._id} className="glass-panel" style={{ padding: '24px', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '24px' }}>
@@ -78,16 +97,35 @@ const CustomerHistory = () => {
                 </div>
                 
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '12px' }}>
-                  <span style={{ 
-                    padding: '4px 12px', 
-                    borderRadius: '20px', 
-                    fontSize: '12px',
-                    fontWeight: '600',
-                    background: displayStatus === 'Completed' ? 'rgba(16, 185, 129, 0.1)' : (displayStatus === 'Cancelled' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(212, 159, 12, 0.1)'),
-                    color: displayStatus === 'Completed' ? 'var(--success)' : (displayStatus === 'Cancelled' ? 'var(--error)' : '#D49F0C')
-                  }}>
-                    {displayStatus}
-                  </span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    {canCancel && (
+                      <button 
+                        onClick={() => handleCancelRide(ride._id)}
+                        style={{
+                          padding: '4px 12px',
+                          borderRadius: '20px',
+                          border: '1px solid var(--error)',
+                          background: 'transparent',
+                          color: 'var(--error)',
+                          cursor: 'pointer',
+                          fontSize: '12px',
+                          fontWeight: '600'
+                        }}
+                      >
+                        Cancel Ride
+                      </button>
+                    )}
+                    <span style={{ 
+                      padding: '4px 12px', 
+                      borderRadius: '20px', 
+                      fontSize: '12px',
+                      fontWeight: '600',
+                      background: displayStatus === 'Completed' ? 'rgba(16, 185, 129, 0.1)' : (displayStatus === 'Cancelled' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(212, 159, 12, 0.1)'),
+                      color: displayStatus === 'Completed' ? 'var(--success)' : (displayStatus === 'Cancelled' ? 'var(--error)' : '#D49F0C')
+                    }}>
+                      {displayStatus}
+                    </span>
+                  </div>
                   <h3 style={{ fontSize: '24px', margin: 0 }}>₹{fareAmount}</h3>
                   <p style={{ color: 'var(--text-muted)', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                     <Clock size={14} /> {timeStr} • {ride.vehicleType || 'Ride'}
