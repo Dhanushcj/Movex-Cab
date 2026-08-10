@@ -33,7 +33,35 @@ const decodePolyline = (t) => {
   return i;
 };
 
-// Custom snapping logic removed in favor of strict junction selection
+// Custom snapping logic to map the click to the closest polyline coordinate
+const getClosestPointOnLine = (pt, line) => {
+  if (!line || line.length < 2) return pt;
+  let minDistance = Infinity;
+  let closestPoint = null;
+  
+  for (let i = 0; i < line.length - 1; i++) {
+    const p1 = line[i];
+    const p2 = line[i+1];
+    
+    const l2 = Math.pow(p1.lat - p2.lat, 2) + Math.pow(p1.lng - p2.lng, 2);
+    if (l2 === 0) continue;
+    
+    let t = ((pt.lat - p1.lat) * (p2.lat - p1.lat) + (pt.lng - p1.lng) * (p2.lng - p1.lng)) / l2;
+    t = Math.max(0, Math.min(1, t));
+    
+    const proj = {
+      lat: p1.lat + t * (p2.lat - p1.lat),
+      lng: p1.lng + t * (p2.lng - p1.lng)
+    };
+    
+    const dist = Math.sqrt(Math.pow(pt.lat - proj.lat, 2) + Math.pow(pt.lng - proj.lng, 2));
+    if (dist < minDistance) {
+      minDistance = dist;
+      closestPoint = proj;
+    }
+  }
+  return closestPoint || pt;
+};
 
 const CustomerBooking = () => {
   const navigate = useNavigate();
@@ -106,23 +134,22 @@ const CustomerBooking = () => {
   }, []);
 
   useEffect(() => {
-    if (currentPosition) {
-      const fetchDrivers = async () => {
-        try {
-          const res = await API.get(`/drivers/nearby?lat=${currentPosition.lat}&lng=${currentPosition.lng}&radius=10`);
-          if (res.data.success) {
-            setActiveDrivers(res.data.drivers || []);
-          }
-        } catch (err) {
-          console.error('Failed to fetch nearby drivers', err);
+    const fetchDrivers = async () => {
+      const pos = currentPosition || mapCenter;
+      try {
+        const res = await API.get(`/drivers/nearby?lat=${pos.lat}&lng=${pos.lng}&radius=10`);
+        if (res.data.success) {
+          setActiveDrivers(res.data.drivers || []);
         }
-      };
-      
-      fetchDrivers();
-      const intervalId = setInterval(fetchDrivers, 10000);
-      return () => clearInterval(intervalId);
-    }
-  }, [currentPosition]);
+      } catch (err) {
+        console.error('Failed to fetch nearby drivers', err);
+      }
+    };
+    
+    fetchDrivers();
+    const intervalId = setInterval(fetchDrivers, 10000);
+    return () => clearInterval(intervalId);
+  }, [currentPosition, mapCenter]);
 
   const handleRouteSelect = (route) => {
     setSelectedRoute(route);
@@ -139,7 +166,29 @@ const CustomerBooking = () => {
   };
 
   const reverseGeocode = async (lat, lng) => {
-    // Unused now that we use strict junctions
+    if (window.google) {
+      try {
+        const geocoder = new window.google.maps.Geocoder();
+        const response = await geocoder.geocode({ location: { lat, lng } });
+        if (response.results[0]) {
+          return response.results[0].formatted_address.split(',')[0];
+        }
+      } catch (e) {
+        console.warn("Google Geocoder failed, trying fallback: " + e);
+      }
+    }
+    
+    // Fallback to OSM Nominatim
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`);
+      const data = await res.json();
+      if (data && data.address) {
+        return data.address.road || data.address.suburb || data.address.neighbourhood || data.display_name.split(',')[0];
+      }
+    } catch (e) {
+      console.error("OSM Geocoder failed: " + e);
+    }
+    
     return "Selected Location";
   };
 
@@ -151,9 +200,32 @@ const CustomerBooking = () => {
     }
   };
 
-  const handlePolylineClick = (e, route) => {
+  const handlePolylineClick = async (e, route) => {
+    // If not the selected route, just select it
     if (!selectedRoute || selectedRoute._id !== route._id) {
       handleRouteSelect(route);
+      return;
+    }
+
+    // Both points already selected, do nothing
+    if (pickupLocation && dropLocation) return;
+
+    const clickCoord = { lat: e.latLng.lat(), lng: e.latLng.lng() };
+    const lineCoords = route.decodedPolyline;
+    const snappedCoord = getClosestPointOnLine(clickCoord, lineCoords);
+    
+    const locationName = await reverseGeocode(snappedCoord.lat, snappedCoord.lng);
+
+    const customJunction = {
+      _id: `temp-${Date.now()}`,
+      name: locationName,
+      location: { coordinates: [snappedCoord.lng, snappedCoord.lat] }
+    };
+
+    if (!pickupLocation) {
+      setPickupLocation(customJunction);
+    } else {
+      setDropLocation(customJunction);
     }
   };
 
@@ -235,7 +307,7 @@ const CustomerBooking = () => {
               <div className={styles.stepIcon}><MapPin size={24} color="#EF4444" /></div>
               <h3>3. Set Drop-off Point</h3>
               <p>Pickup: <b>{pickupLocation.name}</b></p>
-              <p>Select your drop-off point from the available route stops.</p>
+              <p>Tap further along the route to set your drop-off.</p>
               <button className={styles.btnSecondary} onClick={clearSelection}>Change Pickup</button>
             </div>
           ) : (
@@ -371,36 +443,37 @@ const CustomerBooking = () => {
               );
             })}
 
-            {/* Render Junction Markers for selected route */}
-            {selectedRoute && selectedRoute.junctions && selectedRoute.junctions.map((junction) => {
-              const isPickup = pickupLocation?._id === junction._id;
-              const isDrop = dropLocation?._id === junction._id;
-              
-              let markerColor = '#64748b'; // Default grey for unselected junctions
-              if (isPickup) markerColor = 'var(--forge-blue)';
-              if (isDrop) markerColor = '#EF4444';
-
-              // Only show unselected junctions if we still need to pick one
-              if (!isPickup && !isDrop && pickupLocation && dropLocation) return null;
-
-              return (
-                <Marker
-                  key={junction._id}
-                  position={{ lat: junction.location.coordinates[1], lng: junction.location.coordinates[0] }}
-                  icon={{
-                    path: window.google.maps.SymbolPath.CIRCLE,
-                    scale: (isPickup || isDrop) ? 8 : 6,
-                    fillColor: markerColor,
-                    fillOpacity: 1,
-                    strokeWeight: 2,
-                    strokeColor: '#FFFFFF',
-                  }}
-                  title={junction.name}
-                  onClick={() => handleJunctionClick(junction)}
-                  zIndex={(isPickup || isDrop) ? 10 : 5}
-                />
-              );
-            })}
+            {/* Custom Pickup Marker */}
+            {pickupLocation && (
+              <Marker
+                position={{ lat: pickupLocation.location.coordinates[1], lng: pickupLocation.location.coordinates[0] }}
+                icon={{
+                  path: window.google.maps.SymbolPath.CIRCLE,
+                  scale: 8,
+                  fillColor: 'var(--forge-blue)',
+                  fillOpacity: 1,
+                  strokeWeight: 2,
+                  strokeColor: '#FFFFFF',
+                }}
+                title="Pickup Point"
+              />
+            )}
+            
+            {/* Custom Drop Marker */}
+            {dropLocation && (
+              <Marker
+                position={{ lat: dropLocation.location.coordinates[1], lng: dropLocation.location.coordinates[0] }}
+                icon={{
+                  path: window.google.maps.SymbolPath.CIRCLE,
+                  scale: 8,
+                  fillColor: '#EF4444',
+                  fillOpacity: 1,
+                  strokeWeight: 2,
+                  strokeColor: '#FFFFFF',
+                }}
+                title="Drop-off Point"
+              />
+            )}
             {currentPosition && (
               <Marker
                 position={currentPosition}
@@ -426,8 +499,8 @@ const CustomerBooking = () => {
                   lng: driver.currentLocation.coordinates[0]
                 }}
                 icon={{
-                  url: '/car-map.png',
-                  scaledSize: new window.google.maps.Size(40, 40),
+                  url: '/car.png',
+                  scaledSize: new window.google.maps.Size(32, 32),
                 }}
                 title={driver.name || 'Driver'}
                 zIndex={15}
