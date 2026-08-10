@@ -384,7 +384,7 @@ const CustomerBooking = () => {
           >
             {routes.map((route) => {
               const isSelected = selectedRoute?._id === route._id;
-              if (selectedRoute && !isSelected) return null; // hide other routes
+              const isVisible = !selectedRoute || isSelected;
 
               return (
                 <Polyline
@@ -395,7 +395,8 @@ const CustomerBooking = () => {
                     strokeOpacity: isSelected ? 1.0 : 0.6,
                     strokeWeight: isSelected ? 6 : 4,
                     clickable: true,
-                    zIndex: isSelected ? 10 : 1
+                    zIndex: isSelected ? 10 : 1,
+                    visible: isVisible
                   }}
                   onClick={(e) => handlePolylineClick(e, route)}
                 />
