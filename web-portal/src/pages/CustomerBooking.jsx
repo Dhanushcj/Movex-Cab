@@ -426,8 +426,8 @@ const CustomerBooking = () => {
                   lng: driver.currentLocation.coordinates[0]
                 }}
                 icon={{
-                  url: '/car.png',
-                  scaledSize: new window.google.maps.Size(32, 32),
+                  url: '/car-map.png',
+                  scaledSize: new window.google.maps.Size(40, 40),
                 }}
                 title={driver.name || 'Driver'}
                 zIndex={15}

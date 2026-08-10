@@ -297,10 +297,10 @@ const CustomerTracking = () => {
               <Marker
                 position={{ lat: driverLat, lng: driverLng }}
                 icon={{
-                  url: 'https://cdn-icons-png.flaticon.com/512/3204/3204966.png', // Fallback to a car-like icon or anchor. Ideally use a clean car icon.
-                  scaledSize: new window.google.maps.Size(32, 32),
+                  url: '/car-map.png',
+                  scaledSize: new window.google.maps.Size(40, 40),
                   origin: new window.google.maps.Point(0, 0),
-                  anchor: new window.google.maps.Point(16, 16)
+                  anchor: new window.google.maps.Point(20, 20)
                 }}
                 title="Driver Location"
                 zIndex={10}
