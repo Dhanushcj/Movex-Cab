@@ -6,7 +6,7 @@ import styles from './CustomerBooking.module.css';
 import API from '../services/api';
 import { useSocket } from '../context/SocketContext';
 
-const center = { lat: 13.0827, lng: 80.2707 }; // Chennai
+const defaultCenter = { lat: 13.0827, lng: 80.2707 }; // Chennai
 const libraries = ['places', 'geometry'];
 const routeColors = ['#0053B3', '#D49F0C', '#10B981', '#EF4444', '#8B5CF6'];
 
@@ -74,6 +74,7 @@ const CustomerBooking = () => {
   const [loading, setLoading] = useState(false);
   const [bookingStatus, setBookingStatus] = useState(null); // null, 'searching', 'booked'
   const [activeDrivers, setActiveDrivers] = useState([]);
+  const [mapCenter, setMapCenter] = useState(defaultCenter);
 
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
@@ -117,6 +118,10 @@ const CustomerBooking = () => {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           setCurrentPosition({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          });
+          setMapCenter({
             lat: position.coords.latitude,
             lng: position.coords.longitude
           });
@@ -352,7 +357,7 @@ const CustomerBooking = () => {
         {isLoaded ? (
           <GoogleMap
             mapContainerStyle={{ width: '100%', height: '100%' }}
-            center={center}
+            center={mapCenter}
             zoom={12}
             onLoad={map => mapRef.current = map}
             options={{
