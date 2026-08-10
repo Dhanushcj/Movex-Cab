@@ -1,90 +1,104 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Calendar, MapPin, Clock } from 'lucide-react';
+import API from '../services/api';
 
 const CustomerHistory = () => {
-  const pastRides = [
-    {
-      id: 'TRP-10492',
-      date: 'Aug 04, 2026',
-      pickup: '123 Main St, City Center',
-      dropoff: 'Airport Terminal 2',
-      amount: '$45.00',
-      status: 'Completed',
-      vehicle: 'MoveX Sedan'
-    },
-    {
-      id: 'TRP-10381',
-      date: 'Aug 01, 2026',
-      pickup: 'Central Station',
-      dropoff: '890 Tech Park Blvd',
-      amount: '$18.50',
-      status: 'Completed',
-      vehicle: 'MoveX Mini'
-    },
-    {
-      id: 'TRP-10214',
-      date: 'Jul 28, 2026',
-      pickup: 'Shopping Mall',
-      dropoff: '123 Main St, City Center',
-      amount: '$22.00',
-      status: 'Cancelled',
-      vehicle: 'MoveX XL'
-    }
-  ];
+  const [pastRides, setPastRides] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchHistory = async () => {
+      try {
+        const res = await API.get('/users/me/rides');
+        if (res.data.success) {
+          setPastRides(res.data.data);
+        }
+      } catch (err) {
+        console.error('Failed to fetch history', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchHistory();
+  }, []);
 
   return (
     <div>
       <h1 style={{ fontSize: '32px', marginBottom: '24px' }}>Ride History</h1>
       
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-        {pastRides.map(ride => (
-          <div key={ride.id} className="glass-panel" style={{ padding: '24px', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '24px' }}>
+      {loading ? (
+        <p style={{ color: 'var(--text-muted)' }}>Loading history...</p>
+      ) : pastRides.length === 0 ? (
+        <p style={{ color: 'var(--text-muted)' }}>You have no past rides.</p>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          {pastRides.map(ride => {
+            const dateObj = new Date(ride.createdAt);
+            const dateStr = dateObj.toLocaleDateString([], { month: 'short', day: '2-digit', year: 'numeric' });
+            const timeStr = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             
-            <div style={{ display: 'flex', gap: '24px' }}>
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', color: 'var(--text-muted)' }}>
-                <Calendar size={24} />
-                <span style={{ fontSize: '12px' }}>{ride.date}</span>
-              </div>
-              
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                  <MapPin size={16} color="var(--success)" style={{ marginTop: '2px' }} />
-                  <div>
-                    <p style={{ fontSize: '14px', color: 'var(--text-muted)' }}>Pickup</p>
-                    <p style={{ fontWeight: '500' }}>{ride.pickup}</p>
+            // Format addresses
+            const pickupStr = ride.pickup?.address || 'Selected Location';
+            const dropoffStr = ride.dropoff?.address || ride.drop?.address || 'Selected Location';
+            
+            // Format price
+            const fareAmount = typeof ride.fare === 'object' 
+              ? (ride.fare?.finalFare || ride.fare?.estimatedFare || 0) 
+              : (ride.fare || 0);
+
+            const isCancelled = ride.status === 'cancelled';
+            const displayStatus = isCancelled ? 'Cancelled' : (ride.status === 'completed' ? 'Completed' : 'In Progress');
+
+            return (
+              <div key={ride._id} className="glass-panel" style={{ padding: '24px', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '24px' }}>
+                
+                <div style={{ display: 'flex', gap: '24px' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', color: 'var(--text-muted)' }}>
+                    <Calendar size={24} />
+                    <span style={{ fontSize: '12px' }}>{dateStr}</span>
+                  </div>
+                  
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                      <MapPin size={16} color="var(--success)" style={{ marginTop: '2px' }} />
+                      <div>
+                        <p style={{ fontSize: '14px', color: 'var(--text-muted)' }}>Pickup</p>
+                        <p style={{ fontWeight: '500' }}>{pickupStr}</p>
+                      </div>
+                    </div>
+                    
+                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                      <MapPin size={16} color="var(--error)" style={{ marginTop: '2px' }} />
+                      <div>
+                        <p style={{ fontSize: '14px', color: 'var(--text-muted)' }}>Dropoff</p>
+                        <p style={{ fontWeight: '500' }}>{dropoffStr}</p>
+                      </div>
+                    </div>
                   </div>
                 </div>
                 
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                  <MapPin size={16} color="var(--error)" style={{ marginTop: '2px' }} />
-                  <div>
-                    <p style={{ fontSize: '14px', color: 'var(--text-muted)' }}>Dropoff</p>
-                    <p style={{ fontWeight: '500' }}>{ride.dropoff}</p>
-                  </div>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '12px' }}>
+                  <span style={{ 
+                    padding: '4px 12px', 
+                    borderRadius: '20px', 
+                    fontSize: '12px',
+                    fontWeight: '600',
+                    background: displayStatus === 'Completed' ? 'rgba(16, 185, 129, 0.1)' : (displayStatus === 'Cancelled' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(212, 159, 12, 0.1)'),
+                    color: displayStatus === 'Completed' ? 'var(--success)' : (displayStatus === 'Cancelled' ? 'var(--error)' : '#D49F0C')
+                  }}>
+                    {displayStatus}
+                  </span>
+                  <h3 style={{ fontSize: '24px', margin: 0 }}>₹{fareAmount}</h3>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <Clock size={14} /> {timeStr} • {ride.vehicleType || 'Ride'}
+                  </p>
                 </div>
+                
               </div>
-            </div>
-            
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '12px' }}>
-              <span style={{ 
-                padding: '4px 12px', 
-                borderRadius: '20px', 
-                fontSize: '12px',
-                fontWeight: '600',
-                background: ride.status === 'Completed' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
-                color: ride.status === 'Completed' ? 'var(--success)' : 'var(--error)'
-              }}>
-                {ride.status}
-              </span>
-              <h3 style={{ fontSize: '24px', margin: 0 }}>{ride.amount}</h3>
-              <p style={{ color: 'var(--text-muted)', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <Clock size={14} /> {ride.id} • {ride.vehicle}
-              </p>
-            </div>
-            
-          </div>
-        ))}
-      </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 };
