@@ -1,117 +1,108 @@
 import React from 'react';
 import { User, Car, FileText, CheckCircle, AlertCircle } from 'lucide-react';
+import styles from './DriverProfile.module.css';
 
 const DriverProfile = () => {
   return (
-    <div>
-      <h1 style={{ fontSize: '32px', marginBottom: '24px' }}>Driver Profile & Documents</h1>
+    <div className={styles.profileContainer}>
+      <h1 className={styles.pageTitle}>Driver Profile & Documents</h1>
       
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '24px' }}>
+      <div className={styles.grid}>
         
-        {/* Profile Info */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-          <div className="glass-panel" style={{ padding: '32px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '24px' }}>
-              <div style={{ 
-                width: '80px', 
-                height: '80px', 
-                borderRadius: '50%', 
-                background: 'var(--primary)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '32px',
-                fontWeight: 'bold',
-                color: 'white'
-              }}>MK</div>
-              <div>
-                <h2 style={{ margin: 0 }}>Mike Knight</h2>
-                <p style={{ color: 'var(--text-muted)' }}>Pro Driver • 4.9 ★</p>
+        {/* Profile Info Column */}
+        <div className={styles.column}>
+          
+          <div className={styles.card}>
+            <div className={styles.profileHeader}>
+              <div className={styles.avatar}>MK</div>
+              <div className={styles.profileInfo}>
+                <h2>Mike Knight</h2>
+                <p>Pro Driver &bull; <span className={styles.star}>★</span> 4.9</p>
               </div>
             </div>
             
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                <User color="var(--text-muted)" />
-                <div>
-                  <p style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Driver ID</p>
-                  <p>DRV-84920</p>
-                </div>
+            <div className={styles.infoRow}>
+              <div className={`${styles.iconBox} ${styles.iconBoxUser}`}>
+                <User size={20} strokeWidth={2.5} />
+              </div>
+              <div>
+                <p className={styles.infoLabel}>Driver ID</p>
+                <p className={styles.infoValue}>DRV-84920</p>
               </div>
             </div>
           </div>
           
-          <div className="glass-panel" style={{ padding: '32px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
-              <Car color="var(--secondary)" />
-              <h3 style={{ margin: 0 }}>Vehicle Details</h3>
+          <div className={styles.card}>
+            <div className={styles.cardTitleWrapper}>
+              <div className={`${styles.iconBox} ${styles.iconBoxCar}`}>
+                <Car size={20} strokeWidth={2.5} />
+              </div>
+              <h3 className={styles.cardTitle}>Vehicle Details</h3>
             </div>
             
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--glass-border)', paddingBottom: '12px' }}>
-                <span style={{ color: 'var(--text-muted)' }}>Make / Model</span>
-                <span>Toyota Camry (2023)</span>
+            <div className={styles.detailList}>
+              <div className={styles.detailRow}>
+                <span className={styles.detailLabel}>Make / Model</span>
+                <span className={styles.detailValue}>Toyota Camry (2023)</span>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--glass-border)', paddingBottom: '12px' }}>
-                <span style={{ color: 'var(--text-muted)' }}>Color</span>
-                <span>Midnight Black</span>
+              <div className={styles.detailRow}>
+                <span className={styles.detailLabel}>Color</span>
+                <span className={styles.detailValue}>Midnight Black</span>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ color: 'var(--text-muted)' }}>License Plate</span>
-                <span style={{ fontWeight: 'bold' }}>ABC-1234</span>
+              <div className={styles.detailRow}>
+                <span className={styles.detailLabel}>License Plate</span>
+                <span className={styles.detailValue}>ABC-1234</span>
               </div>
             </div>
           </div>
+
         </div>
         
-        {/* Documents */}
-        <div className="glass-panel" style={{ padding: '32px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
-            <FileText color="var(--primary)" />
-            <h3 style={{ margin: 0 }}>Required Documents</h3>
-          </div>
-          
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            
-            <div style={{ padding: '16px', background: 'rgba(15,23,42,0.5)', borderRadius: '8px', border: '1px solid var(--glass-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div>
-                <p style={{ fontWeight: '500' }}>Driver's License</p>
-                <p style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Expires: Dec 2028</p>
+        {/* Documents Column */}
+        <div className={styles.column}>
+          <div className={styles.card}>
+            <div className={styles.cardTitleWrapper}>
+              <div className={`${styles.iconBox} ${styles.iconBoxDoc}`}>
+                <FileText size={20} strokeWidth={2.5} />
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--success)' }}>
-                <CheckCircle size={20} /> <span style={{ fontSize: '14px', fontWeight: '500' }}>Verified</span>
-              </div>
+              <h3 className={styles.cardTitle}>Required Documents</h3>
             </div>
             
-            <div style={{ padding: '16px', background: 'rgba(15,23,42,0.5)', borderRadius: '8px', border: '1px solid var(--glass-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div>
-                <p style={{ fontWeight: '500' }}>Vehicle Registration</p>
-                <p style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Expires: Oct 2027</p>
+            <div className={styles.detailList}>
+              
+              <div className={styles.docItem}>
+                <div>
+                  <p className={styles.docName}>Driver's License</p>
+                  <p className={styles.docMeta}>Expires: Dec 2028</p>
+                </div>
+                <div className={`${styles.statusWrapper} ${styles.statusVerified}`}>
+                  <CheckCircle size={18} strokeWidth={2.5} /> Verified
+                </div>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--success)' }}>
-                <CheckCircle size={20} /> <span style={{ fontSize: '14px', fontWeight: '500' }}>Verified</span>
+              
+              <div className={styles.docItem}>
+                <div>
+                  <p className={styles.docName}>Vehicle Registration</p>
+                  <p className={styles.docMeta}>Expires: Oct 2027</p>
+                </div>
+                <div className={`${styles.statusWrapper} ${styles.statusVerified}`}>
+                  <CheckCircle size={18} strokeWidth={2.5} /> Verified
+                </div>
               </div>
+              
+              <div className={`${styles.docItem} ${styles.docItemWarning}`}>
+                <div>
+                  <p className={styles.docName}>Vehicle Insurance</p>
+                  <p className={styles.docMeta}>Expires: Sep 2026 (Expiring soon)</p>
+                </div>
+                <div className={`${styles.statusWrapper} ${styles.statusWarning}`}>
+                  <AlertCircle size={18} strokeWidth={2.5} /> Update Needed
+                </div>
+              </div>
+              
+              <button className={styles.btnUpload}>Upload New Document</button>
+              
             </div>
-            
-            <div style={{ padding: '16px', background: 'rgba(245,158,11,0.1)', borderRadius: '8px', border: '1px solid rgba(245,158,11,0.2)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div>
-                <p style={{ fontWeight: '500' }}>Vehicle Insurance</p>
-                <p style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Expires: Sep 2026 (Expiring soon)</p>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--warning)' }}>
-                <AlertCircle size={20} /> <span style={{ fontSize: '14px', fontWeight: '500' }}>Update Needed</span>
-              </div>
-            </div>
-            
-            <button style={{
-              width: '100%',
-              padding: '12px',
-              background: 'var(--primary)',
-              color: 'white',
-              borderRadius: '8px',
-              marginTop: '16px'
-            }}>Upload New Document</button>
-            
           </div>
         </div>
         

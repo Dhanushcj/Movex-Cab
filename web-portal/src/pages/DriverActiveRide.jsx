@@ -119,26 +119,40 @@ const DriverActiveRide = () => {
   if (!ride) return <div>Ride not found</div>;
 
   return (
-    <div style={{ display: 'flex', gap: '24px', height: '100%' }}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '24px', maxWidth: '400px' }}>
-        <div style={{ background: 'var(--bg-card)', padding: '24px', borderRadius: 'var(--border-radius)', border: '1px solid var(--border-light)' }}>
-          <h2 style={{ marginBottom: '16px' }}>Ride Status</h2>
+    <div style={{ display: 'flex', gap: '24px', height: '100%', fontFamily: 'var(--font-family)' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '24px', maxWidth: '420px' }}>
+        <div style={{ background: 'white', padding: '32px', borderRadius: 'var(--radius-xl)', border: '1px solid var(--border-light)', boxShadow: 'var(--shadow-md)' }}>
+          <h2 style={{ marginBottom: '24px', color: 'var(--forge-blue-deep)', fontSize: '24px', fontWeight: '800', letterSpacing: '-0.5px' }}>Ride Status</h2>
           
-          <div style={{ marginBottom: '24px' }}>
-            <p style={{ margin: '0 0 8px', color: 'var(--text-muted)' }}>Customer</p>
-            <p style={{ fontWeight: 'bold', fontSize: '18px' }}>{ride.customer?.name || 'Customer'}</p>
+          <div style={{ marginBottom: '24px', padding: '16px', background: 'var(--bg-section-alt)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-light)' }}>
+            <p style={{ margin: '0 0 4px', color: 'var(--text-muted)', fontSize: '13px', textTransform: 'uppercase', fontWeight: '700' }}>Customer</p>
+            <p style={{ fontWeight: '800', fontSize: '18px', color: 'var(--text-primary)', margin: 0 }}>{ride.customer?.name || 'Customer'}</p>
           </div>
           
-          <div style={{ marginBottom: '24px' }}>
-            <p style={{ margin: '0 0 8px', color: 'var(--text-muted)' }}>Locations</p>
-            <p style={{ fontSize: '14px', marginBottom: '8px' }}><strong>Pickup:</strong> {ride.pickup.address}</p>
-            <p style={{ fontSize: '14px' }}><strong>Drop:</strong> {ride.drop.address}</p>
+          <div style={{ marginBottom: '32px' }}>
+            <p style={{ margin: '0 0 12px', color: 'var(--text-muted)', fontSize: '13px', textTransform: 'uppercase', fontWeight: '700' }}>Locations</p>
+            
+            <div style={{ display: 'flex', gap: '16px', marginBottom: '16px' }}>
+              <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: 'white', border: '3px solid var(--forge-blue)', marginTop: '4px' }}></div>
+              <div>
+                <p style={{ fontSize: '12px', color: 'var(--text-muted)', margin: '0 0 2px 0', fontWeight: '600' }}>Pickup</p>
+                <p style={{ fontSize: '15px', fontWeight: '600', margin: 0, color: 'var(--text-primary)' }}>{ride.pickup.address}</p>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: '16px' }}>
+              <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: 'white', border: '3px solid var(--status-success)', marginTop: '4px' }}></div>
+              <div>
+                <p style={{ fontSize: '12px', color: 'var(--text-muted)', margin: '0 0 2px 0', fontWeight: '600' }}>Dropoff</p>
+                <p style={{ fontSize: '15px', fontWeight: '600', margin: 0, color: 'var(--text-primary)' }}>{ride.drop.address}</p>
+              </div>
+            </div>
           </div>
 
           {status === 'accepted' && (
             <button 
               onClick={handleArrive}
-              style={{ width: '100%', padding: '16px', background: 'var(--primary)', color: '#fff', border: 'none', borderRadius: 'var(--border-radius)', fontWeight: 'bold' }}
+              style={{ width: '100%', padding: '16px', background: 'var(--forge-blue)', color: '#fff', border: 'none', borderRadius: 'var(--radius-lg)', fontWeight: '700', fontSize: '16px', boxShadow: '0 4px 14px rgba(7, 90, 170, 0.3)', cursor: 'pointer' }}
             >
               I Have Arrived
             </button>
@@ -147,18 +161,18 @@ const DriverActiveRide = () => {
           {status === 'arrived' && (
             <form onSubmit={handleStartTrip} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <div>
-                <p style={{ margin: '0 0 8px' }}>Enter 4-digit OTP from customer</p>
+                <p style={{ margin: '0 0 8px', fontWeight: '600', color: 'var(--text-primary)' }}>Enter 4-digit OTP from customer</p>
                 <input 
                   type="text" 
                   maxLength={4}
                   value={otp}
                   onChange={e => setOtp(e.target.value.replace(/\D/g, ''))}
-                  style={{ width: '100%', padding: '16px', fontSize: '24px', textAlign: 'center', letterSpacing: '8px', background: 'var(--bg-dark)', border: '1px solid var(--border-light)', borderRadius: 'var(--border-radius)' }}
+                  style={{ width: '100%', padding: '16px', fontSize: '24px', fontWeight: '700', textAlign: 'center', letterSpacing: '12px', background: '#F8FAFC', border: '1px solid var(--border-light)', borderRadius: 'var(--radius-md)', color: 'var(--forge-blue-deep)' }}
                 />
               </div>
               <button 
                 type="submit"
-                style={{ width: '100%', padding: '16px', background: 'var(--success)', color: '#fff', border: 'none', borderRadius: 'var(--border-radius)', fontWeight: 'bold' }}
+                style={{ width: '100%', padding: '16px', background: 'var(--status-success)', color: '#fff', border: 'none', borderRadius: 'var(--radius-lg)', fontWeight: '700', fontSize: '16px', cursor: 'pointer', boxShadow: '0 4px 14px rgba(16, 185, 129, 0.3)' }}
               >
                 Start Trip
               </button>
@@ -168,7 +182,7 @@ const DriverActiveRide = () => {
           {status === 'in_progress' && (
             <button 
               onClick={handleCompleteTrip}
-              style={{ width: '100%', padding: '16px', background: 'var(--error)', color: '#fff', border: 'none', borderRadius: 'var(--border-radius)', fontWeight: 'bold' }}
+              style={{ width: '100%', padding: '16px', background: 'var(--forge-blue)', color: '#fff', border: 'none', borderRadius: 'var(--radius-lg)', fontWeight: '700', fontSize: '16px', cursor: 'pointer', boxShadow: '0 4px 14px rgba(7, 90, 170, 0.3)' }}
             >
               Complete Trip
             </button>
@@ -176,18 +190,33 @@ const DriverActiveRide = () => {
         </div>
       </div>
       
-      <div style={{ flex: 2, background: 'var(--bg-card)', border: '1px solid var(--border-light)', borderRadius: 'var(--border-radius)', overflow: 'hidden' }}>
+      <div style={{ flex: 2, background: '#E2E8F0', border: '1px solid var(--border-light)', borderRadius: 'var(--radius-xl)', overflow: 'hidden', position: 'relative' }}>
         {isLoaded ? (
           <GoogleMap
             mapContainerStyle={{ width: '100%', height: '100%' }}
             center={{ lat: ride.pickup.coordinates[1], lng: ride.pickup.coordinates[0] }}
             zoom={14}
-            options={{ disableDefaultUI: true }}
+            options={{ 
+              disableDefaultUI: true,
+              styles: [
+                { "elementType": "geometry", "stylers": [{ "color": "#f5f5f5" }] },
+                { "elementType": "labels.icon", "stylers": [{ "visibility": "off" }] },
+                { "elementType": "labels.text.fill", "stylers": [{ "color": "#616161" }] },
+                { "elementType": "labels.text.stroke", "stylers": [{ "color": "#f5f5f5" }] },
+                { "featureType": "road", "elementType": "geometry", "stylers": [{ "color": "#ffffff" }] },
+                { "featureType": "road.arterial", "elementType": "labels.text.fill", "stylers": [{ "color": "#757575" }] },
+                { "featureType": "road.highway", "elementType": "geometry", "stylers": [{ "color": "#dadada" }] },
+                { "featureType": "road.highway", "elementType": "labels.text.fill", "stylers": [{ "color": "#616161" }] },
+                { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#c9c9c9" }] },
+              ]
+            }}
           >
-            {directions && <DirectionsRenderer directions={directions} />}
+            {directions && <DirectionsRenderer directions={directions} options={{
+              polylineOptions: { strokeColor: '#075AAA', strokeWeight: 6 }
+            }} />}
           </GoogleMap>
         ) : (
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>Loading Map...</div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'var(--text-muted)', fontWeight: '600' }}>Loading Navigation...</div>
         )}
       </div>
     </div>

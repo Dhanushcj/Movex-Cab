@@ -1,73 +1,74 @@
 import React from 'react';
 import { DollarSign, TrendingUp, ArrowDownToLine, Clock } from 'lucide-react';
+import styles from './DriverWallet.module.css';
 
 const DriverWallet = () => {
   return (
-    <div>
-      <h1 style={{ fontSize: '32px', marginBottom: '24px' }}>Earnings & Wallet</h1>
+    <div className={styles.walletContainer}>
+      <h1 className={styles.pageTitle}>Earnings & Wallet</h1>
       
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px', marginBottom: '40px' }}>
-        <div className="glass-panel" style={{ padding: '24px', background: 'linear-gradient(135deg, rgba(108, 92, 231, 0.2), rgba(15, 23, 42, 0.8))' }}>
-          <p style={{ color: 'var(--text-muted)' }}>Available Balance</p>
-          <h2 style={{ fontSize: '48px', margin: '8px 0' }}>$485.50</h2>
-          <button style={{ background: 'var(--primary)', color: 'white', padding: '10px 20px', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '8px', marginTop: '16px' }}>
-            <ArrowDownToLine size={18} /> Withdraw Funds
+      <div className={styles.metricsGrid}>
+        <div className={`${styles.card} ${styles.primaryCard}`}>
+          <p className={styles.cardLabel}>Available Balance</p>
+          <h2 className={styles.cardValue}>$485.50</h2>
+          <button className={styles.btnWithdraw}>
+            <ArrowDownToLine size={18} strokeWidth={2.5} /> Withdraw Funds
           </button>
         </div>
         
-        <div className="glass-panel" style={{ padding: '24px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-            <div style={{ padding: '10px', background: 'rgba(16, 185, 129, 0.1)', borderRadius: '8px', color: 'var(--success)' }}>
-              <TrendingUp size={24} />
+        <div className={styles.card}>
+          <div className={styles.cardHeader}>
+            <div className={`${styles.iconWrapper} ${styles.iconSuccess}`}>
+              <TrendingUp size={20} strokeWidth={2.5} />
             </div>
-            <h3 style={{ margin: 0 }}>This Week</h3>
+            <h3>This Week</h3>
           </div>
-          <h2 style={{ fontSize: '36px', margin: 0 }}>$842.20</h2>
-          <p style={{ color: 'var(--success)', fontSize: '14px', marginTop: '8px' }}>+15% from last week</p>
+          <h2 className={styles.cardValueSecondary}>$842.20</h2>
+          <p className={`${styles.trendText} ${styles.trendSuccess}`}>+15% from last week</p>
         </div>
         
-        <div className="glass-panel" style={{ padding: '24px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-            <div style={{ padding: '10px', background: 'rgba(0, 206, 201, 0.1)', borderRadius: '8px', color: 'var(--secondary)' }}>
-              <DollarSign size={24} />
+        <div className={styles.card}>
+          <div className={styles.cardHeader}>
+            <div className={`${styles.iconWrapper} ${styles.iconInfo}`}>
+              <DollarSign size={20} strokeWidth={2.5} />
             </div>
-            <h3 style={{ margin: 0 }}>Today</h3>
+            <h3>Today</h3>
           </div>
-          <h2 style={{ fontSize: '36px', margin: 0 }}>$124.50</h2>
-          <p style={{ color: 'var(--text-muted)', fontSize: '14px', marginTop: '8px' }}>8 trips completed</p>
+          <h2 className={styles.cardValueSecondary}>$124.50</h2>
+          <p className={`${styles.trendText} ${styles.trendNeutral}`}>8 trips completed</p>
         </div>
       </div>
       
-      <h2 style={{ fontSize: '24px', marginBottom: '24px' }}>Recent Transactions</h2>
+      <h2 className={styles.sectionTitle}>Recent Transactions</h2>
       
-      <div className="glass-panel" style={{ overflow: 'hidden' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+      <div className={styles.tableContainer}>
+        <table className={styles.transactionsTable}>
           <thead>
-            <tr style={{ background: 'rgba(15, 23, 42, 0.5)', borderBottom: '1px solid var(--glass-border)' }}>
-              <th style={{ padding: '16px 24px', fontWeight: '500', color: 'var(--text-muted)' }}>Date</th>
-              <th style={{ padding: '16px 24px', fontWeight: '500', color: 'var(--text-muted)' }}>Description</th>
-              <th style={{ padding: '16px 24px', fontWeight: '500', color: 'var(--text-muted)' }}>Amount</th>
-              <th style={{ padding: '16px 24px', fontWeight: '500', color: 'var(--text-muted)' }}>Status</th>
+            <tr>
+              <th>Date</th>
+              <th>Description</th>
+              <th>Amount</th>
+              <th>Status</th>
             </tr>
           </thead>
           <tbody>
-            <tr style={{ borderBottom: '1px solid var(--glass-border)' }}>
-              <td style={{ padding: '16px 24px' }}>Aug 06, 2026</td>
-              <td style={{ padding: '16px 24px' }}>Trip Payment (TRP-10523)</td>
-              <td style={{ padding: '16px 24px', color: 'var(--success)' }}>+$18.50</td>
-              <td style={{ padding: '16px 24px' }}><span style={{ padding: '4px 8px', background: 'rgba(16, 185, 129, 0.1)', color: 'var(--success)', borderRadius: '12px', fontSize: '12px' }}>Completed</span></td>
-            </tr>
-            <tr style={{ borderBottom: '1px solid var(--glass-border)' }}>
-              <td style={{ padding: '16px 24px' }}>Aug 05, 2026</td>
-              <td style={{ padding: '16px 24px' }}>Trip Payment (TRP-10499)</td>
-              <td style={{ padding: '16px 24px', color: 'var(--success)' }}>+$24.00</td>
-              <td style={{ padding: '16px 24px' }}><span style={{ padding: '4px 8px', background: 'rgba(16, 185, 129, 0.1)', color: 'var(--success)', borderRadius: '12px', fontSize: '12px' }}>Completed</span></td>
+            <tr>
+              <td>Aug 06, 2026</td>
+              <td>Trip Payment (TRP-10523)</td>
+              <td className={styles.amountPositive}>+$18.50</td>
+              <td><span className={`${styles.statusBadge} ${styles.statusCompleted}`}>Completed</span></td>
             </tr>
             <tr>
-              <td style={{ padding: '16px 24px' }}>Aug 01, 2026</td>
-              <td style={{ padding: '16px 24px' }}>Bank Withdrawal</td>
-              <td style={{ padding: '16px 24px', color: 'var(--error)' }}>-$500.00</td>
-              <td style={{ padding: '16px 24px' }}><span style={{ padding: '4px 8px', background: 'rgba(16, 185, 129, 0.1)', color: 'var(--success)', borderRadius: '12px', fontSize: '12px' }}>Completed</span></td>
+              <td>Aug 05, 2026</td>
+              <td>Trip Payment (TRP-10499)</td>
+              <td className={styles.amountPositive}>+$24.00</td>
+              <td><span className={`${styles.statusBadge} ${styles.statusCompleted}`}>Completed</span></td>
+            </tr>
+            <tr>
+              <td>Aug 01, 2026</td>
+              <td>Bank Withdrawal</td>
+              <td className={styles.amountNegative}>-$500.00</td>
+              <td><span className={`${styles.statusBadge} ${styles.statusCompleted}`}>Completed</span></td>
             </tr>
           </tbody>
         </table>
