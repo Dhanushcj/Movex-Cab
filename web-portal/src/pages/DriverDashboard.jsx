@@ -51,7 +51,7 @@ const DriverDashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const driverRes = await API.get('/drivers/me');
+        const driverRes = await API.get('/auth/me');
         if (driverRes.data.success) {
           const driverData = driverRes.data.data;
           setIsOnline(driverData.isAvailable);

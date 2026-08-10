@@ -13,8 +13,8 @@ export const AuthProvider = ({ children }) => {
       const role = localStorage.getItem('role');
       if (token && role) {
         try {
-          // Fetch current user based on role
-          const endpoint = role === 'driver' ? '/drivers/me' : '/users/me';
+          // Fetch current user based on token
+          const endpoint = '/auth/me';
           const res = await API.get(endpoint);
           if (res.data.success) {
             setUser({ ...res.data.data, role });
