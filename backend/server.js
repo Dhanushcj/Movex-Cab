@@ -49,7 +49,7 @@ app.use(xss());
 // Strict CORS Policy
 const allowedOrigins = process.env.ALLOWED_ORIGINS 
   ? process.env.ALLOWED_ORIGINS.split(',') 
-  : ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8081', 'http://localhost:5173', 'https://movex-cab.vercel.app']; // default dev ports and vercel app
+  : ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:8081', 'http://localhost:5173', 'https://movex-cab.vercel.app', 'https://fic-cab-application.vercel.app']; // default dev ports and vercel app
 
 app.use(cors({
   origin: function (origin, callback) {
