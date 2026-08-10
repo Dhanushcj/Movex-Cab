@@ -7,7 +7,13 @@ import styles from './PortalLayout.module.css';
 const CustomerLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, logout } = useContext(AuthContext);
+  const { user, loading, logout } = useContext(AuthContext);
+
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate('/login');
+    }
+  }, [user, loading, navigate]);
   
   const navItems = [
     { name: 'Dashboard', path: '/customer/dashboard', icon: Home },
