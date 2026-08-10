@@ -144,9 +144,20 @@ const initializeSocket = (server) => {
     });
 
     // Driver accepts ride
-    socket.on('ride:accept', (data) => {
+    socket.on('ride:accept', async (data) => {
       const { bookingId, driverId, driverInfo, booking } = data;
       socket.join(`ride:${bookingId}`);
+
+      // Update Database
+      try {
+        const Booking = require('../models/Booking');
+        await Booking.findByIdAndUpdate(bookingId, {
+          status: 'accepted',
+          driver: driverId
+        });
+      } catch (err) {
+        console.error('Failed to update booking status in DB', err);
+      }
 
       // Mark driver as unavailable
       const driverData = onlineDrivers.get(driverId);
@@ -293,13 +304,21 @@ const initializeSocket = (server) => {
       });
     });
 
-    // Trip started
-    socket.on('ride:started', (data) => {
+    // Ride started
+    socket.on('ride:started', async (data) => {
       const { bookingId } = data;
       const ride = activeRides.get(bookingId);
       if (ride) {
         ride.status = 'in_progress';
         activeRides.set(bookingId, ride);
+      }
+      
+      // Update Database
+      try {
+        const Booking = require('../models/Booking');
+        await Booking.findByIdAndUpdate(bookingId, { status: 'in_progress' });
+      } catch (err) {
+        console.error('Failed to update booking status in DB', err);
       }
       io.to(`ride:${bookingId}`).emit('ride:started', {
         bookingId,
@@ -309,7 +328,7 @@ const initializeSocket = (server) => {
     });
 
     // Trip completed
-    socket.on('ride:completed', (data) => {
+    socket.on('ride:completed', async (data) => {
       const { bookingId, driverId, fare } = data;
 
       // Mark driver as available again
@@ -321,6 +340,14 @@ const initializeSocket = (server) => {
 
       // Clean up active ride
       activeRides.delete(bookingId);
+
+      // Update Database
+      try {
+        const Booking = require('../models/Booking');
+        await Booking.findByIdAndUpdate(bookingId, { status: 'completed', completedAt: new Date() });
+      } catch (err) {
+        console.error('Failed to update booking status in DB', err);
+      }
 
       io.to(`ride:${bookingId}`).emit('ride:completed', {
         bookingId,

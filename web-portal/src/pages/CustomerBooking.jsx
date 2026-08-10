@@ -33,35 +33,7 @@ const decodePolyline = (t) => {
   return i;
 };
 
-// Custom snapping logic to map the click to the closest polyline coordinate
-const getClosestPointOnLine = (pt, line) => {
-  if (!line || line.length < 2) return pt;
-  let minDistance = Infinity;
-  let closestPoint = null;
-  
-  for (let i = 0; i < line.length - 1; i++) {
-    const p1 = line[i];
-    const p2 = line[i+1];
-    
-    const l2 = Math.pow(p1.lat - p2.lat, 2) + Math.pow(p1.lng - p2.lng, 2);
-    if (l2 === 0) continue;
-    
-    let t = ((pt.lat - p1.lat) * (p2.lat - p1.lat) + (pt.lng - p1.lng) * (p2.lng - p1.lng)) / l2;
-    t = Math.max(0, Math.min(1, t));
-    
-    const proj = {
-      lat: p1.lat + t * (p2.lat - p1.lat),
-      lng: p1.lng + t * (p2.lng - p1.lng)
-    };
-    
-    const dist = Math.sqrt(Math.pow(pt.lat - proj.lat, 2) + Math.pow(pt.lng - proj.lng, 2));
-    if (dist < minDistance) {
-      minDistance = dist;
-      closestPoint = proj;
-    }
-  }
-  return closestPoint || pt;
-};
+// Custom snapping logic removed in favor of strict junction selection
 
 const CustomerBooking = () => {
   const navigate = useNavigate();
@@ -167,45 +139,21 @@ const CustomerBooking = () => {
   };
 
   const reverseGeocode = async (lat, lng) => {
-    if (!window.google) return "Custom Location";
-    const geocoder = new window.google.maps.Geocoder();
-    try {
-      const response = await geocoder.geocode({ location: { lat, lng } });
-      if (response.results[0]) {
-        return response.results[0].formatted_address.split(',')[0]; // Just get street name
-      }
-    } catch (e) {
-      console.error("Geocoder failed due to: " + e);
-    }
+    // Unused now that we use strict junctions
     return "Selected Location";
   };
 
-  const handlePolylineClick = async (e, route) => {
-    // If not the selected route, just select it
+  const handleJunctionClick = (junction) => {
+    if (!pickupLocation) {
+      setPickupLocation(junction);
+    } else if (!dropLocation && junction._id !== pickupLocation._id) {
+      setDropLocation(junction);
+    }
+  };
+
+  const handlePolylineClick = (e, route) => {
     if (!selectedRoute || selectedRoute._id !== route._id) {
       handleRouteSelect(route);
-      return;
-    }
-
-    // Both points already selected, do nothing
-    if (pickupLocation && dropLocation) return;
-
-    const clickCoord = { lat: e.latLng.lat(), lng: e.latLng.lng() };
-    const lineCoords = route.decodedPolyline;
-    const snappedCoord = getClosestPointOnLine(clickCoord, lineCoords);
-    
-    const locationName = await reverseGeocode(snappedCoord.lat, snappedCoord.lng);
-
-    const customJunction = {
-      _id: `temp-${Date.now()}`,
-      name: locationName,
-      location: { coordinates: [snappedCoord.lng, snappedCoord.lat] }
-    };
-
-    if (!pickupLocation) {
-      setPickupLocation(customJunction);
-    } else {
-      setDropLocation(customJunction);
     }
   };
 
@@ -287,7 +235,7 @@ const CustomerBooking = () => {
               <div className={styles.stepIcon}><MapPin size={24} color="#EF4444" /></div>
               <h3>3. Set Drop-off Point</h3>
               <p>Pickup: <b>{pickupLocation.name}</b></p>
-              <p>Tap further along the route to set your drop-off.</p>
+              <p>Select your drop-off point from the available route stops.</p>
               <button className={styles.btnSecondary} onClick={clearSelection}>Change Pickup</button>
             </div>
           ) : (
@@ -423,37 +371,36 @@ const CustomerBooking = () => {
               );
             })}
 
-            {/* Custom Pickup Marker */}
-            {pickupLocation && (
-              <Marker
-                position={{ lat: pickupLocation.location.coordinates[1], lng: pickupLocation.location.coordinates[0] }}
-                icon={{
-                  path: window.google.maps.SymbolPath.CIRCLE,
-                  scale: 8,
-                  fillColor: 'var(--forge-blue)',
-                  fillOpacity: 1,
-                  strokeWeight: 2,
-                  strokeColor: '#FFFFFF',
-                }}
-                title="Pickup Point"
-              />
-            )}
-            
-            {/* Custom Drop Marker */}
-            {dropLocation && (
-              <Marker
-                position={{ lat: dropLocation.location.coordinates[1], lng: dropLocation.location.coordinates[0] }}
-                icon={{
-                  path: window.google.maps.SymbolPath.CIRCLE,
-                  scale: 8,
-                  fillColor: '#EF4444',
-                  fillOpacity: 1,
-                  strokeWeight: 2,
-                  strokeColor: '#FFFFFF',
-                }}
-                title="Drop-off Point"
-              />
-            )}
+            {/* Render Junction Markers for selected route */}
+            {selectedRoute && selectedRoute.junctions && selectedRoute.junctions.map((junction) => {
+              const isPickup = pickupLocation?._id === junction._id;
+              const isDrop = dropLocation?._id === junction._id;
+              
+              let markerColor = '#64748b'; // Default grey for unselected junctions
+              if (isPickup) markerColor = 'var(--forge-blue)';
+              if (isDrop) markerColor = '#EF4444';
+
+              // Only show unselected junctions if we still need to pick one
+              if (!isPickup && !isDrop && pickupLocation && dropLocation) return null;
+
+              return (
+                <Marker
+                  key={junction._id}
+                  position={{ lat: junction.location.coordinates[1], lng: junction.location.coordinates[0] }}
+                  icon={{
+                    path: window.google.maps.SymbolPath.CIRCLE,
+                    scale: (isPickup || isDrop) ? 8 : 6,
+                    fillColor: markerColor,
+                    fillOpacity: 1,
+                    strokeWeight: 2,
+                    strokeColor: '#FFFFFF',
+                  }}
+                  title={junction.name}
+                  onClick={() => handleJunctionClick(junction)}
+                  zIndex={(isPickup || isDrop) ? 10 : 5}
+                />
+              );
+            })}
             {currentPosition && (
               <Marker
                 position={currentPosition}
