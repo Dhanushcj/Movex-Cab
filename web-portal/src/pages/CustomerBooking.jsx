@@ -110,6 +110,24 @@ const CustomerBooking = () => {
     fetchRoutes();
   }, []);
 
+  const [currentPosition, setCurrentPosition] = useState(null);
+
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setCurrentPosition({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          });
+        },
+        (error) => {
+          console.warn("Geolocation not available or denied:", error);
+        }
+      );
+    }
+  }, []);
+
   const handleRouteSelect = (route) => {
     setSelectedRoute(route);
     setPickupLocation(null);
@@ -200,7 +218,7 @@ const CustomerBooking = () => {
         setTimeout(() => {
           setBookingStatus('booked');
           setLoading(false);
-          setTimeout(() => navigate('/customer/history'), 2000);
+          setTimeout(() => navigate(`/customer/tracking/${res.data.data._id}`), 2000);
         }, 1500);
       }
     } catch (err) {
@@ -410,6 +428,21 @@ const CustomerBooking = () => {
                   strokeColor: '#FFFFFF',
                 }}
                 title="Drop-off Point"
+              />
+            )}
+            {currentPosition && (
+              <Marker
+                position={currentPosition}
+                icon={{
+                  path: window.google.maps.SymbolPath.CIRCLE,
+                  scale: 8,
+                  fillColor: '#4285F4',
+                  fillOpacity: 1,
+                  strokeWeight: 2,
+                  strokeColor: '#FFFFFF',
+                }}
+                title="Your Location"
+                zIndex={20}
               />
             )}
           </GoogleMap>
