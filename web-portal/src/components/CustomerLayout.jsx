@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { Home, MapPin, Clock, User, LogOut, CreditCard } from 'lucide-react';
 import { AuthContext } from '../context/AuthContext';
