@@ -190,14 +190,17 @@ const CustomerBooking = () => {
     
     try {
       const res = await API.post('/bookings', {
-        route: selectedRoute._id,
-        pickupLocation: pickupLocation._id.startsWith('temp-') ? null : pickupLocation._id,
-        dropoffLocation: dropLocation._id.startsWith('temp-') ? null : dropLocation._id,
-        customPickup: pickupLocation._id.startsWith('temp-') ? pickupLocation.location.coordinates : undefined,
-        customDropoff: dropLocation._id.startsWith('temp-') ? dropLocation.location.coordinates : undefined,
+        routeId: selectedRoute._id,
+        pickup: {
+          address: pickupLocation.name,
+          coordinates: pickupLocation.location.coordinates
+        },
+        drop: {
+          address: dropLocation.name,
+          coordinates: dropLocation.location.coordinates
+        },
         vehicleType: selectedVehicle,
-        distance: 5.2, // mock
-        estimatedFare: vehicles.find(v => v.id === selectedVehicle)?.price || 15
+        paymentMethod: 'cash'
       });
       
       if (res.data.success) {
@@ -217,20 +220,15 @@ const CustomerBooking = () => {
       }
     } catch (err) {
       console.error('Booking failed', err);
-      alert('Failed to create booking. Please try again.');
+      alert(err.response?.data?.message || 'Failed to create booking. Please try again.');
       setBookingStatus(null);
       setLoading(false);
     }
   };
 
   const clearSelection = () => {
-    if (dropLocation) {
-      setDropLocation(null);
-    } else if (pickupLocation) {
-      setPickupLocation(null);
-    } else {
-      setSelectedRoute(null);
-    }
+    setPickupLocation(null);
+    setDropLocation(null);
   };
 
   return (
