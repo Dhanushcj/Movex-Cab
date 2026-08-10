@@ -133,6 +133,25 @@ const CustomerBooking = () => {
     }
   }, []);
 
+  useEffect(() => {
+    if (currentPosition) {
+      const fetchDrivers = async () => {
+        try {
+          const res = await API.get(`/drivers/nearby?lat=${currentPosition.lat}&lng=${currentPosition.lng}&radius=10`);
+          if (res.data.success) {
+            setActiveDrivers(res.data.drivers || []);
+          }
+        } catch (err) {
+          console.error('Failed to fetch nearby drivers', err);
+        }
+      };
+      
+      fetchDrivers();
+      const intervalId = setInterval(fetchDrivers, 10000);
+      return () => clearInterval(intervalId);
+    }
+  }, [currentPosition]);
+
   const handleRouteSelect = (route) => {
     setSelectedRoute(route);
     setPickupLocation(null);
@@ -450,6 +469,23 @@ const CustomerBooking = () => {
                 zIndex={20}
               />
             )}
+            
+            {/* Active Nearby Drivers Markers */}
+            {activeDrivers.map((driver) => (
+              <Marker
+                key={driver._id}
+                position={{
+                  lat: driver.currentLocation.coordinates[1],
+                  lng: driver.currentLocation.coordinates[0]
+                }}
+                icon={{
+                  url: '/car.png',
+                  scaledSize: new window.google.maps.Size(32, 32),
+                }}
+                title={driver.name || 'Driver'}
+                zIndex={15}
+              />
+            ))}
           </GoogleMap>
         ) : (
           <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
