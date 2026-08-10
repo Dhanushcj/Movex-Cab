@@ -1,12 +1,28 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Map, Clock, CreditCard, ArrowRight } from 'lucide-react';
 import { AuthContext } from '../context/AuthContext';
 import styles from './CustomerDashboard.module.css';
+import API from '../services/api';
 
 const CustomerDashboard = () => {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
+  const [activePass, setActivePass] = useState(null);
+
+  useEffect(() => {
+    const fetchMyPass = async () => {
+      try {
+        const res = await API.get('/subscriptions/my-pass');
+        if (res.data.success && res.data.data) {
+          setActivePass(res.data.data);
+        }
+      } catch (err) {
+        console.error('Failed to fetch pass', err);
+      }
+    };
+    fetchMyPass();
+  }, []);
 
   return (
     <div className={styles.dashboardContainer}>
@@ -63,14 +79,32 @@ const CustomerDashboard = () => {
             </div>
             <h3 className={styles.cardTitle}>Active Passes</h3>
           </div>
-          <div className={styles.emptyState}>
-            <p>No active passes found.</p>
-          </div>
+          
+          {activePass ? (
+            <div style={{ marginBottom: '16px', background: 'var(--bg-secondary)', padding: '16px', borderRadius: '8px', border: '1px solid var(--border)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                <span style={{ fontWeight: 'bold', fontSize: '18px', color: 'var(--forge-blue)' }}>{activePass.pass?.name || 'Gold Pass'}</span>
+                <span style={{ fontSize: '14px', color: 'var(--text-primary)', fontWeight: 'bold' }}>Active</span>
+              </div>
+              <p style={{ margin: '4px 0', fontSize: '14px', color: 'var(--text-muted)' }}>
+                Valid until: {new Date(activePass.validUntil).toLocaleDateString()}
+              </p>
+              <p style={{ margin: '4px 0', fontSize: '14px', color: 'var(--text-muted)' }}>
+                Rides remaining: {activePass.ridesRemaining || 'Unlimited'}
+              </p>
+            </div>
+          ) : (
+            <div className={styles.emptyState}>
+              <p>No active passes found.</p>
+            </div>
+          )}
+
           <button 
             className={`${styles.btnAction} ${styles.btnSecondary}`}
             style={{ marginTop: 'auto' }}
+            onClick={() => navigate('/customer/passes')}
           >
-            Buy a Pass
+            {activePass ? 'Manage Pass' : 'Buy a Pass'}
           </button>
         </div>
       </div>
