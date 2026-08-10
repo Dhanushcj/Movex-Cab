@@ -36,7 +36,7 @@ const Login = () => {
       const response = await API.post(endpoint, payload);
       
       if (response.data.success) {
-        login(response.data.data, response.data.token, role);
+        login(response.data.user, response.data.token || response.data.accessToken, role);
         if (role === 'customer') {
           navigate('/customer/dashboard');
         } else {
