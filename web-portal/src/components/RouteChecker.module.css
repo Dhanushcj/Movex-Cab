@@ -1,0 +1,569 @@
+.checkerSection {
+  padding: 4.5rem 0 5rem 0;
+  background-color: var(--bg-section-alt);
+  position: relative;
+}
+
+.sectionHeader {
+  text-align: center;
+  max-width: 650px;
+  margin: 0 auto 2.25rem auto;
+}
+
+.sectionTag {
+  font-size: 0.75rem;
+  font-weight: 900;
+  color: var(--forge-blue);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  display: inline-block;
+  margin-bottom: 0.5rem;
+}
+
+.sectionTitle {
+  font-size: 2.2rem;
+  color: var(--forge-blue);
+  margin-bottom: 0.65rem;
+}
+
+.sectionSubtitle {
+  font-size: 1rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+/* Card */
+.checkerCard {
+  background: #FFFFFF;
+  border: 1.5px solid var(--border-light);
+  border-radius: 20px;
+  padding: 28px 32px;
+  box-shadow: 0 8px 25px rgba(7, 90, 170, 0.05);
+  max-width: 1100px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.checkerForm {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Location Fields Row */
+.locationFieldsRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.85rem;
+  margin-bottom: 1.75rem;
+  position: relative;
+}
+
+.locationFieldBox {
+  flex: 1;
+  background: var(--bg-soft-blue);
+  border: 1.5px solid var(--border-light);
+  border-radius: 14px;
+  padding: 0.65rem 0.95rem;
+  cursor: pointer;
+  position: relative;
+  transition: all var(--transition-fast);
+}
+
+.fieldBoxActive,
+.locationFieldBox:hover {
+  border-color: var(--forge-blue);
+  background: #FFFFFF;
+}
+
+.fieldLabel {
+  font-size: 0.72rem;
+  font-weight: 900;
+  color: var(--forge-blue);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 0.3rem;
+}
+
+.inputValRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.inlineInput {
+  border: none;
+  background: transparent;
+  outline: none;
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.02rem;
+  font-weight: 800;
+  color: #163F68;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+.inlineInput::placeholder {
+  color: var(--text-light-muted);
+  font-weight: 500;
+}
+
+/* Swap Button */
+.swapBtnWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  z-index: 5;
+}
+
+.swapBtn {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: transparent;
+  border: none;
+  color: var(--forge-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: none;
+  transition: all 0.25s ease;
+  padding: 0;
+}
+
+.swapBtn:hover {
+  transform: scale(1.08);
+}
+
+.swapDesktopIcon {
+  display: block;
+}
+
+.swapMobileIcon {
+  display: none;
+}
+
+/* Location Search Popover */
+.popoverPanel {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  width: 100%;
+  min-width: 300px;
+  background: #FFFFFF;
+  border: 1.5px solid var(--border-light);
+  border-radius: var(--radius-md);
+  box-shadow: 0 12px 30px rgba(7, 90, 170, 0.14);
+  z-index: 100;
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.gpsBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.55rem 0.75rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-blue);
+  background: var(--bg-soft-blue);
+  color: var(--forge-blue);
+  font-size: 0.82rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.gpsBtn:hover:not(:disabled) {
+  background: var(--soft-yellow);
+  border-color: var(--accent-yellow);
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.popoverList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.popoverTitle {
+  font-size: 0.65rem;
+  font-weight: 900;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+  margin-top: 0.2rem;
+  margin-bottom: 0.15rem;
+}
+
+.searchingText {
+  font-size: 0.78rem;
+  color: var(--forge-blue);
+  font-weight: 600;
+  padding: 0.3rem 0;
+}
+
+.popoverItem {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.65rem;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  transition: background var(--transition-fast);
+}
+
+.popoverItem:hover {
+  background: var(--bg-soft-blue);
+}
+
+.itemText {
+  display: flex;
+  flex-direction: column;
+}
+
+.itemName {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #163F68;
+}
+
+.itemAddr {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Transport Mode Section */
+.transportSection {
+  margin-bottom: 1.75rem;
+}
+
+.transportTitle {
+  font-size: 0.75rem;
+  font-weight: 900;
+  color: var(--forge-blue);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 0.75rem;
+}
+
+.modeCardsRow {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.85rem;
+}
+
+.modeCard {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border-radius: 12px;
+  background: #FFFFFF;
+  border: 1.5px solid var(--border-light);
+  color: #163F68;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  position: relative;
+}
+
+.modeCard:hover {
+  border-color: var(--forge-blue);
+  background: var(--bg-soft-blue);
+}
+
+.modeCardActive {
+  background: var(--soft-yellow) !important;
+  border-color: var(--accent-yellow) !important;
+  color: var(--forge-blue) !important;
+  font-weight: 900;
+}
+
+.modeIcon {
+  color: var(--forge-blue);
+}
+
+.modeLabel {
+  font-size: 0.88rem;
+}
+
+.modeActiveDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--forge-blue);
+  position: absolute;
+  top: 8px;
+  right: 8px;
+}
+
+/* CTA Row */
+.ctaRow {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.5rem;
+}
+
+.checkBtn {
+  min-width: 250px;
+  max-width: 285px;
+  height: 50px;
+  padding: 0 1.25rem;
+  border-radius: 12px;
+  background: var(--accent-yellow);
+  border: none;
+  color: var(--forge-blue);
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 6px 16px rgba(7, 90, 170, 0.10);
+  transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btnSearchIcon {
+  flex-shrink: 0;
+}
+
+.checkBtn:hover {
+  background: #DDBB38;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(7, 90, 170, 0.15);
+}
+
+.checkBtn:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 10px rgba(7, 90, 170, 0.08);
+}
+
+/* Result Cards */
+.resultEligibleCard {
+  margin-top: 1.75rem;
+  background: #F0FDF4;
+  border: 1.5px solid #BBF7D0;
+  border-radius: 14px;
+  padding: 1.25rem 1.5rem;
+}
+
+.resultNotEligibleCard {
+  margin-top: 1.75rem;
+  background: #FEF2F2;
+  border: 1.5px solid #FECACA;
+  border-radius: 14px;
+  padding: 1.25rem 1.5rem;
+}
+
+.resultHeaderGroup {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+}
+
+.successIconBadge {
+  color: #16A875;
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+}
+
+.errorIconBadge {
+  color: #EF4444;
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+}
+
+.resultTextCol {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.statusTitleSuccess {
+  font-size: 1.05rem;
+  font-weight: 900;
+  color: #16A875;
+}
+
+.statusTitleError {
+  font-size: 1.05rem;
+  font-weight: 900;
+  color: #EF4444;
+}
+
+.routeRouteSub {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--forge-blue);
+}
+
+.passDetailsMeta {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.8rem;
+  margin-top: 0.2rem;
+  flex-wrap: wrap;
+}
+
+.tagMode {
+  font-weight: 800;
+  color: var(--forge-blue);
+}
+
+.tagPassActive {
+  color: #15803D;
+  font-weight: 700;
+}
+
+.errorMsgText {
+  font-size: 0.88rem;
+  color: #991B1B;
+  font-weight: 600;
+}
+
+/* Dynamic Polyline Canvas inside Result Card */
+.polyTrackWrapper {
+  position: relative;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  padding-bottom: 0.5rem;
+}
+
+.trackLineBase {
+  position: absolute;
+  top: 20px;
+  left: 15px;
+  right: 15px;
+  height: 6px;
+  background: #DCFCE7;
+  border-radius: 4px;
+}
+
+.trackLineVisited {
+  position: absolute;
+  top: 20px;
+  left: 15px;
+  height: 6px;
+  background: var(--accent-yellow);
+  border-radius: 4px;
+  transition: width 0.04s linear;
+}
+
+.animVehicleTag {
+  position: absolute;
+  top: -2px;
+  transform: translateX(-50%);
+  z-index: 10;
+  transition: left 0.04s linear;
+  pointer-events: none;
+}
+
+.vehWrapperMini {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #FFFFFF;
+  border: 2px solid var(--accent-yellow);
+  color: var(--forge-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.terminalStationsRow {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  z-index: 5;
+}
+
+.terminalItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.terminalNode {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #FFFFFF;
+  border: 2px solid var(--forge-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+.terminalText {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--forge-blue);
+}
+
+@media (max-width: 768px) {
+  .checkerCard {
+    padding: 20px;
+  }
+  .locationFieldsRow {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.6rem;
+  }
+  .swapDesktopIcon {
+    display: none;
+  }
+  .swapMobileIcon {
+    display: block;
+  }
+  .swapBtn {
+    margin: -0.2rem auto;
+  }
+  .modeCardsRow {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .checkBtn {
+    width: 100%;
+    min-width: auto;
+    max-width: 100%;
+    height: 48px;
+  }
+  .ctaRow {
+    justify-content: stretch;
+  }
+}
