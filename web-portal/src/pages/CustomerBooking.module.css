@@ -2,37 +2,41 @@
   display: flex;
   height: calc(100vh - 120px);
   gap: 24px;
+  font-family: var(--font-family);
 }
 
 .bookingPanel {
   flex: 1;
-  max-width: 400px;
-  background: var(--bg-card);
+  max-width: 420px;
+  background: var(--bg-white);
   border: 1px solid var(--border-light);
-  border-radius: var(--border-radius-lg);
+  border-radius: var(--radius-xl);
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-lg);
   position: relative;
 }
 
 .panelHeader {
   padding: 24px;
   border-bottom: 1px solid var(--border-light);
-  background: var(--bg-dark);
-  color: white;
+  background: var(--bg-soft-blue);
+  color: var(--forge-blue-deep);
 }
 
 .panelHeader h2 {
   margin: 0;
   font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
 }
 
 .panelHeader p {
   margin: 4px 0 0 0;
-  color: #aaa;
+  color: var(--text-muted);
   font-size: 14px;
+  font-weight: 500;
 }
 
 .panelContent {
@@ -46,12 +50,14 @@
 }
 
 .stepTitle {
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 15px;
+  font-weight: 700;
   margin-bottom: 16px;
-  color: var(--text-main);
+  color: var(--text-primary);
   padding-bottom: 8px;
-  border-bottom: 1px solid var(--border-light);
+  border-bottom: 2px solid var(--border-light);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .routesList {
@@ -64,19 +70,19 @@
   display: flex;
   align-items: center;
   padding: 16px;
-  background: var(--bg-main);
+  background: var(--bg-white);
   border: 1px solid var(--border-light);
   border-left-width: 4px;
-  border-radius: var(--border-radius);
+  border-radius: var(--radius-lg);
   cursor: pointer;
   transition: var(--transition-fast);
+  box-shadow: var(--shadow-sm);
 }
 
 .routeCard:hover {
-  background: #f9fafb;
-  border-right-color: #ccc;
-  border-top-color: #ccc;
-  border-bottom-color: #ccc;
+  background: var(--bg-section-alt);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
 .routeCardInfo {
@@ -85,42 +91,50 @@
 
 .routeCardInfo h4 {
   margin: 0;
-  font-size: 14px;
-  color: var(--text-main);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
 }
 
 .routeCardInfo p {
   margin: 4px 0 0 0;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--text-muted);
 }
 
 .selectedRouteBanner {
-  background: #f0fdf4;
-  border: 1px solid #bbf7d0;
+  background: var(--bg-soft-blue);
+  border: 1px solid var(--border-blue);
   padding: 16px;
-  border-radius: var(--border-radius);
+  border-radius: var(--radius-lg);
 }
 
 .btnLink {
   background: none;
   border: none;
-  color: var(--primary);
+  color: var(--forge-blue);
   padding: 0;
-  font-size: 12px;
+  font-size: 13px;
   margin-top: 4px;
   cursor: pointer;
+  font-weight: 600;
   text-decoration: underline;
 }
 
 .inputGroup {
   display: flex;
   align-items: center;
-  background: var(--bg-main);
+  background: var(--bg-white);
   border: 1px solid var(--border-light);
-  border-radius: var(--border-radius);
+  border-radius: var(--radius-md);
   padding: 0 16px;
-  height: 48px;
+  height: 52px;
+  transition: var(--transition-fast);
+}
+
+.inputGroup:focus-within {
+  border-color: var(--forge-blue);
+  box-shadow: 0 0 0 3px var(--border-blue);
 }
 
 .inputIcon {
@@ -135,8 +149,9 @@
   border: none;
   outline: none;
   height: 100%;
-  font-size: 14px;
-  color: var(--text-main);
+  font-size: 15px;
+  color: var(--text-primary);
+  font-weight: 500;
   cursor: pointer;
 }
 
@@ -150,16 +165,21 @@
   display: flex;
   align-items: center;
   padding: 16px;
-  background: var(--bg-main);
+  background: var(--bg-white);
   border: 1px solid var(--border-light);
-  border-radius: var(--border-radius);
+  border-radius: var(--radius-lg);
   cursor: pointer;
   transition: var(--transition-fast);
 }
 
+.vehicleCard:hover {
+  background: var(--bg-section-alt);
+}
+
 .selectedVehicle {
-  border-color: var(--primary);
-  background: #f0fdfa;
+  border-color: var(--forge-blue);
+  background: var(--bg-soft-blue);
+  box-shadow: 0 0 0 1px var(--forge-blue);
 }
 
 .vehicleInfo {
@@ -170,50 +190,57 @@
 .vehicleInfo h4 {
   margin: 0;
   font-size: 16px;
-  color: var(--text-main);
+  font-weight: 600;
+  color: var(--text-primary);
 }
 
 .vehicleMeta {
   margin-top: 4px;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--text-muted);
 }
 
 .vehiclePrice {
   font-weight: 700;
-  font-size: 16px;
-  color: var(--text-main);
+  font-size: 18px;
+  color: var(--text-primary);
 }
 
 .btnBook {
   width: 100%;
   padding: 16px;
-  background: var(--primary);
+  background: var(--forge-blue);
   color: white;
   border: none;
-  border-radius: var(--border-radius);
+  border-radius: var(--radius-md);
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
   margin-top: 16px;
   transition: var(--transition-fast);
+  box-shadow: var(--shadow-md);
 }
 
 .btnBook:hover {
-  background: var(--primary-hover);
+  background: var(--forge-blue-deep);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
 }
 
 .btnBook:disabled {
-  background: #ccc;
+  background: var(--border-hover);
   cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 .mapPanel {
   flex: 2;
-  border-radius: var(--border-radius-lg);
+  border-radius: var(--radius-xl);
   overflow: hidden;
   border: 1px solid var(--border-light);
-  background: #eaeaea;
+  background: var(--bg-section-alt);
+  box-shadow: var(--shadow-sm);
 }
 
 .mapLoading {
@@ -222,7 +249,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #888;
+  color: var(--text-muted);
+  font-weight: 500;
+  font-size: 16px;
 }
 
 .loadingOverlay {
@@ -231,22 +260,25 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(4px);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   z-index: 10;
+  color: var(--text-primary);
+  font-weight: 500;
 }
 
 .spinner {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border: 4px solid var(--border-light);
-  border-top-color: var(--primary);
+  border-top-color: var(--forge-blue);
   border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin-bottom: 16px;
+  animation: spin 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+  margin-bottom: 20px;
 }
 
 @keyframes spin {

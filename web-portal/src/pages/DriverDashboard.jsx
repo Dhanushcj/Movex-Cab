@@ -1,12 +1,37 @@
 import React, { useState, useContext, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { GoogleMap, useJsApiLoader, Marker } from '@react-google-maps/api';
+import { GoogleMap, useJsApiLoader, Marker, Polyline } from '@react-google-maps/api';
+import { MapIcon } from 'lucide-react';
 import { SocketContext } from '../context/SocketContext';
 import { AuthContext } from '../context/AuthContext';
 import API from '../services/api';
+import styles from './DriverDashboard.module.css';
 
 const center = { lat: 13.0827, lng: 80.2707 }; // Chennai
 const libraries = ['places', 'geometry'];
+
+const decodePolyline = (t) => {
+  let n, o, a = 0, r = 0, s = 0, l = 0, i = [];
+  for (; a < t.length;) {
+    n = 0, o = 0;
+    do {
+      o |= (31 & (n = t.charCodeAt(a++) - 63)) << l;
+      l += 5;
+    } while (n >= 32);
+    const d = 1 & o ? ~(o >> 1) : o >> 1;
+    r += d;
+    l = 0, n = 0, o = 0;
+    do {
+      o |= (31 & (n = t.charCodeAt(a++) - 63)) << l;
+      l += 5;
+    } while (n >= 32);
+    const u = 1 & o ? ~(o >> 1) : o >> 1;
+    s += u;
+    l = 0;
+    i.push({ lat: r / 1e5, lng: s / 1e5 });
+  }
+  return i;
+};
 
 const DriverDashboard = () => {
   const { user } = useContext(AuthContext);
@@ -14,6 +39,8 @@ const DriverDashboard = () => {
   const navigate = useNavigate();
   const [isOnline, setIsOnline] = useState(false);
   const [incomingRide, setIncomingRide] = useState(null);
+  const [assignedRoute, setAssignedRoute] = useState(null);
+  const mapRef = useRef(null);
 
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
@@ -22,18 +49,41 @@ const DriverDashboard = () => {
   });
   
   useEffect(() => {
-    // Fetch initial status
-    const fetchStatus = async () => {
+    const fetchData = async () => {
       try {
-        const res = await API.get('/drivers/me');
-        if (res.data.success) {
-          setIsOnline(res.data.data.isAvailable);
+        const driverRes = await API.get('/drivers/me');
+        if (driverRes.data.success) {
+          const driverData = driverRes.data.data;
+          setIsOnline(driverData.isAvailable);
+          
+          if (driverData.assignedRoute) {
+            // Fetch routes to get polyline
+            const routesRes = await API.get('/route-manager/routes');
+            if (routesRes.data.success) {
+              const matchedRoute = routesRes.data.data.find(
+                r => r._id === driverData.assignedRoute || r._id === driverData.assignedRoute._id
+              );
+              if (matchedRoute) {
+                matchedRoute.decodedPolyline = matchedRoute.polyline ? decodePolyline(matchedRoute.polyline) : [];
+                setAssignedRoute(matchedRoute);
+                
+                // Fit map to route bounds if map is ready
+                if (mapRef.current && matchedRoute.decodedPolyline.length > 0) {
+                  const bounds = new window.google.maps.LatLngBounds();
+                  matchedRoute.decodedPolyline.forEach(coord => {
+                    bounds.extend(new window.google.maps.LatLng(coord.lat, coord.lng));
+                  });
+                  mapRef.current.fitBounds(bounds);
+                }
+              }
+            }
+          }
         }
       } catch (err) {
         console.error(err);
       }
     };
-    fetchStatus();
+    fetchData();
   }, []);
 
   useEffect(() => {
@@ -97,91 +147,152 @@ const DriverDashboard = () => {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-        <h1 style={{ fontSize: '24px', margin: 0 }}>Driver Dashboard</h1>
-        <button 
-          onClick={toggleOnline}
-          style={{
-            padding: '10px 24px',
-            background: isOnline ? 'var(--error)' : 'var(--success)',
-            color: '#fff',
-            borderRadius: 'var(--border-radius)',
-            fontWeight: 'bold',
-            border: 'none',
-            cursor: 'pointer'
-          }}
-        >
-          {isOnline ? 'GO OFFLINE' : 'GO ONLINE'}
-        </button>
+    <div className={styles.dashboardContainer}>
+      {/* Side Panel */}
+      <div className={styles.sidePanel}>
+        <div className={styles.panelHeader}>
+          <h2>Driver Dashboard</h2>
+          <div className={styles.statusWrapper}>
+            <div className={`${styles.statusBadge} ${isOnline ? styles.statusOnline : styles.statusOffline}`}>
+              <div className={`${styles.statusDot} ${isOnline ? styles.dotOnline : styles.dotOffline}`}></div>
+              {isOnline ? 'Online' : 'Offline'}
+            </div>
+            <button 
+              className={`${styles.toggleBtn} ${isOnline ? styles.btnOnline : styles.btnOffline}`}
+              onClick={toggleOnline}
+            >
+              {isOnline ? 'GO OFFLINE' : 'GO ONLINE'}
+            </button>
+          </div>
+        </div>
+        
+        <div className={styles.panelContent}>
+          <div className={styles.routeInfoCard}>
+            <h3>Assigned Route</h3>
+            {assignedRoute ? (
+              <p><MapIcon size={20} color="var(--forge-blue)" /> {assignedRoute.name}</p>
+            ) : (
+              <p style={{ color: 'var(--text-muted)' }}>No route assigned</p>
+            )}
+          </div>
+          
+          <div style={{ marginTop: '32px' }}>
+            <p style={{ color: 'var(--text-muted)', fontSize: '14px', lineHeight: '1.5' }}>
+              Ensure your vehicle is active on the correct polyline track. Ride requests will automatically be routed to you based on your assigned corridor.
+            </p>
+          </div>
+        </div>
       </div>
-      
-      <div style={{ flex: 1, position: 'relative', border: '1px solid var(--border-light)', borderRadius: 'var(--border-radius)', overflow: 'hidden' }}>
+
+      {/* Map Panel */}
+      <div className={styles.mapPanel}>
         {isLoaded ? (
           <GoogleMap
             mapContainerStyle={{ width: '100%', height: '100%' }}
             center={center}
-            zoom={14}
-            options={{ disableDefaultUI: true }}
+            zoom={13}
+            options={{ 
+              disableDefaultUI: true, 
+              zoomControl: true,
+              styles: [
+                { "elementType": "geometry", "stylers": [{ "color": "#f5f5f5" }] },
+                { "elementType": "labels.icon", "stylers": [{ "visibility": "off" }] },
+                { "elementType": "labels.text.fill", "stylers": [{ "color": "#616161" }] },
+                { "elementType": "labels.text.stroke", "stylers": [{ "color": "#f5f5f5" }] },
+                { "featureType": "administrative.land_parcel", "elementType": "labels.text.fill", "stylers": [{ "color": "#bdbdbd" }] },
+                { "featureType": "poi", "elementType": "geometry", "stylers": [{ "color": "#eeeeee" }] },
+                { "featureType": "poi", "elementType": "labels.text.fill", "stylers": [{ "color": "#757575" }] },
+                { "featureType": "poi.park", "elementType": "geometry", "stylers": [{ "color": "#e5e5e5" }] },
+                { "featureType": "poi.park", "elementType": "labels.text.fill", "stylers": [{ "color": "#9e9e9e" }] },
+                { "featureType": "road", "elementType": "geometry", "stylers": [{ "color": "#ffffff" }] },
+                { "featureType": "road.arterial", "elementType": "labels.text.fill", "stylers": [{ "color": "#757575" }] },
+                { "featureType": "road.highway", "elementType": "geometry", "stylers": [{ "color": "#dadada" }] },
+                { "featureType": "road.highway", "elementType": "labels.text.fill", "stylers": [{ "color": "#616161" }] },
+                { "featureType": "road.local", "elementType": "labels.text.fill", "stylers": [{ "color": "#9e9e9e" }] },
+                { "featureType": "transit.line", "elementType": "geometry", "stylers": [{ "color": "#e5e5e5" }] },
+                { "featureType": "transit.station", "elementType": "geometry", "stylers": [{ "color": "#eeeeee" }] },
+                { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#c9c9c9" }] },
+                { "featureType": "water", "elementType": "labels.text.fill", "stylers": [{ "color": "#9e9e9e" }] }
+              ],
+            }}
+            onLoad={map => {
+              mapRef.current = map;
+              if (assignedRoute?.decodedPolyline?.length > 0) {
+                const bounds = new window.google.maps.LatLngBounds();
+                assignedRoute.decodedPolyline.forEach(coord => {
+                  bounds.extend(new window.google.maps.LatLng(coord.lat, coord.lng));
+                });
+                map.fitBounds(bounds);
+              }
+            }}
           >
-            <Marker position={center} icon={{ url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png' }} />
+            {/* Driver Location */}
+            <Marker position={center} icon={{ path: window.google.maps.SymbolPath.CIRCLE, scale: 7, fillColor: '#2563EB', fillOpacity: 1, strokeWeight: 2, strokeColor: '#FFFFFF' }} />
+
+            {/* Assigned Route Polyline */}
+            {assignedRoute && assignedRoute.decodedPolyline && (
+              <Polyline
+                path={assignedRoute.decodedPolyline}
+                options={{
+                  strokeColor: '#075AAA',
+                  strokeOpacity: 0.8,
+                  strokeWeight: 6,
+                }}
+              />
+            )}
+            
+            {/* Stops/Junctions */}
+            {assignedRoute && assignedRoute.junctions?.map(j => (
+              <Marker 
+                key={j._id}
+                position={{ lat: j.location.coordinates[1], lng: j.location.coordinates[0] }}
+                icon={{
+                  path: window.google.maps.SymbolPath.CIRCLE,
+                  fillColor: '#FFFFFF',
+                  fillOpacity: 1,
+                  strokeColor: '#075AAA',
+                  strokeWeight: 3,
+                  scale: 5
+                }}
+              />
+            ))}
           </GoogleMap>
         ) : (
-          <div style={{ width: '100%', height: '100%', backgroundColor: 'var(--bg-card)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             Loading Map...
           </div>
         )}
 
         {/* Incoming Ride Overlay */}
         {incomingRide && (
-          <div style={{
-            position: 'absolute',
-            bottom: '24px', left: '50%', transform: 'translateX(-50%)',
-            background: 'var(--bg-card)',
-            padding: '24px',
-            borderRadius: 'var(--border-radius)',
-            border: '1px solid var(--border-light)',
-            width: '90%', maxWidth: '400px',
-            textAlign: 'center',
-            zIndex: 10
-          }}>
-            <h3 style={{ margin: '0 0 16px', fontSize: '20px' }}>New Ride Request</h3>
-            <div style={{ textAlign: 'left', marginBottom: '24px' }}>
-              <p><strong>Pickup:</strong> {incomingRide.pickup?.address}</p>
-              <p><strong>Dropoff:</strong> {incomingRide.drop?.address}</p>
-              <p><strong>Est. Distance:</strong> {incomingRide.distanceToPickup} km</p>
+          <div className={styles.incomingRequestCard}>
+            <h3>New Ride Request</h3>
+            <div className={styles.requestDetails}>
+              <div className={styles.requestRow}>
+                <span className={styles.requestLabel}>Pickup</span>
+                <span className={styles.requestValue}>{incomingRide.pickup?.address}</span>
+              </div>
+              <div className={styles.requestRow}>
+                <span className={styles.requestLabel}>Dropoff</span>
+                <span className={styles.requestValue}>{incomingRide.drop?.address}</span>
+              </div>
+              <div className={styles.requestRow}>
+                <span className={styles.requestLabel}>Distance</span>
+                <span className={styles.requestValue}>{incomingRide.distanceToPickup} km</span>
+              </div>
             </div>
-            <div style={{ display: 'flex', gap: '16px' }}>
-              <button 
-                onClick={rejectRide}
-                style={{ flex: 1, padding: '12px', background: 'var(--bg-dark)', border: '1px solid var(--border-light)', borderRadius: 'var(--border-radius)' }}
-              >
-                Reject
-              </button>
-              <button 
-                onClick={acceptRide}
-                style={{ flex: 1, padding: '12px', background: 'var(--primary)', color: '#fff', border: 'none', borderRadius: 'var(--border-radius)' }}
-              >
-                Accept
-              </button>
+            <div className={styles.actionButtons}>
+              <button className={styles.btnReject} onClick={rejectRide}>Reject</button>
+              <button className={styles.btnAccept} onClick={acceptRide}>Accept Ride</button>
             </div>
           </div>
         )}
 
+        {/* Offline Overlay */}
         {!isOnline && (
-          <div style={{
-            position: 'absolute',
-            top: 0, left: 0, right: 0, bottom: 0,
-            background: 'rgba(0,0,0,0.6)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#fff',
-            fontSize: '24px',
-            fontWeight: 'bold',
-            zIndex: 5
-          }}>
-            You are Offline
+          <div className={styles.mapOverlay}>
+            <h2>You are Offline</h2>
+            <p>Go online to start receiving ride requests on your route.</p>
           </div>
         )}
       </div>
