@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MapPin, CarFront, Users, Map as MapIcon, CheckCircle2 } from 'lucide-react';
+import { MapPin, CarFront, Users, Map as MapIcon, CheckCircle2, ChevronRight } from 'lucide-react';
 import { GoogleMap, useJsApiLoader, Polyline, Marker } from '@react-google-maps/api';
 import styles from './CustomerBooking.module.css';
 import API from '../services/api';
