@@ -56,29 +56,51 @@ const DriverDashboard = () => {
           const driverData = driverRes.data.data;
           setIsOnline(driverData.isAvailable);
           
-          if (driverData.assignedRoute) {
-            const routesRes = await API.get('/route-manager/routes');
-            if (routesRes.data.success) {
-              const matchedRoute = routesRes.data.data.find(
-                r => r._id === driverData.assignedRoute || r._id === driverData.assignedRoute._id
-              );
-              if (matchedRoute) {
-                matchedRoute.decodedPolyline = matchedRoute.polyline ? decodePolyline(matchedRoute.polyline) : [];
-                setAssignedRoute(matchedRoute);
-                
-                if (mapRef.current && matchedRoute.decodedPolyline.length > 0) {
-                  const bounds = new window.google.maps.LatLngBounds();
-                  matchedRoute.decodedPolyline.forEach(coord => {
-                    bounds.extend(new window.google.maps.LatLng(coord.lat, coord.lng));
-                  });
-                  mapRef.current.fitBounds(bounds);
+          // assignedRoute is already populated by getMe as a full object
+          const route = driverData.assignedRoute;
+          if (route && typeof route === 'object' && route._id) {
+            // Fetch the full route with populated junctions
+            try {
+              const routeRes = await API.get('/route-manager/routes');
+              if (routeRes.data.success) {
+                const fullRoute = routeRes.data.data.find(r => r._id === route._id);
+                if (fullRoute) {
+                  fullRoute.decodedPolyline = fullRoute.polyline ? decodePolyline(fullRoute.polyline) : [];
+                  setAssignedRoute(fullRoute);
+                  
+                  if (mapRef.current && fullRoute.decodedPolyline.length > 0) {
+                    const bounds = new window.google.maps.LatLngBounds();
+                    fullRoute.decodedPolyline.forEach(coord => {
+                      bounds.extend(new window.google.maps.LatLng(coord.lat, coord.lng));
+                    });
+                    mapRef.current.fitBounds(bounds);
+                  }
                 }
               }
+            } catch (routeErr) {
+              // Fallback: use the route from getMe directly
+              console.warn('Could not fetch full routes, using inline data:', routeErr);
+              route.decodedPolyline = route.polyline ? decodePolyline(route.polyline) : [];
+              setAssignedRoute(route);
+            }
+          } else if (route && typeof route === 'string') {
+            // assignedRoute came as just an ID string (not populated)
+            try {
+              const routesRes = await API.get('/route-manager/routes');
+              if (routesRes.data.success) {
+                const matchedRoute = routesRes.data.data.find(r => r._id === route);
+                if (matchedRoute) {
+                  matchedRoute.decodedPolyline = matchedRoute.polyline ? decodePolyline(matchedRoute.polyline) : [];
+                  setAssignedRoute(matchedRoute);
+                }
+              }
+            } catch (routeErr) {
+              console.error('Failed to fetch routes:', routeErr);
             }
           }
         }
       } catch (err) {
-        console.error(err);
+        console.error('Failed to fetch driver data:', err);
       }
     };
     fetchData();

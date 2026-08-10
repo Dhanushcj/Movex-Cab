@@ -1,11 +1,13 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { Home, Navigation, LifeBuoy, FileText, User, LogOut } from 'lucide-react';
+import { AuthContext } from '../context/AuthContext';
 import styles from './PortalLayout.module.css';
 
 const DriverLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { logout } = useContext(AuthContext);
   
   const navItems = [
     { name: 'Dashboard', path: '/driver/dashboard', icon: Home },
@@ -16,8 +18,8 @@ const DriverLayout = () => {
   ];
 
   const handleLogout = () => {
-    // Perform logout logic here
-    navigate('/');
+    logout();
+    navigate('/login');
   };
 
   return (

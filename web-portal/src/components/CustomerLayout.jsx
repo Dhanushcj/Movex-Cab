@@ -1,11 +1,13 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { Home, MapPin, Clock, User, LogOut } from 'lucide-react';
+import { AuthContext } from '../context/AuthContext';
 import styles from './PortalLayout.module.css';
 
 const CustomerLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user, logout } = useContext(AuthContext);
   
   const navItems = [
     { name: 'Dashboard', path: '/customer/dashboard', icon: Home },
@@ -15,15 +17,18 @@ const CustomerLayout = () => {
   ];
 
   const handleLogout = () => {
-    // Perform logout logic here
-    navigate('/');
+    logout();
+    navigate('/login');
   };
+
+  const initials = user?.name ? user.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) : 'U';
+  const displayName = user?.name || 'User';
 
   return (
     <div className={styles.layoutContainer}>
       <aside className={styles.sidebar}>
         <div className={styles.sidebarHeader}>
-          <h2>MoveX Customer</h2>
+          <h2>MoveX</h2>
         </div>
         
         <nav className={styles.sidebarNav}>
@@ -57,8 +62,8 @@ const CustomerLayout = () => {
             {navItems.find(i => i.path === location.pathname)?.name || 'Portal'}
           </div>
           <div className={styles.headerProfile}>
-            <div className={styles.avatar}>JD</div>
-            <span>John Doe</span>
+            <div className={styles.avatar}>{initials}</div>
+            <span>{displayName}</span>
           </div>
         </header>
         

@@ -19,17 +19,13 @@ const DriverSupport = () => {
   const fetchTickets = async () => {
     try {
       const res = await API.get('/drivers/complaints');
-      if (res.data.success) {
-        setTickets(res.data.data || []);
-      }
+      // Backend returns array directly or wrapped in {success, data}
+      const data = res.data.success ? (res.data.data || []) : (Array.isArray(res.data) ? res.data : []);
+      setTickets(data);
     } catch (err) {
       console.error('Failed to fetch tickets:', err);
-      // Use mock data if API fails
-      setTickets([
-        { _id: '1', ticketId: 'TKT-1001', subject: 'Route not updating on map', description: 'My assigned route polyline does not appear on the dashboard map even after refreshing.', status: 'open', category: 'technical', createdAt: '2026-08-09T10:30:00Z' },
-        { _id: '2', ticketId: 'TKT-1002', subject: 'Payment delay for last week', description: 'I completed 12 trips last week but the earnings have not been credited to my wallet yet.', status: 'resolved', category: 'payment', createdAt: '2026-08-07T14:20:00Z' },
-        { _id: '3', ticketId: 'TKT-1003', subject: 'Customer was rude during ride', description: 'During trip TRP-10523, the customer was verbally abusive. Requesting review of this incident.', status: 'pending', category: 'safety', createdAt: '2026-08-06T08:15:00Z' },
-      ]);
+      // Show empty state if API fails (no mock data)
+      setTickets([]);
     }
   };
 
@@ -45,23 +41,16 @@ const DriverSupport = () => {
       const res = await API.post('/drivers/complaints', {
         subject: form.subject,
         description: form.description,
-        category: form.category,
+        type: form.category, // backend uses 'type' not 'category'
       });
-      if (res.data.success) {
-        setTickets(prev => [res.data.data, ...prev]);
+      // Backend returns the complaint object directly
+      const newComplaint = res.data.success ? res.data.data : res.data;
+      if (newComplaint && newComplaint._id) {
+        setTickets(prev => [newComplaint, ...prev]);
       }
     } catch (err) {
-      // Add locally as fallback
-      const newTicket = {
-        _id: Date.now().toString(),
-        ticketId: `TKT-${1000 + tickets.length + 1}`,
-        subject: form.subject,
-        description: form.description,
-        status: 'open',
-        category: form.category,
-        createdAt: new Date().toISOString(),
-      };
-      setTickets(prev => [newTicket, ...prev]);
+      console.error('Failed to submit ticket:', err);
+      alert(err.response?.data?.message || 'Failed to submit ticket. Please try again.');
     } finally {
       setSubmitting(false);
       setShowModal(false);
