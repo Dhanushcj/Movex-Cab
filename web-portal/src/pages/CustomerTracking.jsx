@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { MapPin, Phone, MessageSquare, ShieldCheck, CheckCircle2, Navigation } from 'lucide-react';
-import { GoogleMap, useJsApiLoader, Polyline, Marker } from '@react-google-maps/api';
+import { GoogleMap, useJsApiLoader, Polyline, Marker, DirectionsRenderer } from '@react-google-maps/api';
 import styles from './CustomerBooking.module.css'; // Reusing styles
 import API from '../services/api';
 import { SocketContext } from '../context/SocketContext';
@@ -42,6 +42,7 @@ const CustomerTracking = () => {
   const [status, setStatus] = useState('searching');
   const [loading, setLoading] = useState(true);
   const [decodedRoute, setDecodedRoute] = useState([]);
+  const [directions, setDirections] = useState(null);
 
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
@@ -129,14 +130,51 @@ const CustomerTracking = () => {
 
   // Adjust map bounds when route is loaded
   useEffect(() => {
-    if (mapRef.current && decodedRoute.length > 0) {
+    if (mapRef.current && decodedRoute.length > 0 && !directions) {
       const bounds = new window.google.maps.LatLngBounds();
       decodedRoute.forEach(coord => {
         bounds.extend(new window.google.maps.LatLng(coord.lat, coord.lng));
       });
       mapRef.current.fitBounds(bounds, { padding: 50 });
     }
-  }, [decodedRoute, isLoaded]);
+  }, [decodedRoute, isLoaded, directions]);
+
+  useEffect(() => {
+    if (!ride || !isLoaded) return;
+    
+    // eslint-disable-next-line no-undef
+    const directionsService = new google.maps.DirectionsService();
+    
+    let origin, destination;
+    
+    if (status === 'accepted' || status === 'arrived') {
+      // Driver navigating to pickup
+      origin = driverInfo?.currentLocation?.coordinates 
+        ? { lat: driverInfo.currentLocation.coordinates[1], lng: driverInfo.currentLocation.coordinates[0] } 
+        : { lat: 13.0827, lng: 80.2707 }; // Fallback
+      destination = { lat: ride.pickup.location.coordinates[1], lng: ride.pickup.location.coordinates[0] };
+    } else if (status === 'in_progress') {
+      // Driver navigating to dropoff
+      origin = driverInfo?.currentLocation?.coordinates 
+        ? { lat: driverInfo.currentLocation.coordinates[1], lng: driverInfo.currentLocation.coordinates[0] } 
+        : { lat: ride.pickup.location.coordinates[1], lng: ride.pickup.location.coordinates[0] };
+      destination = { lat: ride.drop.location.coordinates[1], lng: ride.drop.location.coordinates[0] };
+    }
+    
+    if (origin && destination) {
+      directionsService.route({
+        origin,
+        destination,
+        // eslint-disable-next-line no-undef
+        travelMode: google.maps.TravelMode.DRIVING
+      }, (result, stat) => {
+        // eslint-disable-next-line no-undef
+        if (stat === google.maps.DirectionsStatus.OK) {
+          setDirections(result);
+        }
+      });
+    }
+  }, [ride, isLoaded, status, driverInfo]);
 
   if (loading) return <div>Loading...</div>;
 
@@ -268,7 +306,7 @@ const CustomerTracking = () => {
               ]
             }}
           >
-            {decodedRoute.length > 0 && (
+            {decodedRoute.length > 0 && !directions && (
               <Polyline
                 path={decodedRoute}
                 options={{
@@ -277,6 +315,16 @@ const CustomerTracking = () => {
                   strokeWeight: 6,
                   zIndex: 2
                 }}
+              />
+            )}
+
+            {directions && (
+              <DirectionsRenderer 
+                directions={directions} 
+                options={{
+                  polylineOptions: { strokeColor: '#075AAA', strokeWeight: 6, zIndex: 2 },
+                  suppressMarkers: true
+                }} 
               />
             )}
 

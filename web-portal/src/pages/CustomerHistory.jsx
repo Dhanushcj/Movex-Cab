@@ -126,8 +126,7 @@ const CustomerHistory = () => {
                       {displayStatus}
                     </span>
                   </div>
-                  <h3 style={{ fontSize: '24px', margin: 0 }}>₹{fareAmount}</h3>
-                  <p style={{ color: 'var(--text-muted)', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '6px', margin: 0 }}>
                     <Clock size={14} /> {timeStr} • {ride.vehicleType || 'Ride'}
                   </p>
                 </div>
