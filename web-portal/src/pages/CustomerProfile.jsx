@@ -1,7 +1,10 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { User, Mail, Phone, CreditCard, Shield } from 'lucide-react';
+import { AuthContext } from '../context/AuthContext';
 
 const CustomerProfile = () => {
+  const { user } = useContext(AuthContext);
+  const initials = user?.name ? user.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0,2) : 'U';
   return (
     <div>
       <h1 style={{ fontSize: '32px', marginBottom: '24px' }}>Profile & Settings</h1>
@@ -22,10 +25,10 @@ const CustomerProfile = () => {
               fontSize: '32px',
               fontWeight: 'bold',
               color: 'white'
-            }}>JD</div>
+            }}>{initials}</div>
             <div>
-              <h2 style={{ margin: 0 }}>John Doe</h2>
-              <p style={{ color: 'var(--text-muted)' }}>Customer since 2024</p>
+              <h2 style={{ margin: 0 }}>{user?.name || 'User'}</h2>
+              <p style={{ color: 'var(--text-muted)' }}>Customer since {new Date(user?.createdAt || Date.now()).getFullYear()}</p>
             </div>
           </div>
           
@@ -34,7 +37,7 @@ const CustomerProfile = () => {
               <Mail color="var(--text-muted)" />
               <div>
                 <p style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Email Address</p>
-                <p>john.doe@example.com</p>
+                <p>{user?.email || 'N/A'}</p>
               </div>
             </div>
             
@@ -42,7 +45,7 @@ const CustomerProfile = () => {
               <Phone color="var(--text-muted)" />
               <div>
                 <p style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Phone Number</p>
-                <p>+1 234 567 8900</p>
+                <p>{user?.phone || 'N/A'}</p>
               </div>
             </div>
           </div>
