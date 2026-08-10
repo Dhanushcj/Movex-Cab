@@ -1,0 +1,365 @@
+.passSection {
+  padding: 6rem 0;
+  background-color: var(--bg-section-alt);
+  position: relative;
+}
+
+.sectionHeader {
+  text-align: center;
+  max-width: 720px;
+  margin: 0 auto 4rem auto;
+}
+
+.badgePill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--forge-blue);
+  background: #FFFFFF;
+  padding: 0.35rem 0.85rem;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-light);
+  margin-bottom: 1rem;
+}
+
+.sparkleIcon {
+  color: var(--accent-yellow);
+}
+
+.sectionTitle {
+  font-size: 2.6rem;
+  color: var(--forge-blue);
+  margin-bottom: 1rem;
+}
+
+.sectionSubtitle {
+  font-size: 1.05rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.passGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  margin-bottom: 4rem;
+  align-items: stretch;
+}
+
+.passCard {
+  background: #FFFFFF;
+  border: 1.5px solid var(--border-light);
+  border-radius: var(--radius-xl);
+  padding: 2.25rem 1.75rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  transition: all var(--transition-normal);
+  box-shadow: 0 8px 25px rgba(7, 90, 170, 0.06);
+  overflow: hidden;
+}
+
+.passCard:hover {
+  transform: translateY(-3px);
+  border-color: var(--border-hover);
+}
+
+.topAccentBar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--border-light);
+}
+
+.popularCard {
+  border: 1.5px solid var(--border-hover);
+  box-shadow: 0 12px 30px rgba(7, 90, 170, 0.08);
+}
+
+.popularCard .topAccentBar {
+  background: var(--accent-yellow);
+  height: 5px;
+}
+
+.cardBadge {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  background: var(--soft-yellow);
+  border: 1px solid var(--accent-yellow);
+  color: var(--forge-blue);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--radius-full);
+}
+
+.cardHeader {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.passName {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--forge-blue);
+  letter-spacing: 0.06em;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.priceRow {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.priceVal {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 900;
+  font-size: 2.5rem;
+  color: var(--forge-blue);
+}
+
+.validityLabel {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.passDesc {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.modesIncludedRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-section-alt);
+  padding: 0.65rem 0.85rem;
+  border-radius: var(--radius-md);
+  margin-bottom: 1.5rem;
+}
+
+.modesLabel {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: var(--forge-blue);
+  letter-spacing: 0.04em;
+}
+
+.modesBadges {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.modeTag {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--forge-blue);
+  background: #FFFFFF;
+  padding: 0.15rem 0.45rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-light);
+}
+
+.featuresList {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  margin-bottom: 2rem;
+}
+
+.featureItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  font-size: 0.88rem;
+  color: var(--text-primary);
+  line-height: 1.4;
+}
+
+.checkIconWrapper {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--status-success-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.checkIcon {
+  color: var(--status-success);
+}
+
+.cardFooter {
+  margin-top: auto;
+}
+
+/* Calculator Card */
+.calcCard {
+  background: #FFFFFF;
+  border: 1.5px solid var(--border-light);
+  border-radius: var(--radius-xl);
+  padding: 2.25rem;
+  display: grid;
+  grid-template-columns: 1fr 1.3fr;
+  gap: 2.5rem;
+  align-items: center;
+  box-shadow: 0 8px 25px rgba(7, 90, 170, 0.06);
+}
+
+.calcLeft {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.25rem;
+}
+
+.calcIconBox {
+  width: 54px;
+  height: 54px;
+  border-radius: var(--radius-lg);
+  background: var(--soft-yellow);
+  border: 1px solid var(--accent-yellow);
+  color: var(--forge-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.calcTitle {
+  font-size: 1.4rem;
+  color: var(--forge-blue);
+  margin-bottom: 0.4rem;
+}
+
+.calcSub {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.calcRight {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.sliderGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.sliderHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sliderLabel {
+  font-size: 0.88rem;
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+.sliderValue {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--forge-blue);
+}
+
+.rangeSlider {
+  width: 100%;
+  height: 8px;
+  border-radius: var(--radius-full);
+  background: var(--border-light);
+  outline: none;
+  accent-color: var(--accent-yellow);
+  cursor: pointer;
+}
+
+.savingsResultRow {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.savingsBox {
+  background: var(--bg-section-alt);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 0.85rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.savingsLabel {
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  margin-bottom: 0.2rem;
+}
+
+.savingsOld {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-decoration: line-through;
+}
+
+.savingsNew {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--forge-blue);
+}
+
+.savingsBoxHighlight {
+  background: var(--soft-yellow);
+  border: 1.5px solid var(--accent-yellow);
+  border-radius: var(--radius-md);
+  padding: 0.85rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.savingsLabelHighlight {
+  font-size: 0.68rem;
+  font-weight: 900;
+  color: var(--forge-blue);
+  letter-spacing: 0.05em;
+  margin-bottom: 0.2rem;
+}
+
+.savingsAmount {
+  font-size: 1.15rem;
+  font-weight: 900;
+  color: var(--forge-blue);
+}
+
+@media (max-width: 1024px) {
+  .passGrid {
+    grid-template-columns: 1fr;
+    max-width: 480px;
+    margin: 0 auto 3rem auto;
+  }
+  .calcCard {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+}

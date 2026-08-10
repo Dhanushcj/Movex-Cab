@@ -1,0 +1,137 @@
+.journeySection {
+  padding: 6rem 0;
+  background-color: var(--bg-section-alt);
+  position: relative;
+  overflow: hidden;
+}
+
+.sectionHeader {
+  text-align: center;
+  max-width: 700px;
+  margin: 0 auto 4rem auto;
+}
+
+.sectionTag {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--forge-blue);
+  background: #FFFFFF;
+  padding: 0.35rem 0.85rem;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-light);
+  margin-bottom: 1rem;
+  display: inline-block;
+}
+
+.sectionTitle {
+  font-size: 2.6rem;
+  color: var(--forge-blue);
+  margin-bottom: 1rem;
+}
+
+.sectionSubtitle {
+  font-size: 1.05rem;
+  color: var(--text-muted);
+}
+
+.journeyTrackWrapper {
+  position: relative;
+  padding: 2rem 0;
+}
+
+.trackLine {
+  position: absolute;
+  top: 52px;
+  left: 5%;
+  right: 5%;
+  height: 3px;
+  background: linear-gradient(90deg, var(--border-light), var(--accent-yellow), var(--border-light));
+  z-index: 1;
+  border-radius: var(--radius-full);
+}
+
+.nodesRow {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1rem;
+  position: relative;
+  z-index: 2;
+}
+
+.nodeItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  background: #FFFFFF;
+  border: 1.5px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem 0.75rem;
+  transition: all var(--transition-fast);
+  box-shadow: 0 8px 25px rgba(7, 90, 170, 0.04);
+}
+
+.nodeItem:hover {
+  transform: translateY(-3px);
+  border-color: var(--border-hover);
+}
+
+.nodeIconCircle {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--bg-soft-blue);
+  border: 2px solid var(--forge-blue);
+  color: var(--forge-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.85rem;
+}
+
+.nodeHighlight {
+  background: #FFFFFF;
+  border: 1.5px solid var(--accent-yellow);
+}
+
+.nodeHighlight .nodeIconCircle {
+  background: var(--soft-yellow);
+  color: var(--forge-blue);
+  border-color: var(--accent-yellow);
+}
+
+.stepNum {
+  font-size: 0.65rem;
+  font-weight: 900;
+  color: var(--forge-blue);
+  margin-bottom: 0.2rem;
+}
+
+.nodeTitle {
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: var(--forge-blue);
+  margin-bottom: 0.25rem;
+  letter-spacing: 0.02em;
+}
+
+.nodeDesc {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+@media (max-width: 1024px) {
+  .nodesRow {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+  .trackLine {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .nodesRow {
+    grid-template-columns: 1fr;
+  }
+}
