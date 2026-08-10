@@ -1,0 +1,150 @@
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  padding: 1.1rem 0;
+  transition: all var(--transition-normal);
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-light);
+}
+
+.scrolled {
+  padding: 0.8rem 0;
+  background: #FFFFFF;
+  box-shadow: 0 4px 18px rgba(7, 90, 170, 0.05);
+}
+
+.container {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logoWrapper {
+  text-decoration: none;
+}
+
+.desktopNav {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.navLink {
+  color: var(--forge-blue);
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-decoration: none;
+  transition: color var(--transition-fast);
+  position: relative;
+  padding: 0.4rem 0;
+}
+
+.navLink:hover {
+  color: var(--forge-blue-deep);
+}
+
+.navLink::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0%;
+  height: 2px;
+  background-color: var(--forge-blue);
+  transition: width var(--transition-fast);
+  border-radius: var(--radius-full);
+}
+
+.navLink:hover::after {
+  width: 100%;
+}
+
+.rightActions {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.loginBtn {
+  color: var(--forge-blue);
+  font-weight: 700;
+  font-size: 0.95rem;
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-full);
+  transition: all var(--transition-fast);
+}
+
+.loginBtn:hover {
+  color: var(--forge-blue-deep);
+  background: var(--bg-soft-blue);
+}
+
+.mobileToggle {
+  display: none;
+  background: transparent;
+  border: none;
+  color: var(--forge-blue);
+  cursor: pointer;
+}
+
+.mobileMenu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #FFFFFF;
+  border-bottom: 1px solid var(--border-light);
+  padding: 1.5rem;
+  box-shadow: 0 12px 30px rgba(7, 90, 170, 0.08);
+}
+
+.mobileNav {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.mobileNavLink {
+  color: var(--forge-blue);
+  font-size: 1.1rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.mobileNavLink:hover {
+  color: var(--forge-blue-deep);
+}
+
+.mobileActions {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-light);
+}
+
+.mobileLoginBtn {
+  text-align: center;
+  color: var(--forge-blue);
+  font-weight: 700;
+  padding: 0.75rem;
+}
+
+@media (max-width: 900px) {
+  .desktopNav, .rightActions {
+    display: none;
+  }
+  .mobileToggle {
+    display: block;
+  }
+}

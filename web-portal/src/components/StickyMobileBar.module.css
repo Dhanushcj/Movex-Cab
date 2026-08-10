@@ -1,0 +1,42 @@
+.stickyMobileContainer {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 90;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-top: 2px solid var(--forge-yellow);
+  padding: 0.75rem 1.25rem;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 -10px 30px rgba(7, 90, 170, 0.12);
+}
+
+.infoCol {
+  display: flex;
+  flex-direction: column;
+}
+
+.passTag {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: var(--forge-blue);
+}
+
+.priceTag {
+  font-size: 0.78rem;
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+@media (max-width: 768px) {
+  .stickyMobileContainer {
+    display: flex;
+  }
+}

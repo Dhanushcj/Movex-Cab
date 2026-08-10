@@ -1,63 +1,61 @@
 :root {
-  /* Colors */
-  --primary: #6C5CE7;
-  --primary-hover: #5a4bcf;
-  --primary-light: rgba(108, 92, 231, 0.1);
-  --secondary: #00CEC9;
-  
-  /* Neutral / Backgrounds */
-  --bg-dark: #0f172a;
-  --bg-darker: #0b1120;
-  --bg-card: #1e293b;
-  --bg-card-hover: #26344b;
-  
-  /* Text */
-  --text-main: #f8fafc;
-  --text-muted: #94a3b8;
-  
-  /* Borders */
-  --border-light: rgba(255, 255, 255, 0.1);
-  
-  /* Status */
-  --success: #10B981;
-  --warning: #F59E0B;
-  --error: #EF4444;
+  /* Forge India Connect Primary Blue Color System */
+  --forge-blue: #075AAA;
+  --forge-blue-deep: #064A91;
+  --forge-blue-dark: #054483;
+  --text-blue: #163F68;
+  --text-muted: #5F7892;
+  --bg-soft-blue: #EAF3FB;
+  --border-light: #D9E5F0;
+  --border-hover: #B8D2E8;
 
-  /* Fonts */
-  --font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  
-  /* Layout */
-  --max-width: 1200px;
-  --border-radius: 12px;
-  --border-radius-lg: 16px;
-  
-  /* Shadows & Glass */
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
-  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.3);
-  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.4);
-  --glass-bg: rgba(30, 41, 59, 0.7);
-  --glass-border: rgba(255, 255, 255, 0.08);
-  
-  /* Animations */
-  --transition-fast: 0.2s ease;
-  --transition-normal: 0.3s ease;
-}
+  /* Muted Accent Yellow Color System (5% Usage) */
+  --accent-yellow: #E8C84A;
+  --accent-yellow-hover: #DDBB38;
+  --soft-yellow: #FFF6D6;
+  --forge-yellow: #E8C84A;
+  --forge-yellow-hover: #DDBB38;
+  --forge-yellow-soft: #FFF6D6;
+  --forge-yellow-very-light: #FFFBF0;
 
-/* Light Theme Variables */
-[data-theme="light"] {
-  --bg-dark: #f8fafc;
-  --bg-darker: #e2e8f0;
-  --bg-card: #ffffff;
-  --bg-card-hover: #f1f5f9;
-  
-  --text-main: #0f172a;
-  --text-muted: #64748b;
-  
-  --border-light: rgba(0, 0, 0, 0.1);
-  --glass-bg: rgba(255, 255, 255, 0.8);
-  --glass-border: rgba(0, 0, 0, 0.1);
-  
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
-  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
-  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+  /* Backgrounds & Neutrals - 70% WHITE/LIGHT SYSTEM */
+  --bg-white: #FFFFFF;
+  --bg-section-alt: #F7FAFD;
+  --bg-light-blue: #EAF3FB;
+  --bg-card: #FFFFFF;
+  --bg-card-hover: #FAFCFF;
+
+  /* Text Colors */
+  --text-primary: #163F68;
+  --text-white: #FFFFFF;
+
+  /* Borders & Shadows */
+  --border-blue: rgba(7, 90, 170, 0.18);
+  --border-yellow: #E8C84A;
+
+  /* Status Colors */
+  --status-success: #10B981;
+  --status-success-bg: rgba(16, 185, 129, 0.08);
+  --status-error: #EF4444;
+  --status-error-bg: rgba(239, 68, 68, 0.08);
+
+  /* Design System Specs */
+  --font-family: 'Inter', 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+  --max-width: 1280px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
+
+  /* Subtle Premium Corporate Shadows */
+  --shadow-sm: 0 2px 8px rgba(7, 90, 170, 0.04);
+  --shadow-md: 0 8px 25px rgba(7, 90, 170, 0.06);
+  --shadow-lg: 0 12px 32px rgba(7, 90, 170, 0.08);
+  --shadow-yellow: 0 4px 12px rgba(7, 90, 170, 0.08);
+
+  /* Transitions */
+  --transition-fast: 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-bounce: 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
