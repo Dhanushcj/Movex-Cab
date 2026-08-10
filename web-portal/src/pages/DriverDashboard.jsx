@@ -145,7 +145,7 @@ const DriverDashboard = () => {
   };
 
   return (
-    <div className={styles.dashboardContainer}>
+    <div className={`${styles.dashboardContainer} fullBleed`}>
       
       {/* Background Map - Full Bleed */}
       <div className={styles.mapPanel}>

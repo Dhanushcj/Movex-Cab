@@ -1,12 +1,11 @@
 .dashboardContainer {
-  height: calc(100vh - 120px);
-  width: 100%;
+  height: calc(100vh - 80px); /* 80px is top header */
+  width: calc(100% + 64px); /* 32px padding on each side */
+  margin: -32px; /* Break out of padding */
   position: relative;
-  border-radius: var(--radius-xl);
   overflow: hidden;
-  box-shadow: var(--shadow-lg);
   font-family: var(--font-family);
-  border: 1px solid rgba(0, 0, 0, 0.05);
+  background: var(--bg-section-alt);
 }
 
 .mapPanel {
