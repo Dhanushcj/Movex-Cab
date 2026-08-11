@@ -156,6 +156,7 @@ const AuthScreen = () => {
     if (mode === 'register') {
       if (!name) return 'Please enter your full name.';
       if (!phone) return 'Please enter your mobile number.';
+      if (!/^[6-9]\d{9}$/.test(phone)) return 'Please enter a valid 10-digit mobile number starting with 6, 7, 8, or 9.';
       if (password !== confirmPassword) return 'Passwords do not match.';
       if (password.length < 6) return 'Password must be at least 6 characters.';
     }
