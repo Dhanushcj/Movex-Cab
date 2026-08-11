@@ -345,6 +345,20 @@ const AuthScreen = () => {
               </p>
             </div>
 
+            {error && (
+              <div className={styles.errorBanner} style={{ 
+                backgroundColor: 'rgba(239, 68, 68, 0.1)', 
+                color: 'var(--error, #ef4444)', 
+                padding: '12px 16px', 
+                borderRadius: '8px', 
+                marginBottom: '24px',
+                fontSize: '14px',
+                border: '1px solid rgba(239, 68, 68, 0.2)'
+              }}>
+                {error}
+              </div>
+            )}
+
             {(mode === 'login' || mode === 'register') && (
               <div className={styles.segmentToggle}>
                 <button 
