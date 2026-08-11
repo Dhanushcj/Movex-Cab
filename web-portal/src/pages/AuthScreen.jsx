@@ -321,13 +321,6 @@ const AuthScreen = () => {
                 Loading map...
               </div>
             )}
-
-            <div className={styles.floatingCard}>
-              <div className={styles.floatingCardSubtitle}>MONTHLY PASS</div>
-              <div className={styles.floatingCardTitle}>ACTIVE</div>
-              <div className={styles.floatingCardText}>₹0 Fare Charged</div>
-              <div className={styles.floatingCardText} style={{color: 'var(--text-muted)'}}>21 Days Remaining</div>
-            </div>
           </div>
         </section>
 
