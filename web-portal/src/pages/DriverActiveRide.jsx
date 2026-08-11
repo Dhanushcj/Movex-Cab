@@ -15,6 +15,7 @@ const DriverActiveRide = () => {
   const [otp, setOtp] = useState('');
   const [directions, setDirections] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [currentLocation, setCurrentLocation] = useState({ lat: 12.9716, lng: 77.5946 }); // Default Bangalore
 
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',

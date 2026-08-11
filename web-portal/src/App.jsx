@@ -1,8 +1,7 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import LandingPage from './pages/LandingPage';
-import Login from './pages/Login';
-import Register from './pages/Register';
+import AuthScreen from './pages/AuthScreen';
 
 import CustomerLayout from './components/CustomerLayout';
 import CustomerDashboard from './pages/CustomerDashboard';
@@ -24,8 +23,8 @@ function App() {
     <div className="app-container">
       <Routes>
         <Route path="/" element={<LandingPage />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+        <Route path="/login" element={<AuthScreen />} />
+        <Route path="/register" element={<AuthScreen />} />
         
         {/* Customer Portal */}
         <Route path="/customer" element={<CustomerLayout />}>
