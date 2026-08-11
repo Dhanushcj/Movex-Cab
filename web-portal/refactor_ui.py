@@ -1,157 +1,27 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { MapPin, Check, ChevronRight, ChevronDown, Bell, User, Users, LocateFixed, Info, Ticket, Search, ArrowUpDown, CheckCircle2, Navigation } from 'lucide-react';
-import { GoogleMap, useJsApiLoader, Polyline, Marker } from '@react-google-maps/api';
-import BikeIcon from '../components/BikeIcon';
-import AutoRickshawIcon from '../components/AutoRickshawIcon';
-import CarIcon from '../components/CarIcon';
-import BusIcon from '../components/BusIcon';
-import styles from './CustomerBooking.module.css';
-import API from '../services/api';
-import { useSocket } from '../context/SocketContext';
+import os
+import re
 
-const defaultCenter = { lat: 13.0827, lng: 80.2707 }; // Chennai
-const libraries = ['places', 'geometry'];
-const routeColors = ['#0053B3', '#D49F0C', '#10B981', '#EF4444', '#8B5CF6'];
+jsx_path = r"g:\Dhanush\New folder\Movex-Cab\web-portal\src\pages\CustomerBooking.jsx"
+css_path = r"g:\Dhanush\New folder\Movex-Cab\web-portal\src\pages\CustomerBooking.module.css"
 
-const decodePolyline = (t) => {
-  let n, o, a = 0, r = 0, s = 0, l = 0, i = [];
-  for (; a < t.length;) {
-    n = 0, o = 0;
-    do {
-      o |= (31 & (n = t.charCodeAt(a++) - 63)) << l;
-      l += 5;
-    } while (n >= 32);
-    const d = 1 & o ? ~(o >> 1) : o >> 1;
-    r += d;
-    l = 0, n = 0, o = 0;
-    do {
-      o |= (31 & (n = t.charCodeAt(a++) - 63)) << l;
-      l += 5;
-    } while (n >= 32);
-    const u = 1 & o ? ~(o >> 1) : o >> 1;
-    s += u;
-    l = 0;
-    i.push({ lat: r / 1e5, lng: s / 1e5 });
-  }
-  return i;
-};
+with open(jsx_path, "r", encoding="utf-8") as f:
+    jsx_content = f.read()
 
-// Custom snapping logic to map the click to the closest polyline coordinate
-const getClosestPointOnLine = (pt, line) => {
-  if (!line || line.length < 2) return pt;
-  let minDistance = Infinity;
-  let closestPoint = null;
-  
-  for (let i = 0; i < line.length - 1; i++) {
-    const p1 = line[i];
-    const p2 = line[i+1];
-    
-    const l2 = Math.pow(p1.lat - p2.lat, 2) + Math.pow(p1.lng - p2.lng, 2);
-    if (l2 === 0) continue;
-    
-    let t = ((pt.lat - p1.lat) * (p2.lat - p1.lat) + (pt.lng - p1.lng) * (p2.lng - p1.lng)) / l2;
-    t = Math.max(0, Math.min(1, t));
-    
-    const proj = {
-      lat: p1.lat + t * (p2.lat - p1.lat),
-      lng: p1.lng + t * (p2.lng - p1.lng)
-    };
-    
-    const dist = Math.sqrt(Math.pow(pt.lat - proj.lat, 2) + Math.pow(pt.lng - proj.lng, 2));
-    if (dist < minDistance) {
-      minDistance = dist;
-      closestPoint = proj;
-    }
-  }
-  return closestPoint || pt;
-};
+# Make sure we add necessary Lucide icons
+icons_needed = ["MapPin", "Users", "CheckCircle2", "ChevronRight", "Navigation", "Bell", "User", "Ticket", "Search", "LocateFixed", "Check", "ChevronDown", "ArrowUpDown", "Info"]
+# Let's just find the existing lucide import and replace it
+import_match = re.search(r"import\s+\{([^}]+)\}\s+from\s+'lucide-react';", jsx_content)
+if import_match:
+    existing_icons = [i.strip() for i in import_match.group(1).split(',')]
+    all_icons = list(set(existing_icons + icons_needed))
+    jsx_content = jsx_content.replace(import_match.group(0), f"import {{ {', '.join(all_icons)} }} from 'lucide-react';")
 
-const CustomerBooking = () => {
-  const navigate = useNavigate();
-  const { socket } = useSocket();
-  const [routes, setRoutes] = useState([]);
-  const [selectedRoute, setSelectedRoute] = useState(null);
-  const [pickupLocation, setPickupLocation] = useState(null);
-  const [dropLocation, setDropLocation] = useState(null);
-  const [selectedVehicle, setSelectedVehicle] = useState('mini');
-  const [loading, setLoading] = useState(false);
-  const [bookingStatus, setBookingStatus] = useState(null); // null, 'searching', 'booked'
-  const [activeDrivers, setActiveDrivers] = useState([]);
-  const [mapCenter, setMapCenter] = useState(defaultCenter);
+# Find the return block
+return_start = jsx_content.find("  return (")
+return_end = jsx_content.rfind(");") + 2
 
-  const { isLoaded } = useJsApiLoader({
-    id: 'google-map-script',
-    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
-    libraries
-  });
-
-  const mapRef = useRef(null);
-
-  const vehicles = [
-    { id: 'bike', name: 'Forge Bike', capacity: 1, time: '2 min', baseFare: 45, icon: BikeIcon, type: 'bike' },
-    { id: 'auto', name: 'Forge Auto', capacity: 3, time: '3 min', baseFare: 65, icon: AutoRickshawIcon, type: 'auto' },
-    { id: 'mini', name: 'Forge Mini', capacity: 3, time: '4 min', baseFare: 120, icon: CarIcon, type: 'car' },
-    { id: 'bus', name: 'Forge Bus', capacity: 40, time: '6 min', baseFare: 180, icon: BusIcon, type: 'bus' },
-  ];
-
-  useEffect(() => {
-    const fetchRoutes = async () => {
-      try {
-        const res = await API.get('/route-manager/routes');
-        if (res.data.success) {
-          const processedRoutes = res.data.data.map((r, idx) => ({
-            ...r,
-            displayColor: routeColors[idx % routeColors.length],
-            decodedPolyline: r.polyline ? decodePolyline(r.polyline) : []
-          }));
-          setRoutes(processedRoutes);
-        }
-      } catch (err) {
-        console.error('Failed to fetch routes', err);
-      }
-    };
-    fetchRoutes();
-  }, []);
-
-  const [currentPosition, setCurrentPosition] = useState(null);
-
-  useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setCurrentPosition({
-            lat: position.coords.latitude,
-            lng: position.coords.longitude
-          });
-          setMapCenter({
-            lat: position.coords.latitude,
-            lng: position.coords.longitude
-          });
-        },
-        (error) => {
-          console.warn("Geolocation not available or denied:", error);
-        }
-      );
-    }
-  }, []);
-
-  useEffect(() => {
-    const fetchDrivers = async () => {
-      const pos = currentPosition || mapCenter;
-      try {
-        const res = await API.get(`/drivers/nearby?lat=${pos.lat}&lng=${pos.lng}&radius=10`);
-        if (res.data.success) {
-          setActiveDrivers(res.data.drivers || []);
-        }
-      } catch (err) {
-        console.error('Failed to fetch nearby drivers', err);
-      }
-    };
-    
-    fetchDrivers();
-    const intervalId = setInterval(fetchDrivers, 10000);
-    return (
+if return_start != -1 and return_end != -1:
+    new_return_block = """  return (
     <div className={styles.pageWrapper}>
       {/* GLOBAL TOP HEADER */}
       <div className={styles.globalTopHeader}>
@@ -470,7 +340,748 @@ const CustomerBooking = () => {
         </div>
       </div>
     </div>
-  );
-};
+  );"""
+    jsx_content = jsx_content[:return_start] + new_return_block + jsx_content[return_end:]
 
-export default CustomerBooking;
+with open(jsx_path, "w", encoding="utf-8") as f:
+    f.write(jsx_content)
+
+css_complete = """
+.pageWrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%;
+  background: #f8fafc;
+  overflow: hidden;
+}
+
+.globalTopHeader {
+  height: 80px;
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 32px;
+  flex-shrink: 0;
+  z-index: 20;
+}
+
+.headerTitleArea {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mainTitle {
+  font-size: 22px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+
+.subTitle {
+  font-size: 14px;
+  color: #64748b;
+  margin: 0;
+}
+
+.headerProfileArea {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.notificationWrapper {
+  position: relative;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+.notificationBadge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: #FBBF24;
+  color: #1e293b;
+  font-size: 10px;
+  font-weight: 700;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 2px solid #ffffff;
+}
+
+.userProfileBtn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 20px;
+  transition: background 0.2s;
+}
+
+.userProfileBtn:hover {
+  background: #f1f5f9;
+}
+
+.userAvatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #eff6ff;
+  color: var(--forge-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.userName {
+  font-size: 14px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.bookingSplitWrapper {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.sidebarPanel {
+  width: 460px;
+  background: #ffffff;
+  background-image: 
+    linear-gradient(to right, rgba(0, 83, 179, 0.02) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 83, 179, 0.02) 1px, transparent 1px);
+  background-size: 20px 20px;
+  border-right: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  z-index: 10;
+  overflow-y: auto;
+  padding: 0;
+}
+
+.sidebarContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 0 32px 32px 32px;
+}
+
+/* Step Indicator Overhaul */
+.stepIndicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 32px 16px 32px;
+}
+
+.stepItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  opacity: 0.5;
+  transition: all 0.3s ease;
+}
+
+.stepItem.active {
+  opacity: 1;
+}
+
+.stepCircle {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: #e2e8f0;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  transition: all 0.3s ease;
+}
+
+.stepItem.active .stepCircle {
+  background-color: var(--forge-blue);
+  color: white;
+}
+
+.stepItem span {
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b;
+  display: flex;
+  flex-direction: column;
+}
+
+.stepItem span::after {
+  content: "Select path";
+  font-size: 11px;
+  font-weight: 400;
+  color: #94a3b8;
+  margin-top: 2px;
+}
+.stepItem:nth-child(3) span::after {
+  content: "Choose ride";
+}
+.stepItem:nth-child(5) span::after {
+  content: "Review & book";
+}
+
+.stepItem.active span {
+  color: var(--forge-blue);
+}
+.stepItem.active span::after {
+  color: #64748b;
+}
+
+.stepLine {
+  flex: 1;
+  height: 1px;
+  background-color: #e2e8f0;
+  margin: 0 16px;
+  transition: all 0.3s ease;
+}
+
+.stepLine.activeLine {
+  background-color: #94a3b8;
+}
+
+
+.sectionTitleMain {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--forge-blue);
+  margin-top: 16px;
+  margin-bottom: 16px;
+}
+
+.bookingStateCard {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 0;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+}
+
+.locationsSummary {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.locInputWrapper {
+  display: flex;
+  padding: 16px;
+  gap: 16px;
+}
+
+.locInputWrapper:first-child {
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.locDotWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 16px;
+  padding-top: 6px;
+  position: relative;
+}
+
+.locDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--forge-blue);
+}
+
+.locLine {
+  width: 1px;
+  height: 50px;
+  background: #e2e8f0;
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.locDotDrop {
+  width: 10px;
+  height: 10px;
+  background: #ef4444;
+}
+
+.inputArea {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.locLabel {
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.inputField {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.locValueMain {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.useCurrentBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: var(--forge-blue);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.useCurrentBtn:hover {
+  background: #f1f5f9;
+}
+
+.swapBtnWrapper {
+  position: absolute;
+  right: 24px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 5;
+}
+
+.swapBtn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  transition: all 0.2s;
+}
+.swapBtn:hover {
+  background: #f8fafc;
+}
+
+.routeDistanceInfo {
+  background: #ffffff;
+  padding: 12px 16px;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom-left-radius: 16px;
+  border-bottom-right-radius: 16px;
+}
+
+.routePathText {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--forge-blue);
+  background: #eff6ff;
+  padding: 4px 10px;
+  border-radius: 12px;
+}
+
+.routeMeta {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 500;
+}
+.bullet { margin: 0 4px; opacity: 0.5; }
+
+/* Pass Card */
+.passCard {
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 24px;
+}
+
+.passLeft {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.passIcon {
+  width: 44px;
+  height: 44px;
+  background: #ffffff;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(251, 191, 36, 0.2);
+}
+
+.passInfo h4 {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 4px;
+}
+
+.passInfo p {
+  font-size: 13px;
+  color: #475569;
+}
+.strikeThru { text-decoration: line-through; opacity: 0.6; }
+
+.passRight {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.passStatus {
+  background: #ecfdf5;
+  color: #059669;
+  border: 1px solid #34d399;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 4px 8px;
+  border-radius: 20px;
+  letter-spacing: 0.5px;
+}
+
+.viewPassLink {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--forge-blue);
+  text-decoration: none;
+}
+
+/* Vehicle Selection - HORIZONTAL GRID */
+.vehicleGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.vehicleCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px 8px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: #ffffff;
+  position: relative;
+  text-align: center;
+}
+
+.vehicleCard:hover {
+  border-color: #cbd5e1;
+}
+
+.vehicleCard.selected {
+  border-color: #FBBF24;
+  background: #fffbeb;
+  border-width: 2px;
+  padding: 15px 7px; /* compensate for border width */
+}
+
+.checkIcon {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: #FBBF24;
+  color: white;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vehicleImage {
+  margin-bottom: 12px;
+}
+
+.vehicleInfo h4 {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 4px;
+}
+
+.etaText {
+  font-size: 11px;
+  color: #64748b;
+  margin-bottom: 8px;
+}
+
+.priceRow {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.priceText {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+
+/* Fare Summary */
+.fareSummaryCard {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 0;
+  margin-top: 32px;
+}
+
+.summaryHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.summaryTitle {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--forge-blue);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.summaryBadge {
+  font-size: 12px;
+  font-weight: 600;
+  color: #d97706;
+}
+
+.savingsRow {
+  background: #ecfdf5;
+  color: #059669;
+  border: 1px solid #a7f3d0;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 12px;
+}
+
+.fareGridRow {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  border-top: 1px solid #e2e8f0;
+  padding-top: 20px;
+}
+
+.fareCol, .fareColTotal {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.fareColTotal {
+  border-left: 1px solid #e2e8f0;
+  padding-left: 16px;
+}
+
+.fareLabel {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.fareValue {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.fareValueDiscount {
+  font-size: 16px;
+  font-weight: 700;
+  color: #059669;
+}
+
+.fareLabelTotal {
+  font-size: 12px;
+  color: var(--forge-blue);
+  font-weight: 700;
+}
+
+.fareValueTotal {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--forge-blue);
+}
+
+.actionFooter {
+  margin-top: 24px;
+}
+
+.btnPrimary {
+  width: 100%;
+  padding: 16px;
+  background-color: #FBBF24;
+  color: #1e293b;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btnPrimary:hover:not(:disabled) {
+  background-color: #f59e0b;
+}
+
+
+/* MAP Container & Overlays */
+.mapContainer {
+  flex: 1;
+  position: relative;
+  background: #f1f5f9;
+}
+
+.mapTopOverlay {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  background: #ffffff;
+  padding: 16px 20px;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.overlayRouteText {
+  font-size: 16px;
+  color: var(--forge-blue);
+}
+.overlayRouteText span { color: #94a3b8; margin: 0 4px; }
+.overlayRouteText strong { font-weight: 700; }
+
+.overlayRouteMeta {
+  display: flex;
+  align-items: center;
+  font-size: 13px;
+  color: #64748b;
+  font-weight: 500;
+}
+.metaIcon { display: inline-flex; margin-right: 6px; }
+
+
+.mapBottomOverlay {
+  position: absolute;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ffffff;
+  padding: 16px 24px;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.nearbyTitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--forge-blue);
+}
+
+.nearbyGrid {
+  display: flex;
+  gap: 20px;
+}
+
+.nearbyItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e293b;
+}
+.nIcon { font-size: 16px; }
+
+/* Existing stuff for loading etc */
+.searchingOverlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(255,255,255,0.9);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  backdrop-filter: blur(4px);
+}
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #e2e8f0;
+  border-top-color: var(--forge-blue);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+@keyframes spin { 100% { transform: rotate(360deg); } }
+
+"""
+
+with open(css_path, "w", encoding="utf-8") as f:
+    f.write(css_complete)
+
+print("UI successfully rebuilt!")
