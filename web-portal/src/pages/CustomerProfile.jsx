@@ -6,28 +6,28 @@ const CustomerProfile = () => {
   const { user } = useContext(AuthContext);
   const initials = user?.name ? user.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0,2) : 'U';
   return (
-    <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '32px 0' }}>
-      <h1 style={{ fontSize: '42px', fontWeight: '700', color: 'var(--forge-blue)', marginBottom: '24px', fontFamily: `'Poppins', sans-serif`, lineHeight: '1.15' }}>Profile & Settings</h1>
+    <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '20px 0' }}>
+      <h1 style={{ fontSize: '24px', fontWeight: '700', color: 'var(--forge-blue)', marginBottom: '16px', fontFamily: `'Poppins', sans-serif`, lineHeight: '1.15' }}>Profile & Settings</h1>
       
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '24px' }}>
         
         {/* Personal Info */}
-        <div className="white-card" style={{ padding: '32px', border: '1px solid var(--border-light)', borderRadius: 'var(--radius-xl)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '32px' }}>
+        <div className="white-card" style={{ padding: '24px', border: '1px solid var(--border-light)', borderRadius: 'var(--radius-xl)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
             <div style={{ 
-              width: '80px', 
-              height: '80px', 
+              width: '64px', 
+              height: '64px', 
               borderRadius: '50%', 
               background: 'var(--forge-blue)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '32px',
+              fontSize: '24px',
               fontWeight: 'bold',
               color: 'white'
             }}>{initials}</div>
             <div>
-              <h2 style={{ margin: 0, color: 'var(--text-primary)' }}>{user?.name || 'User'}</h2>
+              <h2 style={{ margin: 0, color: 'var(--text-primary)', fontSize: '20px' }}>{user?.name || 'User'}</h2>
               <p style={{ color: 'var(--text-muted)' }}>Customer since {new Date(user?.createdAt || Date.now()).getFullYear()}</p>
             </div>
           </div>
@@ -54,11 +54,11 @@ const CustomerProfile = () => {
         </div>
         
         {/* Wallet & Security */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-          <div className="white-card" style={{ padding: '32px', border: '1px solid var(--border-light)', borderRadius: 'var(--radius-xl)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
-              <CreditCard color="var(--forge-blue)" />
-              <h3 style={{ margin: 0, color: 'var(--text-primary)' }}>Payment Methods</h3>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <div className="white-card" style={{ padding: '24px', border: '1px solid var(--border-light)', borderRadius: 'var(--radius-xl)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+              <CreditCard size={20} color="var(--forge-blue)" />
+              <h3 style={{ margin: 0, color: 'var(--text-primary)', fontSize: '18px' }}>Payment Methods</h3>
             </div>
             
             <div style={{ 
@@ -88,10 +88,10 @@ const CustomerProfile = () => {
             }}>+ Add Payment Method</button>
           </div>
           
-          <div className="white-card" style={{ padding: '32px', border: '1px solid var(--border-light)', borderRadius: 'var(--radius-xl)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
-              <Shield color="var(--forge-blue)" />
-              <h3 style={{ margin: 0, color: 'var(--text-primary)' }}>Security</h3>
+          <div className="white-card" style={{ padding: '24px', border: '1px solid var(--border-light)', borderRadius: 'var(--radius-xl)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+              <Shield size={20} color="var(--forge-blue)" />
+              <h3 style={{ margin: 0, color: 'var(--text-primary)', fontSize: '18px' }}>Security</h3>
             </div>
             
             <button className="btn btn-outline-blue" style={{ width: '100%', padding: '12px' }}>Change Password</button>

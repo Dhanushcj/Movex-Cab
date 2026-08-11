@@ -36,9 +36,9 @@ function App() {
           <Route path="tracking/:id" element={<CustomerTracking />} />
           <Route path="history" element={<CustomerHistory />} />
           <Route path="profile" element={<CustomerProfile />} />
-          <Route path="notifications" element={<div style={{padding: '32px'}}><h2>Notifications</h2><p className="text-muted">Coming soon.</p></div>} />
+          <Route path="notifications" element={<div style={{padding: '24px', maxWidth: '1200px', margin: '0 auto'}}><h2>Notifications</h2><p className="text-muted">Coming soon.</p></div>} />
           <Route path="settings" element={<CustomerSettings />} />
-          <Route path="support" element={<div style={{padding: '32px'}}><h2>Help & Support</h2><p className="text-muted">Coming soon.</p></div>} />
+          <Route path="support" element={<div style={{padding: '24px', maxWidth: '1200px', margin: '0 auto'}}><h2>Help & Support</h2><p className="text-muted">Coming soon.</p></div>} />
         </Route>
 
         {/* Driver Portal */}
