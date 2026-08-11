@@ -1,6 +1,6 @@
 import React, { useContext, useEffect } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { Home, MapPin, Clock, User, LogOut, CreditCard } from 'lucide-react';
+import { Home, MapPin, Clock, CalendarClock, CreditCard, Wallet, Bell, User, Settings, HelpCircle, LogOut } from 'lucide-react';
 import { AuthContext } from '../context/AuthContext';
 import styles from './PortalLayout.module.css';
 
@@ -16,11 +16,20 @@ const CustomerLayout = () => {
   }, [user, loading, navigate]);
   
   const navItems = [
-    { name: 'Dashboard', path: '/customer/dashboard', icon: Home },
-    { name: 'Book a Ride', path: '/customer/book', icon: MapPin },
-    { name: 'My Rides', path: '/customer/history', icon: Clock },
-    { name: 'Passes', path: '/customer/passes', icon: CreditCard },
-    { name: 'Profile', path: '/customer/profile', icon: User },
+    { type: 'link', name: 'Dashboard', path: '/customer/dashboard', icon: Home },
+    { type: 'link', name: 'Book a Ride', path: '/customer/book', icon: MapPin },
+    { type: 'link', name: 'My Rides', path: '/customer/history', icon: Clock },
+    { type: 'link', name: 'Scheduled Rides', path: '/customer/scheduled', icon: CalendarClock },
+    
+    { type: 'header', name: 'SERVICES' },
+    { type: 'link', name: 'Passes', path: '/customer/passes', icon: CreditCard },
+    { type: 'link', name: 'Payments', path: '/customer/payments', icon: Wallet },
+    { type: 'link', name: 'Notifications', path: '/customer/notifications', icon: Bell },
+    
+    { type: 'header', name: 'ACCOUNT' },
+    { type: 'link', name: 'Profile', path: '/customer/profile', icon: User },
+    { type: 'link', name: 'Settings', path: '/customer/settings', icon: Settings },
+    { type: 'link', name: 'Help & Support', path: '/customer/support', icon: HelpCircle },
   ];
 
   const handleLogout = () => {
@@ -42,7 +51,14 @@ const CustomerLayout = () => {
         </div>
         
         <nav className={styles.sidebarNav}>
-          {navItems.map((item) => {
+          {navItems.map((item, idx) => {
+            if (item.type === 'header') {
+              return (
+                <div key={`header-${idx}`} className={styles.navSectionHeader}>
+                  {item.name}
+                </div>
+              );
+            }
             const Icon = item.icon;
             const isActive = location.pathname === item.path;
             return (
