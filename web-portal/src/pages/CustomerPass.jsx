@@ -45,10 +45,6 @@ const CustomerPass = () => {
             <span className={styles.infoLabel}>REMAINING</span>
             <span className={styles.infoValue}>UNLIMITED</span>
           </div>
-          <div className={styles.infoBlock}>
-            <span className={styles.infoLabel}>COVERAGE</span>
-            <span className={styles.infoValue}>KRISHNAGIRI &rarr; HOSUR</span>
-          </div>
         </div>
 
 
@@ -73,7 +69,6 @@ const CustomerPass = () => {
             <div className={styles.qrBox}>
               <QrCode size={40} color="var(--forge-blue)" />
             </div>
-            <span className={styles.qrLabel}>SCAN TO VERIFY</span>
           </div>
         </div>
       </div>
