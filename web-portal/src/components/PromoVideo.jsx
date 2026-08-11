@@ -16,8 +16,11 @@ const PromoVideo = () => {
           <source src={promoVideo} type="video/mp4" />
           Your browser does not support the video tag.
         </video>
-        {/* Cover for the Gemini watermark */}
-        <div className={styles.watermarkCover}></div>
+        {/* Floating UI Badge to cover the watermark elegantly */}
+        <div className={styles.floatingBadge}>
+          <div className={styles.pulsingDot}></div>
+          <span>Forge Live Connect</span>
+        </div>
       </div>
     </section>
   );
