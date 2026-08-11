@@ -250,6 +250,21 @@ const acceptBooking = async (req, res, next) => {
     driver.totalRides += 1;
     await driver.save();
 
+    // --- SOCKET INJECTION ---
+    const { getIO, getActiveRides } = require('../config/socket');
+    const io = getIO();
+    if (io) {
+      getActiveRides().set(booking._id.toString(), { driverId: driver._id.toString(), status: 'accepted' });
+      io.to(`ride:${booking._id}`).emit('ride:accepted', {
+        bookingId: booking._id,
+        driverInfo: driver,
+        booking,
+        timestamp: Date.now()
+      });
+    }
+    // ------------------------
+
+
     res.json({
       success: true,
       message: 'Ride booking accepted successfully',
@@ -283,6 +298,21 @@ const driverArrived = async (req, res, next) => {
     booking.status = 'arrived';
     booking.arrivedAt = new Date();
     await booking.save();
+
+    // --- SOCKET INJECTION ---
+    const { getIO, getActiveRides } = require('../config/socket');
+    const io = getIO();
+    if (io) {
+      const activeRides = getActiveRides();
+      const ride = activeRides.get(booking._id.toString());
+      if (ride) {
+        ride.status = 'arrived';
+        activeRides.set(booking._id.toString(), ride);
+      }
+      io.to(`ride:${booking._id}`).emit('booking:status', { status: 'arrived' });
+    }
+    // ------------------------
+
 
     res.json({ success: true, message: 'Arrived at pickup point', data: booking });
 
@@ -366,6 +396,21 @@ const startTrip = async (req, res, next) => {
     booking.startedAt = new Date();
     await booking.save();
 
+    // --- SOCKET INJECTION ---
+    const { getIO, getActiveRides } = require('../config/socket');
+    const io = getIO();
+    if (io) {
+      const activeRides = getActiveRides();
+      const ride = activeRides.get(booking._id.toString());
+      if (ride) {
+        ride.status = 'in_progress';
+        activeRides.set(booking._id.toString(), ride);
+      }
+      io.to(`ride:${booking._id}`).emit('ride:started', { bookingId: booking._id });
+    }
+    // ------------------------
+
+
     res.json({ success: true, message: 'Trip started successfully', data: booking });
 
     // Notify customer
@@ -402,6 +447,19 @@ const completeTrip = async (req, res, next) => {
     booking.status = 'completed';
     booking.completedAt = new Date();
     await booking.save();
+
+    // --- SOCKET INJECTION ---
+    const { getIO, getActiveRides, setDriverAvailable } = require('../config/socket');
+    const io = getIO();
+    if (io) {
+      getActiveRides().delete(booking._id.toString());
+      if (booking.driver) {
+         setDriverAvailable(booking.driver, true);
+      }
+      io.to(`ride:${booking._id}`).emit('ride:completed', { bookingId: booking._id });
+    }
+    // ------------------------
+
 
 
     // ── Wallet Commission Logic ──
