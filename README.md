@@ -95,6 +95,34 @@ eas build -p android --profile preview
 
 ---
 
+## 💻 Web Portal (React/Vite Frontend)
+
+The premium FORGE INDIA CONNECT web application for Customers, Drivers, and Admins is located in the `web-portal` folder.
+
+### Prerequisites
+- Node.js (v18+)
+
+### Quickstart
+1. Navigate to the web portal directory:
+   ```bash
+   cd web-portal
+   ```
+2. Install packages (includes `lucide-react`, `framer-motion`, `@react-google-maps/api`, etc.):
+   ```bash
+   npm install
+   ```
+3. **Environment Configuration:** Create a `.env` file in the `web-portal` root with your Google Maps API key (required for the live map interfaces):
+   ```env
+   VITE_GOOGLE_MAPS_API_KEY=your_google_maps_api_key_here
+   ```
+4. Start the Vite development server:
+   ```bash
+   npm run dev
+   ```
+   The application will start on `http://localhost:5173`.
+
+---
+
 ## ⚙️ Backend API & Sockets
 
 The backend is located in the `backend` folder.
