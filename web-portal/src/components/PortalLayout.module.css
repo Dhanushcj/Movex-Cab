@@ -133,8 +133,8 @@
 }
 
 .topHeader {
-  height: 80px;
-  padding: 0 32px;
+  height: 60px;
+  padding: 0 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -145,7 +145,7 @@
 }
 
 .headerTitle {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 700;
   color: var(--text-primary);
 }
@@ -153,14 +153,28 @@
 .headerProfile {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   background: var(--bg-section-alt);
-  padding: 6px 16px 6px 6px;
+  padding: 4px 14px 4px 4px;
   border-radius: var(--radius-full);
   border: 1px solid var(--border-light);
   font-weight: 600;
-  font-size: 14px;
+  font-size: 13px;
   color: var(--text-primary);
+}
+
+.avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--bg-white);
+  color: var(--forge-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .statusDot {
