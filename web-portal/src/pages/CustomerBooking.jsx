@@ -232,6 +232,24 @@ const CustomerBooking = () => {
     }
   };
 
+  const handleMarkerDrag = async (e, isPickup) => {
+    if (!selectedRoute) return;
+    const clickCoord = { lat: e.latLng.lat(), lng: e.latLng.lng() };
+    const lineCoords = selectedRoute.decodedPolyline;
+    const snappedCoord = getClosestPointOnLine(clickCoord, lineCoords);
+    const locationName = await reverseGeocode(snappedCoord.lat, snappedCoord.lng);
+    const customJunction = {
+      _id: `temp-${Date.now()}`,
+      name: locationName,
+      location: { coordinates: [snappedCoord.lng, snappedCoord.lat] }
+    };
+    if (isPickup) {
+      setPickupLocation(customJunction);
+    } else {
+      setDropLocation(customJunction);
+    }
+  };
+
   const handleConfirmBooking = async () => {
     if (!selectedRoute || !pickupLocation || !dropLocation) return;
     
@@ -299,6 +317,19 @@ const CustomerBooking = () => {
       </div>
     </div>
   );
+
+  let distInfo = { dist: "0.0", time: 0 };
+  if (pickupLocation && dropLocation && window.google && window.google.maps.geometry) {
+    try {
+      const p1 = new window.google.maps.LatLng(pickupLocation.location.coordinates[1], pickupLocation.location.coordinates[0]);
+      const p2 = new window.google.maps.LatLng(dropLocation.location.coordinates[1], dropLocation.location.coordinates[0]);
+      const distInMeters = window.google.maps.geometry.spherical.computeDistanceBetween(p1, p2);
+      distInfo = {
+        dist: (distInMeters / 1000).toFixed(1),
+        time: Math.round((distInMeters / 1000) * 1.5) || 1
+      };
+    } catch(e) {}
+  }
 
   return (
     <div className={styles.pageWrapper}>
@@ -369,7 +400,7 @@ const CustomerBooking = () => {
                   <div className={styles.routePathText}>
                     <MapPin size={14} color="var(--forge-blue)" /> {pickupLocation.name.split(',')[0]} → {dropLocation.name.split(',')[0]}
                   </div>
-                  <span className={styles.routeMeta}>Distance 48 km <span className={styles.bullet}>•</span> Est. time 55 min</span>
+                  <span className={styles.routeMeta}>Distance {distInfo.dist} km <span className={styles.bullet}>•</span> Est. time {distInfo.time} min</span>
                 </div>
               )}
             </div>
@@ -416,34 +447,6 @@ const CustomerBooking = () => {
                   </div>
                 </div>
 
-                <div className={styles.fareSummaryCard}>
-                  <div className={styles.summaryHeader}>
-                    <h3 className={styles.summaryTitle}>Fare Summary <span className={styles.summaryBadge}>(Gold Pass Applied)</span></h3>
-                    <div className={styles.savingsRow}>
-                      You save ₹180.00
-                    </div>
-                  </div>
-                  
-                  <div className={styles.fareGridRow}>
-                    <div className={styles.fareCol}>
-                      <span className={styles.fareLabel}>Base Fare</span>
-                      <span className={styles.fareValue}>₹180.00</span>
-                    </div>
-                    <div className={styles.fareCol}>
-                      <span className={styles.fareLabel}>Pass Discount</span>
-                      <span className={styles.fareValueDiscount}>-₹180.00</span>
-                    </div>
-                    <div className={styles.fareCol}>
-                      <span className={styles.fareLabel}>Taxes & Fees</span>
-                      <span className={styles.fareValue}>₹0.00</span>
-                    </div>
-                    <div className={styles.fareColTotal}>
-                      <span className={styles.fareLabelTotal}>Total Fare</span>
-                      <span className={styles.fareValueTotal}>₹0.00</span>
-                    </div>
-                  </div>
-                </div>
-
                 <div className={styles.actionFooter}>
                   <button 
                     className={styles.btnPrimary}
@@ -484,7 +487,7 @@ const CustomerBooking = () => {
                   <strong>{pickupLocation.name.split(',')[0]}</strong> <span>→</span> <strong>{dropLocation.name.split(',')[0]}</strong>
                 </div>
                 <div className={styles.overlayRouteMeta}>
-                   <div className={styles.metaIcon}><MapPin size={12}/></div> 48 km &nbsp;&nbsp; <div className={styles.metaIcon}>⏳</div> 55 min
+                   <div className={styles.metaIcon}><MapPin size={12}/></div> {distInfo.dist} km &nbsp;&nbsp; <div className={styles.metaIcon}>⏳</div> {distInfo.time} min
                 </div>
               </div>
               <div className={styles.mapBottomOverlay}>
@@ -552,15 +555,10 @@ const CustomerBooking = () => {
               {pickupLocation && (
                 <Marker
                   position={{ lat: pickupLocation.location.coordinates[1], lng: pickupLocation.location.coordinates[0] }}
-                  icon={{
-                    path: window.google.maps.SymbolPath.CIRCLE,
-                    scale: 10,
-                    fillColor: '#1d4ed8',
-                    fillOpacity: 1,
-                    strokeWeight: 4,
-                    strokeColor: '#FFFFFF',
-                  }}
-                  title="Pickup Point"
+                  draggable={true}
+                  onDragEnd={(e) => handleMarkerDrag(e, true)}
+                  icon={{ url: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png' }}
+                  title="Pickup Point (Drag to move)"
                 />
               )}
               
@@ -568,15 +566,10 @@ const CustomerBooking = () => {
               {dropLocation && (
                 <Marker
                   position={{ lat: dropLocation.location.coordinates[1], lng: dropLocation.location.coordinates[0] }}
-                  icon={{
-                    path: window.google.maps.SymbolPath.CIRCLE,
-                    scale: 10,
-                    fillColor: '#EF4444',
-                    fillOpacity: 1,
-                    strokeWeight: 4,
-                    strokeColor: '#FFFFFF',
-                  }}
-                  title="Drop-off Point"
+                  draggable={true}
+                  onDragEnd={(e) => handleMarkerDrag(e, false)}
+                  icon={{ url: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png' }}
+                  title="Drop-off Point (Drag to move)"
                 />
               )}
               
