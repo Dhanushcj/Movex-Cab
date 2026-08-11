@@ -1,6 +1,7 @@
 import React from 'react';
 import Navbar from '../components/Navbar';
 import Hero from '../components/Hero';
+import PromoVideo from '../components/PromoVideo';
 import MetroPolyline from '../components/MetroPolyline';
 import PassCards from '../components/PassCards';
 import HowItWorks from '../components/HowItWorks';
@@ -21,6 +22,7 @@ const LandingPage = () => {
       <Navbar />
       <main>
         <Hero />
+        <PromoVideo />
         <MetroPolyline />
         <PassCards />
         <HowItWorks />
