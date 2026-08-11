@@ -51,11 +51,11 @@ const DriverActiveRide = () => {
     if (status === 'accepted' || status === 'arrived') {
       // Driver navigating to pickup
       origin = { lat: 13.0827, lng: 80.2707 }; // Mock current loc
-      destination = { lat: ride.pickup.coordinates[1], lng: ride.pickup.coordinates[0] };
+      destination = { lat: ride.pickup.location.coordinates[1], lng: ride.pickup.location.coordinates[0] };
     } else if (status === 'in_progress') {
       // Driver navigating to dropoff
-      origin = { lat: ride.pickup.coordinates[1], lng: ride.pickup.coordinates[0] };
-      destination = { lat: ride.drop.coordinates[1], lng: ride.drop.coordinates[0] };
+      origin = { lat: ride.pickup.location.coordinates[1], lng: ride.pickup.location.coordinates[0] };
+      destination = { lat: ride.drop.location.coordinates[1], lng: ride.drop.location.coordinates[0] };
     }
     
     if (origin && destination) {
@@ -195,7 +195,7 @@ const DriverActiveRide = () => {
         {isLoaded ? (
           <GoogleMap
             mapContainerStyle={{ width: '100%', height: '100%' }}
-            center={{ lat: ride.pickup.coordinates[1], lng: ride.pickup.coordinates[0] }}
+            center={{ lat: ride.pickup.location.coordinates[1], lng: ride.pickup.location.coordinates[0] }}
             zoom={14}
             options={{ 
               disableDefaultUI: true,

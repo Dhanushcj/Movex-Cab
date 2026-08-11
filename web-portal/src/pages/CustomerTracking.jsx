@@ -165,12 +165,10 @@ useEffect(() => {
         ? { lat: driverInfo.currentLocation.coordinates[1], lng: driverInfo.currentLocation.coordinates[0] } 
         : { lat: 13.0827, lng: 80.2707 }; // Fallback
       destination = { lat: ride.pickup.location.coordinates[1], lng: ride.pickup.location.coordinates[0] };
-    } else if (status === 'in_progress') {
-      // Driver navigating to dropoff
-      origin = driverInfo?.currentLocation?.coordinates 
-        ? { lat: driverInfo.currentLocation.coordinates[1], lng: driverInfo.currentLocation.coordinates[0] } 
-        : { lat: ride.pickup.location.coordinates[1], lng: ride.pickup.location.coordinates[0] };
-      destination = { lat: ride.drop.location.coordinates[1], lng: ride.drop.location.coordinates[0] };
+    } else if (status === 'in_progress' || status === 'completed') {
+      // Keep the predefined yellow route during the trip!
+      setDirections(null);
+      return;
     }
     
     if (origin && destination) {
@@ -186,7 +184,7 @@ useEffect(() => {
         }
       });
     }
-  }, [ride, isLoaded, status, driverInfo]);
+  }, [ride, isLoaded, status]); // Removed driverInfo to prevent constant map flickering/re-routing on every location update
 
   if (loading) return <div>Loading...</div>;
 
