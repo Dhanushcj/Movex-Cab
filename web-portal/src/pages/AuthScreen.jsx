@@ -101,7 +101,8 @@ const AuthScreen = () => {
             return {
               ...r,
               displayColor: routeColors[idx % routeColors.length],
-              junctionPath: jPath
+              junctionPath: jPath,
+              decodedPolyline: r.polyline ? decodePolyline(r.polyline) : jPath
             };
           });
           setRoutes(processedRoutes);
@@ -118,8 +119,9 @@ const AuthScreen = () => {
       const bounds = new window.google.maps.LatLngBounds();
       let hasPoints = false;
       routes.forEach(route => {
-        if (route.junctionPath) {
-          route.junctionPath.forEach(coord => {
+        const pathToUse = (route.decodedPolyline && route.decodedPolyline.length > 0) ? route.decodedPolyline : route.junctionPath;
+        if (pathToUse) {
+          pathToUse.forEach(coord => {
             bounds.extend(new window.google.maps.LatLng(coord.lat, coord.lng));
             hasPoints = true;
           });
@@ -270,13 +272,14 @@ const AuthScreen = () => {
                 }}
               >
                 {routes.map(route => {
-                  const hasPoints = route.junctionPath && route.junctionPath.length > 0;
+                  const hasJunctions = route.junctionPath && route.junctionPath.length > 0;
+                  const hasRoadLine = route.decodedPolyline && route.decodedPolyline.length > 0;
                   
                   return (
                     <React.Fragment key={route._id}>
-                      {hasPoints && (
+                      {hasRoadLine && (
                         <Polyline
-                          path={route.junctionPath}
+                          path={route.decodedPolyline}
                           options={{
                             strokeColor: route.displayColor || '#0053B3',
                             strokeOpacity: 0.8,
@@ -285,7 +288,7 @@ const AuthScreen = () => {
                         />
                       )}
                       
-                      {hasPoints && route.junctionPath.map((pt, index) => (
+                      {hasJunctions && route.junctionPath.map((pt, index) => (
                         <Marker 
                           key={`${route._id}-j-${index}`}
                           position={pt} 
