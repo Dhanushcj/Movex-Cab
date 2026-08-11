@@ -16,6 +16,8 @@ const PromoVideo = () => {
           <source src={promoVideo} type="video/mp4" />
           Your browser does not support the video tag.
         </video>
+        {/* Cover for the Gemini watermark */}
+        <div className={styles.watermarkCover}></div>
       </div>
     </section>
   );
