@@ -1,147 +1,29 @@
-import React, { useEffect, useState, useContext, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Bell, MapPin, ShieldCheck, CheckCircle2, Car, Share2, Star, Navigation, MessageSquare, Phone, User } from 'lucide-react';
-import { GoogleMap, useJsApiLoader, Polyline, Marker, DirectionsRenderer } from '@react-google-maps/api';
-import styles from './CustomerBooking.module.css'; // Reusing styles
-import API from '../services/api';
-import { SocketContext } from '../context/SocketContext';
+import os
+import re
 
-const center = { lat: 13.0827, lng: 80.2707 }; // Chennai
-const libraries = ['places', 'geometry'];
+jsx_path = r"g:\Dhanush\New folder\Movex-Cab\web-portal\src\pages\CustomerTracking.jsx"
+css_path = r"g:\Dhanush\New folder\Movex-Cab\web-portal\src\pages\CustomerBooking.module.css"
 
-const decodePolyline = (t) => {
-  if (!t) return [];
-  let n, o, a = 0, r = 0, s = 0, l = 0, i = [];
-  for (; a < t.length;) {
-    n = 0, o = 0;
-    do {
-      o |= (31 & (n = t.charCodeAt(a++) - 63)) << l;
-      l += 5;
-    } while (n >= 32);
-    const d = 1 & o ? ~(o >> 1) : o >> 1;
-    r += d;
-    l = 0, n = 0, o = 0;
-    do {
-      o |= (31 & (n = t.charCodeAt(a++) - 63)) << l;
-      l += 5;
-    } while (n >= 32);
-    const u = 1 & o ? ~(o >> 1) : o >> 1;
-    s += u;
-    l = 0;
-    i.push({ lat: r / 1e5, lng: s / 1e5 });
-  }
-  return i;
-};
+with open(jsx_path, "r", encoding="utf-8") as f:
+    jsx_content = f.read()
 
-const CustomerTracking = () => {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const { socket } = useContext(SocketContext);
-  const [ride, setRide] = useState(null);
-  const [driverInfo, setDriverInfo] = useState(null);
-  const [status, setStatus] = useState('searching');
-  const [loading, setLoading] = useState(true);
-  const [decodedRoute, setDecodedRoute] = useState([]);
-  const [directions, setDirections] = useState(null);
-  const [timer, setTimer] = useState(300);
+# Make sure we have the required icons
+icons_needed = ["MapPin", "Phone", "MessageSquare", "ShieldCheck", "CheckCircle2", "Navigation", "Share2", "Bell", "User", "Star", "Car"]
+import_match = re.search(r"import\s+\{([^}]+)\}\s+from\s+'lucide-react';", jsx_content)
+if import_match:
+    existing_icons = [i.strip() for i in import_match.group(1).split(',')]
+    all_icons = list(set(existing_icons + icons_needed))
+    jsx_content = jsx_content.replace(import_match.group(0), f"import {{ {', '.join(all_icons)} }} from 'lucide-react';")
 
+# Add timer state if not exists
+if "const [timer, setTimer] = useState(300);" not in jsx_content:
+    hook_insert_point = jsx_content.find("  const [directions, setDirections] = useState(null);")
+    if hook_insert_point != -1:
+        insert_idx = jsx_content.find("\n", hook_insert_point)
+        jsx_content = jsx_content[:insert_idx] + "\n  const [timer, setTimer] = useState(300);\n" + jsx_content[insert_idx:]
 
-  const { isLoaded } = useJsApiLoader({
-    id: 'google-map-script',
-    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
-    libraries
-  });
-
-  const mapRef = useRef(null);
-
-  useEffect(() => {
-    const fetchRide = async () => {
-      try {
-        const res = await API.get(`/bookings/${id}`);
-        if (res.data.success) {
-          const bookingData = res.data.data;
-          setRide(bookingData);
-          setStatus(bookingData.status);
-          if (bookingData.driver) {
-            setDriverInfo(bookingData.driver);
-          }
-          if (bookingData.route && bookingData.route.polyline) {
-            setDecodedRoute(decodePolyline(bookingData.route.polyline));
-          }
-        }
-      } catch (err) {
-        console.error('Failed to fetch ride', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchRide();
-  }, [id]);
-
-  useEffect(() => {
-    if (!socket || !ride) return;
-
-    socket.emit('tracking:join', { bookingId: ride._id });
-
-    const handleStatusUpdate = (data) => {
-      setStatus(data.status);
-    };
-
-    const handleRideAccepted = (data) => {
-      if (data.driverInfo) setDriverInfo(data.driverInfo);
-      if (data.booking) {
-        setRide(data.booking);
-      }
-      setStatus('accepted');
-    };
-
-    const handleRideStarted = () => {
-      setStatus('in_progress');
-    };
-
-    const handleRideCompleted = () => {
-      setStatus('completed');
-    };
-
-    const handleDriverLocation = (data) => {
-      if (data.location) {
-        setDriverInfo(prev => prev ? {
-          ...prev, 
-          currentLocation: {
-            type: 'Point',
-            coordinates: [data.location.lng, data.location.lat]
-          }
-        } : prev);
-      }
-    };
-
-    socket.on('booking:status', handleStatusUpdate);
-    socket.on('ride:accepted', handleRideAccepted);
-    socket.on('ride:started', handleRideStarted);
-    socket.on('ride:completed', handleRideCompleted);
-    socket.on('driver:location', handleDriverLocation);
-
-    return () => {
-      socket.off('booking:status', handleStatusUpdate);
-      socket.off('ride:accepted', handleRideAccepted);
-      socket.off('ride:started', handleRideStarted);
-      socket.off('ride:completed', handleRideCompleted);
-      socket.off('driver:location', handleDriverLocation);
-    };
-  }, [socket, ride]);
-
-  // Adjust map bounds when route is loaded
-  useEffect(() => {
-    if (mapRef.current && decodedRoute.length > 0 && !directions) {
-      const bounds = new window.google.maps.LatLngBounds();
-      decodedRoute.forEach(coord => {
-        bounds.extend(new window.google.maps.LatLng(coord.lat, coord.lng));
-      });
-      mapRef.current.fitBounds(bounds, { padding: 50 });
-    }
-  }, [decodedRoute, isLoaded, directions]);
-
-  
+# Add timer effect
+timer_effect = """
   useEffect(() => {
     if (status === 'accepted' || status === 'arrived') {
       const intervalId = setInterval(() => {
@@ -150,50 +32,21 @@ const CustomerTracking = () => {
       return () => clearInterval(intervalId);
     }
   }, [status]);
+"""
+if "setTimer((prev)" not in jsx_content:
+    last_effect = jsx_content.rfind("useEffect(() => {")
+    if last_effect != -1:
+        jsx_content = jsx_content[:last_effect] + timer_effect + "\n" + jsx_content[last_effect:]
 
-useEffect(() => {
-    if (!ride || !isLoaded) return;
-    
-    // eslint-disable-next-line no-undef
-    const directionsService = new google.maps.DirectionsService();
-    
-    let origin, destination;
-    
-    if (status === 'accepted' || status === 'arrived') {
-      // Driver navigating to pickup
-      origin = driverInfo?.currentLocation?.coordinates 
-        ? { lat: driverInfo.currentLocation.coordinates[1], lng: driverInfo.currentLocation.coordinates[0] } 
-        : { lat: 13.0827, lng: 80.2707 }; // Fallback
-      destination = { lat: ride.pickup.location.coordinates[1], lng: ride.pickup.location.coordinates[0] };
-    } else if (status === 'in_progress') {
-      // Driver navigating to dropoff
-      origin = driverInfo?.currentLocation?.coordinates 
-        ? { lat: driverInfo.currentLocation.coordinates[1], lng: driverInfo.currentLocation.coordinates[0] } 
-        : { lat: ride.pickup.location.coordinates[1], lng: ride.pickup.location.coordinates[0] };
-      destination = { lat: ride.drop.location.coordinates[1], lng: ride.drop.location.coordinates[0] };
-    }
-    
-    if (origin && destination) {
-      directionsService.route({
-        origin,
-        destination,
-        // eslint-disable-next-line no-undef
-        travelMode: google.maps.TravelMode.DRIVING
-      }, (result, stat) => {
-        // eslint-disable-next-line no-undef
-        if (stat === google.maps.DirectionsStatus.OK) {
-          setDirections(result);
-        }
-      });
-    }
-  }, [ride, isLoaded, status, driverInfo]);
 
-  if (loading) return <div>Loading...</div>;
+return_start = jsx_content.find("  return (\n    <div className={styles.bookingWrapper}>")
+if return_start == -1:
+    return_start = jsx_content.find("  return (\n    <div")
 
-  const driverLat = driverInfo?.currentLocation?.coordinates?.[1];
-  const driverLng = driverInfo?.currentLocation?.coordinates?.[0];
+return_end = jsx_content.rfind(");") + 2
 
-  const formatTime = (seconds) => {
+if return_start != -1 and return_end != -1:
+    new_return_block = """  const formatTime = (seconds) => {
     const m = Math.floor(seconds / 60);
     const s = seconds % 60;
     return `${m}:${s < 10 ? '0' : ''}${s}`;
@@ -465,7 +318,221 @@ useEffect(() => {
         </div>
       </div>
     </div>
-  );
-};
+  );"""
+    jsx_content = jsx_content[:return_start] + new_return_block + jsx_content[return_end:]
 
-export default CustomerTracking;
+with open(jsx_path, "w", encoding="utf-8") as f:
+    f.write(jsx_content)
+
+# Update CSS for tracking specifics
+with open(css_path, "r", encoding="utf-8") as f:
+    css_content = f.read()
+
+css_append = """
+
+/* Tracking Page Specific Styles */
+.driverProfileCard {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+  margin-bottom: 24px;
+}
+
+.driverHeaderRow {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.driverAvatar {
+  width: 56px;
+  height: 56px;
+  background-color: #eff6ff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: var(--forge-blue);
+  font-weight: 800;
+}
+
+.driverMeta {
+  flex: 1;
+}
+
+.driverMeta h4 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 4px 0;
+}
+
+.ratingBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #f8fafc;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #475569;
+}
+
+.vehicleInfo {
+  text-align: right;
+  background: #f1f5f9;
+  padding: 8px 12px;
+  border-radius: 12px;
+}
+
+.vehiclePlate {
+  font-size: 16px;
+  font-weight: 800;
+  color: #1e293b;
+  letter-spacing: 0.5px;
+}
+
+.vehicleMake {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+.driverActionGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.driverActionBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  padding: 12px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 14px;
+  color: #1e293b;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.driverActionBtn:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+.otpCard {
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border: 1px solid #bbf7d0;
+  border-radius: 20px;
+  padding: 24px;
+  text-align: center;
+  margin-bottom: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.otpHeader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #059669;
+  font-weight: 700;
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+
+.otpValue {
+  font-size: 48px;
+  font-weight: 900;
+  letter-spacing: 12px;
+  color: #064e3b;
+  font-variant-numeric: tabular-nums;
+  margin-left: 12px; /* compensate for last letter spacing */
+}
+
+.otpTimer {
+  font-size: 12px;
+  color: #047857;
+  font-weight: 500;
+  margin-top: 8px;
+}
+
+.otpTimer span {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.trackingActionFooter {
+  margin-top: auto;
+  padding-top: 24px;
+}
+
+.actionBtnRow {
+  display: flex;
+  gap: 12px;
+}
+
+.btnSecondaryFlex, .btnSosFlex, .btnCancelFlex {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 14px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btnSecondaryFlex {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #1e293b;
+}
+
+.btnSecondaryFlex:hover {
+  background: #f1f5f9;
+}
+
+.btnSosFlex {
+  flex: 0.5;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #ef4444;
+}
+
+.btnSosFlex:hover {
+  background: #fee2e2;
+}
+
+.btnCancelFlex {
+  background: transparent;
+  border: 1px solid #ef4444;
+  color: #ef4444;
+}
+
+.btnCancelFlex:hover {
+  background: #fef2f2;
+}
+
+"""
+
+if ".driverProfileCard" not in css_content:
+    with open(css_path, "a", encoding="utf-8") as f:
+        f.write(css_append)
+
+print("Applied tracking layout successfully")
