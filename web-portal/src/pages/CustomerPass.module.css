@@ -33,18 +33,13 @@
    PREMIUM PASS CARD
    ========================================= */
 .premiumPassCard {
-  width: 100%;
-  max-width: 750px;
-  background: linear-gradient(135deg, var(--forge-blue) 0%, var(--forge-blue-deep, #003d82) 100%);
-  border-radius: 28px;
-  padding: 32px;
+  background: var(--forge-blue);
+  border-radius: var(--radius-xl);
+  padding: 32px 32px 24px;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 20px 40px rgba(0, 52, 102, 0.2);
-  color: #ffffff;
+  box-shadow: 0 20px 40px rgba(7, 90, 170, 0.2);
   margin-bottom: 24px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .premiumPassCard:hover {
@@ -88,16 +83,16 @@
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 2px;
-  color: rgba(255,255,255,0.7);
+  color: rgba(255, 255, 255, 0.8);
   margin-bottom: 4px;
 }
 
 .tierName {
-  font-size: 32px;
+  font-size: 28px;
   font-weight: 800;
-  letter-spacing: 4px;
   color: #ffffff;
-  line-height: 1;
+  line-height: 1.1;
+  letter-spacing: -1px;
 }
 
 .statusBadge {
@@ -142,7 +137,7 @@
 }
 
 .infoValue {
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 700;
   color: #ffffff;
 }
@@ -211,10 +206,15 @@
 }
 
 .benefitHighlight {
-  font-size: 18px;
+  background: var(--forge-yellow);
+  color: var(--forge-blue);
+  padding: 10px 16px;
+  border-radius: var(--radius-lg);
+  font-size: 16px;
   font-weight: 800;
-  color: var(--accent-yellow);
-  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .benefitSub {

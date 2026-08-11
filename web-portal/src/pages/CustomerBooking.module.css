@@ -117,7 +117,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24px 32px 16px 32px;
+  padding: 16px 24px 12px 24px;
 }
 
 .stepItem {
@@ -133,15 +133,15 @@
 }
 
 .stepCircle {
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   background-color: #e2e8f0;
   color: #64748b;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 700;
   transition: all 0.3s ease;
 }
@@ -152,7 +152,7 @@
 }
 
 .stepItem span {
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 600;
   color: #64748b;
   display: flex;
@@ -161,10 +161,10 @@
 
 .stepItem span::after {
   content: "Select path";
-  font-size: 11px;
+  font-size: 9px;
   font-weight: 400;
   color: #94a3b8;
-  margin-top: 2px;
+  margin-top: 1px;
 }
 .stepItem:nth-child(3) span::after {
   content: "Choose ride";
