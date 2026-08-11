@@ -40,7 +40,27 @@ const DriverDashboard = () => {
   const [isOnline, setIsOnline] = useState(false);
   const [incomingRide, setIncomingRide] = useState(null);
   const [assignedRoute, setAssignedRoute] = useState(null);
+  const [driverLocation, setDriverLocation] = useState(center);
   const mapRef = useRef(null);
+
+  useEffect(() => {
+    if (navigator.geolocation) {
+      const watchId = navigator.geolocation.watchPosition(
+        (position) => {
+          const loc = { lat: position.coords.latitude, lng: position.coords.longitude };
+          setDriverLocation(loc);
+          if (isOnline) {
+             socket?.emit('driver:location', { driverId: user?._id, location: loc });
+             // Optionally update DB
+             API.put('/drivers/status', { location: { type: 'Point', coordinates: [loc.lng, loc.lat] } }).catch(console.error);
+          }
+        },
+        (err) => console.warn('Geolocation error:', err),
+        { enableHighAccuracy: true, maximumAge: 10000, timeout: 5000 }
+      );
+      return () => navigator.geolocation.clearWatch(watchId);
+    }
+  }, [isOnline, socket, user]);
 
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
@@ -187,7 +207,7 @@ const DriverDashboard = () => {
           <div className={`${isOnline ? styles.mapOnline : styles.mapOffline}`} style={{ height: '100%', width: '100%' }}>
             <GoogleMap
               mapContainerStyle={{ width: '100%', height: '100%' }}
-              center={center}
+              center={driverLocation}
               zoom={13}
               options={{ 
                 disableDefaultUI: true, 
@@ -217,7 +237,7 @@ const DriverDashboard = () => {
             >
               {/* Driver Location Marker */}
               <Marker 
-                position={center} 
+                position={driverLocation} 
                 icon={{ 
                   path: window.google.maps.SymbolPath.CIRCLE, 
                   scale: 8, 

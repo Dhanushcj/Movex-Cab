@@ -205,13 +205,27 @@ const updateDriverStatus = async (req, res, next) => {
       updateObj['documents.insurance.verified'] = true;
     }
 
-    const driver = await Driver.findByIdAndUpdate(
+    let driver = await Driver.findByIdAndUpdate(
       req.params.id,
       { $set: updateObj },
       { new: true }
     );
 
     if (!driver) return res.status(404).json({ success: false, message: 'Driver not found' });
+    
+    // If route was updated, emit socket event to driver dashboard
+    if (assignedRoute !== undefined) {
+      driver = await driver.populate('assignedRoute');
+      const io = req.app.get('io');
+      if (io) {
+        io.to(driver._id.toString()).emit('route:assigned', { 
+          driverId: driver._id,
+          routeId: driver.assignedRoute?._id || null,
+          route: driver.assignedRoute || null
+        });
+      }
+    }
+
     res.json({ success: true, data: driver });
   } catch (error) {
     next(error);
