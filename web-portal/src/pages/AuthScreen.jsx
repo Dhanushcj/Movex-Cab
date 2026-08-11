@@ -55,7 +55,7 @@ const decodePolyline = (t) => {
 };
 
 const AuthScreen = () => {
-  const { loginWithEmail, registerWithEmail, loginWithGoogle, checkEmailVerification, sendEmailVerificationLink, resetPassword } = useContext(AuthContext);
+  const { loginWithEmail, registerWithEmail, loginWithGoogle, checkEmailVerification, sendEmailVerificationLink, resetPassword, loginWithPassword } = useContext(AuthContext);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -176,7 +176,25 @@ const AuthScreen = () => {
 
     try {
       if (mode === 'login') {
-        const user = await loginWithEmail(email, password, role);
+        let user;
+        try {
+          user = await loginWithEmail(email, password, role);
+        } catch (firebaseErr) {
+          if (firebaseErr.code === 'auth/wrong-password' || firebaseErr.code === 'auth/user-not-found' || firebaseErr.code === 'auth/invalid-credential') {
+             // Fallback to custom backend auth for users created without Firebase (e.g. older mobile app users)
+             try {
+               const success = await loginWithPassword(email, password, role);
+               if (success) {
+                 navigate(role === 'driver' ? '/driver' : '/customer');
+                 return;
+               }
+             } catch (backendErr) {
+               throw new Error(backendErr.response?.data?.message || 'Email or password is incorrect.');
+             }
+          }
+          throw firebaseErr; // Rethrow if it's not a simple credential error or if fallback also fails (handled above)
+        }
+        
         if (user && !user.emailVerified) {
           setMode('verify_email');
         } else if (user) {
@@ -192,7 +210,7 @@ const AuthScreen = () => {
       }
     } catch (err) {
       console.error(err);
-      if (err.message.includes('not configured')) {
+      if (err.message && err.message.includes('not configured')) {
         setError(err.message);
       } else if (err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential') {
         setError('Email or password is incorrect.');
