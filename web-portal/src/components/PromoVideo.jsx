@@ -19,6 +19,7 @@ const PromoVideo = () => {
         {/* Floating UI Badge to cover the watermark elegantly */}
         <div className={styles.floatingBadge}>
           <div className={styles.pulsingDot}></div>
+          <img src="/logo.png" alt="Forge" className={styles.badgeLogo} />
           <span>Forge Live Connect</span>
         </div>
       </div>
