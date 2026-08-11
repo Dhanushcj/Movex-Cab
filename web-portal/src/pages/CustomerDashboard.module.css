@@ -78,8 +78,8 @@
 }
 
 .btnAction {
-  background: var(--accent-yellow);
-  color: var(--forge-blue);
+  background: var(--forge-blue);
+  color: #ffffff;
   padding: 14px 24px;
   border-radius: var(--radius-full);
   font-weight: 700;
@@ -96,7 +96,7 @@
 }
 
 .btnAction:hover {
-  background: var(--accent-yellow-hover);
+  background: var(--forge-blue-deep, #003d82);
   transform: translateY(-2px);
   box-shadow: 0 4px 14px rgba(7, 90, 170, 0.12);
 }
