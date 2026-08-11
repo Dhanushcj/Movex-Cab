@@ -1,204 +1,539 @@
-.passContainer {
-  padding: 32px;
-  max-width: 1200px;
+.container {
+  padding: 32px 0;
+  max-width: 1000px;
   margin: 0 auto;
 }
 
 .header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
   margin-bottom: 32px;
-  text-align: center;
+}
+
+.iconWrapper {
+  background: var(--bg-soft-blue);
+  color: var(--forge-blue);
+  padding: 12px;
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .title {
-  font-size: 42px;
+  font-size: 32px;
   font-weight: 700;
   color: var(--forge-blue);
-  margin-bottom: 8px;
   line-height: 1.15;
   font-family: 'Poppins', sans-serif;
 }
 
-.subtitle {
-  color: var(--text-muted);
-  font-size: 16px;
+/* =========================================
+   PREMIUM PASS CARD
+   ========================================= */
+.premiumPassCard {
+  width: 100%;
+  max-width: 750px;
+  background: linear-gradient(135deg, var(--forge-blue) 0%, var(--forge-blue-deep, #003d82) 100%);
+  border-radius: 28px;
+  padding: 32px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0, 52, 102, 0.2);
+  color: #ffffff;
+  margin-bottom: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.passGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 24px;
+.premiumPassCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 24px 48px rgba(0, 52, 102, 0.25);
+}
+
+.decorativeGrid {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 30px 30px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Card Sub-sections (z-index ensures they sit above grid) */
+.cardTop, .infoBlocks, .routeGraphic, .cardBottom {
+  position: relative;
+  z-index: 2;
+}
+
+.cardTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 32px;
+}
+
+.branding {
+  display: flex;
+  flex-direction: column;
+}
+
+.brandName {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: rgba(255,255,255,0.7);
+  margin-bottom: 4px;
+}
+
+.tierName {
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: 4px;
+  color: #ffffff;
+  line-height: 1;
+}
+
+.statusBadge {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10B981;
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.statusDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10B981;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+}
+
+.infoBlocks {
+  display: flex;
+  gap: 48px;
   margin-bottom: 40px;
 }
 
-.passCard {
-  background: var(--bg-white);
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-xl);
-  padding: 32px 24px;
-  position: relative;
-  cursor: pointer;
-  transition: all 0.2s ease;
+.infoBlock {
   display: flex;
   flex-direction: column;
-  box-shadow: var(--shadow-sm);
+  gap: 4px;
 }
 
-.passCard:hover {
-  border-color: var(--border-hover);
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-md);
-}
-
-.passCard.selected {
-  border-color: var(--forge-blue);
-  background: var(--bg-soft-blue);
-  box-shadow: 0 4px 12px rgba(7, 90, 170, 0.15);
-}
-
-.passCard.recommended {
-  border-color: var(--forge-blue);
-}
-
-.badge {
-  position: absolute;
-  top: -14px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--accent-yellow);
-  color: var(--forge-blue);
-  padding: 6px 16px;
-  border-radius: var(--radius-full);
-  font-size: 13px;
-  font-weight: 700;
-  text-transform: uppercase;
-  box-shadow: 0 2px 8px rgba(7, 90, 170, 0.08);
-}
-
-.passCard h3 {
-  font-size: 20px;
-  color: var(--text-primary);
-  text-align: center;
-  margin-bottom: 16px;
-}
-
-.price {
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  margin-bottom: 8px;
-}
-
-.currency {
-  font-size: 24px;
+.infoLabel {
+  font-size: 10px;
   font-weight: 600;
-  color: var(--text-primary);
+  color: rgba(255,255,255,0.5);
+  letter-spacing: 1px;
+}
+
+.infoValue {
+  font-size: 16px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.routeGraphic {
+  margin-bottom: 40px;
+  padding: 16px 0;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.routeLabels {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  font-size: 10px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.7);
+  letter-spacing: 0.5px;
+}
+
+.routeLine {
+  display: flex;
+  align-items: center;
+}
+
+.routePoint {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 2px solid var(--accent-yellow);
+}
+
+.routeSegment {
+  flex: 1;
+  height: 2px;
+  background: var(--accent-yellow);
+}
+
+.cardBottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.vehiclesSection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.vehicleIcons {
+  display: flex;
+  gap: 12px;
+}
+
+.vIcon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.benefitHighlight {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--accent-yellow);
   margin-top: 4px;
 }
 
-.amount {
-  font-size: 48px;
+.benefitSub {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.7);
+}
+
+.qrSection {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.qrBox {
+  background: #ffffff;
+  padding: 8px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.qrBox:hover {
+  transform: scale(1.05);
+}
+
+.qrLabel {
+  font-size: 9px;
   font-weight: 700;
-  color: var(--text-primary);
+  color: rgba(255,255,255,0.6);
+  letter-spacing: 1px;
 }
 
-.validity {
-  text-align: center;
+/* =========================================
+   ACTION ROW
+   ========================================= */
+.actionRow {
+  display: flex;
+  gap: 16px;
+  max-width: 750px;
+  margin-bottom: 48px;
+}
+
+.btnPrimary {
+  background: var(--accent-yellow);
+  color: var(--forge-blue);
+  padding: 14px 28px;
+  border-radius: var(--radius-full);
+  font-weight: 700;
+  font-size: 15px;
+  border: none;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 12px rgba(212, 159, 12, 0.2);
+}
+
+.btnPrimary:hover {
+  background: var(--accent-yellow-hover);
+  transform: translateY(-2px);
+}
+
+.btnSecondary {
+  background: var(--bg-white);
+  color: var(--forge-blue);
+  border: 1.5px solid var(--border-light);
+  padding: 14px 28px;
+  border-radius: var(--radius-full);
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.btnSecondary:hover {
+  background: var(--bg-section-alt);
+  border-color: var(--forge-blue);
+}
+
+.btnIcon {
+  background: transparent;
+  border: 1px solid var(--border-light);
   color: var(--text-muted);
-  font-weight: 500;
-  margin-bottom: 24px;
-  padding-bottom: 24px;
-  border-bottom: 1px solid var(--border);
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition-fast);
 }
 
-.features {
+.btnIcon:hover {
+  background: var(--bg-section-alt);
+  color: var(--forge-blue);
+}
+
+/* =========================================
+   USAGE & DETAILS GRID
+   ========================================= */
+.detailsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  margin-bottom: 48px;
+}
+
+.sectionTitle {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 1px;
+  margin-bottom: 24px;
+}
+
+.usageSection, .benefitsSection, .historySection {
+  background: var(--bg-white);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-xl);
+  padding: 32px;
+  box-shadow: var(--shadow-sm);
+}
+
+.statsRow {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.statCard {
+  flex: 1;
+  background: var(--bg-section-alt);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.statLabel {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.5px;
+}
+
+.statValue {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--forge-blue);
+}
+
+.routeCoverageCard {
+  background: var(--bg-soft-blue);
+  border-radius: var(--radius-lg);
+  padding: 20px 16px;
+  border: 1px solid rgba(7, 90, 170, 0.1);
+}
+
+.routeHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.routeHeader h4 {
+  font-size: 16px;
+  color: var(--forge-blue);
+  margin: 0;
+}
+
+.routeIcon {
+  color: var(--accent-yellow);
+  transform: rotate(90deg);
+}
+
+.benefitsList {
   list-style: none;
   padding: 0;
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  flex-grow: 1;
+  gap: 16px;
 }
 
-.features li {
+.benefitsList li {
   display: flex;
   align-items: center;
   gap: 12px;
-  color: var(--text-primary);
   font-size: 15px;
-}
-
-.checkoutFooter {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-xl);
-  padding: 24px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  box-shadow: var(--shadow-sm);
-}
-
-.checkoutInfo h4 {
-  font-size: 18px;
   color: var(--text-primary);
-  margin-bottom: 4px;
-}
-
-.checkoutInfo p {
-  color: var(--text-muted);
-  font-size: 16px;
   font-weight: 500;
 }
 
-.btnPrimary {
-  padding: 14px 28px;
-  background-color: var(--accent-yellow);
-  color: var(--forge-blue);
-  border: none;
-  border-radius: var(--radius-full);
-  font-size: 16px;
-  font-weight: 700;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: all var(--transition-fast);
-  box-shadow: 0 2px 8px rgba(7, 90, 170, 0.08);
+.checkIcon {
+  color: var(--status-success);
 }
 
-.btnPrimary:hover:not(:disabled) {
-  background-color: var(--accent-yellow-hover);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 14px rgba(7, 90, 170, 0.12);
-}
-
-.btnPrimary:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-}
-
-.successCard {
-  background: var(--surface);
-  border-radius: var(--radius-xl);
-  padding: 48px;
-  text-align: center;
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow-md);
-  max-width: 500px;
-  margin: 40px auto;
+/* =========================================
+   TIMELINE
+   ========================================= */
+.timeline {
   display: flex;
   flex-direction: column;
-  align-items: center;
 }
 
-.successCard h2 {
-  font-size: 24px;
-  color: var(--text-primary);
-  margin: 24px 0 8px;
+.timelineItem {
+  display: flex;
+  gap: 24px;
+  position: relative;
+  padding-bottom: 32px;
 }
 
-.successCard p {
+.timelineItem:last-child {
+  padding-bottom: 0;
+}
+
+.timelineItem::before {
+  content: '';
+  position: absolute;
+  left: 64px;
+  top: 12px;
+  bottom: -12px;
+  width: 2px;
+  background: var(--border-light);
+}
+
+.timelineItem:last-child::before {
+  display: none;
+}
+
+.timelineDate {
+  width: 48px;
+  font-size: 12px;
+  font-weight: 600;
   color: var(--text-muted);
-  margin-bottom: 32px;
+  text-align: right;
+  padding-top: 4px;
+}
+
+.timelineDot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--border-light);
+  margin-top: 6px;
+  position: relative;
+  z-index: 2;
+}
+
+.timelineDotActive {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--status-success);
+  box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.2);
+  margin-top: 6px;
+  position: relative;
+  z-index: 2;
+}
+
+.timelineContent h4 {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 4px 0;
+}
+
+.timelineContent p {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* =========================================
+   RESPONSIVE DESIGN
+   ========================================= */
+@media (max-width: 1024px) {
+  .detailsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .premiumPassCard {
+    padding: 24px;
+  }
+  
+  .infoBlocks {
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .routeLabels {
+    display: none; /* Hide complex labels on small mobile if needed */
+  }
+  
+  .cardBottom {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 24px;
+  }
+  
+  .qrSection {
+    align-items: flex-start;
+    width: 100%;
+  }
+  
+  .statsRow {
+    flex-direction: column;
+  }
+  
+  .actionRow {
+    flex-direction: column;
+  }
 }
