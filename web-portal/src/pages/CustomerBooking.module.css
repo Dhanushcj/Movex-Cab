@@ -9,13 +9,13 @@
 }
 
 .globalTopHeader {
-  height: 80px;
+  height: 60px;
   background: #ffffff;
   border-bottom: 1px solid #e2e8f0;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 32px;
+  padding: 0 24px;
   flex-shrink: 0;
   z-index: 20;
 }
@@ -23,18 +23,18 @@
 .headerTitleArea {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 0px;
 }
 
 .mainTitle {
-  font-size: 22px;
+  font-size: 15px;
   font-weight: 700;
   color: #0f172a;
   margin: 0;
 }
 
 .subTitle {
-  font-size: 14px;
+  font-size: 12px;
   color: #64748b;
   margin: 0;
 }
@@ -88,8 +88,8 @@
 }
 
 .userAvatar {
-  width: 36px;
-  height: 36px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   background: #eff6ff;
   color: var(--forge-blue);
@@ -97,7 +97,7 @@
   align-items: center;
   justify-content: center;
   font-weight: 700;
-  font-size: 14px;
+  font-size: 12px;
 }
 
 .userName {

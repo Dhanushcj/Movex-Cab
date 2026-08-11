@@ -16,7 +16,7 @@
 }
 
 .sidebar {
-  width: 240px;
+  width: 200px;
   background: var(--bg-white);
   border-right: 1px solid var(--border-light);
   display: flex;
@@ -27,7 +27,7 @@
 }
 
 .sidebarHeader {
-  padding: 16px 20px;
+  padding: 10px 14px;
   border-bottom: 1px solid var(--border-light);
   display: flex;
   align-items: center;
@@ -36,12 +36,12 @@
 .brandPill {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 4px 10px;
+  gap: 4px;
+  padding: 4px 8px;
   background: var(--bg-soft-blue);
   color: var(--forge-blue);
   border-radius: var(--radius-full);
-  font-size: 11px;
+  font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.5px;
 }
@@ -66,19 +66,19 @@
   font-weight: 700;
   color: var(--text-muted);
   letter-spacing: 0.5px;
-  margin-top: 12px;
-  margin-bottom: 4px;
+  margin-top: 8px;
+  margin-bottom: 2px;
   padding: 0 12px;
 }
 
 .navItem {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 10px 12px;
+  gap: 10px;
+  padding: 8px 12px;
   border-radius: var(--radius-lg);
   color: var(--text-muted);
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 600;
   transition: var(--transition-fast);
   width: 100%;
@@ -107,11 +107,11 @@
 .logoutBtn {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 10px 12px;
+  gap: 10px;
+  padding: 8px 12px;
   color: var(--status-error);
   font-weight: 600;
-  font-size: 14px;
+  font-size: 12px;
   width: 100%;
   border-radius: var(--radius-lg);
   transition: var(--transition-fast);
@@ -133,8 +133,8 @@
 }
 
 .topHeader {
-  height: 60px;
-  padding: 0 24px;
+  height: 54px;
+  padding: 0 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -145,7 +145,7 @@
 }
 
 .headerTitle {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 700;
   color: var(--text-primary);
 }
@@ -155,11 +155,11 @@
   align-items: center;
   gap: 10px;
   background: var(--bg-section-alt);
-  padding: 4px 14px 4px 4px;
+  padding: 4px 12px 4px 4px;
   border-radius: var(--radius-full);
   border: 1px solid var(--border-light);
   font-weight: 600;
-  font-size: 13px;
+  font-size: 12px;
   color: var(--text-primary);
 }
 
@@ -188,7 +188,7 @@
 
 .contentArea {
   flex: 1;
-  padding: 32px;
+  padding: 20px;
   overflow-y: auto;
   position: relative;
 }
