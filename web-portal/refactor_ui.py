@@ -16,8 +16,11 @@ if import_match:
     all_icons = list(set(existing_icons + icons_needed))
     jsx_content = jsx_content.replace(import_match.group(0), f"import {{ {', '.join(all_icons)} }} from 'lucide-react';")
 
-# Find the return block
-return_start = jsx_content.find("  return (")
+# Find the main return block
+return_start = jsx_content.find("  return (\\n    <div className={styles.bookingWrapper}>")
+if return_start == -1:
+    return_start = jsx_content.find("  return (\\n    <div")
+
 return_end = jsx_content.rfind(");") + 2
 
 if return_start != -1 and return_end != -1:
