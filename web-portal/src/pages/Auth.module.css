@@ -73,19 +73,19 @@
 }
 
 .promoTitle {
-  font-size: 42px;
+  font-size: 32px;
   font-weight: 700;
   color: var(--forge-blue);
   line-height: 1.15;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
   font-family: 'Poppins', sans-serif;
 }
 
 .promoText {
-  font-size: 16px;
+  font-size: 14px;
   color: var(--text-muted);
   line-height: 1.6;
-  margin-bottom: 40px;
+  margin-bottom: 32px;
 }
 
 .highlight {
@@ -189,14 +189,14 @@
 }
 
 .cardTitle {
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 700;
   color: var(--text-primary);
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .cardSubtitle {
-  font-size: 14px;
+  font-size: 13px;
   color: var(--text-muted);
 }
 
@@ -212,9 +212,9 @@
 
 .segmentBtn {
   flex: 1;
-  padding: 12px;
+  padding: 10px;
   text-align: center;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--text-muted);
   background: transparent;
@@ -327,12 +327,12 @@
 /* Primary Button */
 .btnPrimary {
   width: 100%;
-  height: 56px;
+  height: 44px;
   background: var(--forge-blue);
   color: white;
   border: none;
-  border-radius: 16px;
-  font-size: 16px;
+  border-radius: 12px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -381,12 +381,12 @@
 /* Google Button */
 .btnGoogle {
   width: 100%;
-  height: 56px;
+  height: 44px;
   background: var(--bg-white);
   color: var(--text-primary);
   border: 1.5px solid var(--border-light);
-  border-radius: 16px;
-  font-size: 15px;
+  border-radius: 12px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -406,7 +406,7 @@
 .driverLoginRow {
   text-align: center;
   margin-bottom: 24px;
-  font-size: 14px;
+  font-size: 13px;
   color: var(--text-muted);
 }
 
@@ -414,7 +414,7 @@
   background: transparent;
   border: none;
   color: var(--forge-blue);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   margin-left: 8px;
@@ -541,7 +541,7 @@
   }
   
   .btnPrimary, .btnGoogle {
-    height: 50px;
+    height: 44px;
     margin-bottom: 16px;
   }
   
