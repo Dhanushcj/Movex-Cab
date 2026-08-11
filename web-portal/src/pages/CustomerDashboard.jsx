@@ -10,7 +10,10 @@ import {
   History,
   CreditCard,
   CheckCircle2,
-  CarFront
+  CarFront,
+  Bike,
+  Car,
+  BusFront
 } from 'lucide-react';
 
 const CustomerDashboard = () => {
@@ -26,10 +29,10 @@ const CustomerDashboard = () => {
   ];
 
   const vehicles = [
-    { id: 'bike', name: 'Bike', icon: '/vehicles/bike.png' },
-    { id: 'auto', name: 'Auto', icon: '/vehicles/auto.png' },
-    { id: 'mini', name: 'Mini Cab', icon: '/vehicles/mini.png' },
-    { id: 'bus', name: 'Shuttle', icon: '/vehicles/bus.png' },
+    { id: 'bike', name: 'Bike', Icon: Bike },
+    { id: 'auto', name: 'Auto', Icon: CarFront },
+    { id: 'mini', name: 'Mini Cab', Icon: Car },
+    { id: 'bus', name: 'Shuttle', Icon: BusFront },
   ];
 
   useEffect(() => {
@@ -101,8 +104,8 @@ const CustomerDashboard = () => {
                 className={`${styles.vehicleOption} ${selectedVehicle === v.id ? styles.active : ''}`}
                 onClick={() => setSelectedVehicle(v.id)}
               >
-                {/* Fallback to lucide icon if images aren't present */}
-                <CarFront size={24} color={selectedVehicle === v.id ? "var(--forge-blue)" : "var(--text-muted)"} />
+                {/* Dynamic lucide icon */}
+                <v.Icon size={24} color={selectedVehicle === v.id ? "var(--forge-blue)" : "var(--text-muted)"} />
                 <span className={styles.vehicleName}>{v.name}</span>
               </div>
             ))}
