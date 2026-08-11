@@ -403,9 +403,9 @@ const register = async (req, res, next) => {
  */
 const getMe = async (req, res, next) => {
   try {
-    const role = req.user.role;
+    const role = req.userRole || req.user.role;
     let Model = role === 'driver' ? Driver : User;
-    let query = Model.findById(req.user.id);
+    let query = Model.findById(req.user._id);
     if (role === 'driver') {
       query = query.populate('assignedRoute');
     }

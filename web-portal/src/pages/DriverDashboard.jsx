@@ -117,12 +117,24 @@ const DriverDashboard = () => {
       setIncomingRide(null);
     };
 
+    const handleRouteAssigned = (data) => {
+      if (data.route) {
+        const fullRoute = { ...data.route };
+        fullRoute.decodedPolyline = fullRoute.polyline ? decodePolyline(fullRoute.polyline) : [];
+        setAssignedRoute(fullRoute);
+      } else {
+        setAssignedRoute(null);
+      }
+    };
+
     socket.on('ride:incoming', handleIncoming);
     socket.on('ride:cancelled', handleCancelled);
+    socket.on('route:assigned', handleRouteAssigned);
 
     return () => {
       socket.off('ride:incoming', handleIncoming);
       socket.off('ride:cancelled', handleCancelled);
+      socket.off('route:assigned', handleRouteAssigned);
     };
   }, [socket]);
 

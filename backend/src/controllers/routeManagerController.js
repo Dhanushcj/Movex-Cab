@@ -145,10 +145,20 @@ exports.assignDriverToRoute = async (req, res, next) => {
       req.params.id,
       { assignedRoute: routeId || null }, // pass null to unassign
       { new: true, runValidators: true }
-    );
+    ).populate('assignedRoute');
     
     if (!driver) {
       return res.status(404).json({ success: false, error: 'Driver not found' });
+    }
+
+    // Emit socket event to the driver to refresh their assigned route
+    const io = req.app.get('io');
+    if (io) {
+      io.to(driver._id.toString()).emit('route:assigned', { 
+        driverId: driver._id,
+        routeId: routeId || null,
+        route: driver.assignedRoute || null
+      });
     }
     
     res.status(200).json({ success: true, data: driver });
