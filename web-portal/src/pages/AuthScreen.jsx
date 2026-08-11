@@ -112,6 +112,13 @@ const AuthScreen = () => {
       }
     };
     fetchRoutes();
+    
+    // Set up polling to integrate with admin portal changes
+    const interval = setInterval(() => {
+      fetchRoutes();
+    }, 10000); // Poll every 10 seconds
+
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
