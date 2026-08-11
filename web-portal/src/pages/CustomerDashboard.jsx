@@ -1,14 +1,36 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Map, Clock, CreditCard, ArrowRight } from 'lucide-react';
 import { AuthContext } from '../context/AuthContext';
 import styles from './CustomerDashboard.module.css';
 import API from '../services/api';
+import { 
+  MapPin, 
+  Navigation, 
+  ArrowRight, 
+  History,
+  CreditCard,
+  CheckCircle2,
+  CarFront
+} from 'lucide-react';
 
 const CustomerDashboard = () => {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
   const [activePass, setActivePass] = useState(null);
+  const [selectedVehicle, setSelectedVehicle] = useState('auto');
+  
+  // Hardcoded for demo/premium look
+  const recentRides = [
+    { id: 1, route: 'Chennai Central → Anna Nagar', vehicle: 'Auto', date: 'Today, 09:42 AM', status: 'Completed', fare: '₹0 (Pass)' },
+    { id: 2, route: 'Anna Nagar → Guindy', vehicle: 'Mini Cab', date: 'Yesterday, 06:15 PM', status: 'Completed', fare: '₹0 (Pass)' },
+  ];
+
+  const vehicles = [
+    { id: 'bike', name: 'Bike', icon: '/vehicles/bike.png' },
+    { id: 'auto', name: 'Auto', icon: '/vehicles/auto.png' },
+    { id: 'mini', name: 'Mini Cab', icon: '/vehicles/mini.png' },
+    { id: 'bus', name: 'Shuttle', icon: '/vehicles/bus.png' },
+  ];
 
   useEffect(() => {
     const fetchMyPass = async () => {
@@ -24,77 +46,136 @@ const CustomerDashboard = () => {
     fetchMyPass();
   }, []);
 
+  const handleBookNow = () => {
+    navigate('/customer/book');
+  };
+
   return (
     <div className={styles.dashboardContainer}>
+      
+      {/* Header & Quick Stats */}
       <div className={styles.header}>
-        <h1 className={styles.title}>Welcome back, {user?.name?.split(' ')[0] || 'User'}!</h1>
-        <p className={styles.subtitle}>Where would you like to go today?</p>
+        <div className={styles.headerLeft}>
+          <h1 className={styles.title}>Welcome back, {user?.name?.split(' ')[0] || 'User'}</h1>
+          <p className={styles.subtitle}>Where would you like to go today?</p>
+        </div>
+        <div className={styles.headerStats}>
+          <div className={styles.statBadge}>
+            <span className={styles.statLabel}>Total Rides</span>
+            <span className={styles.statValue}>124</span>
+          </div>
+          <div className={styles.statBadge}>
+            <span className={styles.statLabel}>Saved Amount</span>
+            <span className={styles.statValue}>₹4,250</span>
+          </div>
+        </div>
       </div>
       
-      <div className={styles.grid}>
-        {/* Quick Book Card */}
-        <div className={`white-card ${styles.card}`}>
-          <div className={styles.cardHeader}>
-            <div className={styles.iconWrapper} style={{ background: 'var(--bg-soft-blue)', color: 'var(--forge-blue)' }}>
-              <Map size={24} />
+      <div className={styles.mainGrid}>
+        
+        {/* Left Column: Quick Booking */}
+        <div className={styles.bookingPanel}>
+          <div className={styles.sectionTitle}>
+            <div className={styles.sectionIcon}>
+              <Navigation size={20} />
             </div>
-            <h3 className={styles.cardTitle}>Book a Ride</h3>
+            Book a Ride
           </div>
-          <p className={styles.cardDesc}>
-            Access premium mobility across our fixed metro corridors. Bike, Auto, Cab, or Bus.
-          </p>
-          <button 
-            className={styles.btnAction}
-            onClick={() => navigate('/customer/book')}
-          >
-            Start Booking <ArrowRight size={18} />
+          
+          <div className={styles.locationInputs}>
+            <div className={styles.locationTimeline}></div>
+            <div className={styles.inputGroup}>
+              <div className={`${styles.locIcon} ${styles.pickup}`}></div>
+              <input type="text" className={styles.locInput} placeholder="Enter Pickup Location" readOnly onClick={handleBookNow} />
+            </div>
+            <div className={styles.inputGroup}>
+              <div className={`${styles.locIcon} ${styles.drop}`}></div>
+              <input type="text" className={styles.locInput} placeholder="Enter Drop Location" readOnly onClick={handleBookNow} />
+            </div>
+          </div>
+
+          <div className={styles.vehicleGrid}>
+            {vehicles.map(v => (
+              <div 
+                key={v.id} 
+                className={`${styles.vehicleOption} ${selectedVehicle === v.id ? styles.active : ''}`}
+                onClick={() => setSelectedVehicle(v.id)}
+              >
+                {/* Fallback to lucide icon if images aren't present */}
+                <CarFront size={24} color={selectedVehicle === v.id ? "var(--forge-blue)" : "var(--text-muted)"} />
+                <span className={styles.vehicleName}>{v.name}</span>
+              </div>
+            ))}
+          </div>
+
+          <button className={styles.btnBook} onClick={handleBookNow}>
+            Book Now <ArrowRight size={20} />
           </button>
         </div>
 
-        {/* Passes Card - landing page styled */}
-        <div className={`white-card ${styles.card}`}>
-          <div className={styles.cardHeader}>
-            <div className={styles.iconWrapper} style={{ background: 'var(--forge-yellow-soft)', color: 'var(--forge-blue)' }}>
-              <CreditCard size={24} />
-            </div>
-            <h3 className={styles.cardTitle}>Your Mobility Pass</h3>
-          </div>
+        {/* Right Column: Pass & Recent */}
+        <div className={styles.rightCol}>
           
-          {activePass ? (
-            <div style={{ marginBottom: '24px', background: 'var(--bg-white)', padding: '20px', borderRadius: '16px', border: '1px solid var(--border-light)', boxShadow: 'var(--shadow-sm)' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
-                <div>
-                  <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: '700', letterSpacing: '1px', marginBottom: '4px' }}>FORGE MOBILITY PASS</div>
-                  <span style={{ fontWeight: '800', fontSize: '20px', color: 'var(--text-primary)' }}>{activePass.pass?.name || 'Gold Pass'}</span>
-                </div>
-                <div style={{ background: 'var(--status-success-bg)', color: 'var(--status-success)', padding: '4px 10px', borderRadius: '99px', fontSize: '12px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <span style={{ width: '6px', height: '6px', background: 'var(--status-success)', borderRadius: '50%' }}></span> ACTIVE
-                </div>
+          {/* Premium Pass Card */}
+          <div className={styles.passCard}>
+            <div className={styles.passHeader}>
+              <div>
+                <div className={styles.passSub}>FORGE MOBILITY</div>
+                <div className={styles.passType}>{activePass?.pass?.name || 'GOLD PASS'}</div>
               </div>
-              <div style={{ display: 'flex', gap: '16px', borderTop: '1px solid var(--border-light)', paddingTop: '16px', marginTop: '16px' }}>
-                <div>
-                  <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: '600' }}>VALID UNTIL</div>
-                  <div style={{ fontSize: '14px', color: 'var(--text-primary)', fontWeight: '600' }}>{new Date(activePass.validUntil).toLocaleDateString()}</div>
-                </div>
-                <div>
-                  <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: '600' }}>REMAINING</div>
-                  <div style={{ fontSize: '14px', color: 'var(--forge-blue)', fontWeight: '700' }}>{activePass.ridesRemaining || 'Unlimited'}</div>
-                </div>
+              <div className={styles.passBadge}>
+                ACTIVE
               </div>
             </div>
-          ) : (
-            <div className={styles.emptyState} style={{ marginBottom: '24px', background: 'var(--bg-section-alt)', border: '1px dashed var(--border-light)' }}>
-              <p>No active passes found. Subscribe to ride zero-fare.</p>
-            </div>
-          )}
 
-          <button 
-            className={`${styles.btnAction} ${styles.btnSecondary}`}
-            style={{ marginTop: 'auto' }}
-            onClick={() => navigate('/customer/passes')}
-          >
-            {activePass ? 'Manage Pass' : 'Explore Passes'}
-          </button>
+            <div className={styles.passStats}>
+              <div>
+                <div className={styles.pStatLabel}>VALID UNTIL</div>
+                <div className={styles.pStatValue}>
+                  {activePass ? new Date(activePass.validUntil).toLocaleDateString() : 'Dec 31, 2026'}
+                </div>
+              </div>
+              <div>
+                <div className={styles.pStatLabel}>REMAINING</div>
+                <div className={styles.pStatValue}>
+                  {activePass?.ridesRemaining || 'Unlimited'} Rides
+                </div>
+              </div>
+            </div>
+
+            <button className={styles.btnPass} onClick={() => navigate('/customer/passes')}>
+              <CreditCard size={16} /> Manage Subscription
+            </button>
+          </div>
+
+          {/* Recent Rides */}
+          <div className={styles.recentRides}>
+            <div className={styles.sectionTitle} style={{ marginBottom: '16px' }}>
+              <div className={styles.sectionIcon} style={{ background: 'var(--forge-yellow-soft)', padding: '8px' }}>
+                <History size={18} />
+              </div>
+              Recent Activity
+            </div>
+
+            <div className={styles.rideList}>
+              {recentRides.map(ride => (
+                <div key={ride.id} className={styles.rideItem}>
+                  <div className={styles.rideIcon}>
+                    <CheckCircle2 size={20} color="var(--status-success)" />
+                  </div>
+                  <div className={styles.rideInfo}>
+                    <div className={styles.rideRoute}>{ride.route}</div>
+                    <div className={styles.rideDate}>{ride.date} • {ride.vehicle}</div>
+                  </div>
+                  <div className={styles.rideStatus}>
+                    <div className={`${styles.statusBadge} ${styles.statusCompleted}`}>{ride.status}</div>
+                    <div className={styles.rideFare}>{ride.fare}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
         </div>
       </div>
     </div>

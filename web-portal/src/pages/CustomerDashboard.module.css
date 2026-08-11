@@ -1,124 +1,460 @@
 .dashboardContainer {
-  padding: 32px 0;
+  padding: 40px 0;
   max-width: 1200px;
   margin: 0 auto;
 }
 
 .header {
-  margin-bottom: 40px;
+  margin-bottom: 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.headerLeft {
+  max-width: 60%;
 }
 
 .title {
-  font-size: 42px;
+  font-size: 32px;
   color: var(--forge-blue);
   font-weight: 700;
-  margin-bottom: 12px;
-  line-height: 1.15;
-  font-family: 'Poppins', sans-serif;
+  margin-bottom: 8px;
+  line-height: 1.2;
 }
 
 .subtitle {
   color: var(--text-muted);
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 500;
 }
 
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+.headerStats {
+  display: flex;
   gap: 24px;
 }
 
-.card {
-  background: var(--bg-card);
+.statBadge {
+  background: var(--bg-white);
+  border: 1px solid var(--border-light);
+  padding: 12px 20px;
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  box-shadow: var(--shadow-sm);
+}
+
+.statLabel {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.statValue {
+  font-size: 20px;
+  color: var(--forge-blue);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.mainGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+@media (max-width: 992px) {
+  .mainGrid {
+    grid-template-columns: 1fr;
+  }
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+  }
+}
+
+/* Quick Booking Panel */
+.bookingPanel {
+  background: var(--bg-white);
   border: 1px solid var(--border-light);
   border-radius: var(--radius-xl);
   padding: 32px;
   box-shadow: var(--shadow-md);
-  transition: var(--transition-normal);
+  height: 100%;
   display: flex;
   flex-direction: column;
 }
 
-.card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-lg);
-  border-color: var(--border-hover);
-}
-
-.cardHeader {
+.sectionTitle {
+  font-size: 20px;
+  color: var(--text-primary);
+  font-weight: 600;
+  margin-bottom: 24px;
   display: flex;
   align-items: center;
-  gap: 16px;
-  margin-bottom: 16px;
+  gap: 12px;
 }
 
-.iconWrapper {
+.sectionIcon {
   background: var(--bg-soft-blue);
   color: var(--forge-blue);
-  padding: 12px;
+  padding: 10px;
   border-radius: var(--radius-lg);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.cardTitle {
-  font-size: 20px;
+/* Location Inputs */
+.locationInputs {
+  position: relative;
+  margin-bottom: 32px;
+}
+
+.locationTimeline {
+  position: absolute;
+  left: 20px;
+  top: 24px;
+  bottom: 24px;
+  width: 2px;
+  background: var(--border-light);
+  z-index: 1;
+}
+
+.inputGroup {
+  position: relative;
+  z-index: 2;
+  margin-bottom: 16px;
+}
+
+.inputGroup:last-child {
+  margin-bottom: 0;
+}
+
+.locIcon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-white);
+  border: 2px solid;
+}
+
+.locIcon.pickup { border-color: var(--status-success); }
+.locIcon.pickup::after { content: ''; width: 6px; height: 6px; background: var(--status-success); border-radius: 50%; }
+
+.locIcon.drop { border-color: var(--status-error); }
+.locIcon.drop::after { content: ''; width: 6px; height: 6px; background: var(--status-error); border-radius: 50%; }
+
+.locInput {
+  width: 100%;
+  padding: 16px 16px 16px 48px;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  font-size: 15px;
+  font-family: inherit;
   color: var(--text-primary);
-  font-weight: 600;
-  margin: 0;
+  background: var(--bg-section);
+  transition: all 0.2s;
+  cursor: text;
 }
 
-.cardDesc {
+.locInput:focus {
+  outline: none;
+  border-color: var(--forge-blue);
+  background: var(--bg-white);
+  box-shadow: 0 0 0 3px rgba(7, 90, 170, 0.1);
+}
+
+.locInput::placeholder {
   color: var(--text-muted);
-  font-size: 15px;
-  margin-bottom: 24px;
-  flex: 1;
 }
 
-.btnAction {
-  background: var(--forge-blue);
-  color: #ffffff;
-  padding: 14px 24px;
-  border-radius: var(--radius-full);
-  font-weight: 700;
-  font-size: 15px;
-  border: none;
+/* Vehicle Selection */
+.vehicleGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+.vehicleOption {
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  padding: 16px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
   cursor: pointer;
-  transition: var(--transition-fast);
+  transition: all 0.2s;
+  background: var(--bg-white);
+}
+
+.vehicleOption:hover {
+  border-color: var(--forge-blue);
+  background: var(--bg-soft-blue);
+}
+
+.vehicleOption.active {
+  border-color: var(--forge-blue);
+  background: var(--bg-soft-blue);
+  box-shadow: inset 0 0 0 1px var(--forge-blue);
+}
+
+.vehicleImg {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+}
+
+.vehicleName {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.btnBook {
+  background: var(--forge-yellow);
+  color: var(--forge-blue);
+  padding: 18px;
+  border-radius: var(--radius-lg);
+  border: none;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
   width: 100%;
-  box-shadow: 0 2px 8px rgba(7, 90, 170, 0.08);
+  margin-top: auto;
+  transition: all 0.2s;
+  box-shadow: 0 4px 14px rgba(232, 200, 74, 0.3);
 }
 
-.btnAction:hover {
-  background: var(--forge-blue-deep, #003d82);
+.btnBook:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 14px rgba(7, 90, 170, 0.12);
+  box-shadow: 0 6px 20px rgba(232, 200, 74, 0.4);
 }
 
-.btnSecondary {
+/* Right Column */
+.rightCol {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Premium Pass Card */
+.passCard {
+  background: linear-gradient(135deg, #1A293E 0%, #0F172A 100%);
+  border-radius: var(--radius-xl);
+  padding: 32px;
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.2);
+}
+
+.passCard::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(232, 200, 74, 0.1) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.passHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 32px;
+  position: relative;
+  z-index: 1;
+}
+
+.passType {
+  font-size: 24px;
+  font-weight: 800;
+  background: linear-gradient(90deg, #E8C84A, #FDE68A);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: 0.5px;
+}
+
+.passSub {
+  font-size: 12px;
+  color: rgba(255,255,255,0.7);
+  font-weight: 500;
+  letter-spacing: 1px;
+}
+
+.passBadge {
+  background: rgba(34, 197, 94, 0.2);
+  color: #4ADE80;
+  padding: 6px 12px;
+  border-radius: 99px;
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid rgba(74, 222, 128, 0.3);
+}
+
+.passBadge::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  background: #4ADE80;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #4ADE80;
+}
+
+.passStats {
+  display: flex;
+  gap: 32px;
+  margin-bottom: 32px;
+  position: relative;
+  z-index: 1;
+}
+
+.pStatLabel {
+  font-size: 12px;
+  color: rgba(255,255,255,0.6);
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.pStatValue {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.btnPass {
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.2);
+  padding: 12px 24px;
+  border-radius: var(--radius-lg);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+  z-index: 1;
+}
+
+.btnPass:hover {
+  background: rgba(255,255,255,0.2);
+}
+
+/* Recent Rides List */
+.recentRides {
   background: var(--bg-white);
-  color: var(--forge-blue);
-  border: 1.5px solid var(--forge-blue);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-xl);
+  padding: 24px 32px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.rideList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.rideItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  background: var(--bg-section);
+  border-radius: var(--radius-lg);
+  border: 1px solid transparent;
+  transition: all 0.2s;
+}
+
+.rideItem:hover {
+  border-color: var(--border-light);
+  background: var(--bg-white);
   box-shadow: var(--shadow-sm);
 }
 
-.btnSecondary:hover {
-  background: var(--bg-soft-blue);
-  color: var(--forge-blue-deep);
-  border-color: var(--forge-blue);
+.rideIcon {
+  width: 40px;
+  height: 40px;
+  background: var(--bg-white);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-sm);
 }
 
-.emptyState {
-  background: var(--bg-section-alt);
-  border: 1px dashed var(--border-light);
-  border-radius: var(--radius-lg);
-  padding: 32px;
-  text-align: center;
+.rideInfo {
+  flex: 1;
+  margin: 0 16px;
+}
+
+.rideRoute {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 14px;
+  margin-bottom: 2px;
+}
+
+.rideDate {
+  font-size: 12px;
   color: var(--text-muted);
+}
+
+.rideStatus {
+  text-align: right;
+}
+
+.rideFare {
+  font-weight: 700;
+  color: var(--forge-blue);
+  font-size: 15px;
+}
+
+.statusBadge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-bottom: 4px;
+  display: inline-block;
+}
+
+.statusCompleted { background: var(--status-success-bg); color: var(--status-success); }
+.statusActive { background: var(--forge-yellow-soft); color: #B45309; }
+
+/* Empty State */
+.emptyRides {
+  text-align: center;
+  padding: 32px 0;
+  color: var(--text-muted);
+  font-size: 14px;
 }
