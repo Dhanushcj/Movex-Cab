@@ -67,7 +67,7 @@ const CustomerLayout = () => {
                 onClick={() => navigate(item.path)}
                 className={`${styles.navItem} ${isActive ? styles.active : ''}`}
               >
-                <Icon size={20} />
+                <Icon size={18} />
                 <span>{item.name}</span>
               </button>
             );
@@ -76,7 +76,7 @@ const CustomerLayout = () => {
         
         <div className={styles.sidebarFooter}>
           <button onClick={handleLogout} className={styles.logoutBtn}>
-            <LogOut size={20} />
+            <LogOut size={18} />
             <span>Log Out</span>
           </button>
         </div>
