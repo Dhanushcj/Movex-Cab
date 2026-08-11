@@ -35,7 +35,10 @@ const CustomerLayout = () => {
     <div className={styles.layoutContainer}>
       <aside className={styles.sidebar}>
         <div className={styles.sidebarHeader}>
-          <h2>MoveX</h2>
+          <div className={styles.brandPill}>
+            <img src="/logo.png" alt="Forge India Connect" className={styles.brandLogo} />
+            FORGE INDIA CONNECT
+          </div>
         </div>
         
         <nav className={styles.sidebarNav}>

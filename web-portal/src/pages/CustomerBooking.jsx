@@ -1,7 +1,11 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MapPin, CarFront, Users, Map as MapIcon, CheckCircle2, ChevronRight, Bike, Navigation } from 'lucide-react';
+import { MapPin, Users, CheckCircle2, ChevronRight, Navigation } from 'lucide-react';
 import { GoogleMap, useJsApiLoader, Polyline, Marker } from '@react-google-maps/api';
+import BikeIcon from '../components/BikeIcon';
+import AutoRickshawIcon from '../components/AutoRickshawIcon';
+import CarIcon from '../components/CarIcon';
+import BusIcon from '../components/BusIcon';
 import styles from './CustomerBooking.module.css';
 import API from '../services/api';
 import { useSocket } from '../context/SocketContext';
@@ -85,11 +89,12 @@ const CustomerBooking = () => {
   const mapRef = useRef(null);
 
   const vehicles = [
-    { id: 'bike', name: 'MoveX Bike', desc: 'Fastest in traffic', capacity: 1, time: '2 min', icon: Bike },
-    { id: 'auto', name: 'MoveX Auto', desc: 'Breeze through streets', capacity: 3, time: '3 min', icon: CarFront },
-    { id: 'mini', name: 'MoveX Mini', desc: 'Compact rides for daily commutes', capacity: 3, time: '3 min', icon: CarFront },
-    { id: 'sedan', name: 'MoveX Sedan', desc: 'Comfortable rides for longer trips', capacity: 4, time: '5 min', icon: CarFront },
-    { id: 'suv', name: 'MoveX XL', desc: 'Extra space for groups and luggage', capacity: 6, time: '8 min', icon: CarFront },
+    { id: 'bike', name: 'Forge Bike', desc: 'Fastest in traffic', capacity: 1, time: '2 min', icon: BikeIcon, type: 'bike' },
+    { id: 'auto', name: 'Forge Auto', desc: 'Breeze through streets', capacity: 3, time: '3 min', icon: AutoRickshawIcon, type: 'auto' },
+    { id: 'mini', name: 'Forge Mini', desc: 'Compact rides for daily commutes', capacity: 3, time: '3 min', icon: CarIcon, type: 'car' },
+    { id: 'sedan', name: 'Forge Sedan', desc: 'Comfortable rides for longer trips', capacity: 4, time: '5 min', icon: CarIcon, type: 'car' },
+    { id: 'suv', name: 'Forge SUV', desc: 'Extra space for groups and luggage', capacity: 6, time: '8 min', icon: CarIcon, type: 'car' },
+    { id: 'bus', name: 'Forge Bus', desc: 'Affordable mass transit', capacity: 40, time: '12 min', icon: BusIcon, type: 'bus' },
   ];
 
   useEffect(() => {
@@ -347,7 +352,7 @@ const CustomerBooking = () => {
                     onClick={() => setSelectedVehicle(v.id)}
                   >
                     <div className={styles.vehicleImage}>
-                      <Icon size={32} strokeWidth={1.5} color={selectedVehicle === v.id ? "var(--forge-blue)" : "#64748b"} />
+                      <Icon size={32} color={selectedVehicle === v.id ? "var(--forge-blue)" : "#64748b"} />
                     </div>
                     <div className={styles.vehicleInfo}>
                       <h4>{v.name} <Users size={12} className={styles.capacityIcon}/> {v.capacity}</h4>

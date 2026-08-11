@@ -62,7 +62,7 @@ const CustomerPass = () => {
   return (
     <div className={styles.passContainer}>
       <div className={styles.header}>
-        <h1 className={styles.title}>MoveX Passes</h1>
+        <h1 className={styles.title}>Forge Mobility Passes</h1>
         <p className={styles.subtitle}>Get unlimited rides on Metro Routes with our premium passes.</p>
       </div>
 

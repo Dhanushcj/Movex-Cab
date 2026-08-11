@@ -40,8 +40,8 @@ const CustomerHistory = () => {
   };
 
   return (
-    <div>
-      <h1 style={{ fontSize: '32px', marginBottom: '24px' }}>Ride History</h1>
+    <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '32px 0' }}>
+      <h1 style={{ fontSize: '42px', fontWeight: '700', color: 'var(--forge-blue)', marginBottom: '24px', fontFamily: `'Poppins', sans-serif`, lineHeight: '1.15' }}>Ride History</h1>
       
       {loading ? (
         <p style={{ color: 'var(--text-muted)' }}>Loading history...</p>
@@ -69,7 +69,7 @@ const CustomerHistory = () => {
             const displayStatus = isCancelled ? 'Cancelled' : (isCompleted ? 'Completed' : 'In Progress');
 
             return (
-              <div key={ride._id} className="glass-panel" style={{ padding: '24px', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '24px' }}>
+              <div key={ride._id} className="white-card" style={{ padding: '24px', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '24px', marginBottom: '16px' }}>
                 
                 <div style={{ display: 'flex', gap: '24px' }}>
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', color: 'var(--text-muted)' }}>

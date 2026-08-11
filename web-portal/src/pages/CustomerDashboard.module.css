@@ -9,16 +9,17 @@
 }
 
 .title {
-  font-size: 36px;
-  color: var(--forge-blue-deep);
+  font-size: 42px;
+  color: var(--forge-blue);
   font-weight: 700;
-  margin-bottom: 8px;
-  letter-spacing: -0.5px;
+  margin-bottom: 12px;
+  line-height: 1.15;
+  font-family: 'Poppins', sans-serif;
 }
 
 .subtitle {
   color: var(--text-muted);
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 500;
 }
 
@@ -77,11 +78,11 @@
 }
 
 .btnAction {
-  background: var(--forge-blue);
-  color: white;
+  background: var(--accent-yellow);
+  color: var(--forge-blue);
   padding: 14px 24px;
-  border-radius: var(--radius-md);
-  font-weight: 600;
+  border-radius: var(--radius-full);
+  font-weight: 700;
   font-size: 15px;
   border: none;
   cursor: pointer;
@@ -91,21 +92,26 @@
   justify-content: center;
   gap: 8px;
   width: 100%;
+  box-shadow: 0 2px 8px rgba(7, 90, 170, 0.08);
 }
 
 .btnAction:hover {
-  background: var(--forge-blue-deep);
+  background: var(--accent-yellow-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(7, 90, 170, 0.12);
 }
 
 .btnSecondary {
-  background: var(--bg-section-alt);
+  background: var(--bg-white);
   color: var(--forge-blue);
-  border: 1px solid var(--border-light);
+  border: 1.5px solid var(--forge-blue);
+  box-shadow: var(--shadow-sm);
 }
 
 .btnSecondary:hover {
   background: var(--bg-soft-blue);
-  border-color: var(--border-hover);
+  color: var(--forge-blue-deep);
+  border-color: var(--forge-blue);
 }
 
 .emptyState {

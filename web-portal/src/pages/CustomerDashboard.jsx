@@ -33,15 +33,15 @@ const CustomerDashboard = () => {
       
       <div className={styles.grid}>
         {/* Quick Book Card */}
-        <div className={styles.card}>
+        <div className={`white-card ${styles.card}`}>
           <div className={styles.cardHeader}>
-            <div className={styles.iconWrapper}>
+            <div className={styles.iconWrapper} style={{ background: 'var(--bg-soft-blue)', color: 'var(--forge-blue)' }}>
               <Map size={24} />
             </div>
             <h3 className={styles.cardTitle}>Book a Ride</h3>
           </div>
           <p className={styles.cardDesc}>
-            Access premium mobility across our fixed metro corridors.
+            Access premium mobility across our fixed metro corridors. Bike, Auto, Cab, or Bus.
           </p>
           <button 
             className={styles.btnAction}
@@ -51,51 +51,40 @@ const CustomerDashboard = () => {
           </button>
         </div>
 
-        {/* Recent Rides Card */}
-        <div className={styles.card}>
+        {/* Passes Card - landing page styled */}
+        <div className={`white-card ${styles.card}`}>
           <div className={styles.cardHeader}>
-            <div className={styles.iconWrapper}>
-              <Clock size={24} />
-            </div>
-            <h3 className={styles.cardTitle}>Recent Rides</h3>
-          </div>
-          <div className={styles.emptyState}>
-            <p>You have no recent rides.</p>
-          </div>
-          <button 
-            className={`${styles.btnAction} ${styles.btnSecondary}`}
-            style={{ marginTop: 'auto' }}
-            onClick={() => navigate('/customer/history')}
-          >
-            View History
-          </button>
-        </div>
-
-        {/* Passes Card */}
-        <div className={styles.card}>
-          <div className={styles.cardHeader}>
-            <div className={styles.iconWrapper}>
+            <div className={styles.iconWrapper} style={{ background: 'var(--forge-yellow-soft)', color: 'var(--forge-blue)' }}>
               <CreditCard size={24} />
             </div>
-            <h3 className={styles.cardTitle}>Active Passes</h3>
+            <h3 className={styles.cardTitle}>Your Mobility Pass</h3>
           </div>
           
           {activePass ? (
-            <div style={{ marginBottom: '16px', background: 'var(--bg-secondary)', padding: '16px', borderRadius: '8px', border: '1px solid var(--border)' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                <span style={{ fontWeight: 'bold', fontSize: '18px', color: 'var(--forge-blue)' }}>{activePass.pass?.name || 'Gold Pass'}</span>
-                <span style={{ fontSize: '14px', color: 'var(--text-primary)', fontWeight: 'bold' }}>Active</span>
+            <div style={{ marginBottom: '24px', background: 'var(--bg-white)', padding: '20px', borderRadius: '16px', border: '1px solid var(--border-light)', boxShadow: 'var(--shadow-sm)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+                <div>
+                  <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: '700', letterSpacing: '1px', marginBottom: '4px' }}>FORGE MOBILITY PASS</div>
+                  <span style={{ fontWeight: '800', fontSize: '20px', color: 'var(--text-primary)' }}>{activePass.pass?.name || 'Gold Pass'}</span>
+                </div>
+                <div style={{ background: 'var(--status-success-bg)', color: 'var(--status-success)', padding: '4px 10px', borderRadius: '99px', fontSize: '12px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span style={{ width: '6px', height: '6px', background: 'var(--status-success)', borderRadius: '50%' }}></span> ACTIVE
+                </div>
               </div>
-              <p style={{ margin: '4px 0', fontSize: '14px', color: 'var(--text-muted)' }}>
-                Valid until: {new Date(activePass.validUntil).toLocaleDateString()}
-              </p>
-              <p style={{ margin: '4px 0', fontSize: '14px', color: 'var(--text-muted)' }}>
-                Rides remaining: {activePass.ridesRemaining || 'Unlimited'}
-              </p>
+              <div style={{ display: 'flex', gap: '16px', borderTop: '1px solid var(--border-light)', paddingTop: '16px', marginTop: '16px' }}>
+                <div>
+                  <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: '600' }}>VALID UNTIL</div>
+                  <div style={{ fontSize: '14px', color: 'var(--text-primary)', fontWeight: '600' }}>{new Date(activePass.validUntil).toLocaleDateString()}</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: '600' }}>REMAINING</div>
+                  <div style={{ fontSize: '14px', color: 'var(--forge-blue)', fontWeight: '700' }}>{activePass.ridesRemaining || 'Unlimited'}</div>
+                </div>
+              </div>
             </div>
           ) : (
-            <div className={styles.emptyState}>
-              <p>No active passes found.</p>
+            <div className={styles.emptyState} style={{ marginBottom: '24px', background: 'var(--bg-section-alt)', border: '1px dashed var(--border-light)' }}>
+              <p>No active passes found. Subscribe to ride zero-fare.</p>
             </div>
           )}
 
@@ -104,7 +93,7 @@ const CustomerDashboard = () => {
             style={{ marginTop: 'auto' }}
             onClick={() => navigate('/customer/passes')}
           >
-            {activePass ? 'Manage Pass' : 'Buy a Pass'}
+            {activePass ? 'Manage Pass' : 'Explore Passes'}
           </button>
         </div>
       </div>

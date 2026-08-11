@@ -23,10 +23,11 @@
 }
 
 .title {
-  font-size: 28px;
+  font-size: 32px;
   font-weight: 700;
-  color: var(--text-primary);
+  color: var(--forge-blue);
   margin-bottom: 4px;
+  font-family: 'Poppins', sans-serif;
 }
 
 .subtitle {
@@ -78,17 +79,19 @@
 .btnSecondary {
   margin-top: 12px;
   padding: 10px 20px;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border);
-  color: var(--text-primary);
-  border-radius: var(--radius-lg);
-  font-weight: 500;
+  background: var(--bg-white);
+  border: 1.5px solid var(--forge-blue);
+  color: var(--forge-blue);
+  border-radius: var(--radius-full);
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-sm);
 }
 
 .btnSecondary:hover {
-  background: var(--border);
+  background: var(--bg-soft-blue);
+  color: var(--forge-blue-deep);
 }
 
 .stateStepReady {
@@ -249,23 +252,25 @@
 .btnPrimary {
   width: 100%;
   padding: 16px;
-  background-color: var(--forge-blue);
-  color: white;
+  background-color: var(--accent-yellow);
+  color: var(--forge-blue);
   border: none;
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-full);
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  transition: background-color 0.2s;
-  box-shadow: 0 4px 12px rgba(0, 83, 179, 0.25);
+  transition: all var(--transition-fast);
+  box-shadow: 0 2px 8px rgba(7, 90, 170, 0.08);
 }
 
 .btnPrimary:hover:not(:disabled) {
-  background-color: var(--forge-blue-deep);
+  background-color: var(--accent-yellow-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(7, 90, 170, 0.12);
 }
 
 .btnPrimary:disabled {

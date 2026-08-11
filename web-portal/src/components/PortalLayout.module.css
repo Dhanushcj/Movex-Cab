@@ -1,7 +1,15 @@
 .layoutContainer {
   display: flex;
   height: 100vh;
-  background-color: #F8FAFC; /* Light modern background */
+  background-color: var(--bg-white);
+  /* Grid pattern and radial highlights */
+  background-image: 
+    radial-gradient(circle at 15% 50%, rgba(7, 90, 170, 0.05), transparent 40%),
+    radial-gradient(circle at 85% 30%, rgba(7, 90, 170, 0.03), transparent 40%),
+    linear-gradient(rgba(7, 90, 170, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(7, 90, 170, 0.03) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
+  background-attachment: fixed;
   color: var(--text-primary);
   overflow: hidden;
   font-family: var(--font-family);
@@ -25,12 +33,23 @@
   align-items: center;
 }
 
-.sidebarHeader h2 {
-  font-size: 24px;
-  color: var(--forge-blue-deep);
-  margin: 0;
-  font-weight: 800;
-  letter-spacing: -0.5px;
+.brandPill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: var(--bg-soft-blue);
+  color: var(--forge-blue);
+  border-radius: var(--radius-full);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.brandLogo {
+  height: 18px;
+  width: auto;
+  object-fit: contain;
 }
 
 .sidebarNav {
@@ -67,7 +86,7 @@
 .navItem.active {
   background: var(--bg-soft-blue);
   color: var(--forge-blue);
-  box-shadow: 0 0 0 1px rgba(7, 90, 170, 0.1);
+  font-weight: 700;
 }
 
 .sidebarFooter {

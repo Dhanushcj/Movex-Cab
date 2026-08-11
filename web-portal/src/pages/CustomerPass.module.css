@@ -10,10 +10,12 @@
 }
 
 .title {
-  font-size: 32px;
+  font-size: 42px;
   font-weight: 700;
-  color: var(--text-primary);
+  color: var(--forge-blue);
   margin-bottom: 8px;
+  line-height: 1.15;
+  font-family: 'Poppins', sans-serif;
 }
 
 .subtitle {
@@ -29,8 +31,8 @@
 }
 
 .passCard {
-  background: var(--surface);
-  border: 2px solid var(--border);
+  background: var(--bg-white);
+  border: 1px solid var(--border-light);
   border-radius: var(--radius-xl);
   padding: 32px 24px;
   position: relative;
@@ -38,10 +40,11 @@
   transition: all 0.2s ease;
   display: flex;
   flex-direction: column;
+  box-shadow: var(--shadow-sm);
 }
 
 .passCard:hover {
-  border-color: #94a3b8;
+  border-color: var(--border-hover);
   transform: translateY(-4px);
   box-shadow: var(--shadow-md);
 }
@@ -49,7 +52,7 @@
 .passCard.selected {
   border-color: var(--forge-blue);
   background: var(--bg-soft-blue);
-  box-shadow: 0 4px 12px rgba(0, 83, 179, 0.15);
+  box-shadow: 0 4px 12px rgba(7, 90, 170, 0.15);
 }
 
 .passCard.recommended {
@@ -58,16 +61,17 @@
 
 .badge {
   position: absolute;
-  top: -12px;
+  top: -14px;
   left: 50%;
   transform: translateX(-50%);
-  background: var(--forge-blue);
-  color: white;
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
+  background: var(--accent-yellow);
+  color: var(--forge-blue);
+  padding: 6px 16px;
+  border-radius: var(--radius-full);
+  font-size: 13px;
+  font-weight: 700;
   text-transform: uppercase;
+  box-shadow: 0 2px 8px rgba(7, 90, 170, 0.08);
 }
 
 .passCard h3 {
@@ -149,21 +153,24 @@
 
 .btnPrimary {
   padding: 14px 28px;
-  background-color: var(--forge-blue);
-  color: white;
+  background-color: var(--accent-yellow);
+  color: var(--forge-blue);
   border: none;
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-full);
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 8px;
-  transition: background-color 0.2s;
+  transition: all var(--transition-fast);
+  box-shadow: 0 2px 8px rgba(7, 90, 170, 0.08);
 }
 
 .btnPrimary:hover:not(:disabled) {
-  background-color: var(--forge-blue-deep);
+  background-color: var(--accent-yellow-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(7, 90, 170, 0.12);
 }
 
 .btnPrimary:disabled {
