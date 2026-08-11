@@ -51,27 +51,7 @@ const CustomerPass = () => {
           </div>
         </div>
 
-        {/* Route Visualization */}
-        <div className={styles.routeGraphic}>
-          <div className={styles.routeLabels}>
-            <span>KRISHNAGIRI</span>
-            <span>RAYAKOTTAI</span>
-            <span>SHOOLAGIRI</span>
-            <span>HOSUR TOLL</span>
-            <span>HOSUR</span>
-          </div>
-          <div className={styles.routeLine}>
-            <div className={styles.routePoint}></div>
-            <div className={styles.routeSegment}></div>
-            <div className={styles.routePoint}></div>
-            <div className={styles.routeSegment}></div>
-            <div className={styles.routePoint}></div>
-            <div className={styles.routeSegment}></div>
-            <div className={styles.routePoint}></div>
-            <div className={styles.routeSegment}></div>
-            <div className={styles.routePoint}></div>
-          </div>
-        </div>
+
 
         {/* Bottom Section */}
         <div className={styles.cardBottom}>
