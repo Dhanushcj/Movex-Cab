@@ -254,7 +254,10 @@ const AuthScreen = () => {
       <main className={styles.mainLayout}>
         {/* Left Side: Promotional Route Card */}
         <section className={styles.promoSection}>
-          <span className={styles.brandPill}>FORGE INDIA CONNECT</span>
+          <div className={styles.brandPill}>
+            <img src="/logo.png" alt="Forge India Connect" className={styles.brandLogo} />
+            FORGE INDIA CONNECT
+          </div>
           <h1 className={styles.promoTitle}>
             Welcome back.<br />
             <span className={styles.highlight}>Your route</span> is waiting.
