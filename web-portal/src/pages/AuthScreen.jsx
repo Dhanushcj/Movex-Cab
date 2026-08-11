@@ -28,7 +28,7 @@ const customMapStyle = [
 ];
 
 const defaultCenter = { lat: 13.0827, lng: 80.2707 }; // Chennai
-const libraries = ['geometry'];
+const libraries = ['places', 'geometry'];
 const routeColors = ['#0053B3', '#D49F0C', '#10B981', '#EF4444', '#8B5CF6'];
 
 const decodePolyline = (t) => {
