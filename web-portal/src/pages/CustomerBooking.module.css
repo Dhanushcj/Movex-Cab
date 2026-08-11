@@ -106,14 +106,650 @@
   color: #334155;
 }
 
+
+
+
+
+
+
+/* Step Indicator Overhaul */
+.stepIndicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 32px 16px 32px;
+}
+
+.stepItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  opacity: 0.5;
+  transition: all 0.3s ease;
+}
+
+.stepItem.active {
+  opacity: 1;
+}
+
+.stepCircle {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: #e2e8f0;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  transition: all 0.3s ease;
+}
+
+.stepItem.active .stepCircle {
+  background-color: var(--forge-blue);
+  color: white;
+}
+
+.stepItem span {
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b;
+  display: flex;
+  flex-direction: column;
+}
+
+.stepItem span::after {
+  content: "Select path";
+  font-size: 11px;
+  font-weight: 400;
+  color: #94a3b8;
+  margin-top: 2px;
+}
+.stepItem:nth-child(3) span::after {
+  content: "Choose ride";
+}
+.stepItem:nth-child(5) span::after {
+  content: "Review & book";
+}
+
+.stepItem.active span {
+  color: var(--forge-blue);
+}
+.stepItem.active span::after {
+  color: #64748b;
+}
+
+.stepLine {
+  flex: 1;
+  height: 1px;
+  background-color: #e2e8f0;
+  margin: 0 16px;
+  transition: all 0.3s ease;
+}
+
+.stepLine.activeLine {
+  background-color: #94a3b8;
+}
+
+
+.sectionTitleMain {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--forge-blue);
+  margin-top: 16px;
+  margin-bottom: 16px;
+}
+
+.bookingStateCard {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 0;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+}
+
+.locationsSummary {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.locInputWrapper {
+  display: flex;
+  padding: 16px;
+  gap: 16px;
+}
+
+.locInputWrapper:first-child {
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.locDotWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 16px;
+  padding-top: 6px;
+  position: relative;
+}
+
+.locDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--forge-blue);
+}
+
+.locLine {
+  width: 1px;
+  height: 50px;
+  background: #e2e8f0;
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.locDotDrop {
+  width: 10px;
+  height: 10px;
+  background: #ef4444;
+}
+
+.inputArea {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.locLabel {
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.inputField {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.locValueMain {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.useCurrentBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: var(--forge-blue);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.useCurrentBtn:hover {
+  background: #f1f5f9;
+}
+
+.swapBtnWrapper {
+  position: absolute;
+  right: 24px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 5;
+}
+
+.swapBtn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  transition: all 0.2s;
+}
+.swapBtn:hover {
+  background: #f8fafc;
+}
+
+.routeDistanceInfo {
+  background: #ffffff;
+  padding: 12px 16px;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom-left-radius: 16px;
+  border-bottom-right-radius: 16px;
+}
+
+.routePathText {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--forge-blue);
+  background: #eff6ff;
+  padding: 4px 10px;
+  border-radius: 12px;
+}
+
+.routeMeta {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 500;
+}
+.bullet { margin: 0 4px; opacity: 0.5; }
+
+/* Pass Card */
+.passCard {
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 24px;
+}
+
+.passLeft {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.passIcon {
+  width: 44px;
+  height: 44px;
+  background: #ffffff;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(251, 191, 36, 0.2);
+}
+
+.passInfo h4 {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 4px;
+}
+
+.passInfo p {
+  font-size: 13px;
+  color: #475569;
+}
+.strikeThru { text-decoration: line-through; opacity: 0.6; }
+
+.passRight {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.passStatus {
+  background: #ecfdf5;
+  color: #059669;
+  border: 1px solid #34d399;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 4px 8px;
+  border-radius: 20px;
+  letter-spacing: 0.5px;
+}
+
+.viewPassLink {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--forge-blue);
+  text-decoration: none;
+}
+
+/* Vehicle Selection - HORIZONTAL GRID */
+.vehicleGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+
+
+.vehicleCard:hover {
+  border-color: #cbd5e1;
+}
+
+.vehicleCard.selected {
+  border-color: #FBBF24;
+  background: #fffbeb;
+  border-width: 2px;
+  padding: 15px 7px; /* compensate for border width */
+}
+
+.checkIcon {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: #FBBF24;
+  color: white;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vehicleImage {
+  margin-bottom: 12px;
+}
+
+.vehicleInfo h4 {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 4px;
+}
+
+.etaText {
+  font-size: 11px;
+  color: #64748b;
+  margin-bottom: 8px;
+}
+
+.priceRow {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.priceText {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+
+/* Fare Summary */
+.fareSummaryCard {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 0;
+  margin-top: 32px;
+}
+
+.summaryHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.summaryTitle {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--forge-blue);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.summaryBadge {
+  font-size: 12px;
+  font-weight: 600;
+  color: #d97706;
+}
+
+.savingsRow {
+  background: #ecfdf5;
+  color: #059669;
+  border: 1px solid #a7f3d0;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 12px;
+}
+
+.fareGridRow {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  border-top: 1px solid #e2e8f0;
+  padding-top: 20px;
+}
+
+.fareCol, .fareColTotal {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.fareColTotal {
+  border-left: 1px solid #e2e8f0;
+  padding-left: 16px;
+}
+
+.fareLabel {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.fareValue {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.fareValueDiscount {
+  font-size: 16px;
+  font-weight: 700;
+  color: #059669;
+}
+
+.fareLabelTotal {
+  font-size: 12px;
+  color: var(--forge-blue);
+  font-weight: 700;
+}
+
+.fareValueTotal {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--forge-blue);
+}
+
+.actionFooter {
+  margin-top: 24px;
+}
+
+.btnPrimary {
+  width: 100%;
+  padding: 16px;
+  background-color: #FBBF24;
+  color: #1e293b;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btnPrimary:hover:not(:disabled) {
+  background-color: #f59e0b;
+}
+
+
+/* MAP Container & Overlays */
+.mapContainer {
+  flex: 1;
+  position: relative;
+  background: #f1f5f9;
+}
+
+.mapTopOverlay {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  background: #ffffff;
+  padding: 16px 20px;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.overlayRouteText {
+  font-size: 16px;
+  color: var(--forge-blue);
+}
+.overlayRouteText span { color: #94a3b8; margin: 0 4px; }
+.overlayRouteText strong { font-weight: 700; }
+
+.overlayRouteMeta {
+  display: flex;
+  align-items: center;
+  font-size: 13px;
+  color: #64748b;
+  font-weight: 500;
+}
+.metaIcon { display: inline-flex; margin-right: 6px; }
+
+
+.mapBottomOverlay {
+  position: absolute;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ffffff;
+  padding: 16px 24px;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.nearbyTitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--forge-blue);
+}
+
+.nearbyGrid {
+  display: flex;
+  gap: 20px;
+}
+
+.nearbyItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e293b;
+}
+.nIcon { font-size: 16px; }
+
+/* Existing stuff for loading etc */
+.searchingOverlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(255,255,255,0.9);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  backdrop-filter: blur(4px);
+}
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #e2e8f0;
+  border-top-color: var(--forge-blue);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+@keyframes spin { 100% { transform: rotate(360deg); } }
+
+
+
+
+.pageWrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  background: #f8fafc;
+  overflow: hidden;
+}
+
 .bookingSplitWrapper {
   display: flex;
   flex: 1;
   overflow: hidden;
+  height: 100%;
+}
+
+.topHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 24px 32px 0 32px;
+}
+.headerLeft {
+  display: flex;
+  flex-direction: column;
+}
+.headerRight {
+  display: flex;
+  gap: 12px;
+}
+.iconBtn {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+.iconBtn:hover {
+  background: #f1f5f9;
 }
 
 .sidebarPanel {
-  width: 460px;
+  width: 520px;
   background: #ffffff;
   background-image: 
     linear-gradient(to right, rgba(0, 83, 179, 0.02) 1px, transparent 1px),

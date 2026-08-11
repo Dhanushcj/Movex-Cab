@@ -1,4 +1,3 @@
-import os
 import re
 
 jsx_path = r"g:\Dhanush\New folder\Movex-Cab\web-portal\src\pages\CustomerBooking.jsx"
@@ -7,47 +6,42 @@ css_path = r"g:\Dhanush\New folder\Movex-Cab\web-portal\src\pages\CustomerBookin
 with open(jsx_path, "r", encoding="utf-8") as f:
     jsx_content = f.read()
 
-# Make sure we add necessary Lucide icons
+# Add Lucide icons to import
 icons_needed = ["MapPin", "Users", "CheckCircle2", "ChevronRight", "Navigation", "Bell", "User", "Ticket", "Search", "LocateFixed", "Check", "ChevronDown", "ArrowUpDown", "Info"]
-# Let's just find the existing lucide import and replace it
 import_match = re.search(r"import\s+\{([^}]+)\}\s+from\s+'lucide-react';", jsx_content)
 if import_match:
     existing_icons = [i.strip() for i in import_match.group(1).split(',')]
     all_icons = list(set(existing_icons + icons_needed))
     jsx_content = jsx_content.replace(import_match.group(0), f"import {{ {', '.join(all_icons)} }} from 'lucide-react';")
 
-# Find the main return block
-return_start = jsx_content.find("  return (\\n    <div className={styles.bookingWrapper}>")
+return_start = jsx_content.find("  return (\n    <div className={styles.bookingWrapper}>")
 if return_start == -1:
-    return_start = jsx_content.find("  return (\\n    <div")
+    return_start = jsx_content.find("  return (\n    <div")
 
 return_end = jsx_content.rfind(");") + 2
 
 if return_start != -1 and return_end != -1:
     new_return_block = """  return (
     <div className={styles.pageWrapper}>
-      {/* GLOBAL TOP HEADER */}
-      <div className={styles.globalTopHeader}>
-        <div className={styles.headerTitleArea}>
-          <h1 className={styles.mainTitle}>Book a Ride</h1>
-          <p className={styles.subTitle}>Choose your route and ride type</p>
-        </div>
-        <div className={styles.headerProfileArea}>
-          <div className={styles.notificationWrapper}>
-            <Bell size={20} color="#64748b" />
-            <span className={styles.notificationBadge}>3</span>
-          </div>
-          <div className={styles.userProfileBtn}>
-            <div className={styles.userAvatar}>DC</div>
-            <span className={styles.userName}>Dhanush Chakravarthy</span>
-            <ChevronDown size={16} color="#64748b" />
-          </div>
-        </div>
-      </div>
+      {/* GLOBAL TOP HEADER - Removed from here because the global layout already has it! */}
+      {/* Wait, the global layout in the screenshot HAS the top header, but it lacks the secondary title "Book a Ride - Choose your route..." and the notification icon styles. */}
+      {/* Looking at the screenshot, the global layout top nav ONLY has "Book a Ride" on the left, and "DC Dhanush Chakravarthy" on the right. */}
+      {/* Our specific "Book a Ride - Choose your route" is inside the content area. */}
+      {/* Let's wrap our main content in a container that pushes the new header to the top of our content area. */}
 
       <div className={styles.bookingSplitWrapper}>
         {/* LEFT SIDEBAR PANEL */}
         <div className={styles.sidebarPanel}>
+          <div className={styles.topHeader}>
+            <div className={styles.headerLeft}>
+              <h1 className={styles.title}>Book a Ride</h1>
+              <p className={styles.subtitle}>Choose your route and ride type</p>
+            </div>
+            <div className={styles.headerRight}>
+              <button className={styles.iconBtn}><Bell size={20} /></button>
+              <button className={styles.iconBtn}><User size={20} /></button>
+            </div>
+          </div>
           {renderStepIndicator()}
 
           <div className={styles.sidebarContent}>
@@ -64,7 +58,7 @@ if return_start != -1 and return_end != -1:
                   <div className={styles.inputArea}>
                     <span className={styles.locLabel}>Pickup Location</span>
                     <div className={styles.inputField}>
-                      <span className={styles.locValueMain}>{pickupLocation ? pickupLocation.name.split(',')[0] : "Select from map..."}</span>
+                      <span className={styles.locValueMain}>{pickupLocation ? pickupLocation.name.split(',')[0] : "Select from map or search..."}</span>
                       <button className={styles.useCurrentBtn}>
                         <LocateFixed size={14} /> Use current location
                       </button>
@@ -83,7 +77,7 @@ if return_start != -1 and return_end != -1:
                   <div className={styles.inputArea}>
                     <span className={styles.locLabel}>Drop Location</span>
                     <div className={styles.inputField}>
-                      <span className={styles.locValueMain}>{dropLocation ? dropLocation.name.split(',')[0] : "Select from map..."}</span>
+                      <span className={styles.locValueMain}>{dropLocation ? dropLocation.name.split(',')[0] : "Select from map or search..."}</span>
                       <Search size={18} color="#94a3b8" />
                     </div>
                   </div>
@@ -131,7 +125,7 @@ if return_start != -1 and return_end != -1:
                         >
                           {isSelected && <div className={styles.checkIcon}><Check size={12} /></div>}
                           <div className={styles.vehicleImage}>
-                            <Icon size={32} color={isSelected ? "#1e293b" : "#1e293b"} />
+                            <Icon size={32} color={isSelected ? "#1e293b" : "#64748b"} />
                           </div>
                           <div className={styles.vehicleInfo}>
                             <h4>{v.name}</h4>
@@ -349,122 +343,63 @@ if return_start != -1 and return_end != -1:
 with open(jsx_path, "w", encoding="utf-8") as f:
     f.write(jsx_content)
 
-css_complete = """
+# Update CSS
+with open(css_path, "r", encoding="utf-8") as f:
+    css_content = f.read()
+
+# Make sure we add everything that was missed in the old rollback
+css_append = """
+
 .pageWrapper {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 100%;
   width: 100%;
   background: #f8fafc;
   overflow: hidden;
-}
-
-.globalTopHeader {
-  height: 80px;
-  background: #ffffff;
-  border-bottom: 1px solid #e2e8f0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 32px;
-  flex-shrink: 0;
-  z-index: 20;
-}
-
-.headerTitleArea {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.mainTitle {
-  font-size: 22px;
-  font-weight: 700;
-  color: #0f172a;
-  margin: 0;
-}
-
-.subTitle {
-  font-size: 14px;
-  color: #64748b;
-  margin: 0;
-}
-
-.headerProfileArea {
-  display: flex;
-  align-items: center;
-  gap: 24px;
-}
-
-.notificationWrapper {
-  position: relative;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-}
-
-.notificationBadge {
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  background: #FBBF24;
-  color: #1e293b;
-  font-size: 10px;
-  font-weight: 700;
-  width: 16px;
-  height: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  border: 2px solid #ffffff;
-}
-
-.userProfileBtn {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  cursor: pointer;
-  padding: 6px 12px;
-  border-radius: 20px;
-  transition: background 0.2s;
-}
-
-.userProfileBtn:hover {
-  background: #f1f5f9;
-}
-
-.userAvatar {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: #eff6ff;
-  color: var(--forge-blue);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 14px;
-}
-
-.userName {
-  font-size: 14px;
-  font-weight: 600;
-  color: #334155;
 }
 
 .bookingSplitWrapper {
   display: flex;
   flex: 1;
   overflow: hidden;
+  height: 100%;
+}
+
+.topHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 24px 32px 0 32px;
+}
+.headerLeft {
+  display: flex;
+  flex-direction: column;
+}
+.headerRight {
+  display: flex;
+  gap: 12px;
+}
+.iconBtn {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+.iconBtn:hover {
+  background: #f1f5f9;
 }
 
 .sidebarPanel {
-  width: 460px;
+  width: 520px;
   background: #ffffff;
   background-image: 
     linear-gradient(to right, rgba(0, 83, 179, 0.02) 1px, transparent 1px),
@@ -1084,7 +1019,16 @@ css_complete = """
 
 """
 
-with open(css_path, "w", encoding="utf-8") as f:
-    f.write(css_complete)
+# Remove old classes that are totally overwritten to ensure no style bleed
+css_content = re.sub(r"\.sidebarPanel\s*\{[^}]*\}", "", css_content)
+css_content = re.sub(r"\.vehicleCard\s*\{[^}]*\}", "", css_content)
+css_content = re.sub(r"\.bookingSplitWrapper\s*\{[^}]*\}", "", css_content)
+css_content = re.sub(r"\.topHeader\s*\{[^}]*\}", "", css_content)
+css_content = re.sub(r"\.sidebarContent\s*\{[^}]*\}", "", css_content)
 
-print("UI successfully rebuilt!")
+css_content += "\n" + css_append
+
+with open(css_path, "w", encoding="utf-8") as f:
+    f.write(css_content)
+
+print("Applied new layout successfully")
