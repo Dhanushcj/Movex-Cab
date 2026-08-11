@@ -6,21 +6,7 @@
   overflow: hidden;
 }
 
-.sidebarPanel {
-  width: 400px;
-  background-color: #ffffff;
-  background-image: 
-    linear-gradient(to right, rgba(0, 83, 179, 0.03) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(0, 83, 179, 0.03) 1px, transparent 1px);
-  background-size: 20px 20px;
-  border-right: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  z-index: 10;
-  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.04);
-  overflow-y: auto;
-  padding: 24px;
-}
+
 
 .panelHeader {
   margin-bottom: 24px;
@@ -189,27 +175,11 @@
   gap: 12px;
 }
 
-.vehicleCard {
-  display: flex;
-  align-items: center;
-  padding: 16px;
-  border: 2px solid transparent;
-  border-radius: 16px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  background: #ffffff;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-}
 
-.vehicleCard:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.06);
-}
 
-.vehicleCard.selected {
-  border-color: #FBBF24;
-  background: #FFFBEB;
-}
+
+
+
 
 .vehicleImage {
   width: 48px;
@@ -243,40 +213,16 @@
   color: var(--text-muted);
 }
 
-.vehiclePrice {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin-left: auto;
-}
+
 
 .actionFooter {
   margin-top: auto;
   padding-top: 16px;
 }
 
-.btnPrimary {
-  width: 100%;
-  padding: 16px;
-  background-color: #FBBF24;
-  color: #1E293B;
-  border: none;
-  border-radius: 12px;
-  font-size: 16px;
-  font-weight: 700;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  transition: all var(--transition-fast);
-  box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
-}
 
-.btnPrimary:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(251, 191, 36, 0.4);
-}
+
+
 
 .btnPrimary:disabled {
   opacity: 0.7;
@@ -329,7 +275,39 @@
   position: relative;
 }
 
-/* New Styles for Overhaul */
+@media (max-width: 1024px) {
+  .bookingWrapper {
+    flex-direction: column;
+  }
+  
+  
+
+  .mapContainer {
+    height: 50vh;
+    order: 1;
+  }
+}
+
+
+
+/* Sidebar Panel Overhaul */
+.sidebarPanel {
+  width: 400px;
+  background-color: #ffffff;
+  background-image: 
+    linear-gradient(to right, rgba(0, 83, 179, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 83, 179, 0.03) 1px, transparent 1px);
+  background-size: 20px 20px;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  z-index: 10;
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.04);
+  overflow-y: auto;
+  padding: 24px;
+}
+
+/* Step Indicator Overhaul */
 .sidebarContent {
   flex: 1;
   display: flex;
@@ -400,137 +378,6 @@
 .stepLine.activeLine {
   background-color: var(--forge-blue);
 }
-
-.locDisplay {
-  background: var(--bg-secondary);
-  padding: 8px 12px;
-  border-radius: var(--radius-md);
-  font-size: 13px;
-  color: var(--text-primary);
-  border: 1px solid var(--border);
-}
-
-.fareSummaryCard {
-  background: #ffffff;
-  border-radius: 16px;
-  padding: 20px;
-  margin-top: 24px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-  border: 1px solid var(--border);
-}
-
-.passAlert {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: linear-gradient(135deg, #10B981 0%, #059669 100%);
-  padding: 12px 16px;
-  border-radius: 12px;
-  margin-bottom: 20px;
-  color: white;
-}
-
-.passBadge {
-  font-weight: 700;
-  font-size: 14px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.passBadge::before {
-  content: '✨';
-}
-
-.passSavings {
-  font-weight: 700;
-  font-size: 14px;
-  background: rgba(255,255,255,0.2);
-  padding: 4px 10px;
-  border-radius: 20px;
-}
-
-.fareDetailsList {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.fareRow {
-  display: flex;
-  justify-content: space-between;
-  font-size: 14px;
-  color: var(--text-muted);
-}
-
-.fareRow span:last-child {
-  color: var(--text-primary);
-  font-weight: 600;
-}
-
-.discountText {
-  color: #10B981 !important;
-}
-
-.fareDivider {
-  height: 1px;
-  background: var(--border);
-  margin: 4px 0;
-}
-
-.fareTotalRow {
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
-.fareTotalRow span:last-child {
-  font-size: 24px;
-  color: var(--forge-blue);
-}
-
-.mapFloatingOverlay {
-  position: absolute;
-  top: 24px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #ffffff;
-  padding: 12px 24px;
-  border-radius: 30px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-  z-index: 10;
-  border: 2px solid #FBBF24;
-}
-
-.overlayText {
-  font-size: 15px;
-  color: var(--text-primary);
-}
-
-.overlayText strong {
-  color: var(--forge-blue);
-  font-size: 18px;
-}
-
-@media (max-width: 1024px) {
-  .bookingWrapper {
-    flex-direction: column;
-  }
-  
-  .sidebarPanel {
-    width: 100%;
-    height: 50vh;
-    border-right: none;
-    border-top: 1px solid var(--border);
-    order: 2;
-  }
-
-  .mapContainer {
-    height: 50vh;
-    order: 1;
-  }
-}
-
 
 .topHeader {
   display: flex;
@@ -727,4 +574,79 @@
   color: var(--text-primary);
   z-index: 10;
   border: 1px solid var(--border);
+}
+
+.vehicleCard {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  border: 2px solid transparent;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: #ffffff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+}
+
+.vehicleCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+}
+
+.vehicleCard.selected {
+  border-color: #FBBF24;
+  background: #FFFBEB;
+}
+
+.vehiclePrice {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-left: auto;
+}
+
+.btnPrimary {
+  width: 100%;
+  padding: 16px;
+  background-color: #FBBF24;
+  color: #1E293B;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all var(--transition-fast);
+  box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
+}
+
+.btnPrimary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(251, 191, 36, 0.4);
+}
+
+.mapFloatingOverlay {
+  position: absolute;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ffffff;
+  padding: 12px 24px;
+  border-radius: 30px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+  z-index: 10;
+  border: 2px solid #FBBF24;
+}
+
+.overlayText {
+  font-size: 15px;
+  color: var(--text-primary);
+}
+
+.overlayText strong {
+  color: var(--forge-blue);
+  font-size: 18px;
 }
