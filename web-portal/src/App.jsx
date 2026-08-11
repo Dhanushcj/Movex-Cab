@@ -10,6 +10,7 @@ import CustomerHistory from './pages/CustomerHistory';
 import CustomerProfile from './pages/CustomerProfile';
 import CustomerTracking from './pages/CustomerTracking';
 import CustomerPass from './pages/CustomerPass';
+import CustomerSettings from './pages/CustomerSettings';
 
 import DriverLayout from './components/DriverLayout';
 import DriverDashboard from './pages/DriverDashboard';
@@ -35,10 +36,8 @@ function App() {
           <Route path="tracking/:id" element={<CustomerTracking />} />
           <Route path="history" element={<CustomerHistory />} />
           <Route path="profile" element={<CustomerProfile />} />
-          <Route path="scheduled" element={<div style={{padding: '32px'}}><h2>Scheduled Rides</h2><p className="text-muted">Coming soon.</p></div>} />
-          <Route path="payments" element={<div style={{padding: '32px'}}><h2>Payments</h2><p className="text-muted">Coming soon.</p></div>} />
           <Route path="notifications" element={<div style={{padding: '32px'}}><h2>Notifications</h2><p className="text-muted">Coming soon.</p></div>} />
-          <Route path="settings" element={<div style={{padding: '32px'}}><h2>Settings</h2><p className="text-muted">Coming soon.</p></div>} />
+          <Route path="settings" element={<CustomerSettings />} />
           <Route path="support" element={<div style={{padding: '32px'}}><h2>Help & Support</h2><p className="text-muted">Coming soon.</p></div>} />
         </Route>
 

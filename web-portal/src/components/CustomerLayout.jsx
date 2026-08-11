@@ -19,11 +19,9 @@ const CustomerLayout = () => {
     { type: 'link', name: 'Dashboard', path: '/customer/dashboard', icon: Home },
     { type: 'link', name: 'Book a Ride', path: '/customer/book', icon: MapPin },
     { type: 'link', name: 'My Rides', path: '/customer/history', icon: Clock },
-    { type: 'link', name: 'Scheduled Rides', path: '/customer/scheduled', icon: CalendarClock },
     
     { type: 'header', name: 'SERVICES' },
     { type: 'link', name: 'Passes', path: '/customer/passes', icon: CreditCard },
-    { type: 'link', name: 'Payments', path: '/customer/payments', icon: Wallet },
     { type: 'link', name: 'Notifications', path: '/customer/notifications', icon: Bell },
     
     { type: 'header', name: 'ACCOUNT' },
