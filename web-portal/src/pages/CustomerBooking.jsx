@@ -409,10 +409,6 @@ const CustomerBooking = () => {
                           <div className={styles.vehicleInfo}>
                             <h4>{v.name}</h4>
                             <p className={styles.etaText}>{v.time} away</p>
-                            <div className={styles.priceRow}>
-                              <span className={styles.priceText}>₹{v.baseFare}.00</span>
-                              <Info size={14} color="#94a3b8" />
-                            </div>
                           </div>
                         </div>
                       )
