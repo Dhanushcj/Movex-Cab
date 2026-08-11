@@ -1,7 +1,7 @@
 import React, { useState, useContext, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { GoogleMap, useJsApiLoader, Marker, Polyline } from '@react-google-maps/api';
-import { MapIcon, MapPin, Navigation, Power, CheckCircle2 } from 'lucide-react';
+import { Power, MapPin, Navigation, Clock, CheckCircle2, Navigation2, FileText, LifeBuoy, History, Zap } from 'lucide-react';
 import { SocketContext } from '../context/SocketContext';
 import { AuthContext } from '../context/AuthContext';
 import API from '../services/api';
@@ -42,6 +42,14 @@ const DriverDashboard = () => {
   const [assignedRoute, setAssignedRoute] = useState(null);
   const [driverLocation, setDriverLocation] = useState(center);
   const mapRef = useRef(null);
+  
+  // Mock operational stats for the layout
+  const opStats = {
+    tripsToday: 4,
+    onlineTime: "3h 45m",
+    acceptance: "92%",
+    completedRides: 124
+  };
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -51,7 +59,6 @@ const DriverDashboard = () => {
           setDriverLocation(loc);
           if (isOnline) {
              socket?.emit('driver:location', { driverId: user?._id, location: loc });
-             // Optionally update DB
              API.put('/drivers/status', { location: { type: 'Point', coordinates: [loc.lng, loc.lat] } }).catch(console.error);
           }
         },
@@ -76,10 +83,8 @@ const DriverDashboard = () => {
           const driverData = driverRes.data.data;
           setIsOnline(driverData.isAvailable);
           
-          // assignedRoute is already populated by getMe as a full object
           const route = driverData.assignedRoute;
           if (route && typeof route === 'object' && route._id) {
-            // Fetch the full route with populated junctions
             try {
               const routeRes = await API.get('/route-manager/routes');
               if (routeRes.data.success) {
@@ -98,13 +103,10 @@ const DriverDashboard = () => {
                 }
               }
             } catch (routeErr) {
-              // Fallback: use the route from getMe directly
-              console.warn('Could not fetch full routes, using inline data:', routeErr);
               route.decodedPolyline = route.polyline ? decodePolyline(route.polyline) : [];
               setAssignedRoute(route);
             }
           } else if (route && typeof route === 'string') {
-            // assignedRoute came as just an ID string (not populated)
             try {
               const routesRes = await API.get('/route-manager/routes');
               if (routesRes.data.success) {
@@ -129,13 +131,8 @@ const DriverDashboard = () => {
   useEffect(() => {
     if (!socket) return;
 
-    const handleIncoming = (data) => {
-      setIncomingRide(data);
-    };
-
-    const handleCancelled = () => {
-      setIncomingRide(null);
-    };
+    const handleIncoming = (data) => setIncomingRide(data);
+    const handleCancelled = () => setIncomingRide(null);
 
     const handleRouteAssigned = (data) => {
       if (data.route) {
@@ -161,7 +158,7 @@ const DriverDashboard = () => {
   const toggleOnline = async () => {
     try {
       const newStatus = !isOnline;
-      await API.put('/drivers/status', { isAvailable: newStatus, location: { type: 'Point', coordinates: [80.2707, 13.0827] } });
+      await API.put('/drivers/status', { isAvailable: newStatus, location: { type: 'Point', coordinates: [driverLocation.lng, driverLocation.lat] } });
       setIsOnline(newStatus);
     } catch (e) {
       console.error(e);
@@ -204,103 +201,107 @@ const DriverDashboard = () => {
       {/* Background Map - Full Bleed */}
       <div className={styles.mapPanel}>
         {isLoaded ? (
-          <div className={`${isOnline ? styles.mapOnline : styles.mapOffline}`} style={{ height: '100%', width: '100%' }}>
-            <GoogleMap
-              mapContainerStyle={{ width: '100%', height: '100%' }}
-              center={driverLocation}
-              zoom={13}
-              options={{ 
-                disableDefaultUI: true, 
-                zoomControl: true,
-                styles: [
-                  { "elementType": "geometry", "stylers": [{ "color": "#f5f5f5" }] },
-                  { "elementType": "labels.icon", "stylers": [{ "visibility": "off" }] },
-                  { "elementType": "labels.text.fill", "stylers": [{ "color": "#616161" }] },
-                  { "elementType": "labels.text.stroke", "stylers": [{ "color": "#f5f5f5" }] },
-                  { "featureType": "road", "elementType": "geometry", "stylers": [{ "color": "#ffffff" }] },
-                  { "featureType": "road.arterial", "elementType": "labels.text.fill", "stylers": [{ "color": "#757575" }] },
-                  { "featureType": "road.highway", "elementType": "geometry", "stylers": [{ "color": "#dadada" }] },
-                  { "featureType": "road.highway", "elementType": "labels.text.fill", "stylers": [{ "color": "#616161" }] },
-                  { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#c9c9c9" }] },
-                ],
-              }}
-              onLoad={map => {
-                mapRef.current = map;
-                if (assignedRoute?.decodedPolyline?.length > 0) {
-                  const bounds = new window.google.maps.LatLngBounds();
-                  assignedRoute.decodedPolyline.forEach(coord => {
-                    bounds.extend(new window.google.maps.LatLng(coord.lat, coord.lng));
-                  });
-                  map.fitBounds(bounds);
-                }
-              }}
-            >
-              {/* Driver Location Marker */}
-              <Marker 
-                position={driverLocation} 
-                icon={{ 
-                  path: window.google.maps.SymbolPath.CIRCLE, 
-                  scale: 8, 
-                  fillColor: isOnline ? '#075AAA' : '#94A3B8', 
-                  fillOpacity: 1, 
-                  strokeWeight: 3, 
-                  strokeColor: '#FFFFFF' 
-                }} 
-              />
+          <GoogleMap
+            mapContainerStyle={{ width: '100%', height: '100%' }}
+            center={driverLocation}
+            zoom={13}
+            options={{ 
+              disableDefaultUI: true, 
+              zoomControl: false,
+              styles: [
+                { "elementType": "geometry", "stylers": [{ "color": "#f8fafc" }] },
+                { "elementType": "labels.icon", "stylers": [{ "visibility": "off" }] },
+                { "elementType": "labels.text.fill", "stylers": [{ "color": "#64748b" }] },
+                { "elementType": "labels.text.stroke", "stylers": [{ "color": "#f8fafc" }] },
+                { "featureType": "road", "elementType": "geometry", "stylers": [{ "color": "#ffffff" }] },
+                { "featureType": "road.arterial", "elementType": "labels.text.fill", "stylers": [{ "color": "#94a3b8" }] },
+                { "featureType": "road.highway", "elementType": "geometry", "stylers": [{ "color": "#e2e8f0" }] },
+                { "featureType": "road.highway", "elementType": "labels.text.fill", "stylers": [{ "color": "#64748b" }] },
+                { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#bae6fd" }] },
+              ],
+            }}
+            onLoad={map => {
+              mapRef.current = map;
+              if (assignedRoute?.decodedPolyline?.length > 0) {
+                const bounds = new window.google.maps.LatLngBounds();
+                assignedRoute.decodedPolyline.forEach(coord => {
+                  bounds.extend(new window.google.maps.LatLng(coord.lat, coord.lng));
+                });
+                map.fitBounds(bounds);
+              }
+            }}
+          >
+            {/* Driver Location Marker */}
+            <Marker 
+              position={driverLocation} 
+              icon={{ 
+                path: window.google.maps.SymbolPath.CIRCLE, 
+                scale: 8, 
+                fillColor: isOnline ? '#075AAA' : '#94A3B8', 
+                fillOpacity: 1, 
+                strokeWeight: 3, 
+                strokeColor: '#FFFFFF' 
+              }} 
+            />
 
-              {/* Assigned Route Polyline */}
-              {assignedRoute && assignedRoute.decodedPolyline && (
-                <Polyline
-                  path={assignedRoute.decodedPolyline}
-                  options={{
-                    strokeColor: isOnline ? '#075AAA' : '#94A3B8',
-                    strokeOpacity: 0.8,
-                    strokeWeight: 6,
-                  }}
-                />
-              )}
-              
-              {/* Stops/Junctions */}
-              {assignedRoute && assignedRoute.junctions?.map(j => (
-                <Marker 
-                  key={j._id}
-                  position={{ lat: j.location.coordinates[1], lng: j.location.coordinates[0] }}
-                  icon={{
-                    path: window.google.maps.SymbolPath.CIRCLE,
-                    fillColor: '#FFFFFF',
-                    fillOpacity: 1,
-                    strokeColor: isOnline ? '#075AAA' : '#94A3B8',
-                    strokeWeight: 3,
-                    scale: 5
-                  }}
-                />
-              ))}
-            </GoogleMap>
-          </div>
+            {/* Assigned Route Polyline */}
+            {assignedRoute && assignedRoute.decodedPolyline && (
+              <Polyline
+                path={assignedRoute.decodedPolyline}
+                options={{
+                  strokeColor: '#E8C84A', // Forge Yellow for route
+                  strokeOpacity: 0.9,
+                  strokeWeight: 6,
+                }}
+              />
+            )}
+            
+            {/* Stops/Junctions */}
+            {assignedRoute && assignedRoute.junctions?.map(j => (
+              <Marker 
+                key={j._id}
+                position={{ lat: j.location.coordinates[1], lng: j.location.coordinates[0] }}
+                icon={{
+                  path: window.google.maps.SymbolPath.CIRCLE,
+                  fillColor: '#FFFFFF',
+                  fillOpacity: 1,
+                  strokeColor: '#075AAA',
+                  strokeWeight: 4,
+                  scale: 6
+                }}
+              />
+            ))}
+          </GoogleMap>
         ) : (
-          <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F1F5F9' }}>
-            <span style={{ color: '#94A3B8', fontWeight: 600 }}>Loading Map Environment...</span>
+          <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F8FAFC' }}>
+            <span style={{ color: '#94A3B8', fontWeight: 600 }}>Initializing Live Map...</span>
           </div>
         )}
       </div>
 
-      {/* Floating Action Panel - Glassmorphism UI */}
-      <div className={styles.floatingPanel}>
-        <div className={styles.panelHeader}>
-          <h2 className={styles.title}>Dashboard</h2>
-          <div className={`${styles.statusIndicator} ${isOnline ? styles.statusOnline : styles.statusOffline}`}>
-            <div className={isOnline ? styles.pulseDot : styles.staticDot}></div>
-            {isOnline ? 'Online' : 'Offline'}
+      {/* 1. Floating Driver Status Panel */}
+      <div className={`${styles.glassPanel} ${styles.statusPanel}`}>
+        <div className={styles.statusHeader}>
+          <div className={isOnline ? styles.statusDot : styles.statusOfflineDot}></div>
+          <h2 className={styles.statusTitle}>{isOnline ? 'Online' : 'Offline'}</h2>
+        </div>
+        <div className={styles.statusSubtitle}>
+          {isOnline ? 'Available for ride requests' : 'Currently not receiving requests'}
+        </div>
+
+        <div className={styles.detailRow}>
+          <div className={styles.detailIcon}><Navigation2 size={16} /></div>
+          <div className={styles.detailInfo}>
+            <span className={styles.detailLabel}>Assigned Corridor</span>
+            <span className={styles.detailValue}>{assignedRoute ? assignedRoute.name : 'No route assigned'}</span>
           </div>
         </div>
 
-        <div className={styles.routeCard}>
-          <div className={styles.routeLabel}>Assigned Corridor</div>
-          <div className={styles.routeValue}>
-            <div className={styles.iconBox}>
-              <MapIcon size={18} />
-            </div>
-            {assignedRoute ? assignedRoute.name : 'No route assigned'}
+        <div className={styles.detailRow}>
+          <div className={styles.detailIcon}><MapPin size={16} /></div>
+          <div className={styles.detailInfo}>
+            <span className={styles.detailLabel}>Current Location</span>
+            <span className={styles.detailValue}>Live Tracking Active</span>
           </div>
         </div>
 
@@ -308,39 +309,103 @@ const DriverDashboard = () => {
           className={`${styles.toggleBtn} ${isOnline ? styles.btnGoOffline : styles.btnGoOnline}`}
           onClick={toggleOnline}
         >
-          <Power size={18} />
+          <Power size={16} />
           {isOnline ? 'GO OFFLINE' : 'GO ONLINE'}
         </button>
       </div>
 
-      {/* Incoming Request Floating Card */}
+      {/* 2. Today's Operational Stats */}
+      <div className={`${styles.glassPanel} ${styles.statsPanel}`}>
+        <h3 className={styles.panelTitle}><Zap size={16} color="var(--forge-yellow)" /> Operational Stats</h3>
+        
+        <div className={styles.statsGrid}>
+          <div className={styles.statItem}>
+            <span className={styles.statValue}>{opStats.tripsToday}</span>
+            <span className={styles.statLabel}>TRIPS TODAY</span>
+          </div>
+          <div className={styles.statItem}>
+            <span className={styles.statValue}>{opStats.onlineTime}</span>
+            <span className={styles.statLabel}>ONLINE TIME</span>
+          </div>
+          <div className={styles.statItem}>
+            <span className={styles.statValue}>{opStats.acceptance}</span>
+            <span className={styles.statLabel}>ACCEPTANCE</span>
+          </div>
+          <div className={styles.statItem}>
+            <span className={styles.statValue}>{opStats.completedRides}</span>
+            <span className={styles.statLabel}>COMPLETED</span>
+          </div>
+        </div>
+      </div>
+
+      {/* 3. Quick Actions */}
+      <div className={styles.quickActionsPanel}>
+        <button className={styles.actionBtn} onClick={() => navigate('/driver/trip')}>
+          <Navigation size={18} />
+          Active Trip
+        </button>
+        <button className={styles.actionBtn} onClick={() => navigate('/driver/history')}>
+          <History size={18} />
+          History
+        </button>
+        <button className={styles.actionBtn} onClick={() => navigate('/driver/documents')}>
+          <FileText size={18} />
+          Documents
+        </button>
+        <button className={styles.actionBtn} onClick={() => navigate('/driver/support')}>
+          <LifeBuoy size={18} />
+          Support
+        </button>
+      </div>
+
+      {/* 4. Ride Request Overlay */}
       {incomingRide && (
         <div className={styles.requestOverlay}>
           <div className={styles.requestCard}>
-            <div className={styles.requestHeader}>
-              <h3 className={styles.requestTitle}>New Ride Request</h3>
-              <p className={styles.requestSubtitle}>Passenger is waiting near your route</p>
+            <div className={styles.reqHeader}>
+              <div className={styles.reqPulse}>
+                <Zap size={24} color="var(--forge-yellow)" />
+              </div>
+              <h3 className={styles.reqTitle}>New Ride Request</h3>
+              <p className={styles.reqSubtitle}>Passenger is waiting near your route</p>
             </div>
             
-            <div className={styles.routeTimeline}>
-              <div className={styles.routeLine}></div>
-              
-              <div className={styles.timelineItem}>
-                <div className={`${styles.timelineDot} ${styles.dotPickup}`}></div>
-                <p className={styles.locationText}>{incomingRide.pickup?.address}</p>
-                <span style={{ fontSize: '12px', color: '#64748B' }}>Pickup • {incomingRide.distanceToPickup} km away</span>
+            <div className={styles.reqBody}>
+              <div className={styles.reqTimeline}>
+                <div className={styles.reqLine}></div>
+                
+                <div className={styles.reqStop}>
+                  <div className={`${styles.reqDot} ${styles.dotPickup}`}></div>
+                  <div>
+                    <p className={styles.reqLocText}>{incomingRide.pickup?.address}</p>
+                    <span className={styles.reqLocMeta}>Pickup • {incomingRide.distanceToPickup} km away</span>
+                  </div>
+                </div>
+                
+                <div className={styles.reqStop}>
+                  <div className={`${styles.reqDot} ${styles.dotDrop}`}></div>
+                  <div>
+                    <p className={styles.reqLocText}>{incomingRide.drop?.address}</p>
+                    <span className={styles.reqLocMeta}>Dropoff</span>
+                  </div>
+                </div>
               </div>
-              
-              <div className={styles.timelineItem}>
-                <div className={`${styles.timelineDot} ${styles.dotDrop}`}></div>
-                <p className={styles.locationText}>{incomingRide.drop?.address}</p>
-                <span style={{ fontSize: '12px', color: '#64748B' }}>Dropoff</span>
-              </div>
-            </div>
 
-            <div className={styles.actionGrid}>
-              <button className={styles.btnReject} onClick={rejectRide}>Decline</button>
-              <button className={styles.btnAccept} onClick={acceptRide}>Accept Ride</button>
+              <div className={styles.reqStatsRow}>
+                <div className={styles.reqStat}>
+                  <div className={styles.reqStatValue}>Est. {Math.round(incomingRide.distanceToPickup * 3)} min</div>
+                  <div className={styles.reqStatLabel}>TO PICKUP</div>
+                </div>
+                <div className={styles.reqStat}>
+                  <div className={styles.reqStatValue}>4.9 ★</div>
+                  <div className={styles.reqStatLabel}>PASSENGER</div>
+                </div>
+              </div>
+
+              <div className={styles.reqActions}>
+                <button className={styles.btnDecline} onClick={rejectRide}>Decline</button>
+                <button className={styles.btnAccept} onClick={acceptRide}>Accept Ride</button>
+              </div>
             </div>
           </div>
         </div>
