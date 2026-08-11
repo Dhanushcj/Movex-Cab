@@ -27,6 +27,31 @@
   }
 }
 
+.homeButton {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--bg-white);
+  border: 1px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 50;
+  box-shadow: var(--shadow-sm);
+}
+
+.homeButton:hover {
+  background: var(--bg-soft-blue);
+  color: var(--forge-blue);
+  border-color: var(--forge-blue);
+}
+
 .mainLayout {
   display: flex;
   flex: 1;
@@ -516,6 +541,13 @@
   .mainLayout {
     padding: 16px;
     justify-content: center;
+  }
+  
+  .homeButton {
+    top: 16px;
+    left: 16px;
+    width: 40px;
+    height: 40px;
   }
   
   .promoSection {

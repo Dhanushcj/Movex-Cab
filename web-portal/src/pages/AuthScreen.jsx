@@ -1,7 +1,7 @@
 import React, { useState, useContext, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
-import { Mail, Lock, Eye, EyeOff, User, Phone, ArrowRight } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, User, Phone, ArrowRight, Home } from 'lucide-react';
 import { GoogleMap, useJsApiLoader, Polyline, Marker } from '@react-google-maps/api';
 import API from '../services/api';
 import styles from './Auth.module.css';
@@ -251,6 +251,13 @@ const AuthScreen = () => {
 
   return (
     <div className={styles.authPageContainer}>
+      <button 
+        onClick={() => navigate('/')}
+        className={styles.homeButton}
+        title="Return to Home"
+      >
+        <Home size={20} />
+      </button>
       
       <main className={styles.mainLayout}>
         {/* Left Side: Promotional Route Card */}
