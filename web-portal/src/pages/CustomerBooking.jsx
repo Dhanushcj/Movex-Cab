@@ -281,6 +281,25 @@ const CustomerBooking = () => {
     setDropLocation(null);
   };
 
+  const renderStepIndicator = () => (
+    <div className={styles.stepIndicator}>
+      <div className={`${styles.stepItem} ${styles.active}`}>
+        <div className={styles.stepCircle}>1</div>
+        <span>Route</span>
+      </div>
+      <div className={`${styles.stepLine} ${pickupLocation && dropLocation ? styles.activeLine : ''}`}></div>
+      <div className={`${styles.stepItem} ${pickupLocation && dropLocation ? styles.active : ''}`}>
+        <div className={styles.stepCircle}>2</div>
+        <span>Vehicle</span>
+      </div>
+      <div className={`${styles.stepLine} ${selectedVehicle && pickupLocation && dropLocation ? styles.activeLine : ''}`}></div>
+      <div className={`${styles.stepItem} ${selectedVehicle && pickupLocation && dropLocation ? styles.active : ''}`}>
+        <div className={styles.stepCircle}>3</div>
+        <span>Confirm</span>
+      </div>
+    </div>
+  );
+
   return (
     <div className={styles.bookingWrapper}>
       
