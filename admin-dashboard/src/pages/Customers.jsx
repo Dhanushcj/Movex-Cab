@@ -89,7 +89,7 @@ const Customers = () => {
               <tr key={customer._id}>
                 <td>
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center font-bold text-indigo-400">
+                    <div className="w-10 h-10 rounded-full bg-[var(--bg-soft-blue)] flex items-center justify-center font-bold text-[var(--accent-color)] border border-[var(--border-light)]">
                       {customer.name[0]}
                     </div>
                     <div>

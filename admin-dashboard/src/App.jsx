@@ -25,7 +25,18 @@ function App() {
   useEffect(() => {
     const token = localStorage.getItem('adminToken');
     if (token) {
-      setIsAuthenticated(true);
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        if (payload.role === 'admin') {
+          setIsAuthenticated(true);
+        } else {
+          localStorage.removeItem('adminToken');
+          localStorage.removeItem('refreshToken');
+        }
+      } catch (e) {
+        localStorage.removeItem('adminToken');
+        localStorage.removeItem('refreshToken');
+      }
     }
     setChecking(false);
   }, []);

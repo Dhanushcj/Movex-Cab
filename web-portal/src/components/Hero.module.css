@@ -246,6 +246,14 @@
   flex-shrink: 0;
 }
 
+.arrowDesktop {
+  display: block;
+}
+
+.arrowMobile {
+  display: none;
+}
+
 .valueStepCardYellow {
   flex: 1.1;
   display: flex;
@@ -310,6 +318,7 @@
   padding-top: 1rem;
   border-top: 1px solid var(--border-light);
   width: 100%;
+  flex-wrap: wrap;
 }
 
 .trustItem {

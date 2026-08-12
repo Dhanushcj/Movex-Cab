@@ -1,46 +1,80 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@400;500;600;700;800&display=swap');
 
 @import "tailwindcss";
 
+@theme {
+  --color-forge-blue: #075AAA;
+  --color-forge-blue-deep: #064A91;
+  --color-forge-blue-dark: #054483;
+  --color-text-blue: #163F68;
+  --color-text-muted: #5F7892;
+  --color-bg-soft-blue: #EAF3FB;
+  --color-border-light: #D9E5F0;
+  --color-border-hover: #B8D2E8;
+
+  --color-accent-yellow: #E8C84A;
+  --color-accent-yellow-hover: #DDBB38;
+  --color-soft-yellow: #FFF6D6;
+
+  --color-bg-section-alt: #F7FAFD;
+  --color-text-primary: #163F68;
+
+  --font-sans: 'Inter', sans-serif;
+  --font-poppins: 'Poppins', sans-serif;
+  
+  --shadow-sm: 0 2px 8px rgba(7, 90, 170, 0.04);
+  --shadow-md: 0 8px 25px rgba(7, 90, 170, 0.06);
+  --shadow-lg: 0 12px 32px rgba(7, 90, 170, 0.08);
+}
+
 :root {
-  font-family: 'Outfit', sans-serif;
-  line-height: 1.5;
+  font-family: 'Inter', sans-serif;
+  line-height: 1.6;
   font-weight: 400;
 
   color-scheme: light;
-  color: #262D36;
-  background-color: #F3F4F6;
+  color: var(--color-text-primary);
+  background-color: #F7FAFD;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  --bg-primary: #F3F4F6;
+  --bg-primary: #F7FAFD;
   --bg-secondary: #FFFFFF;
-  --bg-tertiary: #F8F9FA;
-  --accent-color: #0053B3;
-  --accent-glow: rgba(0, 83, 179, 0.15);
+  --accent-color: #075AAA;
+  --accent-glow: #EAF3FB;
   
-  --success: #00C896; 
-  --warning: #FED101; 
-  --danger: #F71313; 
-  --text-primary: #111827;
-  --text-muted: #6B7280;
+  --success: #10B981; 
+  --warning: #E8C84A; 
+  --danger: #EF4444; 
+  --text-primary: #163F68;
+  --text-muted: #5F7892;
   
-  --border-glass: #E5E7EB;
-  --bg-glass: #FFFFFF;
+  --border-glass: #D9E5F0;
   --radius-lg: 16px;
   --radius-md: 12px;
   --radius-sm: 8px;
+}
+
+html {
+  font-size: 14px;
 }
 
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background: #F3F4F6;
+  background: var(--bg-primary);
   overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
 }
 
 * {
@@ -49,17 +83,18 @@ body {
   scrollbar-color: #CBD5E1 transparent;
 }
 
-/* Glassmorphic card styling */
+/* Glassmorphic card styling (Matching .white-card from Web Portal) */
 .glass-card {
-  background: var(--bg-secondary);
+  background: #FFFFFF;
   border: 1px solid var(--border-glass);
   border-radius: var(--radius-lg);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  box-shadow: 0 8px 25px rgba(7, 90, 170, 0.06);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .glass-card:hover {
-  border-color: #D1D5DB;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  transform: translateY(-3px);
+  border-color: #B8D2E8;
 }
 
 /* Input Fields */
@@ -67,12 +102,12 @@ body {
   background: #FFFFFF;
   border: 1px solid var(--border-glass);
   border-radius: var(--radius-md);
-  color: #262D36;
+  color: var(--text-primary);
   padding: 12px 16px;
   font-size: 0.95rem;
   transition: all 0.2s;
   outline: none;
-  font-family: inherit;
+  font-family: 'Inter', sans-serif;
 }
 
 .glass-input:focus {
@@ -80,44 +115,53 @@ body {
   box-shadow: 0 0 0 3px var(--accent-glow);
 }
 
-/* Custom premium buttons */
+/* Custom premium buttons matching web-portal .btn-yellow */
 .btn-primary {
-  background: var(--accent-color);
+  background-color: var(--warning); /* Accent Yellow */
   border: none;
-  color: white;
-  border-radius: var(--radius-md);
-  font-weight: 600;
+  color: var(--accent-color); /* Forge Blue */
+  border-radius: 9999px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
   padding: 12px 24px;
   cursor: pointer;
-  transition: all 0.2s;
-  box-shadow: 0 4px 6px rgba(0, 83, 179, 0.2);
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(7, 90, 170, 0.08);
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
 }
 
 .btn-primary:hover {
-  filter: brightness(1.1);
-  box-shadow: 0 6px 12px rgba(0, 83, 179, 0.3);
+  background-color: #DDBB38;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(7, 90, 170, 0.12);
 }
 
 .btn-primary:active {
-  transform: translateY(1px);
+  transform: translateY(0);
 }
 
+/* Secondary matching .btn-outline-blue */
 .btn-secondary {
-  background: #F3F4F6;
-  border: 1px solid var(--border-glass);
-  color: #262D36;
-  border-radius: var(--radius-md);
-  font-weight: 500;
+  background-color: #FFFFFF;
+  border: 1.5px solid var(--accent-color);
+  color: var(--accent-color);
+  border-radius: 9999px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
   padding: 12px 24px;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(7, 90, 170, 0.04);
 }
 
 .btn-secondary:hover {
-  background: #E5E7EB;
+  background-color: var(--accent-glow);
+  color: #064A91;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(7, 90, 170, 0.06);
 }
 
 /* Animations */
@@ -145,6 +189,7 @@ body {
 .premium-table th {
   color: var(--text-muted);
   font-size: 0.75rem;
+  font-family: 'Poppins', sans-serif;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -152,9 +197,10 @@ body {
 }
 
 .premium-table td {
-  background: var(--bg-secondary);
+  background: #FFFFFF;
   border-top: 1px solid var(--border-glass);
   border-bottom: 1px solid var(--border-glass);
+  color: var(--text-primary);
 }
 
 .premium-table td:first-child {
@@ -170,8 +216,8 @@ body {
 }
 
 .premium-table tr:hover td {
-  background: rgba(99, 102, 241, 0.05);
-  border-color: rgba(99, 102, 241, 0.2);
+  background: var(--accent-glow);
+  border-color: #B8D2E8;
 }
 
 /* Sidebar item active effect */
@@ -183,6 +229,7 @@ body {
   color: var(--text-muted);
   border-radius: var(--radius-md);
   text-decoration: none;
+  font-family: 'Inter', sans-serif;
   font-weight: 500;
   transition: all 0.2s;
 }
@@ -195,7 +242,5 @@ body {
 .sidebar-link.active {
   color: var(--accent-color);
   background: var(--accent-glow);
-  border-left: 3px solid var(--accent-color);
-  padding-left: 13px;
   font-weight: 600;
 }

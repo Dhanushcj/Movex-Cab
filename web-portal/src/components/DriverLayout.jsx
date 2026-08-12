@@ -1,6 +1,6 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { Home, Navigation, LifeBuoy, FileText, User, LogOut, History, Settings, Bell } from 'lucide-react';
+import { Home, Navigation, LifeBuoy, FileText, User, LogOut, History, Settings, Bell, Menu } from 'lucide-react';
 import { AuthContext } from '../context/AuthContext';
 import styles from './PortalLayout.module.css';
 
@@ -8,6 +8,7 @@ const DriverLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, loading, logout } = useContext(AuthContext);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
     if (!loading) {
@@ -36,7 +37,15 @@ const DriverLayout = () => {
 
   return (
     <div className={styles.layoutContainer}>
-      <aside className={styles.sidebar}>
+      {/* Mobile backdrop */}
+      {isSidebarOpen && (
+        <div 
+          className={styles.backdrop} 
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
+      <aside className={`${styles.sidebar} ${isSidebarOpen ? styles.sidebarOpen : ''}`}>
         <div className={styles.sidebarHeader}>
           <div className={styles.brandPill}>
             <img src="/forge-logo.png" alt="Logo" className={styles.brandLogo} onError={(e) => e.target.style.display='none'} />
@@ -52,7 +61,10 @@ const DriverLayout = () => {
             return (
               <button
                 key={item.name}
-                onClick={() => navigate(item.path)}
+                onClick={() => {
+                  navigate(item.path);
+                  setIsSidebarOpen(false);
+                }}
                 className={`${styles.navItem} ${isActive ? styles.active : ''}`}
               >
                 <Icon size={18} />
@@ -72,8 +84,16 @@ const DriverLayout = () => {
 
       <main className={styles.mainContent}>
         <header className={styles.topHeader}>
-          <div className={styles.headerTitle}>
-            Driver Dashboard
+          <div className={styles.headerTitleContainer}>
+            <button 
+              className={styles.mobileMenuBtn}
+              onClick={() => setIsSidebarOpen(true)}
+            >
+              <Menu size={24} />
+            </button>
+            <div className={styles.headerTitle}>
+              Driver Dashboard
+            </div>
           </div>
           <div style={{display: 'flex', alignItems: 'center', gap: '20px'}}>
             <button style={{background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--text-muted)'}}>

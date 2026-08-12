@@ -16,6 +16,16 @@
   position: relative;
 }
 
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(2px);
+  z-index: 90;
+  opacity: 1;
+  transition: opacity 0.3s;
+}
+
 /* Signature Blue-Yellow Theme Line */
 .layoutContainer::before {
   content: '';
@@ -219,6 +229,10 @@
     height: 100%;
     box-shadow: 10px 0 20px rgba(0, 0, 0, 0.1);
   }
+
+  .sidebar.sidebarOpen {
+    left: 0;
+  }
   
   .contentArea {
     padding: 16px;
@@ -226,5 +240,23 @@
   
   .topHeader {
     padding: 0 16px;
+  }
+
+  .mobileMenuBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 4px;
+    margin-right: 8px;
+  }
+}
+
+@media (min-width: 769px) {
+  .mobileMenuBtn {
+    display: none;
   }
 }

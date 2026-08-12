@@ -115,14 +115,14 @@ const Dashboard = () => {
                   </span>
                   <h3 className="text-2xl font-bold text-[var(--text-primary)] mt-1">{card.value}</h3>
                 </div>
-                <div className={`p-3 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400`}>
+                <div className={`p-3 rounded-xl bg-[var(--bg-soft-blue)] border border-[var(--border-light)] text-[var(--accent-color)]`}>
                   <Icon className="w-5 h-5" />
                 </div>
               </div>
               
               <div className="mt-4 pt-4 border-t border-[var(--border-glass)] flex items-center justify-between">
                 <span className="text-xs text-[var(--text-muted)]">{card.desc}</span>
-                <span className={`text-xs font-bold flex items-center gap-0.5 ${card.isPositive ? 'text-emerald-400' : 'text-amber-400'}`}>
+                <span className={`text-xs font-bold flex items-center gap-0.5 ${card.isPositive ? 'text-[var(--success)]' : 'text-amber-500'}`}>
                   {card.isPositive ? <ArrowUpRight className="w-3.5 h-3.5" /> : null}
                   {card.change}
                 </span>
@@ -142,11 +142,11 @@ const Dashboard = () => {
               <p className="text-xs text-[var(--text-muted)]">Daily gross revenue vs commission</p>
             </div>
             <div className="flex gap-4 text-xs font-semibold">
-              <span className="flex items-center gap-1.5 text-indigo-400">
-                <span className="w-2.5 h-2.5 rounded-full bg-indigo-500"></span> Gross Revenue
+              <span className="flex items-center gap-1.5 text-[var(--accent-color)]">
+                <span className="w-2.5 h-2.5 rounded-full bg-[var(--accent-color)]"></span> Gross Revenue
               </span>
-              <span className="flex items-center gap-1.5 text-emerald-400">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Commission
+              <span className="flex items-center gap-1.5 text-[var(--warning)]">
+                <span className="w-2.5 h-2.5 rounded-full bg-[var(--warning)]"></span> Commission
               </span>
             </div>
           </div>
@@ -156,20 +156,20 @@ const Dashboard = () => {
               <AreaChart data={revenueData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#6366f1" stopOpacity={0.2}/>
-                    <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="var(--accent-color)" stopOpacity={0.2}/>
+                    <stop offset="95%" stopColor="var(--accent-color)" stopOpacity={0}/>
                   </linearGradient>
                   <linearGradient id="colorComm" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.2}/>
-                    <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="var(--warning)" stopOpacity={0.2}/>
+                    <stop offset="95%" stopColor="var(--warning)" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(0, 0, 0, 0.05)" />
                 <XAxis dataKey="name" stroke="var(--text-muted)" fontSize={11} tickLine={false} />
                 <YAxis stroke="var(--text-muted)" fontSize={11} tickLine={false} />
                 <Tooltip contentStyle={{ background: '#ffffff', border: '1px solid rgba(0, 0, 0, 0.1)', borderRadius: '8px', color: '#000' }} />
-                <Area type="monotone" dataKey="Revenue" stroke="#6366f1" strokeWidth={2} fillOpacity={1} fill="url(#colorRev)" />
-                <Area type="monotone" dataKey="Commission" stroke="#10b981" strokeWidth={2} fillOpacity={1} fill="url(#colorComm)" />
+                <Area type="monotone" dataKey="Revenue" stroke="var(--accent-color)" strokeWidth={2} fillOpacity={1} fill="url(#colorRev)" />
+                <Area type="monotone" dataKey="Commission" stroke="var(--warning)" strokeWidth={2} fillOpacity={1} fill="url(#colorComm)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -189,7 +189,7 @@ const Dashboard = () => {
                 <XAxis dataKey="name" stroke="var(--text-muted)" fontSize={11} tickLine={false} />
                 <YAxis stroke="var(--text-muted)" fontSize={11} tickLine={false} />
                 <Tooltip contentStyle={{ background: '#ffffff', border: '1px solid rgba(0, 0, 0, 0.1)', borderRadius: '8px', color: '#000' }} />
-                <Bar dataKey="count" fill="#6366f1" radius={[4, 4, 0, 0]} barSize={25} />
+                <Bar dataKey="count" fill="var(--accent-color)" radius={[4, 4, 0, 0]} barSize={25} />
               </BarChart>
             </ResponsiveContainer>
           </div>

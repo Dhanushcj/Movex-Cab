@@ -1,6 +1,6 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { Home, MapPin, Clock, CalendarClock, CreditCard, Wallet, Bell, User, Settings, HelpCircle, LogOut } from 'lucide-react';
+import { Home, MapPin, Clock, CalendarClock, CreditCard, Wallet, Bell, User, Settings, HelpCircle, LogOut, Menu, X } from 'lucide-react';
 import { AuthContext } from '../context/AuthContext';
 import styles from './PortalLayout.module.css';
 
@@ -41,9 +41,19 @@ const CustomerLayout = () => {
   const initials = user?.name ? user.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) : 'U';
   const displayName = user?.name || 'User';
 
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
   return (
     <div className={styles.layoutContainer}>
-      <aside className={styles.sidebar}>
+      {/* Mobile backdrop */}
+      {isSidebarOpen && (
+        <div 
+          className={styles.backdrop} 
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
+      <aside className={`${styles.sidebar} ${isSidebarOpen ? styles.sidebarOpen : ''}`}>
         <div className={styles.sidebarHeader}>
           <div className={styles.brandPill}>
             <img src="/logo.png" alt="Forge India Connect" className={styles.brandLogo} />
@@ -65,7 +75,10 @@ const CustomerLayout = () => {
             return (
               <button
                 key={item.name}
-                onClick={() => navigate(item.path)}
+                onClick={() => {
+                  navigate(item.path);
+                  setIsSidebarOpen(false);
+                }}
                 className={`${styles.navItem} ${isActive ? styles.active : ''}`}
               >
                 <Icon size={18} />
@@ -86,6 +99,12 @@ const CustomerLayout = () => {
       <main className={styles.mainContent}>
         <header className={styles.topHeader}>
           <div className={styles.headerTitleContainer}>
+            <button 
+              className={styles.mobileMenuBtn}
+              onClick={() => setIsSidebarOpen(true)}
+            >
+              <Menu size={24} />
+            </button>
             <div className={styles.headerTitle}>
               {location.pathname === '/customer/passes' ? 'Manage Pass' : (navItems.find(i => i.path === location.pathname)?.name || 'Portal')}
             </div>

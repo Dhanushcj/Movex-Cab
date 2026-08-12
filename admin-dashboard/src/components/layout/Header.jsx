@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Bell, Search, LogOut, User, UserPlus, AlertCircle, FileWarning } from 'lucide-react';
+import { Bell, Search, LogOut, User, UserPlus, AlertCircle, FileWarning, Menu } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import API from '../../services/api';
 
-const Header = () => {
+const Header = ({ setSidebarOpen }) => {
   const navigate = useNavigate();
   const [alerts, setAlerts] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -70,15 +70,26 @@ const Header = () => {
   };
 
   return (
-    <header className="h-20 border-b border-[var(--border-glass)] px-8 flex items-center justify-between sticky top-0 bg-white/80 backdrop-blur-md z-20">
-      {/* Search bar */}
-      <div className="relative w-80">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] w-4 h-4" />
-        <input
-          type="text"
-          placeholder="Quick search bookings, users, drivers..."
-          className="glass-input !pl-10 pr-4 py-2.5 w-full text-sm"
-        />
+    <header className="h-20 border-b border-[var(--border-glass)] px-4 lg:px-8 flex items-center justify-between sticky top-0 bg-white/80 backdrop-blur-md z-20 gap-4">
+      
+      {/* Mobile Menu Toggle & Search */}
+      <div className="flex items-center gap-3 flex-1 lg:flex-none">
+        <button 
+          onClick={() => setSidebarOpen(true)}
+          className="lg:hidden p-2 rounded-lg text-[var(--text-primary)] hover:bg-black/5 transition-colors"
+        >
+          <Menu className="w-6 h-6" />
+        </button>
+
+        {/* Search bar */}
+        <div className="relative w-full max-w-[20rem] lg:w-80">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] w-4 h-4" />
+          <input
+            type="text"
+            placeholder="Quick search..."
+            className="glass-input !pl-10 pr-4 py-2.5 w-full text-sm"
+          />
+        </div>
       </div>
 
       {/* Action buttons */}
