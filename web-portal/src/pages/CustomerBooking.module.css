@@ -1571,3 +1571,41 @@
   background: #fef2f2;
 }
 
+@media (max-width: 768px) {
+  .bookingSplitWrapper {
+    flex-direction: column-reverse;
+  }
+  .sidebarPanel {
+    width: 100%;
+    border-right: none;
+    border-top: 1px solid #e2e8f0;
+  }
+  .mapContainer {
+    flex: none;
+    height: 45vh;
+  }
+  .vehicleGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .mapTopOverlay {
+    top: 12px;
+    left: 12px;
+    right: 12px;
+    padding: 12px;
+  }
+  .mapBottomOverlay {
+    bottom: 12px;
+    width: 90%;
+    padding: 12px;
+  }
+  .topHeader {
+    padding: 16px 20px 0 20px;
+  }
+  .stepIndicator {
+    padding: 16px 20px 12px 20px;
+  }
+  .sidebarContent {
+    padding: 0 20px 20px 20px;
+  }
+}
+
