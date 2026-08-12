@@ -19,40 +19,40 @@ import {
   Car,
   Headset
 } from 'lucide-react';
-import styles from './DriverSupport.module.css';
+import styles from './CustomerSupport.module.css';
 import API from '../services/api';
 
 const FAQS = [
-  { id: 1, q: 'When do I get my payouts?', a: 'Payouts are processed weekly on Mondays for the trips completed in the previous week.' },
-  { id: 2, q: 'How do I update my vehicle documents?', a: 'Go to the "Documents" section in your dashboard to upload new insurance, RC, or permit.' },
-  { id: 3, q: 'What if I have an emergency during a ride?', a: 'Use the SOS button in the app immediately to alert our safety team and local authorities.' },
-  { id: 4, q: 'How are my daily routes assigned?', a: 'Routes are assigned automatically by the admin based on your designated shift and vehicle type.' },
-  { id: 5, q: 'Where can I see my trip history?', a: 'You can view your complete trip history in the "Trip History" section of your portal.' }
+  { id: 1, q: 'How do I cancel a ride?', a: 'Go to "My Rides", select your active or upcoming ride, and tap "Cancel Ride".' },
+  { id: 2, q: 'How does my mobility pass work?', a: 'Your mobility pass gives you access to unlimited rides within a selected validity period on covered routes.' },
+  { id: 3, q: 'How can I request a refund?', a: 'Refunds are automatically processed for eligible cancellations. For other issues, please raise a support ticket.' },
+  { id: 4, q: 'How do I change my pickup location?', a: 'Once a ride is booked, the pickup location cannot be changed for route-based trips. You will need to cancel and rebook.' },
+  { id: 5, q: 'Where can I see my ride history?', a: 'You can view your complete ride history in the "My Rides" section of the dashboard.' }
 ];
 
 // Map frontend categories to backend types
-// Map frontend categories to backend types
 const CATEGORY_MAP = {
-  'General Inquiry': 'general',
-  'Technical Issue': 'technical',
-  'Payment / Earnings': 'payment',
-  'Safety Concern': 'safety',
-  'Route Problem': 'route',
-  'Account Issue': 'account',
+  'Ride Issue': 'route_issue',
+  'Payment Issue': 'payment',
+  'Driver Issue': 'driver_behavior',
+  'Pass Issue': 'app_issue',
+  'Account Issue': 'app_issue',
+  'Technical Issue': 'app_issue',
   'Other': 'other'
 };
 
 const BACKEND_TYPE_MAP = {
-  'general': 'General Inquiry',
-  'technical': 'Technical Issue',
-  'payment': 'Payment / Earnings',
-  'safety': 'Safety Concern',
-  'route': 'Route Problem',
-  'account': 'Account Issue',
+  'safety': 'Safety Issue',
+  'payment': 'Payment Issue',
+  'driver_behavior': 'Driver Issue',
+  'vehicle_condition': 'Vehicle Issue',
+  'route_issue': 'Ride Issue',
+  'fare_dispute': 'Fare Dispute',
+  'app_issue': 'Technical Issue',
   'other': 'Other'
 };
 
-const DriverSupport = () => {
+const CustomerSupport = () => {
   const [openFaq, setOpenFaq] = useState(null);
   const [activeTicket, setActiveTicket] = useState(null);
   const [tickets, setTickets] = useState([]);
@@ -76,10 +76,8 @@ const DriverSupport = () => {
 
   const fetchTickets = async () => {
     try {
-      const response = await API.get('/drivers/complaints');
-      // Handle the data structure returned by driver API
-      const data = response.data.success ? (response.data.data || []) : (Array.isArray(response.data) ? response.data : []);
-      setTickets(data);
+      const response = await API.get('/users/complaints');
+      setTickets(response.data);
     } catch (error) {
       console.error('Error fetching tickets:', error);
     } finally {
@@ -89,9 +87,9 @@ const DriverSupport = () => {
 
   const fetchRecentRides = async () => {
     try {
-      const res = await API.get('/drivers/earnings');
+      const res = await API.get('/users/me/rides');
       if (res.data.success) {
-        const historyRides = [...(res.data.rides || []), ...(res.data.cancelledRides || [])];
+        const historyRides = res.data.data || [];
         historyRides.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         setRecentRides(historyRides.slice(0, 10));
       }
@@ -145,8 +143,8 @@ const DriverSupport = () => {
         }
       }
 
-      const res = await API.post('/drivers/complaints', {
-        type: CATEGORY_MAP[formData.category] || 'general',
+      await API.post('/users/complaints', {
+        type: CATEGORY_MAP[formData.category] || 'other',
         subject: formData.subject,
         description: formData.description,
         priority: formData.priority.toLowerCase() || 'medium',
@@ -197,12 +195,12 @@ const DriverSupport = () => {
               <label>Issue Category <span>*</span></label>
               <select name="category" value={formData.category} onChange={handleFormChange} required>
                 <option value="">Select Category</option>
-                <option value="General Inquiry">General Inquiry</option>
-                <option value="Technical Issue">Technical Issue</option>
-                <option value="Payment / Earnings">Payment / Earnings</option>
-                <option value="Safety Concern">Safety Concern</option>
-                <option value="Route Problem">Route Problem</option>
+                <option value="Ride Issue">Ride Issue</option>
+                <option value="Payment Issue">Payment Issue</option>
+                <option value="Driver Issue">Driver Issue</option>
+                <option value="Pass Issue">Pass Issue</option>
                 <option value="Account Issue">Account Issue</option>
+                <option value="Technical Issue">Technical Issue</option>
                 <option value="Other">Other</option>
               </select>
             </div>
@@ -513,4 +511,4 @@ const DriverSupport = () => {
   );
 };
 
-export default DriverSupport;
+export default CustomerSupport;

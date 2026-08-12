@@ -19,11 +19,13 @@ export const SocketProvider = ({ children }) => {
     }
 
     const socketUrl = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000';
+    const token = localStorage.getItem('token');
     const newSocket = io(socketUrl, {
       reconnectionAttempts: 10,
       reconnectionDelay: 2000,
       autoConnect: true,
-      transports: ['websocket', 'polling']
+      transports: ['websocket', 'polling'],
+      auth: { token }
     });
 
     setSocket(newSocket);
@@ -32,9 +34,8 @@ export const SocketProvider = ({ children }) => {
       console.log('Socket connected:', newSocket.id);
       if (user.role === 'customer') {
         newSocket.emit('customer:online', { customerId: user._id });
-      } else if (user.role === 'driver') {
-        newSocket.emit('driver:online', { driverId: user._id });
       }
+      // Driver online/offline is managed by DriverDashboard based on actual availability status
     });
 
     return () => {

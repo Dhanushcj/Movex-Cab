@@ -103,13 +103,13 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const registerWithEmail = async (email, password, name, phone, role) => {
+  const registerWithEmail = async (email, password, name, phone, gender, role) => {
     if (!auth) throw new Error("Firebase is not configured. Please add your credentials to .env");
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       await sendEmailVerification(userCredential.user);
       const idToken = await getIdToken(userCredential.user);
-      await handleFirebaseLogin(idToken, role, true, { phone, name });
+      await handleFirebaseLogin(idToken, role, true, { phone, name, gender });
       return true;
     } catch (error) {
       console.error('Firebase Email register failed:', error);

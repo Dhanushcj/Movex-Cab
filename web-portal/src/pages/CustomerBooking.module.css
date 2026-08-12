@@ -584,8 +584,8 @@
 .btnPrimary {
   width: 100%;
   padding: 16px;
-  background-color: #FBBF24;
-  color: #1e293b;
+  background-color: var(--forge-blue);
+  color: white;
   border: none;
   border-radius: 12px;
   font-size: 16px;
@@ -595,7 +595,8 @@
 }
 
 .btnPrimary:hover:not(:disabled) {
-  background-color: #f59e0b;
+  filter: brightness(1.1);
+  box-shadow: 0 4px 12px rgba(7, 90, 170, 0.2);
 }
 
 
@@ -1255,8 +1256,8 @@
 .btnPrimary {
   width: 100%;
   padding: 16px;
-  background-color: #FBBF24;
-  color: #1e293b;
+  background-color: var(--forge-blue);
+  color: white;
   border: none;
   border-radius: 12px;
   font-size: 16px;
@@ -1266,7 +1267,8 @@
 }
 
 .btnPrimary:hover:not(:disabled) {
-  background-color: #f59e0b;
+  filter: brightness(1.1);
+  box-shadow: 0 4px 12px rgba(7, 90, 170, 0.2);
 }
 
 

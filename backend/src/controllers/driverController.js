@@ -41,6 +41,13 @@ const toggleStatus = async (req, res, next) => {
     const isGoingOnline = typeof req.body.isOnline === 'boolean' ? req.body.isOnline : !driver.isOnline;
 
     if (isGoingOnline) {
+      if (driver.approvalStatus !== 'approved') {
+        return res.status(403).json({
+          success: false,
+          message: 'Your account is pending admin approval. You cannot go online yet.'
+        });
+      }
+
       const now = new Date();
       const docs = driver.documents || {};
       
@@ -147,6 +154,10 @@ const uploadDocuments = async (req, res, next) => {
         documentsUpdate['documents.insurance.url'] = `/uploads/${req.files.insurance[0].filename}`;
         documentsUpdate['documents.insurance.number'] = req.body.insuranceNumber || '';
         documentsUpdate['documents.insurance.verified'] = false;
+      }
+      if (req.files.profilePhoto) {
+        documentsUpdate['documents.profilePhoto.url'] = `/uploads/${req.files.profilePhoto[0].filename}`;
+        documentsUpdate['documents.profilePhoto.verified'] = false;
       }
     } else {
       // Stub URLs if files were not actually sent for test environments
@@ -558,6 +569,23 @@ const getAchievements = async (req, res, next) => {
   }
 };
 
+/**
+ * @desc    Get driver's ride history
+ * @route   GET /api/drivers/history
+ * @access  Private (Driver only)
+ */
+const getMyRides = async (req, res, next) => {
+  try {
+    const rides = await Booking.find({ driver: req.user.id })
+      .populate('customer', 'name phone')
+      .sort({ createdAt: -1 });
+
+    res.json({ success: true, count: rides.length, data: rides });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   updateProfile,
   updateLocation,
@@ -571,5 +599,6 @@ module.exports = {
   getSettings,
   updateSettings,
   deleteAccount,
-  getAchievements
+  getAchievements,
+  getMyRides
 };

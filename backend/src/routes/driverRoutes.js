@@ -16,7 +16,8 @@ const {
   getSettings,
   updateSettings,
   deleteAccount,
-  getAchievements
+  getAchievements,
+  getMyRides
 } = require('../controllers/driverController');
 const { createComplaint, getMyComplaints } = require('../controllers/complaintController');
 
@@ -46,7 +47,8 @@ const upload = multer({
 const documentUploadFields = upload.fields([
   { name: 'drivingLicense', maxCount: 1 },
   { name: 'vehicleRC', maxCount: 1 },
-  { name: 'insurance', maxCount: 1 }
+  { name: 'insurance', maxCount: 1 },
+  { name: 'profilePhoto', maxCount: 1 }
 ]);
 
 router.use(protect);
@@ -54,6 +56,7 @@ router.use(protect);
 router.put('/profile', updateProfile);
 router.put('/location', updateLocation);
 router.get('/nearby', getNearbyDrivers);
+router.get('/history', getMyRides);
 router.put('/status', toggleStatus);
 router.get('/earnings', getEarnings);
 router.get('/wallet', getWalletDetails);

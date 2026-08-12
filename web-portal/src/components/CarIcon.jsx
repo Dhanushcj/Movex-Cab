@@ -1,10 +1,10 @@
 import React from 'react';
 
-export const CarIcon = ({ size = 26, className = '' }) => {
+export const CarIcon = ({ size = 26, className = '', style = {}, src = "/car.png" }) => {
   const scaledWidth = Math.round(size * 1.35);
   return (
     <img
-      src="/car.png"
+      src={src}
       alt="Cab"
       className={className}
       style={{
@@ -12,7 +12,8 @@ export const CarIcon = ({ size = 26, className = '' }) => {
         height: `${size}px`,
         objectFit: 'contain',
         display: 'inline-block',
-        verticalAlign: 'middle'
+        verticalAlign: 'middle',
+        ...style
       }}
     />
   );

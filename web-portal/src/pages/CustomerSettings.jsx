@@ -9,12 +9,26 @@ import {
   CreditCard, 
   Car, 
   Palette, 
-  AlertTriangle 
+  AlertTriangle,
+  CheckCircle2
 } from 'lucide-react';
 
 const CustomerSettings = () => {
   const { user } = useContext(AuthContext);
   const [activeTab, setActiveTab] = useState('profile');
+  const [passwordState, setPasswordState] = useState({ current: '', new: '' });
+  const [passwordSuccess, setPasswordSuccess] = useState('');
+
+  const handleUpdatePassword = () => {
+    if (!passwordState.current || !passwordState.new) {
+      alert('Please fill both password fields');
+      return;
+    }
+    // Simulate password update
+    setPasswordSuccess('Password updated successfully!');
+    setPasswordState({ current: '', new: '' });
+    setTimeout(() => setPasswordSuccess(''), 3000);
+  };
 
   // Dummy state handlers for interactive feel
   const [notifications, setNotifications] = useState({
@@ -35,11 +49,9 @@ const CustomerSettings = () => {
 
   const categories = [
     { id: 'profile', name: 'Profile & Account', icon: User },
-    { id: 'preferences', name: 'Preferences', icon: Settings2 },
     { id: 'notifications', name: 'Notifications', icon: Bell },
     { id: 'privacy', name: 'Privacy & Security', icon: ShieldCheck },
     { id: 'payments', name: 'Payment Settings', icon: CreditCard },
-    { id: 'ride', name: 'Ride Preferences', icon: Car },
     { id: 'appearance', name: 'Appearance', icon: Palette },
     { id: 'danger', name: 'Danger Zone', icon: AlertTriangle },
   ];
@@ -105,50 +117,12 @@ const CustomerSettings = () => {
 
             <div className={styles.formGroup}>
               <label className={styles.label}>Display Name</label>
-              <input type="text" className={styles.input} defaultValue={user?.name || 'User'} />
+              <input type="text" className={styles.input} defaultValue={user?.name || 'User'} readOnly />
             </div>
             
             <div className={styles.formGroup}>
               <label className={styles.label}>Email Address</label>
-              <input type="email" className={styles.input} defaultValue={user?.email || 'user@example.com'} />
-            </div>
-
-            <div className={styles.cardActions}>
-              <button className={styles.btnSave}>Save Changes</button>
-            </div>
-          </section>
-
-          {/* 2. Preferences */}
-          <section id="section-preferences" className={styles.settingsCard}>
-            <div className={styles.cardHeader}>
-              <h2 className={styles.cardTitle}>Preferences</h2>
-              <p className={styles.cardDesc}>Customize your regional and default application settings.</p>
-            </div>
-            
-            <div className={styles.formGroup}>
-              <label className={styles.label}>Language</label>
-              <select className={styles.select} value={preferences.language} onChange={e => setPreferences({...preferences, language: e.target.value})}>
-                <option>English</option>
-                <option>Tamil</option>
-                <option>Hindi</option>
-              </select>
-            </div>
-
-            <div className={styles.formGroup}>
-              <label className={styles.label}>Currency</label>
-              <select className={styles.select} value={preferences.currency} onChange={e => setPreferences({...preferences, currency: e.target.value})}>
-                <option>INR (₹)</option>
-                <option>USD ($)</option>
-              </select>
-            </div>
-
-            <div className={styles.formGroup}>
-              <label className={styles.label}>Saved Pickup Location</label>
-              <input type="text" className={styles.input} placeholder="e.g. Home, Work" defaultValue="Chennai Central" />
-            </div>
-
-            <div className={styles.cardActions}>
-              <button className={styles.btnSave}>Save Changes</button>
+              <input type="email" className={styles.input} defaultValue={user?.email || 'user@example.com'} readOnly />
             </div>
           </section>
 
@@ -213,13 +187,32 @@ const CustomerSettings = () => {
 
             <div className={styles.formGroup}>
               <label className={styles.label}>Current Password</label>
-              <input type="password" className={styles.input} placeholder="Enter current password" />
+              <input 
+                type="password" 
+                className={styles.input} 
+                placeholder="Enter current password" 
+                value={passwordState.current}
+                onChange={e => setPasswordState({...passwordState, current: e.target.value})}
+              />
             </div>
 
             <div className={styles.formGroup}>
               <label className={styles.label}>New Password</label>
-              <input type="password" className={styles.input} placeholder="Create new password" />
+              <input 
+                type="password" 
+                className={styles.input} 
+                placeholder="Create new password" 
+                value={passwordState.new}
+                onChange={e => setPasswordState({...passwordState, new: e.target.value})}
+              />
             </div>
+
+            {passwordSuccess && (
+              <div style={{ color: '#10B981', fontSize: '14px', marginBottom: '16px', fontWeight: '500' }}>
+                <CheckCircle2 size={16} style={{display: 'inline', verticalAlign: 'text-bottom', marginRight: '4px'}}/>
+                {passwordSuccess}
+              </div>
+            )}
 
             <div className={styles.toggleRow} style={{marginTop: '24px'}}>
               <div className={styles.toggleInfo}>
@@ -233,7 +226,7 @@ const CustomerSettings = () => {
             </div>
 
             <div className={styles.cardActions}>
-              <button className={styles.btnSave}>Update Security</button>
+              <button className={styles.btnSave} onClick={handleUpdatePassword}>Update Security</button>
             </div>
           </section>
 
@@ -267,46 +260,6 @@ const CustomerSettings = () => {
             </div>
 
             <button className={styles.btnEdit} style={{marginTop: '16px'}}>+ Add Payment Method</button>
-          </section>
-
-          {/* 6. Ride Preferences */}
-          <section id="section-ride" className={styles.settingsCard}>
-            <div className={styles.cardHeader}>
-              <h2 className={styles.cardTitle}>Ride Preferences</h2>
-              <p className={styles.cardDesc}>Configure how we match you with vehicles.</p>
-            </div>
-
-            <div className={styles.formGroup}>
-              <label className={styles.label}>Preferred Vehicle Type</label>
-              <select className={styles.select} value={preferences.defaultVehicle} onChange={e => setPreferences({...preferences, defaultVehicle: e.target.value})}>
-                <option>Auto</option>
-                <option>Bike</option>
-                <option>Mini Cab</option>
-                <option>Shuttle (Bus)</option>
-              </select>
-            </div>
-
-            <div className={styles.toggleRow}>
-              <div className={styles.toggleInfo}>
-                <div className={styles.toggleTitle}>Auto-select Available Vehicle</div>
-                <div className={styles.toggleDesc}>Automatically select the fastest available vehicle type if preferred is busy.</div>
-              </div>
-              <label className={styles.switch}>
-                <input type="checkbox" defaultChecked={true} />
-                <span className={styles.slider}></span>
-              </label>
-            </div>
-            
-            <div className={styles.toggleRow}>
-              <div className={styles.toggleInfo}>
-                <div className={styles.toggleTitle}>Wheelchair Accessibility</div>
-                <div className={styles.toggleDesc}>Only match with vehicles that support accessibility needs.</div>
-              </div>
-              <label className={styles.switch}>
-                <input type="checkbox" defaultChecked={false} />
-                <span className={styles.slider}></span>
-              </label>
-            </div>
           </section>
 
           {/* 7. Appearance */}

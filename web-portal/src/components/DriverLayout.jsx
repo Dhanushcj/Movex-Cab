@@ -10,8 +10,12 @@ const DriverLayout = () => {
   const { user, loading, logout } = useContext(AuthContext);
 
   useEffect(() => {
-    if (!loading && !user) {
-      navigate('/login');
+    if (!loading) {
+      if (!user) {
+        navigate('/login');
+      } else if (user.role !== 'driver') {
+        navigate(`/${user.role}/dashboard`);
+      }
     }
   }, [user, loading, navigate]);
   
@@ -81,7 +85,7 @@ const DriverLayout = () => {
               </div>
               <div style={{display: 'flex', flexDirection: 'column', textAlign: 'left', paddingRight: '8px'}}>
                 <span style={{fontSize: '13px', lineHeight: '1.2', fontWeight: '700', color: 'var(--text-primary)'}}>{user?.name || 'Driver'}</span>
-                <span style={{fontSize: '11px', lineHeight: '1.2', color: 'var(--text-muted)'}}>{user?.vehicle?.number || 'TN 00 XX 0000'}</span>
+                <span style={{fontSize: '11px', lineHeight: '1.2', color: 'var(--text-muted)'}}>{user?.vehicle?.plateNumber || 'TN 00 XX 0000'}</span>
               </div>
             </div>
           </div>

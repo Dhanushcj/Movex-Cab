@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Bell, MapPin, ShieldCheck, CheckCircle2, Car, Share2, Star, Navigation, MessageSquare, Phone, User } from 'lucide-react';
-import { GoogleMap, useJsApiLoader, Polyline, Marker, DirectionsRenderer } from '@react-google-maps/api';
+import { GoogleMap, useJsApiLoader, Polyline, Marker } from '@react-google-maps/api';
 import styles from './CustomerBooking.module.css'; // Reusing styles
 import API from '../services/api';
 import { SocketContext } from '../context/SocketContext';
@@ -42,7 +42,7 @@ const CustomerTracking = () => {
   const [status, setStatus] = useState('searching');
   const [loading, setLoading] = useState(true);
   const [decodedRoute, setDecodedRoute] = useState([]);
-  const [directions, setDirections] = useState(null);
+  const [osrmDriverRoute, setOsrmDriverRoute] = useState([]);
   const [timer, setTimer] = useState(300);
 
 
@@ -132,14 +132,14 @@ const CustomerTracking = () => {
 
   // Adjust map bounds when route is loaded
   useEffect(() => {
-    if (mapRef.current && decodedRoute.length > 0 && !directions) {
+    if (mapRef.current && decodedRoute.length > 0 && osrmDriverRoute.length === 0) {
       const bounds = new window.google.maps.LatLngBounds();
       decodedRoute.forEach(coord => {
         bounds.extend(new window.google.maps.LatLng(coord.lat, coord.lng));
       });
       mapRef.current.fitBounds(bounds, { padding: 50 });
     }
-  }, [decodedRoute, isLoaded, directions]);
+  }, [decodedRoute, isLoaded, osrmDriverRoute]);
 
   
   useEffect(() => {
@@ -151,38 +151,38 @@ const CustomerTracking = () => {
     }
   }, [status]);
 
-useEffect(() => {
+  useEffect(() => {
     if (!ride || !isLoaded) return;
-    
-    // eslint-disable-next-line no-undef
-    const directionsService = new google.maps.DirectionsService();
     
     let origin, destination;
     
     if (status === 'accepted' || status === 'arrived') {
       // Driver navigating to pickup
-      origin = driverInfo?.currentLocation?.coordinates 
+      origin = driverInfo?.currentLocation?.coordinates?.length >= 2
         ? { lat: driverInfo.currentLocation.coordinates[1], lng: driverInfo.currentLocation.coordinates[0] } 
-        : { lat: 13.0827, lng: 80.2707 }; // Fallback
-      destination = { lat: ride.pickup.location.coordinates[1], lng: ride.pickup.location.coordinates[0] };
+        : (ride.pickup?.location?.coordinates?.length >= 2 ? { lat: ride.pickup.location.coordinates[1] - 0.005, lng: ride.pickup.location.coordinates[0] } : null); // Fallback to near pickup
+      if (ride.pickup?.location?.coordinates?.length >= 2) {
+        destination = { lat: ride.pickup.location.coordinates[1], lng: ride.pickup.location.coordinates[0] };
+      }
     } else if (status === 'in_progress' || status === 'completed') {
       // Keep the predefined yellow route during the trip!
-      setDirections(null);
+      setOsrmDriverRoute([]);
       return;
     }
     
-    if (origin && destination) {
-      directionsService.route({
-        origin,
-        destination,
-        // eslint-disable-next-line no-undef
-        travelMode: google.maps.TravelMode.DRIVING
-      }, (result, stat) => {
-        // eslint-disable-next-line no-undef
-        if (stat === google.maps.DirectionsStatus.OK) {
-          setDirections(result);
+    if (origin && destination && (origin.lat !== destination.lat || origin.lng !== destination.lng)) {
+      const fetchOsrm = async () => {
+        try {
+          const res = await fetch(`https://router.project-osrm.org/route/v1/driving/${origin.lng},${origin.lat};${destination.lng},${destination.lat}?overview=full&geometries=polyline&steps=false`);
+          const data = await res.json();
+          if (data.code === 'Ok' && data.routes.length > 0) {
+            setOsrmDriverRoute(decodePolyline(data.routes[0].geometry));
+          }
+        } catch (err) {
+          console.warn('OSRM request failed:', err);
         }
-      });
+      };
+      fetchOsrm();
     }
   }, [ride, isLoaded, status]); // Removed driverInfo to prevent constant map flickering/re-routing on every location update
 
@@ -401,7 +401,7 @@ useEffect(() => {
                 ]
               }}
             >
-              {decodedRoute.length > 0 && !directions && (
+              {decodedRoute.length > 0 && osrmDriverRoute.length === 0 && (
                 <Polyline
                   path={decodedRoute}
                   options={{
@@ -413,13 +413,15 @@ useEffect(() => {
                 />
               )}
 
-              {directions && (
-                <DirectionsRenderer 
-                  directions={directions} 
+              {osrmDriverRoute.length > 0 && (
+                <Polyline
+                  path={osrmDriverRoute}
                   options={{
-                    polylineOptions: { strokeColor: '#FBBF24', strokeWeight: 6, zIndex: 2 },
-                    suppressMarkers: true
-                  }} 
+                    strokeColor: '#FBBF24',
+                    strokeOpacity: 0.8,
+                    strokeWeight: 6,
+                    zIndex: 2
+                  }}
                 />
               )}
 

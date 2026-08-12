@@ -51,23 +51,87 @@ const DriverDashboard = () => {
     completedRides: 124
   };
 
+  // Track location via geolocation watch
+  const driverLocationRef = useRef(driverLocation);
+  useEffect(() => { driverLocationRef.current = driverLocation; }, [driverLocation]);
+
   useEffect(() => {
     if (navigator.geolocation) {
       const watchId = navigator.geolocation.watchPosition(
         (position) => {
           const loc = { lat: position.coords.latitude, lng: position.coords.longitude };
           setDriverLocation(loc);
-          if (isOnline) {
-             socket?.emit('driver:location', { driverId: user?._id, location: loc });
-             API.put('/drivers/status', { location: { type: 'Point', coordinates: [loc.lng, loc.lat] } }).catch(console.error);
-          }
         },
         (err) => console.warn('Geolocation error:', err),
         { enableHighAccuracy: true, maximumAge: 10000, timeout: 5000 }
       );
       return () => navigator.geolocation.clearWatch(watchId);
     }
-  }, [isOnline, socket, user]);
+  }, []);
+
+  // Mirror mobile app: emit driver:online, periodic location:update, and ride:incoming listener
+  useEffect(() => {
+    if (!socket || !user) return;
+
+    if (isOnline) {
+      // Emit driver:online exactly like mobile app
+      socket.emit('driver:online', {
+        driverId: user._id,
+        location: {
+          type: 'Point',
+          coordinates: [driverLocationRef.current.lng, driverLocationRef.current.lat]
+        },
+        vehicleType: user.vehicle?.type
+      });
+
+      // Periodic location updates (every 5s) — same as mobile app
+      const locationInterval = setInterval(() => {
+        const currLoc = driverLocationRef.current;
+        if (currLoc) {
+          socket.emit('location:update', {
+            driverId: user._id,
+            location: {
+              type: 'Point',
+              coordinates: [currLoc.lng, currLoc.lat]
+            }
+          });
+          // Also update DB so driver shows up in GeoJSON queries
+          API.put('/drivers/location', {
+            latitude: currLoc.lat,
+            longitude: currLoc.lng
+          }).catch(() => {});
+        }
+      }, 5000);
+
+      // Listen for ride events
+      const handleIncoming = (data) => {
+        console.log('🔔 Ride request received:', data);
+        setIncomingRide(data);
+      };
+      const handleExpired = () => {
+        console.log('⏰ Ride request expired');
+        setIncomingRide(null);
+      };
+      const handleCancelled = () => {
+        console.log('❌ Ride cancelled');
+        setIncomingRide(null);
+      };
+
+      socket.on('ride:incoming', handleIncoming);
+      socket.on('ride:expired', handleExpired);
+      socket.on('ride:cancelled', handleCancelled);
+
+      return () => {
+        clearInterval(locationInterval);
+        socket.off('ride:incoming', handleIncoming);
+        socket.off('ride:expired', handleExpired);
+        socket.off('ride:cancelled', handleCancelled);
+      };
+    } else {
+      // Emit driver:offline exactly like mobile app
+      socket.emit('driver:offline', { driverId: user._id });
+    }
+  }, [socket, isOnline, user]);
 
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
@@ -128,11 +192,9 @@ const DriverDashboard = () => {
     fetchData();
   }, []);
 
+  // Listen for route assignment events (separate from ride events)
   useEffect(() => {
     if (!socket) return;
-
-    const handleIncoming = (data) => setIncomingRide(data);
-    const handleCancelled = () => setIncomingRide(null);
 
     const handleRouteAssigned = (data) => {
       if (data.route) {
@@ -144,13 +206,9 @@ const DriverDashboard = () => {
       }
     };
 
-    socket.on('ride:incoming', handleIncoming);
-    socket.on('ride:cancelled', handleCancelled);
     socket.on('route:assigned', handleRouteAssigned);
 
     return () => {
-      socket.off('ride:incoming', handleIncoming);
-      socket.off('ride:cancelled', handleCancelled);
       socket.off('route:assigned', handleRouteAssigned);
     };
   }, [socket]);

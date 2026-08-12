@@ -5,7 +5,7 @@ const Complaint = require('../models/Complaint');
 // Create a new complaint/ticket
 exports.createComplaint = async (req, res) => {
   try {
-    const { type, subject, description, bookingId, priority } = req.body;
+    const { type, subject, description, bookingId, priority, attachments } = req.body;
     
     // Determine user type from the route/auth context
     // Assuming req.user is set for customers and req.driver is set for drivers
@@ -28,7 +28,8 @@ exports.createComplaint = async (req, res) => {
       type: type || 'other',
       subject,
       description,
-      priority: priority || 'medium'
+      priority: priority || 'medium',
+      attachments: attachments || []
     });
 
     if (bookingId) {

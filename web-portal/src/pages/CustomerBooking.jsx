@@ -115,6 +115,27 @@ const CustomerBooking = () => {
   }, []);
 
   const [currentPosition, setCurrentPosition] = useState(null);
+  const [activePass, setActivePass] = useState(null);
+
+  // Pass Verification Effect
+  useEffect(() => {
+    const fetchMyPass = async () => {
+      try {
+        const res = await API.get('/subscriptions/my-pass');
+        if (!res.data.success || !res.data.data) {
+          alert("You must have an active pass to book a ride.");
+          navigate('/customer/passes');
+        } else {
+          setActivePass(res.data.data);
+        }
+      } catch (err) {
+        console.error('Failed to fetch pass', err);
+        alert("You must have an active pass to book a ride.");
+        navigate('/customer/passes');
+      }
+    };
+    fetchMyPass();
+  }, [navigate]);
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -331,6 +352,10 @@ const CustomerBooking = () => {
     } catch(e) {}
   }
 
+  if (!activePass) {
+    return <div style={{padding: 40, textAlign: 'center', marginTop: 100, fontSize: 20}}>Checking pass status...</div>;
+  }
+
   return (
     <div className={styles.pageWrapper}>
       {/* GLOBAL TOP HEADER - Removed from here because the global layout already has it! */}
@@ -405,19 +430,19 @@ const CustomerBooking = () => {
               )}
             </div>
 
-            {pickupLocation && dropLocation && (
+            {pickupLocation && dropLocation && activePass && (
               <>
                 <div className={styles.passCard}>
                   <div className={styles.passLeft}>
                     <div className={styles.passIcon}><Ticket size={24} color="var(--forge-blue)" /></div>
                     <div className={styles.passInfo}>
-                      <h4>Gold Mobility Pass Applied</h4>
+                      <h4>{activePass.pass?.name || 'Mobility Pass'} Applied</h4>
                       <p><span className={styles.strikeThru}>₹180.00</span> fare waived on this route</p>
                     </div>
                   </div>
                   <div className={styles.passRight}>
                     <div className={styles.passStatus}>ACTIVE</div>
-                    <a href="#" className={styles.viewPassLink}>View Pass →</a>
+                    <a href="/customer/passes" className={styles.viewPassLink}>View Pass →</a>
                   </div>
                 </div>
 
@@ -535,6 +560,8 @@ const CustomerBooking = () => {
               {routes.filter(r => !selectedRoute || selectedRoute._id === r._id).map((route) => {
                 const isSelected = selectedRoute?._id === route._id;
                 
+                if (!route.decodedPolyline || route.decodedPolyline.length === 0) return null;
+
                 return (
                   <Polyline
                     key={route._id}

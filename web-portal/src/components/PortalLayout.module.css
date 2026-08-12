@@ -13,6 +13,19 @@
   color: var(--text-primary);
   overflow: hidden;
   font-family: var(--font-family);
+  position: relative;
+}
+
+/* Signature Blue-Yellow Theme Line */
+.layoutContainer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--forge-blue, #075AAA) 0%, var(--accent-yellow, #E8C84A) 100%);
+  z-index: 1000;
 }
 
 .sidebar {

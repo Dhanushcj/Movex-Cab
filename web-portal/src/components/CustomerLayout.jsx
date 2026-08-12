@@ -10,8 +10,12 @@ const CustomerLayout = () => {
   const { user, loading, logout } = useContext(AuthContext);
 
   useEffect(() => {
-    if (!loading && !user) {
-      navigate('/login');
+    if (!loading) {
+      if (!user) {
+        navigate('/login');
+      } else if (user.role !== 'customer') {
+        navigate(`/${user.role}/dashboard`);
+      }
     }
   }, [user, loading, navigate]);
   
@@ -25,7 +29,6 @@ const CustomerLayout = () => {
     { type: 'link', name: 'Notifications', path: '/customer/notifications', icon: Bell },
     
     { type: 'header', name: 'ACCOUNT' },
-    { type: 'link', name: 'Profile', path: '/customer/profile', icon: User },
     { type: 'link', name: 'Settings', path: '/customer/settings', icon: Settings },
     { type: 'link', name: 'Help & Support', path: '/customer/support', icon: HelpCircle },
   ];
@@ -82,8 +85,15 @@ const CustomerLayout = () => {
 
       <main className={styles.mainContent}>
         <header className={styles.topHeader}>
-          <div className={styles.headerTitle}>
-            {navItems.find(i => i.path === location.pathname)?.name || 'Portal'}
+          <div className={styles.headerTitleContainer}>
+            <div className={styles.headerTitle}>
+              {location.pathname === '/customer/passes' ? 'Manage Pass' : (navItems.find(i => i.path === location.pathname)?.name || 'Portal')}
+            </div>
+            {location.pathname === '/customer/passes' && (
+              <div className={styles.headerSubtitle} style={{ fontSize: '14px', color: '#6B7280', fontWeight: '400', marginTop: '2px' }}>
+                View and manage your mobility pass
+              </div>
+            )}
           </div>
           <div className={styles.headerProfile}>
             <div className={styles.avatar}>{initials}</div>

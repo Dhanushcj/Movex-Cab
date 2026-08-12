@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { User, Car, FileText, CheckCircle, AlertCircle, Upload } from 'lucide-react';
+import { User, Car, FileText, CheckCircle, AlertCircle, Upload, Eye } from 'lucide-react';
 import { AuthContext } from '../context/AuthContext';
 import API from '../services/api';
 import styles from './DriverProfile.module.css';
@@ -8,22 +8,54 @@ const DriverProfile = () => {
   const { user } = useContext(AuthContext);
   const [driver, setDriver] = useState(null);
   const [loading, setLoading] = useState(true);
+  const fileInputRef = React.useRef(null);
+  const [activeUploadKey, setActiveUploadKey] = useState(null);
+  const [uploadingDoc, setUploadingDoc] = useState(false);
+
+  const fetchProfile = async () => {
+    try {
+      const res = await API.get('/auth/me');
+      if (res.data.success) {
+        setDriver(res.data.data);
+      }
+    } catch (err) {
+      console.error('Failed to fetch profile:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const res = await API.get('/auth/me');
-        if (res.data.success) {
-          setDriver(res.data.data);
-        }
-      } catch (err) {
-        console.error('Failed to fetch profile:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchProfile();
   }, []);
+
+  const handleFileUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file || !activeUploadKey) return;
+
+    setUploadingDoc(true);
+    try {
+      const formData = new FormData();
+      formData.append(activeUploadKey, file);
+      
+      const res = await API.post('/drivers/documents', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      if (res.data.success) {
+        alert('Document uploaded successfully!');
+        fetchProfile();
+      } else {
+        alert('Upload failed: ' + (res.data.message || 'Unknown error'));
+      }
+    } catch (err) {
+      console.error('Failed to upload document:', err);
+      alert('Error uploading document');
+    } finally {
+      setUploadingDoc(false);
+      setActiveUploadKey(null);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
 
   if (loading) {
     return (
@@ -210,18 +242,47 @@ const DriverProfile = () => {
                       {isVerified ? (
                         <><CheckCircle size={18} strokeWidth={2.5} /> Verified</>
                       ) : expired || expiring ? (
-                        <><AlertCircle size={18} strokeWidth={2.5} /> Update Needed</>
+                        <div style={{display: 'flex', alignItems: 'center', cursor: 'pointer', gap: '4px'}} onClick={() => { setActiveUploadKey(doc.key); fileInputRef.current.click(); }}>
+                          <AlertCircle size={18} strokeWidth={2.5} /> Update Needed
+                        </div>
                       ) : hasDoc ? (
                         <><AlertCircle size={18} strokeWidth={2.5} /> Pending</>
                       ) : (
-                        <><Upload size={18} strokeWidth={2.5} /> Upload</>
+                        <div style={{display: 'flex', alignItems: 'center', cursor: 'pointer', gap: '4px'}} onClick={() => { setActiveUploadKey(doc.key); fileInputRef.current.click(); }}>
+                          <Upload size={18} strokeWidth={2.5} /> Upload
+                        </div>
+                      )}
+                      
+                      {doc.data?.url && (
+                        <a 
+                          href={doc.data.url} 
+                          target="_blank" 
+                          rel="noreferrer"
+                          style={{ marginLeft: '16px', color: 'var(--forge-blue)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: '600' }}
+                          title="View Document"
+                        >
+                          <Eye size={16} /> View
+                        </a>
                       )}
                     </div>
                   </div>
                 );
               })}
               
-              <button className={styles.btnUpload}>Upload New Document</button>
+              {uploadingDoc && <p style={{textAlign: 'center', color: 'var(--forge-blue)', fontWeight: '600', marginTop: '10px'}}>Uploading...</p>}
+              <button 
+                className={styles.btnUpload}
+                onClick={() => alert('Please click the "Upload" button next to the specific document you wish to upload.')}
+              >
+                Upload New Document
+              </button>
+              <input 
+                type="file" 
+                ref={fileInputRef} 
+                style={{ display: 'none' }}
+                accept=".png,.jpg,.jpeg,.pdf"
+                onChange={handleFileUpload}
+              />
             </div>
           </div>
         </div>

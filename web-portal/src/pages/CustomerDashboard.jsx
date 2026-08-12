@@ -13,7 +13,8 @@ import {
   CarFront,
   Bike,
   Car,
-  BusFront
+  BusFront,
+  Crown
 } from 'lucide-react';
 
 const CustomerDashboard = () => {
@@ -23,10 +24,7 @@ const CustomerDashboard = () => {
   const [selectedVehicle, setSelectedVehicle] = useState('auto');
   
   // Hardcoded for demo/premium look
-  const recentRides = [
-    { id: 1, route: 'Chennai Central → Anna Nagar', vehicle: 'Auto', date: 'Today, 09:42 AM', status: 'Completed', fare: '₹0 (Pass)' },
-    { id: 2, route: 'Anna Nagar → Guindy', vehicle: 'Mini Cab', date: 'Yesterday, 06:15 PM', status: 'Completed', fare: '₹0 (Pass)' },
-  ];
+  const recentRides = [];
 
   const vehicles = [
     { id: 'bike', name: 'Bike', Icon: Bike },
@@ -50,6 +48,11 @@ const CustomerDashboard = () => {
   }, []);
 
   const handleBookNow = () => {
+    if (!activePass) {
+      alert("You must have an active pass to book a ride.");
+      navigate('/customer/passes');
+      return;
+    }
     navigate('/customer/book');
   };
 
@@ -111,45 +114,88 @@ const CustomerDashboard = () => {
             ))}
           </div>
 
-          <button className={styles.btnBook} onClick={handleBookNow}>
-            Book Now <ArrowRight size={20} />
+          <button className={styles.btnBookSolid} onClick={handleBookNow}>
+            Start Booking <ArrowRight size={20} />
           </button>
         </div>
 
         {/* Right Column: Pass & Recent */}
         <div className={styles.rightCol}>
           
-          {/* Premium Pass Card */}
-          <div className={styles.passCard}>
-            <div className={styles.passHeader}>
-              <div>
-                <div className={styles.passSub}>FORGE MOBILITY</div>
-                <div className={styles.passType}>{activePass?.pass?.name || 'GOLD PASS'}</div>
-              </div>
-              <div className={styles.passBadge}>
-                ACTIVE
-              </div>
-            </div>
-
-            <div className={styles.passStats}>
-              <div>
-                <div className={styles.pStatLabel}>VALID UNTIL</div>
-                <div className={styles.pStatValue}>
-                  {activePass ? new Date(activePass.validUntil).toLocaleDateString() : 'Dec 31, 2026'}
+          {/* Active Pass Card OR Promo Card */}
+          {activePass ? (
+            <div className={styles.activePassCardDashboard}>
+              <div className={styles.passHeaderActive}>
+                <div className={styles.passTitleGroup}>
+                  <div className={styles.passIconWrapActive}>
+                    <Crown size={24} color="#EAB308" />
+                  </div>
+                  <div>
+                    <h3 className={styles.passTitleActive}>{activePass.pass?.name || 'Mobility Pass'}</h3>
+                    <div className={styles.passSubActive}>Valid until {new Date(activePass.validUntil).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
+                  </div>
+                </div>
+                <div className={styles.passBadgeActive}>
+                  <span className={styles.statusDotGreen}></span>
+                  ACTIVE
                 </div>
               </div>
-              <div>
-                <div className={styles.pStatLabel}>REMAINING</div>
-                <div className={styles.pStatValue}>
-                  {activePass?.ridesRemaining || 'Unlimited'} Rides
+              
+              <div className={styles.passBodyActive}>
+                <div className={styles.passStatBlock}>
+                  <div className={styles.passStatLabel}>Rides Used</div>
+                  <div className={styles.passStatValue}>{activePass.ridesUsed || 0}</div>
+                </div>
+                <div className={styles.passStatBlock}>
+                  <div className={styles.passStatLabel}>Pass Status</div>
+                  <div className={styles.passStatValue}>Unlimited</div>
+                </div>
+              </div>
+              
+              <button className={styles.btnViewPass} onClick={() => navigate('/customer/passes')}>
+                Manage Pass <ArrowRight size={16} style={{marginLeft: 8}} />
+              </button>
+            </div>
+          ) : (
+            <div className={styles.promoCard}>
+              <div className={styles.promoHeader}>
+                <div className={styles.promoTitleGroup}>
+                  <div className={styles.promoIconWrap}>
+                    <Crown size={24} color="#FFF" />
+                  </div>
+                  <div>
+                    <h3 className={styles.promoTitle}>Ride More. Pay Less.</h3>
+                    <div className={styles.promoSub}>Get Your Mobility Pass</div>
+                  </div>
+                </div>
+                <div className={styles.noPassBadge}>
+                  <span className={styles.statusDotRed}></span>
+                  No active pass
+                </div>
+              </div>
+
+              <p className={styles.promoText}>
+                Get unlimited covered rides across eligible FORGE INDIA CONNECT routes with a mobility pass.
+              </p>
+
+              <div className={styles.promoBenefits}>
+                <div className={styles.benefitItem}><CheckCircle2 size={14} className={styles.benefitIcon} /> Unlimited rides</div>
+                <div className={styles.benefitItem}><CheckCircle2 size={14} className={styles.benefitIcon} /> Multiple vehicle types</div>
+                <div className={styles.benefitItem}><CheckCircle2 size={14} className={styles.benefitIcon} /> Fixed corridor access</div>
+                <div className={styles.benefitItem}><CheckCircle2 size={14} className={styles.benefitIcon} /> Priority booking</div>
+              </div>
+
+              <div className={styles.promoFooter}>
+                <div className={styles.promoPrice}>
+                  Starting from <span>₹499</span> / month
+                </div>
+                <div className={styles.promoActions}>
+                  <button className={styles.btnExplore} onClick={() => navigate('/customer/passes')}>Explore Passes</button>
+                  <button className={styles.btnGetPass} onClick={() => navigate('/customer/passes')}>Get Your Pass <ArrowRight size={16} /></button>
                 </div>
               </div>
             </div>
-
-            <button className={styles.btnPass} onClick={() => navigate('/customer/passes')}>
-              <CreditCard size={16} /> Manage Subscription
-            </button>
-          </div>
+          )}
 
           {/* Recent Rides */}
           <div className={styles.recentRides}>
@@ -160,25 +206,66 @@ const CustomerDashboard = () => {
               Recent Activity
             </div>
 
-            <div className={styles.rideList}>
-              {recentRides.map(ride => (
-                <div key={ride.id} className={styles.rideItem}>
-                  <div className={styles.rideIcon}>
-                    <CheckCircle2 size={20} color="var(--status-success)" />
+            {recentRides.length > 0 ? (
+              <div className={styles.rideList}>
+                {recentRides.map(ride => (
+                  <div key={ride.id} className={styles.rideItem}>
+                    <div className={styles.rideIcon}>
+                      <CheckCircle2 size={20} color="var(--status-success)" />
+                    </div>
+                    <div className={styles.rideInfo}>
+                      <div className={styles.rideRoute}>{ride.route}</div>
+                      <div className={styles.rideDate}>{ride.date} • {ride.vehicle}</div>
+                    </div>
+                    <div className={styles.rideStatus}>
+                      <div className={`${styles.statusBadge} ${styles.statusCompleted}`}>{ride.status}</div>
+                      <div className={styles.rideFare}>{ride.fare}</div>
+                    </div>
                   </div>
-                  <div className={styles.rideInfo}>
-                    <div className={styles.rideRoute}>{ride.route}</div>
-                    <div className={styles.rideDate}>{ride.date} • {ride.vehicle}</div>
-                  </div>
-                  <div className={styles.rideStatus}>
-                    <div className={`${styles.statusBadge} ${styles.statusCompleted}`}>{ride.status}</div>
-                    <div className={styles.rideFare}>{ride.fare}</div>
-                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className={styles.emptyRides}>
+                <div className={styles.emptyIconWrap}>
+                  <Navigation size={32} color="#9CA3AF" />
                 </div>
-              ))}
-            </div>
+                <h4>No rides yet</h4>
+                <p>Your completed rides will appear here.</p>
+                <button className={styles.btnEmptyBook} onClick={handleBookNow}>Book Your First Ride <ArrowRight size={16} /></button>
+              </div>
+            )}
           </div>
 
+        </div>
+      </div>
+
+      {/* Available Routes Full Width */}
+      <div className={styles.availableRoutesSection}>
+        <div className={styles.sectionTitle}>
+          <div className={styles.sectionIcon}>
+            <MapPin size={20} />
+          </div>
+          Available Routes
+        </div>
+        <div className={styles.routeCardsGrid}>
+          <div className={styles.routeCard}>
+            <div className={styles.rcTop}>
+              <div className={styles.rcLocations}>
+                <span className={styles.rcLoc}>Krishnagiri</span>
+                <ArrowRight size={14} className={styles.rcArrow} />
+                <span className={styles.rcLoc}>Hosur</span>
+              </div>
+              <div className={styles.rcDistance}>45 km</div>
+            </div>
+            <div className={styles.rcBottom}>
+              <div className={styles.rcVehicles}>
+                <CarFront size={16} />
+                <BusFront size={16} />
+                <span>+ Cab & Auto</span>
+              </div>
+              <button className={styles.btnViewRoute}>View Route</button>
+            </div>
+          </div>
         </div>
       </div>
     </div>

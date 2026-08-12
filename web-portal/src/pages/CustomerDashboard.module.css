@@ -224,13 +224,13 @@
   color: var(--text-primary);
 }
 
-.btnBook {
-  background: var(--forge-yellow);
-  color: var(--forge-blue);
-  padding: 12px;
+.btnBookSolid {
+  background: var(--forge-blue);
+  color: #fff;
+  padding: 14px;
   border-radius: var(--radius-lg);
   border: none;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 700;
   cursor: pointer;
   display: flex;
@@ -240,12 +240,13 @@
   width: 100%;
   margin-top: auto;
   transition: all 0.2s;
-  box-shadow: 0 4px 14px rgba(232, 200, 74, 0.3);
+  box-shadow: 0 4px 14px rgba(0, 102, 179, 0.3);
 }
 
-.btnBook:hover {
+.btnBookSolid:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(232, 200, 74, 0.4);
+  box-shadow: 0 6px 20px rgba(0, 102, 179, 0.4);
+  background: #0053B3;
 }
 
 /* Right Column */
@@ -255,116 +256,285 @@
   gap: 24px;
 }
 
-/* Premium Pass Card */
-.passCard {
-  background: linear-gradient(135deg, #1A293E 0%, #0F172A 100%);
-  border-radius: var(--radius-xl);
-  padding: 20px;
-  color: #fff;
-  position: relative;
-  overflow: hidden;
-  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.2);
+/* --- PROMO CARD / ACTIVE PASS CARD --- */
+.promoCard, .activePassCardDashboard {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 24px;
+  border: 1px solid var(--border-light);
 }
 
-.passCard::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  right: -50%;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(circle, rgba(232, 200, 74, 0.1) 0%, transparent 60%);
-  pointer-events: none;
+.activePassCardDashboard {
+  background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+  color: white;
+  box-shadow: 0 10px 25px rgba(37, 99, 235, 0.2);
+  border: none;
 }
 
-.passHeader {
+.passHeaderActive {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 32px;
-  position: relative;
-  z-index: 1;
+  margin-bottom: 24px;
 }
 
-.passType {
-  font-size: 18px;
-  font-weight: 800;
-  background: linear-gradient(90deg, #E8C84A, #FDE68A);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+.passTitleGroup {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.passIconWrapActive {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 12px;
+  border-radius: 12px;
+}
+
+.passTitleActive {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 0 4px 0;
+  color: white;
+}
+
+.passSubActive {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.passBadgeActive {
+  background: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.statusDotGreen {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #34d399;
+}
+
+.passBodyActive {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 24px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.passStatBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.passStatLabel {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.7);
+  text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
-.passSub {
-  font-size: 12px;
-  color: rgba(255,255,255,0.7);
-  font-weight: 500;
-  letter-spacing: 1px;
+.passStatValue {
+  font-size: 18px;
+  font-weight: 700;
+  color: white;
 }
 
-.passBadge {
-  background: rgba(34, 197, 94, 0.2);
-  color: #4ADE80;
+.btnViewPass {
+  width: 100%;
+  background: white;
+  color: #1e3a8a;
+  border: none;
+  padding: 14px;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.2s;
+}
+
+.btnViewPass:hover {
+  background: #f8fafc;
+  transform: translateY(-2px);
+}
+
+/* Promo Pass Card (No Pass State) */
+.promoCard {
+  background: var(--bg-white);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-xl);
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+}
+
+.promoCard::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #E8C84A, var(--forge-yellow));
+}
+
+.promoHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.promoTitleGroup {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.promoIconWrap {
+  background: var(--forge-blue);
+  width: 48px; height: 48px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 102, 179, 0.2);
+}
+
+.promoTitle {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.promoSub {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.noPassBadge {
+  background: #FEF2F2;
+  color: #DC2626;
   padding: 6px 12px;
   border-radius: 99px;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
   display: flex;
   align-items: center;
   gap: 6px;
-  border: 1px solid rgba(74, 222, 128, 0.3);
+  border: 1px solid #FCA5A5;
 }
 
-.passBadge::before {
-  content: '';
-  width: 6px;
-  height: 6px;
-  background: #4ADE80;
+.statusDotRed {
+  width: 6px; height: 6px;
+  background: #DC2626;
   border-radius: 50%;
-  box-shadow: 0 0 8px #4ADE80;
 }
 
-.passStats {
+.promoText {
+  font-size: 14px;
+  color: var(--text-primary);
+  margin: 0 0 20px 0;
+  line-height: 1.5;
+}
+
+.promoBenefits {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.benefitItem {
+  font-size: 13px;
+  color: var(--text-primary);
   display: flex;
-  gap: 32px;
-  margin-bottom: 32px;
-  position: relative;
-  z-index: 1;
-}
-
-.pStatLabel {
-  font-size: 12px;
-  color: rgba(255,255,255,0.6);
+  align-items: center;
+  gap: 6px;
   font-weight: 500;
-  margin-bottom: 4px;
 }
 
-.pStatValue {
-  font-size: 14px;
-  font-weight: 600;
+.benefitIcon {
+  color: #E8C84A;
 }
 
-.btnPass {
-  background: rgba(255,255,255,0.1);
-  color: #fff;
-  border: 1px solid rgba(255,255,255,0.2);
-  padding: 12px 24px;
+.promoFooter {
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 20px;
+  border-top: 1px solid var(--border-light);
+}
+
+.promoPrice {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.promoPrice span {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.promoActions {
+  display: flex;
+  gap: 12px;
+}
+
+.btnExplore {
+  background: transparent;
+  border: 1px solid var(--border-light);
+  color: var(--text-primary);
+  padding: 10px 16px;
   border-radius: var(--radius-lg);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 8px;
-  position: relative;
-  z-index: 1;
 }
 
-.btnPass:hover {
-  background: rgba(255,255,255,0.2);
+.btnExplore:hover {
+  background: var(--bg-section);
+  border-color: #9CA3AF;
+}
+
+.btnGetPass {
+  background: var(--forge-yellow);
+  color: var(--forge-blue);
+  border: none;
+  padding: 10px 20px;
+  border-radius: var(--radius-lg);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(232, 200, 74, 0.3);
+}
+
+.btnGetPass:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(232, 200, 74, 0.4);
 }
 
 /* Recent Rides List */
@@ -453,8 +623,143 @@
 
 /* Empty State */
 .emptyRides {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
   text-align: center;
-  padding: 32px 0;
+  background: var(--bg-section);
+  border-radius: var(--radius-lg);
+  border: 1px dashed var(--border-light);
+  height: 100%;
+}
+
+.emptyIconWrap {
+  width: 64px; height: 64px;
+  background: #F3F4F6;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 16px;
+}
+
+.emptyRides h4 {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 8px 0;
+}
+
+.emptyRides p {
+  font-size: 13px;
   color: var(--text-muted);
-  font-size: 14px;
+  margin: 0 0 24px 0;
+}
+
+.btnEmptyBook {
+  background: var(--bg-white);
+  border: 1px solid var(--border-light);
+  color: var(--forge-blue);
+  padding: 10px 20px;
+  border-radius: var(--radius-lg);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+}
+
+.btnEmptyBook:hover {
+  border-color: var(--forge-blue);
+  background: var(--bg-soft-blue);
+}
+
+/* Available Routes Section */
+.availableRoutesSection {
+  margin-top: 32px;
+}
+
+.routeCardsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.routeCard {
+  background: var(--bg-white);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-xl);
+  padding: 20px;
+  transition: all 0.2s;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+}
+
+.routeCard:hover {
+  border-color: var(--forge-blue);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.rcTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--bg-section);
+}
+
+.rcLocations {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.rcLoc {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.rcArrow {
+  color: var(--text-muted);
+}
+
+.rcDistance {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 600;
+  background: var(--bg-section);
+  padding: 4px 8px;
+  border-radius: 99px;
+}
+
+.rcBottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.rcVehicles {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-muted);
+}
+
+.rcVehicles span {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.btnViewRoute {
+  background: transparent;
+  border: none;
+  color: var(--forge-blue);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
 }
