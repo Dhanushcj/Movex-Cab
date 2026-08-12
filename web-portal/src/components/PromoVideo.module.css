@@ -102,3 +102,27 @@
     box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
   }
 }
+
+@media (max-width: 768px) {
+  .floatingBadge {
+    padding: 2px 4px;
+    border-radius: 4px 0 0 0;
+    min-width: auto;
+    gap: 1px;
+    box-shadow: none;
+  }
+  .badgeLogo {
+    height: 8px;
+  }
+  .badgeContent span {
+    font-size: 6px;
+    letter-spacing: 0;
+  }
+  .liveText {
+    font-size: 5px;
+  }
+  .pulsingDot {
+    width: 3px;
+    height: 3px;
+  }
+}
