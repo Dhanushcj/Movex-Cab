@@ -479,4 +479,10 @@
   .sectionSubtitle {
     font-size: 0.92rem;
   }
+  .metaRowGrid {
+    grid-template-columns: 1fr;
+  }
+  .modesList {
+    grid-template-columns: 1fr;
+  }
 }

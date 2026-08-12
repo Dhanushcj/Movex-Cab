@@ -363,3 +363,9 @@
     gap: 1.5rem;
   }
 }
+
+@media (max-width: 640px) {
+  .savingsResultRow {
+    grid-template-columns: 1fr;
+  }
+}
