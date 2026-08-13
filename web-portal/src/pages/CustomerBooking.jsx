@@ -54,6 +54,27 @@ function getHaversineDistanceKm(lat1, lon1, lat2, lon2) {
   return R * c;
 }
 
+function isPointNearRoute(lat, lng, route, maxDistanceKm = 6.0) {
+  if (!route) return true;
+  const polyline = route.decodedPolyline || [];
+  const junctions = (route.junctions || []).map(j => ({
+    lat: j.location.coordinates[1],
+    lng: j.location.coordinates[0]
+  }));
+  const points = polyline.length > 0 ? polyline : junctions;
+  if (points.length === 0) return true;
+
+  let minDistance = Infinity;
+  for (let i = 0; i < points.length; i++) {
+    const pt = points[i];
+    const dist = getHaversineDistanceKm(lat, lng, pt.lat, pt.lng);
+    if (dist < minDistance) {
+      minDistance = dist;
+    }
+  }
+  return minDistance <= maxDistanceKm;
+}
+
 const decodePolyline = (t) => {
   let n, o, a = 0, r = 0, s = 0, l = 0, i = [];
   for (; a < t.length;) {
@@ -315,50 +336,176 @@ const CustomerBooking = () => {
     }
   }, [dropLocation]);
 
-  // Search logic for Pickup Input (Strictly scoped to route junctions)
+  // Search logic for Pickup Input (Searches all locations along the selected route)
   useEffect(() => {
-    const routesToSearch = selectedRoute ? [selectedRoute] : routes;
-    const matches = [];
-
-    routesToSearch.forEach(r => {
-      (r.junctions || []).forEach(j => {
-        const matchesQuery = !pickupQuery || j.name.toLowerCase().includes(pickupQuery.toLowerCase().trim());
-        if (matchesQuery && !matches.some(m => m.name === j.name)) {
-          matches.push({
-            _id: j._id || `j-${j.name}`,
-            name: j.name,
-            subtext: r.name || 'Route Stop',
-            location: j.location,
-            route: r
-          });
-        }
+    if (!pickupQuery || pickupQuery.trim().length < 1) {
+      const routesToSearch = selectedRoute ? [selectedRoute] : routes;
+      const defaultMatches = [];
+      routesToSearch.forEach(r => {
+        (r.junctions || []).forEach(j => {
+          if (!defaultMatches.some(m => m.name === j.name)) {
+            defaultMatches.push({
+              _id: j._id || `j-${j.name}`,
+              name: j.displayName || j.name,
+              subtext: r.name || 'Route Stop',
+              location: j.location,
+              route: r
+            });
+          }
+        });
       });
-    });
+      setPickupSearchResults(defaultMatches);
+      return;
+    }
 
-    setPickupSearchResults(matches);
+    const timer = setTimeout(async () => {
+      const routesToSearch = selectedRoute ? [selectedRoute] : routes;
+      const localMatches = [];
+
+      routesToSearch.forEach(r => {
+        (r.junctions || []).forEach(j => {
+          const nameToUse = j.displayName || j.name;
+          if (nameToUse.toLowerCase().includes(pickupQuery.toLowerCase().trim()) && !localMatches.some(m => m.name === nameToUse)) {
+            localMatches.push({
+              _id: j._id || `j-${nameToUse}`,
+              name: nameToUse,
+              subtext: r.name || 'Route Stop',
+              location: j.location,
+              route: r
+            });
+          }
+        });
+      });
+
+      try {
+        const targetRoute = selectedRoute || routes[0];
+        let searchParam = pickupQuery;
+        if (targetRoute && targetRoute.junctions && targetRoute.junctions.length > 0) {
+          const firstJ = targetRoute.junctions[0];
+          const areaName = firstJ.displayName || firstJ.name;
+          searchParam = `${pickupQuery} ${areaName.split(',').pop() || ''}`;
+        }
+
+        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchParam)}&countrycodes=in&limit=10`);
+        const data = await res.json();
+        
+        const filteredOsmMatches = (data || [])
+          .map(item => {
+            const itemLat = parseFloat(item.lat);
+            const itemLng = parseFloat(item.lon);
+            const matchingR = routesToSearch.find(r => isPointNearRoute(itemLat, itemLng, r, 6.0));
+            if (!matchingR) return null;
+            
+            return {
+              _id: `osm-${item.place_id}`,
+              name: item.display_name.split(',')[0],
+              subtext: `${item.display_name.split(',').slice(1, 3).join(',')} (${matchingR.name || 'On Route'})`,
+              location: { coordinates: [itemLng, itemLat] },
+              route: matchingR
+            };
+          })
+          .filter(Boolean);
+
+        const combined = [...localMatches];
+        filteredOsmMatches.forEach(osmItem => {
+          if (!combined.some(c => c.name.toLowerCase() === osmItem.name.toLowerCase())) {
+            combined.push(osmItem);
+          }
+        });
+
+        setPickupSearchResults(combined);
+      } catch (e) {
+        setPickupSearchResults(localMatches);
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
   }, [pickupQuery, routes, selectedRoute]);
 
-  // Search logic for Drop Input (Strictly scoped to route junctions)
+  // Search logic for Drop Input (Searches all locations along the selected route)
   useEffect(() => {
-    const routesToSearch = selectedRoute ? [selectedRoute] : routes;
-    const matches = [];
-
-    routesToSearch.forEach(r => {
-      (r.junctions || []).forEach(j => {
-        const matchesQuery = !dropQuery || j.name.toLowerCase().includes(dropQuery.toLowerCase().trim());
-        if (matchesQuery && !matches.some(m => m.name === j.name)) {
-          matches.push({
-            _id: j._id || `j-${j.name}`,
-            name: j.name,
-            subtext: r.name || 'Route Stop',
-            location: j.location,
-            route: r
-          });
-        }
+    if (!dropQuery || dropQuery.trim().length < 1) {
+      const routesToSearch = selectedRoute ? [selectedRoute] : routes;
+      const defaultMatches = [];
+      routesToSearch.forEach(r => {
+        (r.junctions || []).forEach(j => {
+          if (!defaultMatches.some(m => m.name === j.name)) {
+            defaultMatches.push({
+              _id: j._id || `j-${j.name}`,
+              name: j.displayName || j.name,
+              subtext: r.name || 'Route Stop',
+              location: j.location,
+              route: r
+            });
+          }
+        });
       });
-    });
+      setDropSearchResults(defaultMatches);
+      return;
+    }
 
-    setDropSearchResults(matches);
+    const timer = setTimeout(async () => {
+      const routesToSearch = selectedRoute ? [selectedRoute] : routes;
+      const localMatches = [];
+
+      routesToSearch.forEach(r => {
+        (r.junctions || []).forEach(j => {
+          const nameToUse = j.displayName || j.name;
+          if (nameToUse.toLowerCase().includes(dropQuery.toLowerCase().trim()) && !localMatches.some(m => m.name === nameToUse)) {
+            localMatches.push({
+              _id: j._id || `j-${nameToUse}`,
+              name: nameToUse,
+              subtext: r.name || 'Route Stop',
+              location: j.location,
+              route: r
+            });
+          }
+        });
+      });
+
+      try {
+        const targetRoute = selectedRoute || routes[0];
+        let searchParam = dropQuery;
+        if (targetRoute && targetRoute.junctions && targetRoute.junctions.length > 0) {
+          const firstJ = targetRoute.junctions[0];
+          const areaName = firstJ.displayName || firstJ.name;
+          searchParam = `${dropQuery} ${areaName.split(',').pop() || ''}`;
+        }
+
+        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchParam)}&countrycodes=in&limit=10`);
+        const data = await res.json();
+        
+        const filteredOsmMatches = (data || [])
+          .map(item => {
+            const itemLat = parseFloat(item.lat);
+            const itemLng = parseFloat(item.lon);
+            const matchingR = routesToSearch.find(r => isPointNearRoute(itemLat, itemLng, r, 6.0));
+            if (!matchingR) return null;
+            
+            return {
+              _id: `osm-${item.place_id}`,
+              name: item.display_name.split(',')[0],
+              subtext: `${item.display_name.split(',').slice(1, 3).join(',')} (${matchingR.name || 'On Route'})`,
+              location: { coordinates: [itemLng, itemLat] },
+              route: matchingR
+            };
+          })
+          .filter(Boolean);
+
+        const combined = [...localMatches];
+        filteredOsmMatches.forEach(osmItem => {
+          if (!combined.some(c => c.name.toLowerCase() === osmItem.name.toLowerCase())) {
+            combined.push(osmItem);
+          }
+        });
+
+        setDropSearchResults(combined);
+      } catch (e) {
+        setDropSearchResults(localMatches);
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
   }, [dropQuery, routes, selectedRoute]);
 
   const handleSelectPickupSearchResult = (item) => {
