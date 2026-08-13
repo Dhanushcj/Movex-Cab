@@ -742,6 +742,46 @@ const payTrip = async (req, res, next) => {
   }
 };
 
+/**
+ * Rate and review a completed trip
+ * POST /api/bookings/:id/rate
+ * PUT /api/bookings/:id/rate
+ */
+const rateBooking = async (req, res, next) => {
+  const { rating, review } = req.body;
+  try {
+    const booking = await Booking.findById(req.params.id);
+    if (!booking) {
+      return res.status(404).json({ success: false, message: 'Booking not found' });
+    }
+
+    const numRating = Number(rating) || 5;
+    booking.customerRating = numRating;
+    if (review) {
+      booking.customerReview = review;
+    }
+    await booking.save();
+
+    // Update driver rating if driver is assigned
+    if (booking.driver) {
+      const Driver = require('../models/Driver');
+      const driver = await Driver.findById(booking.driver);
+      if (driver && typeof driver.updateRating === 'function') {
+        driver.updateRating(numRating);
+        await driver.save();
+      }
+    }
+
+    res.json({
+      success: true,
+      message: 'Review submitted successfully',
+      data: booking
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   estimateFare,
   createBooking,
@@ -754,5 +794,6 @@ module.exports = {
   cancelBooking,
   getBooking,
   updatePaymentPreferences,
-  verifyOTP
+  verifyOTP,
+  rateBooking
 };

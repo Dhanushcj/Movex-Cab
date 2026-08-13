@@ -46,6 +46,39 @@ const CustomerTracking = () => {
   const [osrmDriverRoute, setOsrmDriverRoute] = useState([]);
   const [timer, setTimer] = useState(300);
 
+  const [rating, setRating] = useState(5);
+  const [hoverRating, setHoverRating] = useState(0);
+  const [reviewText, setReviewText] = useState('');
+  const [selectedTags, setSelectedTags] = useState([]);
+  const [submittingReview, setSubmittingReview] = useState(false);
+  const [reviewSubmitted, setReviewSubmitted] = useState(false);
+
+  const availableTags = ['Punctual Driver', 'Clean Vehicle', 'Smooth Ride', 'Polite Service', 'Safe Driving'];
+
+  const toggleTag = (tag) => {
+    setSelectedTags(prev => 
+      prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]
+    );
+  };
+
+  const handleReviewSubmit = async () => {
+    try {
+      setSubmittingReview(true);
+      const combinedReview = reviewText + (selectedTags.length > 0 ? ` [Tags: ${selectedTags.join(', ')}]` : '');
+      const res = await API.post(`/bookings/${id}/rate`, {
+        rating,
+        review: combinedReview
+      });
+      if (res.data.success) {
+        setReviewSubmitted(true);
+      }
+    } catch (err) {
+      console.error('Failed to submit review', err);
+      alert('Failed to submit review. Please try again.');
+    } finally {
+      setSubmittingReview(false);
+    }
+  };
 
   const mapRef = useRef(null);
 
@@ -57,6 +90,11 @@ const CustomerTracking = () => {
           const bookingData = res.data.data;
           setRide(bookingData);
           setStatus(bookingData.status);
+          if (bookingData.customerRating || bookingData.customerReview) {
+            setReviewSubmitted(true);
+            if (bookingData.customerRating) setRating(bookingData.customerRating);
+            if (bookingData.customerReview) setReviewText(bookingData.customerReview);
+          }
           if (bookingData.driver) {
             setDriverInfo(bookingData.driver);
           }
@@ -310,6 +348,79 @@ const CustomerTracking = () => {
                   </div>
                 </div>
 
+                {/* Review & Rating Card for Completed Ride */}
+                {status === 'completed' && (
+                  <div className={styles.reviewCard}>
+                    <div className={styles.reviewHeader}>
+                      <h3>Rate Your Trip</h3>
+                      <p>How was your ride experience with {driverInfo?.name || 'your driver'}?</p>
+                    </div>
+
+                    <div className={styles.starsRow}>
+                      {[1, 2, 3, 4, 5].map((star) => {
+                        const active = (hoverRating || rating) >= star;
+                        return (
+                          <button
+                            key={star}
+                            className={styles.starBtn}
+                            onMouseEnter={() => setHoverRating(star)}
+                            onMouseLeave={() => setHoverRating(0)}
+                            onClick={() => setRating(star)}
+                            type="button"
+                          >
+                            <Star
+                              size={32}
+                              fill={active ? "#FBBF24" : "none"}
+                              color={active ? "#FBBF24" : "#CBD5E1"}
+                            />
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {!reviewSubmitted ? (
+                      <>
+                        <div className={styles.tagsRow}>
+                          {availableTags.map(tag => {
+                            const isSelected = selectedTags.includes(tag);
+                            return (
+                              <button
+                                key={tag}
+                                type="button"
+                                className={isSelected ? styles.tagChipSelected : styles.tagChip}
+                                onClick={() => toggleTag(tag)}
+                              >
+                                {tag}
+                              </button>
+                            );
+                          })}
+                        </div>
+
+                        <textarea
+                          className={styles.reviewInput}
+                          placeholder="Write your review or feedback for the admin and driver..."
+                          value={reviewText}
+                          onChange={(e) => setReviewText(e.target.value)}
+                        />
+
+                        <button
+                          className={styles.btnPrimary}
+                          onClick={handleReviewSubmit}
+                          disabled={submittingReview}
+                          style={{ width: '100%', marginBottom: '12px' }}
+                        >
+                          {submittingReview ? 'Submitting...' : 'Submit Review'}
+                        </button>
+                      </>
+                    ) : (
+                      <div className={styles.reviewSubmittedBadge}>
+                        <CheckCircle2 size={18} style={{ display: 'inline', marginRight: '6px' }} />
+                        Review saved! Thank you for your feedback.
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 {/* Bottom Actions */}
                 <div className={styles.trackingActionFooter}>
                   {status === 'completed' ? (
@@ -317,7 +428,7 @@ const CustomerTracking = () => {
                       className={styles.btnPrimary} 
                       onClick={() => navigate('/customer/dashboard')}
                     >
-                      Done
+                      Done & Return to Dashboard
                     </button>
                   ) : (
                     <div className={styles.actionBtnRow}>

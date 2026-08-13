@@ -15,7 +15,8 @@ const {
   cancelBooking,
   getBooking,
   updatePaymentPreferences,
-  verifyOTP
+  verifyOTP,
+  rateBooking
 } = require('../controllers/bookingController');
 
 router.use(protect);
@@ -30,6 +31,8 @@ router.post('/:id/verify-otp', verifyOTP);
 router.put('/:id/start', startTrip);
 router.put('/:id/complete', completeTrip);
 router.put('/:id/pay', payTrip);
+router.post('/:id/rate', rateBooking);
+router.put('/:id/rate', rateBooking);
 router.put('/:id/cancel', cancelBooking);
 router.put('/:id/payment-method', updatePaymentPreferences);
 
