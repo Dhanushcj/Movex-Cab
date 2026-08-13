@@ -106,6 +106,13 @@ const CustomerBooking = () => {
   const [activeDrivers, setActiveDrivers] = useState([]);
   const [mapCenter, setMapCenter] = useState(defaultCenter);
 
+  const [pickupQuery, setPickupQuery] = useState('');
+  const [dropQuery, setDropQuery] = useState('');
+  const [pickupSearchResults, setPickupSearchResults] = useState([]);
+  const [dropSearchResults, setDropSearchResults] = useState([]);
+  const [isPickupFocused, setIsPickupFocused] = useState(false);
+  const [isDropFocused, setIsDropFocused] = useState(false);
+
   const mapRef = useRef(null);
 
   const vehicles = [
@@ -221,6 +228,144 @@ const CustomerBooking = () => {
     const intervalId = setInterval(fetchDrivers, 10000);
     return () => clearInterval(intervalId);
   }, [currentPosition, mapCenter]);
+
+  // Synchronize input fields when locations are set from map or current location
+  useEffect(() => {
+    if (pickupLocation?.name) {
+      setPickupQuery(pickupLocation.name.split(',')[0]);
+    } else {
+      setPickupQuery('');
+    }
+  }, [pickupLocation]);
+
+  useEffect(() => {
+    if (dropLocation?.name) {
+      setDropQuery(dropLocation.name.split(',')[0]);
+    } else {
+      setDropQuery('');
+    }
+  }, [dropLocation]);
+
+  // Search logic for Pickup Input
+  useEffect(() => {
+    if (!pickupQuery || pickupQuery.trim().length < 2) {
+      setPickupSearchResults([]);
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      const localMatches = [];
+      const routesToSearch = selectedRoute ? [selectedRoute] : routes;
+      routesToSearch.forEach(r => {
+        (r.junctions || []).forEach(j => {
+          if (j.name.toLowerCase().includes(pickupQuery.toLowerCase()) && !localMatches.some(m => m.name === j.name)) {
+            localMatches.push({
+              _id: j._id || `j-${j.name}`,
+              name: j.name,
+              subtext: r.name || 'Route Stop',
+              location: j.location
+            });
+          }
+        });
+      });
+
+      try {
+        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(pickupQuery)}&countrycodes=in&limit=5`);
+        const data = await res.json();
+        const osmMatches = (data || []).map(item => ({
+          _id: `osm-${item.place_id}`,
+          name: item.display_name.split(',')[0],
+          subtext: item.display_name,
+          location: { coordinates: [parseFloat(item.lon), parseFloat(item.lat)] }
+        }));
+
+        setPickupSearchResults([...localMatches, ...osmMatches]);
+      } catch (e) {
+        setPickupSearchResults(localMatches);
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [pickupQuery, routes, selectedRoute]);
+
+  // Search logic for Drop Input
+  useEffect(() => {
+    if (!dropQuery || dropQuery.trim().length < 2) {
+      setDropSearchResults([]);
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      const localMatches = [];
+      const routesToSearch = selectedRoute ? [selectedRoute] : routes;
+      routesToSearch.forEach(r => {
+        (r.junctions || []).forEach(j => {
+          if (j.name.toLowerCase().includes(dropQuery.toLowerCase()) && !localMatches.some(m => m.name === j.name)) {
+            localMatches.push({
+              _id: j._id || `j-${j.name}`,
+              name: j.name,
+              subtext: r.name || 'Route Stop',
+              location: j.location
+            });
+          }
+        });
+      });
+
+      try {
+        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(dropQuery)}&countrycodes=in&limit=5`);
+        const data = await res.json();
+        const osmMatches = (data || []).map(item => ({
+          _id: `osm-${item.place_id}`,
+          name: item.display_name.split(',')[0],
+          subtext: item.display_name,
+          location: { coordinates: [parseFloat(item.lon), parseFloat(item.lat)] }
+        }));
+
+        setDropSearchResults([...localMatches, ...osmMatches]);
+      } catch (e) {
+        setDropSearchResults(localMatches);
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [dropQuery, routes, selectedRoute]);
+
+  const handleSelectPickupSearchResult = (item) => {
+    setPickupLocation({
+      _id: item._id,
+      name: item.name,
+      location: item.location
+    });
+    setPickupQuery(item.name);
+    setMapCenter({
+      lat: item.location.coordinates[1],
+      lng: item.location.coordinates[0]
+    });
+    setIsPickupFocused(false);
+  };
+
+  const handleSelectDropSearchResult = (item) => {
+    setDropLocation({
+      _id: item._id,
+      name: item.name,
+      location: item.location
+    });
+    setDropQuery(item.name);
+    setMapCenter({
+      lat: item.location.coordinates[1],
+      lng: item.location.coordinates[0]
+    });
+    setIsDropFocused(false);
+  };
+
+  const handleSwapLocations = () => {
+    const tempLoc = pickupLocation;
+    const tempQ = pickupQuery;
+    setPickupLocation(dropLocation);
+    setPickupQuery(dropQuery);
+    setDropLocation(tempLoc);
+    setDropQuery(tempQ);
+  };
 
   const handleRouteSelect = (route) => {
     setSelectedRoute(route);
@@ -444,7 +589,37 @@ const CustomerBooking = () => {
                   <div className={styles.inputArea}>
                     <span className={styles.locLabel}>Pickup Location</span>
                     <div className={styles.inputField}>
-                      <span className={styles.locValueMain}>{pickupLocation ? pickupLocation.name.split(',')[0] : "Select from map or search..."}</span>
+                      <div className={styles.searchContainer}>
+                        <input
+                          type="text"
+                          className={styles.searchInput}
+                          value={pickupQuery}
+                          onChange={(e) => {
+                            setPickupQuery(e.target.value);
+                            if (!isPickupFocused) setIsPickupFocused(true);
+                          }}
+                          onFocus={() => setIsPickupFocused(true)}
+                          onBlur={() => setTimeout(() => setIsPickupFocused(false), 200)}
+                          placeholder="Type pickup location or search..."
+                        />
+                        {isPickupFocused && pickupSearchResults.length > 0 && (
+                          <div className={styles.searchDropdown}>
+                            {pickupSearchResults.map((item) => (
+                              <div
+                                key={item._id}
+                                className={styles.dropdownItem}
+                                onMouseDown={() => handleSelectPickupSearchResult(item)}
+                              >
+                                <MapPin size={16} className={styles.dropdownIcon} />
+                                <div>
+                                  <div className={styles.dropdownTitle}>{item.name}</div>
+                                  <div className={styles.dropdownSub}>{item.subtext}</div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                       <button className={styles.useCurrentBtn} onClick={handleUseCurrentLocation}>
                         <LocateFixed size={14} /> Use current location
                       </button>
@@ -453,7 +628,9 @@ const CustomerBooking = () => {
                 </div>
 
                 <div className={styles.swapBtnWrapper}>
-                  <button className={styles.swapBtn}><ArrowUpDown size={14} color="#64748b" /></button>
+                  <button className={styles.swapBtn} onClick={handleSwapLocations} title="Swap pickup & drop location">
+                    <ArrowUpDown size={14} color="#64748b" />
+                  </button>
                 </div>
 
                 <div className={styles.locInputWrapper}>
@@ -463,7 +640,37 @@ const CustomerBooking = () => {
                   <div className={styles.inputArea}>
                     <span className={styles.locLabel}>Drop Location</span>
                     <div className={styles.inputField}>
-                      <span className={styles.locValueMain}>{dropLocation ? dropLocation.name.split(',')[0] : "Select from map or search..."}</span>
+                      <div className={styles.searchContainer}>
+                        <input
+                          type="text"
+                          className={styles.searchInput}
+                          value={dropQuery}
+                          onChange={(e) => {
+                            setDropQuery(e.target.value);
+                            if (!isDropFocused) setIsDropFocused(true);
+                          }}
+                          onFocus={() => setIsDropFocused(true)}
+                          onBlur={() => setTimeout(() => setIsDropFocused(false), 200)}
+                          placeholder="Type drop location or search..."
+                        />
+                        {isDropFocused && dropSearchResults.length > 0 && (
+                          <div className={styles.searchDropdown}>
+                            {dropSearchResults.map((item) => (
+                              <div
+                                key={item._id}
+                                className={styles.dropdownItem}
+                                onMouseDown={() => handleSelectDropSearchResult(item)}
+                              >
+                                <MapPin size={16} className={styles.dropdownIcon} />
+                                <div>
+                                  <div className={styles.dropdownTitle}>{item.name}</div>
+                                  <div className={styles.dropdownSub}>{item.subtext}</div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                       <Search size={18} color="#94a3b8" />
                     </div>
                   </div>
