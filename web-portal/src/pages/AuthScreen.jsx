@@ -2,7 +2,7 @@ import React, { useState, useContext, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { Mail, Lock, Eye, EyeOff, User, Phone, ArrowRight, Home } from 'lucide-react';
-import { MapContainer, TileLayer, Polyline, Marker } from 'react-leaflet';
+import { MapContainer, TileLayer, Polyline, Marker, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import API from '../services/api';
@@ -10,6 +10,16 @@ import styles from './Auth.module.css';
 
 const defaultCenter = [13.0827, 80.2707]; // Chennai
 const routeColors = ['#0053B3', '#D49F0C', '#10B981', '#EF4444', '#8B5CF6'];
+
+function MapFlyController({ center, zoom }) {
+  const map = useMap();
+  useEffect(() => {
+    if (center && center[0] && center[1]) {
+      map.flyTo(center, zoom || 13, { animate: true, duration: 1.2 });
+    }
+  }, [center, zoom, map]);
+  return null;
+}
 
 const junctionDotIcon = (color = '#E8C84A') => L.divIcon({
   className: 'junction-dot',
@@ -303,6 +313,7 @@ const AuthScreen = () => {
               style={{ width: '100%', height: '100%', borderRadius: '16px' }}
               zoomControl={true}
             >
+              {userLocation && <MapFlyController center={userLocation} zoom={13} />}
               <TileLayer
                 url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>'

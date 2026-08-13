@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronDown, LocateFixed, Check, Bell, Users, ArrowUpDown, Info, User, Search, MapPin, ChevronRight, Ticket, Navigation, CheckCircle2 } from 'lucide-react';
-import { MapContainer, TileLayer, Polyline, Marker } from 'react-leaflet';
+import { MapContainer, TileLayer, Polyline, Marker, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import BikeIcon from '../components/BikeIcon';
@@ -14,6 +14,20 @@ import { useSocket } from '../context/SocketContext';
 
 const defaultCenter = { lat: 13.0827, lng: 80.2707 }; // Chennai
 const routeColors = ['#0053B3', '#D49F0C', '#10B981', '#EF4444', '#8B5CF6'];
+
+function MapFlyController({ center, zoom }) {
+  const map = useMap();
+  useEffect(() => {
+    if (center) {
+      const lat = typeof center.lat === 'number' ? center.lat : Array.isArray(center) ? center[0] : null;
+      const lng = typeof center.lng === 'number' ? center.lng : Array.isArray(center) ? center[1] : null;
+      if (lat && lng) {
+        map.flyTo([lat, lng], zoom || 14, { animate: true, duration: 1.2 });
+      }
+    }
+  }, [center, zoom, map]);
+  return null;
+}
 
 const userLocationIcon = L.divIcon({
   className: 'user-live-location-marker',
@@ -879,6 +893,7 @@ const CustomerBooking = () => {
             style={{ width: '100%', height: '100%' }}
             zoomControl={true}
           >
+            <MapFlyController center={mapCenter} zoom={13} />
             <TileLayer
               url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>'
