@@ -381,6 +381,72 @@ const CustomerBooking = () => {
     setIsDropFocused(false);
   };
 
+  const snapToRoute = (dragLat, dragLng) => {
+    const routesToSearch = selectedRoute ? [selectedRoute] : routes;
+    let minDistance = Infinity;
+    let nearestPoint = { lat: dragLat, lng: dragLng };
+    let matchingRoute = null;
+
+    routesToSearch.forEach(r => {
+      const points = r.decodedPolyline && r.decodedPolyline.length > 0
+        ? r.decodedPolyline
+        : (r.junctions || []).map(j => ({ lat: j.location.coordinates[1], lng: j.location.coordinates[0] }));
+
+      points.forEach(pt => {
+        const dist = getHaversineDistanceKm(dragLat, dragLng, pt.lat, pt.lng);
+        if (dist < minDistance) {
+          minDistance = dist;
+          nearestPoint = pt;
+          matchingRoute = r;
+        }
+      });
+    });
+
+    return { nearestPoint, matchingRoute };
+  };
+
+  const handlePickupMarkerDragEnd = async (e) => {
+    const target = e.target;
+    if (!target) return;
+    const latLng = target.getLatLng();
+    const { nearestPoint, matchingRoute } = snapToRoute(latLng.lat, latLng.lng);
+
+    if (matchingRoute && (!selectedRoute || selectedRoute._id !== matchingRoute._id)) {
+      setSelectedRoute(matchingRoute);
+    }
+
+    const realName = await reverseGeocode(nearestPoint.lat, nearestPoint.lng);
+    const newLocation = {
+      _id: `drag-pickup-${Date.now()}`,
+      name: realName || 'Pickup Location',
+      location: { coordinates: [nearestPoint.lng, nearestPoint.lat] }
+    };
+
+    setPickupLocation(newLocation);
+    setPickupQuery(newLocation.name);
+  };
+
+  const handleDropMarkerDragEnd = async (e) => {
+    const target = e.target;
+    if (!target) return;
+    const latLng = target.getLatLng();
+    const { nearestPoint, matchingRoute } = snapToRoute(latLng.lat, latLng.lng);
+
+    if (matchingRoute && (!selectedRoute || selectedRoute._id !== matchingRoute._id)) {
+      setSelectedRoute(matchingRoute);
+    }
+
+    const realName = await reverseGeocode(nearestPoint.lat, nearestPoint.lng);
+    const newLocation = {
+      _id: `drag-drop-${Date.now()}`,
+      name: realName || 'Drop Location',
+      location: { coordinates: [nearestPoint.lng, nearestPoint.lat] }
+    };
+
+    setDropLocation(newLocation);
+    setDropQuery(newLocation.name);
+  };
+
   const handleSwapLocations = () => {
     const tempLoc = pickupLocation;
     const tempQ = pickupQuery;
@@ -843,28 +909,36 @@ const CustomerBooking = () => {
               );
             })}
 
-            {/* Custom Pickup Marker */}
+            {/* Custom Pickup Marker (Draggable) */}
             {pickupLocation && (
               <Marker
                 position={[pickupLocation.location.coordinates[1], pickupLocation.location.coordinates[0]]}
+                draggable={true}
+                eventHandlers={{
+                  dragend: handlePickupMarkerDragEnd
+                }}
                 icon={L.divIcon({
                   className: 'pickup-marker',
-                  html: `<div style="width: 20px; height: 20px; border-radius: 50%; background: #10B981; border: 3px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.4);"></div>`,
-                  iconSize: [20, 20],
-                  iconAnchor: [10, 10]
+                  html: `<div style="width: 22px; height: 22px; border-radius: 50%; background: #10B981; border: 3px solid white; box-shadow: 0 3px 8px rgba(0,0,0,0.4); cursor: grab;"></div>`,
+                  iconSize: [22, 22],
+                  iconAnchor: [11, 11]
                 })}
               />
             )}
             
-            {/* Custom Drop Marker */}
+            {/* Custom Drop Marker (Draggable) */}
             {dropLocation && (
               <Marker
                 position={[dropLocation.location.coordinates[1], dropLocation.location.coordinates[0]]}
+                draggable={true}
+                eventHandlers={{
+                  dragend: handleDropMarkerDragEnd
+                }}
                 icon={L.divIcon({
                   className: 'drop-marker',
-                  html: `<div style="width: 20px; height: 20px; border-radius: 50%; background: #EF4444; border: 3px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.4);"></div>`,
-                  iconSize: [20, 20],
-                  iconAnchor: [10, 10]
+                  html: `<div style="width: 22px; height: 22px; border-radius: 50%; background: #EF4444; border: 3px solid white; box-shadow: 0 3px 8px rgba(0,0,0,0.4); cursor: grab;"></div>`,
+                  iconSize: [22, 22],
+                  iconAnchor: [11, 11]
                 })}
               />
             )}
