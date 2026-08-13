@@ -1,14 +1,15 @@
 import React, { useState, useContext, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { GoogleMap, useJsApiLoader, Marker, Polyline } from '@react-google-maps/api';
+import { MapContainer, TileLayer, Polyline, Marker } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
 import { Power, MapPin, Navigation, Clock, CheckCircle2, Navigation2, FileText, LifeBuoy, History, Zap } from 'lucide-react';
 import { SocketContext } from '../context/SocketContext';
 import { AuthContext } from '../context/AuthContext';
 import API from '../services/api';
 import styles from './DriverDashboard.module.css';
 
-const center = { lat: 13.0827, lng: 80.2707 }; // Chennai
-const libraries = ['places', 'geometry'];
+const center = [13.0827, 80.2707]; // Chennai
 
 const decodePolyline = (t) => {
   let n, o, a = 0, r = 0, s = 0, l = 0, i = [];
@@ -133,11 +134,7 @@ const DriverDashboard = () => {
     }
   }, [socket, isOnline, user]);
 
-  const { isLoaded } = useJsApiLoader({
-    id: 'google-map-script',
-    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
-    libraries
-  });
+  
   
   useEffect(() => {
     const fetchData = async () => {
@@ -157,12 +154,14 @@ const DriverDashboard = () => {
                   fullRoute.decodedPolyline = fullRoute.polyline ? decodePolyline(fullRoute.polyline) : [];
                   setAssignedRoute(fullRoute);
                   
-                  if (mapRef.current && fullRoute.decodedPolyline.length > 0) {
-                    const bounds = new window.google.maps.LatLngBounds();
-                    fullRoute.decodedPolyline.forEach(coord => {
-                      bounds.extend(new window.google.maps.LatLng(coord.lat, coord.lng));
-                    });
-                    mapRef.current.fitBounds(bounds);
+                  if (mapRef.current && fullRoute.decodedPolyline.length > 0 && window.google?.maps) {
+                    try {
+                      const bounds = new window.google.maps.LatLngBounds();
+                      fullRoute.decodedPolyline.forEach(coord => {
+                        bounds.extend(new window.google.maps.LatLng(coord.lat, coord.lng));
+                      });
+                      mapRef.current.fitBounds(bounds);
+                    } catch (e) {}
                   }
                 }
               }
@@ -258,83 +257,57 @@ const DriverDashboard = () => {
       
       {/* Background Map - Full Bleed */}
       <div className={styles.mapPanel}>
-        {isLoaded ? (
-          <GoogleMap
-            mapContainerStyle={{ width: '100%', height: '100%' }}
-            center={driverLocation}
-            zoom={13}
-            options={{ 
-              disableDefaultUI: true, 
-              zoomControl: false,
-              styles: [
-                { "elementType": "geometry", "stylers": [{ "color": "#f8fafc" }] },
-                { "elementType": "labels.icon", "stylers": [{ "visibility": "off" }] },
-                { "elementType": "labels.text.fill", "stylers": [{ "color": "#64748b" }] },
-                { "elementType": "labels.text.stroke", "stylers": [{ "color": "#f8fafc" }] },
-                { "featureType": "road", "elementType": "geometry", "stylers": [{ "color": "#ffffff" }] },
-                { "featureType": "road.arterial", "elementType": "labels.text.fill", "stylers": [{ "color": "#94a3b8" }] },
-                { "featureType": "road.highway", "elementType": "geometry", "stylers": [{ "color": "#e2e8f0" }] },
-                { "featureType": "road.highway", "elementType": "labels.text.fill", "stylers": [{ "color": "#64748b" }] },
-                { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#bae6fd" }] },
-              ],
-            }}
-            onLoad={map => {
-              mapRef.current = map;
-              if (assignedRoute?.decodedPolyline?.length > 0) {
-                const bounds = new window.google.maps.LatLngBounds();
-                assignedRoute.decodedPolyline.forEach(coord => {
-                  bounds.extend(new window.google.maps.LatLng(coord.lat, coord.lng));
-                });
-                map.fitBounds(bounds);
-              }
-            }}
-          >
-            {/* Driver Location Marker */}
+        <MapContainer
+          center={[driverLocation.lat || 13.0827, driverLocation.lng || 80.2707]}
+          zoom={13}
+          style={{ width: '100%', height: '100%' }}
+          zoomControl={false}
+        >
+          <TileLayer
+            url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>'
+            subdomains="abcd"
+            maxZoom={19}
+          />
+          {/* Driver Location Marker */}
+          {driverLocation && (
             <Marker 
-              position={driverLocation} 
-              icon={{ 
-                path: window.google.maps.SymbolPath.CIRCLE, 
-                scale: 8, 
-                fillColor: isOnline ? '#075AAA' : '#94A3B8', 
-                fillOpacity: 1, 
-                strokeWeight: 3, 
-                strokeColor: '#FFFFFF' 
-              }} 
+              position={[driverLocation.lat, driverLocation.lng]} 
+              icon={L.divIcon({
+                className: 'driver-loc-marker',
+                html: `<div style="width: 16px; height: 16px; border-radius: 50%; background-color: ${isOnline ? '#075AAA' : '#94A3B8'}; border: 3px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.3);"></div>`,
+                iconSize: [16, 16],
+                iconAnchor: [8, 8]
+              })}
             />
+          )}
 
-            {/* Assigned Route Polyline */}
-            {assignedRoute && assignedRoute.decodedPolyline && (
-              <Polyline
-                path={assignedRoute.decodedPolyline}
-                options={{
-                  strokeColor: '#E8C84A', // Forge Yellow for route
-                  strokeOpacity: 0.9,
-                  strokeWeight: 6,
-                }}
-              />
-            )}
-            
-            {/* Stops/Junctions */}
-            {assignedRoute && assignedRoute.junctions?.map(j => (
-              <Marker 
-                key={j._id}
-                position={{ lat: j.location.coordinates[1], lng: j.location.coordinates[0] }}
-                icon={{
-                  path: window.google.maps.SymbolPath.CIRCLE,
-                  fillColor: '#FFFFFF',
-                  fillOpacity: 1,
-                  strokeColor: '#075AAA',
-                  strokeWeight: 4,
-                  scale: 6
-                }}
-              />
-            ))}
-          </GoogleMap>
-        ) : (
-          <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F8FAFC' }}>
-            <span style={{ color: '#94A3B8', fontWeight: 600 }}>Initializing Live Map...</span>
-          </div>
-        )}
+          {/* Assigned Route Polyline */}
+          {assignedRoute && assignedRoute.decodedPolyline && (
+            <Polyline
+              positions={assignedRoute.decodedPolyline.map(p => [p.lat, p.lng])}
+              pathOptions={{
+                color: '#E8C84A',
+                opacity: 0.9,
+                weight: 6
+              }}
+            />
+          )}
+          
+          {/* Stops/Junctions */}
+          {assignedRoute && assignedRoute.junctions?.map(j => (
+            <Marker 
+              key={j._id}
+              position={[j.location.coordinates[1], j.location.coordinates[0]]}
+              icon={L.divIcon({
+                className: 'junction-marker',
+                html: `<div style="width: 12px; height: 12px; border-radius: 50%; background-color: white; border: 3px solid #075AAA; box-shadow: 0 1px 4px rgba(0,0,0,0.3);"></div>`,
+                iconSize: [12, 12],
+                iconAnchor: [6, 6]
+              })}
+            />
+          ))}
+        </MapContainer>
       </div>
 
       {/* 1. Floating Driver Status Panel */}

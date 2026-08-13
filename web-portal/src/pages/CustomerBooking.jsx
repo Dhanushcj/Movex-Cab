@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronDown, LocateFixed, Check, Bell, Users, ArrowUpDown, Info, User, Search, MapPin, ChevronRight, Ticket, Navigation, CheckCircle2 } from 'lucide-react';
-import { GoogleMap, useJsApiLoader, Polyline, Marker } from '@react-google-maps/api';
+import { MapContainer, TileLayer, Polyline, Marker } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
 import BikeIcon from '../components/BikeIcon';
 import AutoRickshawIcon from '../components/AutoRickshawIcon';
 import CarIcon from '../components/CarIcon';
@@ -11,8 +13,32 @@ import API from '../services/api';
 import { useSocket } from '../context/SocketContext';
 
 const defaultCenter = { lat: 13.0827, lng: 80.2707 }; // Chennai
-const libraries = ['places', 'geometry'];
 const routeColors = ['#0053B3', '#D49F0C', '#10B981', '#EF4444', '#8B5CF6'];
+
+const userLocationIcon = L.divIcon({
+  className: 'user-live-location-marker',
+  html: `<div style="position: relative; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;">
+    <div style="position: absolute; width: 24px; height: 24px; border-radius: 50%; background: rgba(37, 99, 235, 0.4); animation: pulse-ring 2s infinite ease-out;"></div>
+    <div style="width: 14px; height: 14px; border-radius: 50%; background: #2563EB; border: 2.5px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.4); z-index: 2;"></div>
+  </div>`,
+  iconSize: [24, 24],
+  iconAnchor: [12, 12]
+});
+
+function getHaversineDistanceKm(lat1, lon1, lat2, lon2) {
+  if (typeof lat1 !== 'number' || typeof lon1 !== 'number' || typeof lat2 !== 'number' || typeof lon2 !== 'number') return 0;
+  const R = 6371;
+  const dLat = (lat2 - lat1) * (Math.PI / 180);
+  const dLon = (lon2 - lon1) * (Math.PI / 180);
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * (Math.PI / 180)) *
+      Math.cos(lat2 * (Math.PI / 180)) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
 
 const decodePolyline = (t) => {
   let n, o, a = 0, r = 0, s = 0, l = 0, i = [];
@@ -80,12 +106,6 @@ const CustomerBooking = () => {
   const [activeDrivers, setActiveDrivers] = useState([]);
   const [mapCenter, setMapCenter] = useState(defaultCenter);
 
-  const { isLoaded } = useJsApiLoader({
-    id: 'google-map-script',
-    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
-    libraries
-  });
-
   const mapRef = useRef(null);
 
   const vehicles = [
@@ -137,6 +157,30 @@ const CustomerBooking = () => {
     fetchMyPass();
   }, [navigate]);
 
+  const handleUseCurrentLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          setCurrentPosition({ lat, lng });
+          setMapCenter({ lat, lng });
+          const locationName = await reverseGeocode(lat, lng);
+          const customJunction = {
+            _id: `temp-current-${Date.now()}`,
+            name: locationName || 'Current Location',
+            location: { coordinates: [lng, lat] }
+          };
+          setPickupLocation(customJunction);
+        },
+        (error) => {
+          console.warn("Unable to fetch location", error);
+        },
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
+    }
+  };
+
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -160,8 +204,11 @@ const CustomerBooking = () => {
   useEffect(() => {
     const fetchDrivers = async () => {
       const pos = currentPosition || mapCenter;
+      const lat = pos ? (typeof pos.lat === 'number' ? pos.lat : Array.isArray(pos) ? pos[0] : 13.0827) : 13.0827;
+      const lng = pos ? (typeof pos.lng === 'number' ? pos.lng : Array.isArray(pos) ? pos[1] : 80.2707) : 80.2707;
+      if (typeof lat !== 'number' || typeof lng !== 'number' || isNaN(lat) || isNaN(lng)) return;
       try {
-        const res = await API.get(`/drivers/nearby?lat=${pos.lat}&lng=${pos.lng}&radius=10`);
+        const res = await API.get(`/drivers/nearby?lat=${lat}&lng=${lng}&radius=10`);
         if (res.data.success) {
           setActiveDrivers(res.data.drivers || []);
         }
@@ -180,17 +227,19 @@ const CustomerBooking = () => {
     setPickupLocation(null);
     setDropLocation(null);
     
-    if (mapRef.current && route.decodedPolyline && route.decodedPolyline.length > 0) {
-      const bounds = new window.google.maps.LatLngBounds();
-      route.decodedPolyline.forEach(coord => {
-        bounds.extend(new window.google.maps.LatLng(coord.lat, coord.lng));
-      });
-      mapRef.current.fitBounds(bounds, { padding: 50 });
+    if (mapRef.current && route.decodedPolyline && route.decodedPolyline.length > 0 && window.google?.maps) {
+      try {
+        const bounds = new window.google.maps.LatLngBounds();
+        route.decodedPolyline.forEach(coord => {
+          bounds.extend(new window.google.maps.LatLng(coord.lat, coord.lng));
+        });
+        mapRef.current.fitBounds(bounds, { padding: 50 });
+      } catch (e) {}
     }
   };
 
   const reverseGeocode = async (lat, lng) => {
-    if (window.google) {
+    if (window.google?.maps) {
       try {
         const geocoder = new window.google.maps.Geocoder();
         const response = await geocoder.geocode({ location: { lat, lng } });
@@ -340,14 +389,16 @@ const CustomerBooking = () => {
   );
 
   let distInfo = { dist: "0.0", time: 0 };
-  if (pickupLocation && dropLocation && window.google && window.google.maps.geometry) {
+  if (pickupLocation && dropLocation) {
     try {
-      const p1 = new window.google.maps.LatLng(pickupLocation.location.coordinates[1], pickupLocation.location.coordinates[0]);
-      const p2 = new window.google.maps.LatLng(dropLocation.location.coordinates[1], dropLocation.location.coordinates[0]);
-      const distInMeters = window.google.maps.geometry.spherical.computeDistanceBetween(p1, p2);
+      const p1Lat = pickupLocation.location.coordinates[1];
+      const p1Lng = pickupLocation.location.coordinates[0];
+      const p2Lat = dropLocation.location.coordinates[1];
+      const p2Lng = dropLocation.location.coordinates[0];
+      const distKm = getHaversineDistanceKm(p1Lat, p1Lng, p2Lat, p2Lng);
       distInfo = {
-        dist: (distInMeters / 1000).toFixed(1),
-        time: Math.round((distInMeters / 1000) * 1.5) || 1
+        dist: distKm.toFixed(1),
+        time: Math.round(distKm * 1.5) || 1
       };
     } catch(e) {}
   }
@@ -394,7 +445,7 @@ const CustomerBooking = () => {
                     <span className={styles.locLabel}>Pickup Location</span>
                     <div className={styles.inputField}>
                       <span className={styles.locValueMain}>{pickupLocation ? pickupLocation.name.split(',')[0] : "Select from map or search..."}</span>
-                      <button className={styles.useCurrentBtn}>
+                      <button className={styles.useCurrentBtn} onClick={handleUseCurrentLocation}>
                         <LocateFixed size={14} /> Use current location
                       </button>
                     </div>
@@ -526,109 +577,94 @@ const CustomerBooking = () => {
             </>
           )}
 
-          {isLoaded ? (
-            <GoogleMap
-              mapContainerStyle={{ width: '100%', height: '100%' }}
-              center={mapCenter}
-              zoom={12}
-              onLoad={map => mapRef.current = map}
-              options={{
-                disableDefaultUI: true,
-                zoomControl: true,
-                styles: [
-                  { "elementType": "geometry", "stylers": [{ "color": "#f5f5f5" }] },
-                  { "elementType": "labels.icon", "stylers": [{ "visibility": "off" }] },
-                  { "elementType": "labels.text.fill", "stylers": [{ "color": "#616161" }] },
-                  { "elementType": "labels.text.stroke", "stylers": [{ "color": "#f5f5f5" }] },
-                  { "featureType": "administrative.land_parcel", "elementType": "labels.text.fill", "stylers": [{ "color": "#bdbdbd" }] },
-                  { "featureType": "poi", "elementType": "geometry", "stylers": [{ "color": "#eeeeee" }] },
-                  { "featureType": "poi", "elementType": "labels.text.fill", "stylers": [{ "color": "#757575" }] },
-                  { "featureType": "poi.park", "elementType": "geometry", "stylers": [{ "color": "#e5e5e5" }] },
-                  { "featureType": "poi.park", "elementType": "labels.text.fill", "stylers": [{ "color": "#9e9e9e" }] },
-                  { "featureType": "road", "elementType": "geometry", "stylers": [{ "color": "#ffffff" }] },
-                  { "featureType": "road.arterial", "elementType": "labels.text.fill", "stylers": [{ "color": "#757575" }] },
-                  { "featureType": "road.highway", "elementType": "geometry", "stylers": [{ "color": "#dadada" }] },
-                  { "featureType": "road.highway", "elementType": "labels.text.fill", "stylers": [{ "color": "#616161" }] },
-                  { "featureType": "road.local", "elementType": "labels.text.fill", "stylers": [{ "color": "#9e9e9e" }] },
-                  { "featureType": "transit.line", "elementType": "geometry", "stylers": [{ "color": "#e5e5e5" }] },
-                  { "featureType": "transit.station", "elementType": "geometry", "stylers": [{ "color": "#eeeeee" }] },
-                  { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#c9c9c9" }] },
-                  { "featureType": "water", "elementType": "labels.text.fill", "stylers": [{ "color": "#9e9e9e" }] }
-                ]
-              }}
-            >
-              {routes.filter(r => !selectedRoute || selectedRoute._id === r._id).map((route) => {
-                const isSelected = selectedRoute?._id === route._id;
-                
-                if (!route.decodedPolyline || route.decodedPolyline.length === 0) return null;
+          <MapContainer
+            center={[mapCenter.lat || 13.0827, mapCenter.lng || 80.2707]}
+            zoom={12}
+            style={{ width: '100%', height: '100%' }}
+            zoomControl={true}
+          >
+            <TileLayer
+              url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>'
+              subdomains="abcd"
+              maxZoom={19}
+            />
+            {routes.filter(r => !selectedRoute || selectedRoute._id === r._id).map((route) => {
+              const isSelected = selectedRoute?._id === route._id;
+              if (!route.decodedPolyline || route.decodedPolyline.length === 0) return null;
+              const positions = route.decodedPolyline.map(p => [p.lat, p.lng]);
 
-                return (
-                  <Polyline
-                    key={route._id}
-                    path={route.decodedPolyline}
-                    options={{
-                      strokeColor: '#FBBF24',
-                      strokeOpacity: isSelected ? 1.0 : 0.6,
-                      strokeWeight: isSelected ? 6 : 4,
-                      clickable: true,
-                      zIndex: isSelected ? 10 : 1,
-                    }}
-                    onClick={(e) => handlePolylineClick(e, route)}
-                  />
-                );
-              })}
+              return (
+                <Polyline
+                  key={route._id}
+                  positions={positions}
+                  pathOptions={{
+                    color: isSelected ? '#FBBF24' : '#3B82F6',
+                    opacity: isSelected ? 1.0 : 0.6,
+                    weight: isSelected ? 6 : 4,
+                  }}
+                  eventHandlers={{
+                    click: (e) => {
+                      const clickCoord = { lat: e.latlng.lat, lng: e.latlng.lng };
+                      handlePolylineClick({ latLng: { lat: () => clickCoord.lat, lng: () => clickCoord.lng } }, route);
+                    }
+                  }}
+                />
+              );
+            })}
 
-              {/* Custom Pickup Marker */}
-              {pickupLocation && (
+            {/* Custom Pickup Marker */}
+            {pickupLocation && (
+              <Marker
+                position={[pickupLocation.location.coordinates[1], pickupLocation.location.coordinates[0]]}
+                icon={L.divIcon({
+                  className: 'pickup-marker',
+                  html: `<div style="width: 20px; height: 20px; border-radius: 50%; background: #10B981; border: 3px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.4);"></div>`,
+                  iconSize: [20, 20],
+                  iconAnchor: [10, 10]
+                })}
+              />
+            )}
+            
+            {/* Custom Drop Marker */}
+            {dropLocation && (
+              <Marker
+                position={[dropLocation.location.coordinates[1], dropLocation.location.coordinates[0]]}
+                icon={L.divIcon({
+                  className: 'drop-marker',
+                  html: `<div style="width: 20px; height: 20px; border-radius: 50%; background: #EF4444; border: 3px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.4);"></div>`,
+                  iconSize: [20, 20],
+                  iconAnchor: [10, 10]
+                })}
+              />
+            )}
+            
+            {/* Active Nearby Drivers Markers */}
+            {activeDrivers.map((driver) => {
+              const type = (driver.vehicle?.type || driver.vehicleType || '').toLowerCase();
+              const emoji = type === 'bike' ? '🏍️' : type === 'auto' ? '🛺' : '🚗';
+              return (
                 <Marker
-                  position={{ lat: pickupLocation.location.coordinates[1], lng: pickupLocation.location.coordinates[0] }}
-                  draggable={true}
-                  onDragEnd={(e) => handleMarkerDrag(e, true)}
-                  icon={{ url: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png' }}
-                  title="Pickup Point (Drag to move)"
+                  key={driver._id}
+                  position={[driver.currentLocation.coordinates[1], driver.currentLocation.coordinates[0]]}
+                  icon={L.divIcon({
+                    className: 'driver-marker',
+                    html: `<div style="font-size: 26px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));">${emoji}</div>`,
+                    iconSize: [30, 30],
+                    iconAnchor: [15, 15]
+                  })}
                 />
-              )}
-              
-              {/* Custom Drop Marker */}
-              {dropLocation && (
-                <Marker
-                  position={{ lat: dropLocation.location.coordinates[1], lng: dropLocation.location.coordinates[0] }}
-                  draggable={true}
-                  onDragEnd={(e) => handleMarkerDrag(e, false)}
-                  icon={{ url: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png' }}
-                  title="Drop-off Point (Drag to move)"
-                />
-              )}
-              
-              {/* Active Nearby Drivers Markers */}
-              {activeDrivers.map((driver) => {
-                let iconUrl = '/car_map.png';
-                const type = (driver.vehicle?.type || driver.vehicleType || '').toLowerCase();
-                if (type === 'bike') iconUrl = '/bike_map.png';
-                else if (type === 'auto') iconUrl = '/auto_map.png';
-                
-                return (
-                  <Marker
-                    key={driver._id}
-                    position={{
-                      lat: driver.currentLocation.coordinates[1],
-                      lng: driver.currentLocation.coordinates[0]
-                    }}
-                    icon={{
-                      url: iconUrl,
-                      scaledSize: new window.google.maps.Size(32, 32),
-                    }}
-                    title={driver.name || 'Driver'}
-                    zIndex={15}
-                  />
-                );
-              })}
-            </GoogleMap>
-          ) : (
-            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <p>Loading Map...</p>
-            </div>
-          )}
+              );
+            })}
+            {/* User Live Location Marker */}
+            {currentPosition && (
+              <Marker
+                position={[currentPosition.lat, currentPosition.lng]}
+                icon={userLocationIcon}
+                title="Your Current Location"
+              />
+            )}
+          </MapContainer>
         </div>
       </div>
     </div>

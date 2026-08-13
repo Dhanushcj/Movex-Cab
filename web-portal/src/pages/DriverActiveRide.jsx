@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useContext, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { GoogleMap, useJsApiLoader, Polyline, Marker } from '@react-google-maps/api';
+import { MapContainer, TileLayer, Polyline, Marker } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
 import { SocketContext } from '../context/SocketContext';
 import { AuthContext } from '../context/AuthContext';
 import API from '../services/api';
@@ -76,11 +78,7 @@ const DriverActiveRide = () => {
     }
   }, []);
 
-  const { isLoaded } = useJsApiLoader({
-    id: 'google-map-script',
-    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
-    libraries
-  });
+  
 
   useEffect(() => {
     const fetchRide = async () => {
@@ -367,53 +365,36 @@ const DriverActiveRide = () => {
             <span className={styles.navText}>{getNavigationText()}</span>
           </div>
 
-          {isLoaded ? (
-            <GoogleMap
-              mapContainerStyle={{ width: '100%', height: '100%' }}
-              center={currentLocation}
-              zoom={15}
-              options={{ 
-                disableDefaultUI: true,
-                zoomControl: true,
-                zoomControlOptions: { position: 9 }, // Right center
-                styles: [
-                  { "elementType": "geometry", "stylers": [{ "color": "#f5f5f5" }] },
-                  { "elementType": "labels.icon", "stylers": [{ "visibility": "off" }] },
-                  { "elementType": "labels.text.fill", "stylers": [{ "color": "#616161" }] },
-                  { "elementType": "labels.text.stroke", "stylers": [{ "color": "#f5f5f5" }] },
-                  { "featureType": "road", "elementType": "geometry", "stylers": [{ "color": "#ffffff" }] },
-                  { "featureType": "road.arterial", "elementType": "labels.text.fill", "stylers": [{ "color": "#757575" }] },
-                  { "featureType": "road.highway", "elementType": "geometry", "stylers": [{ "color": "#dadada" }] },
-                  { "featureType": "road.highway", "elementType": "labels.text.fill", "stylers": [{ "color": "#616161" }] },
-                  { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#c9c9c9" }] },
-                ]
-              }}
-            >
-              {osrmRoute.length > 0 && (
-                <Polyline
-                  path={osrmRoute}
-                  options={{
-                    strokeColor: '#2563EB',
-                    strokeWeight: 6,
-                    zIndex: 2
-                  }}
-                />
-              )}
-              {/* Driver Location Marker */}
-              {currentLocation && (
-                <Marker position={currentLocation} icon={{
-                  path: window.google.maps.SymbolPath.CIRCLE,
-                  scale: 8,
-                  fillColor: '#2563EB',
-                  fillOpacity: 1,
-                  strokeColor: 'white',
-                  strokeWeight: 2,
-                }} />
-              )}
-            </GoogleMap>
-          ) : (
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'var(--text-muted)', fontWeight: '600' }}>Loading Navigation...</div>
-          )}
+          <MapContainer
+            center={[currentLocation?.lat || 13.0827, currentLocation?.lng || 80.2707]}
+            zoom={15}
+            style={{ width: '100%', height: '100%' }}
+            zoomControl={true}
+          >
+            <TileLayer
+              url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>'
+              subdomains="abcd"
+              maxZoom={19}
+            />
+            {osrmRoute.length > 0 && (
+              <Polyline
+                positions={osrmRoute.map(p => [p.lat, p.lng])}
+                pathOptions={{ color: '#2563EB', weight: 6, opacity: 0.9 }}
+              />
+            )}
+            {currentLocation && (
+              <Marker
+                position={[currentLocation.lat, currentLocation.lng]}
+                icon={L.divIcon({
+                  className: 'driver-loc-marker',
+                  html: `<div style="width: 18px; height: 18px; border-radius: 50%; background-color: #2563EB; border: 3px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.4);"></div>`,
+                  iconSize: [18, 18],
+                  iconAnchor: [9, 9]
+                })}
+              />
+            )}
+          </MapContainer>
         </div>
       </div>
 

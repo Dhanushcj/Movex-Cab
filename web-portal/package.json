@@ -14,9 +14,11 @@
     "axios": "^1.19.0",
     "firebase": "^12.17.1",
     "framer-motion": "^13.0.0",
+    "leaflet": "^1.9.4",
     "lucide-react": "^1.28.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
+    "react-leaflet": "^5.0.0",
     "react-router-dom": "^7.18.2",
     "socket.io-client": "^4.8.3"
   },

@@ -1,13 +1,14 @@
 import React, { useEffect, useState, useContext, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Bell, MapPin, ShieldCheck, CheckCircle2, Car, Share2, Star, Navigation, MessageSquare, Phone, User } from 'lucide-react';
-import { GoogleMap, useJsApiLoader, Polyline, Marker } from '@react-google-maps/api';
+import { MapContainer, TileLayer, Polyline, Marker } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
 import styles from './CustomerBooking.module.css'; // Reusing styles
 import API from '../services/api';
 import { SocketContext } from '../context/SocketContext';
 
-const center = { lat: 13.0827, lng: 80.2707 }; // Chennai
-const libraries = ['places', 'geometry'];
+const center = [13.0827, 80.2707]; // Chennai
 
 const decodePolyline = (t) => {
   if (!t) return [];
@@ -45,12 +46,6 @@ const CustomerTracking = () => {
   const [osrmDriverRoute, setOsrmDriverRoute] = useState([]);
   const [timer, setTimer] = useState(300);
 
-
-  const { isLoaded } = useJsApiLoader({
-    id: 'google-map-script',
-    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
-    libraries
-  });
 
   const mapRef = useRef(null);
 
@@ -132,14 +127,16 @@ const CustomerTracking = () => {
 
   // Adjust map bounds when route is loaded
   useEffect(() => {
-    if (mapRef.current && decodedRoute.length > 0 && osrmDriverRoute.length === 0) {
-      const bounds = new window.google.maps.LatLngBounds();
-      decodedRoute.forEach(coord => {
-        bounds.extend(new window.google.maps.LatLng(coord.lat, coord.lng));
-      });
-      mapRef.current.fitBounds(bounds, { padding: 50 });
+    if (mapRef.current && decodedRoute.length > 0 && osrmDriverRoute.length === 0 && window.google?.maps) {
+      try {
+        const bounds = new window.google.maps.LatLngBounds();
+        decodedRoute.forEach(coord => {
+          bounds.extend(new window.google.maps.LatLng(coord.lat, coord.lng));
+        });
+        mapRef.current.fitBounds(bounds, { padding: 50 });
+      } catch (e) {}
     }
-  }, [decodedRoute, isLoaded, osrmDriverRoute]);
+  }, [decodedRoute, osrmDriverRoute]);
 
   
   useEffect(() => {
@@ -370,98 +367,68 @@ const CustomerTracking = () => {
             )}
           </div>
 
-          {isLoaded ? (
-            <GoogleMap
-              mapContainerStyle={{ width: '100%', height: '100%' }}
-              center={center}
-              zoom={12}
-              onLoad={map => mapRef.current = map}
-              options={{
-                disableDefaultUI: true,
-                zoomControl: true,
-                styles: [
-                  { "elementType": "geometry", "stylers": [{ "color": "#f5f5f5" }] },
-                  { "elementType": "labels.icon", "stylers": [{ "visibility": "off" }] },
-                  { "elementType": "labels.text.fill", "stylers": [{ "color": "#616161" }] },
-                  { "elementType": "labels.text.stroke", "stylers": [{ "color": "#f5f5f5" }] },
-                  { "featureType": "administrative.land_parcel", "elementType": "labels.text.fill", "stylers": [{ "color": "#bdbdbd" }] },
-                  { "featureType": "poi", "elementType": "geometry", "stylers": [{ "color": "#eeeeee" }] },
-                  { "featureType": "poi", "elementType": "labels.text.fill", "stylers": [{ "color": "#757575" }] },
-                  { "featureType": "poi.park", "elementType": "geometry", "stylers": [{ "color": "#e5e5e5" }] },
-                  { "featureType": "poi.park", "elementType": "labels.text.fill", "stylers": [{ "color": "#9e9e9e" }] },
-                  { "featureType": "road", "elementType": "geometry", "stylers": [{ "color": "#ffffff" }] },
-                  { "featureType": "road.arterial", "elementType": "labels.text.fill", "stylers": [{ "color": "#757575" }] },
-                  { "featureType": "road.highway", "elementType": "geometry", "stylers": [{ "color": "#dadada" }] },
-                  { "featureType": "road.highway", "elementType": "labels.text.fill", "stylers": [{ "color": "#616161" }] },
-                  { "featureType": "road.local", "elementType": "labels.text.fill", "stylers": [{ "color": "#9e9e9e" }] },
-                  { "featureType": "transit.line", "elementType": "geometry", "stylers": [{ "color": "#e5e5e5" }] },
-                  { "featureType": "transit.station", "elementType": "geometry", "stylers": [{ "color": "#eeeeee" }] },
-                  { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#c9c9c9" }] },
-                  { "featureType": "water", "elementType": "labels.text.fill", "stylers": [{ "color": "#9e9e9e" }] }
-                ]
-              }}
-            >
-              {decodedRoute.length > 0 && osrmDriverRoute.length === 0 && (
-                <Polyline
-                  path={decodedRoute}
-                  options={{
-                    strokeColor: '#FBBF24',
-                    strokeOpacity: 0.8,
-                    strokeWeight: 6,
-                    zIndex: 2
-                  }}
-                />
-              )}
+          <MapContainer
+            center={center}
+            zoom={12}
+            style={{ width: '100%', height: '100%' }}
+            zoomControl={true}
+          >
+            <TileLayer
+              url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>'
+              subdomains="abcd"
+              maxZoom={19}
+            />
+            {decodedRoute.length > 0 && osrmDriverRoute.length === 0 && (
+              <Polyline
+                positions={decodedRoute.map(p => [p.lat, p.lng])}
+                pathOptions={{ color: '#FBBF24', opacity: 0.8, weight: 6 }}
+              />
+            )}
 
-              {osrmDriverRoute.length > 0 && (
-                <Polyline
-                  path={osrmDriverRoute}
-                  options={{
-                    strokeColor: '#FBBF24',
-                    strokeOpacity: 0.8,
-                    strokeWeight: 6,
-                    zIndex: 2
-                  }}
-                />
-              )}
+            {osrmDriverRoute.length > 0 && (
+              <Polyline
+                positions={osrmDriverRoute.map(p => [p.lat, p.lng])}
+                pathOptions={{ color: '#3B82F6', opacity: 0.9, weight: 6 }}
+              />
+            )}
 
-              {ride?.pickup?.location?.coordinates && (
-                <Marker
-                  position={{ lat: ride.pickup.location.coordinates[1], lng: ride.pickup.location.coordinates[0] }}
-                  icon={{ url: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png' }}
-                  title="Pickup Point"
-                  zIndex={5}
-                />
-              )}
-              
-              {ride?.drop?.location?.coordinates && (
-                <Marker
-                  position={{ lat: ride.drop.location.coordinates[1], lng: ride.drop.location.coordinates[0] }}
-                  icon={{ url: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png' }}
-                  title="Drop-off Point"
-                  zIndex={5}
-                />
-              )}
+            {ride?.pickup?.location?.coordinates && (
+              <Marker
+                position={[ride.pickup.location.coordinates[1], ride.pickup.location.coordinates[0]]}
+                icon={L.divIcon({
+                  className: 'pickup-marker',
+                  html: `<div style="width: 20px; height: 20px; border-radius: 50%; background: #10B981; border: 3px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.4);"></div>`,
+                  iconSize: [20, 20],
+                  iconAnchor: [10, 10]
+                })}
+              />
+            )}
+            
+            {ride?.drop?.location?.coordinates && (
+              <Marker
+                position={[ride.drop.location.coordinates[1], ride.drop.location.coordinates[0]]}
+                icon={L.divIcon({
+                  className: 'drop-marker',
+                  html: `<div style="width: 20px; height: 20px; border-radius: 50%; background: #EF4444; border: 3px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.4);"></div>`,
+                  iconSize: [20, 20],
+                  iconAnchor: [10, 10]
+                })}
+              />
+            )}
 
-              {driverLat && driverLng && (
-                <Marker
-                  position={{ lat: driverLat, lng: driverLng }}
-                  icon={{
-                    url: '/car-map.png',
-                    scaledSize: new window.google.maps.Size(40, 40),
-                    origin: new window.google.maps.Point(0, 0),
-                    anchor: new window.google.maps.Point(20, 20)
-                  }}
-                  title="Driver Location"
-                  zIndex={10}
-                />
-              )}
-            </GoogleMap>
-          ) : (
-            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <p>Loading Map...</p>
-            </div>
-          )}
+            {driverLat && driverLng && (
+              <Marker
+                position={[driverLat, driverLng]}
+                icon={L.divIcon({
+                  className: 'driver-marker',
+                  html: `<div style="font-size: 28px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));">🚗</div>`,
+                  iconSize: [32, 32],
+                  iconAnchor: [16, 16]
+                })}
+              />
+            )}
+          </MapContainer>
         </div>
       </div>
     </div>

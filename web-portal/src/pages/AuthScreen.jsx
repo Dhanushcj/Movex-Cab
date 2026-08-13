@@ -2,34 +2,31 @@ import React, { useState, useContext, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { Mail, Lock, Eye, EyeOff, User, Phone, ArrowRight, Home } from 'lucide-react';
-import { GoogleMap, useJsApiLoader, Polyline, Marker } from '@react-google-maps/api';
+import { MapContainer, TileLayer, Polyline, Marker } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
 import API from '../services/api';
 import styles from './Auth.module.css';
 
-const customMapStyle = [
-  { elementType: "geometry", stylers: [{ color: "#f5f5f5" }] },
-  { elementType: "labels.icon", stylers: [{ visibility: "off" }] },
-  { elementType: "labels.text.fill", stylers: [{ color: "#616161" }] },
-  { elementType: "labels.text.stroke", stylers: [{ color: "#f5f5f5" }] },
-  { featureType: "administrative.land_parcel", elementType: "labels.text.fill", stylers: [{ color: "#bdbdbd" }] },
-  { featureType: "poi", elementType: "geometry", stylers: [{ color: "#eeeeee" }] },
-  { featureType: "poi", elementType: "labels.text.fill", stylers: [{ color: "#757575" }] },
-  { featureType: "poi.park", elementType: "geometry", stylers: [{ color: "#e5e5e5" }] },
-  { featureType: "poi.park", elementType: "labels.text.fill", stylers: [{ color: "#9e9e9e" }] },
-  { featureType: "road", elementType: "geometry", stylers: [{ color: "#ffffff" }] },
-  { featureType: "road.arterial", elementType: "labels.text.fill", stylers: [{ color: "#757575" }] },
-  { featureType: "road.highway", elementType: "geometry", stylers: [{ color: "#dadada" }] },
-  { featureType: "road.highway", elementType: "labels.text.fill", stylers: [{ color: "#616161" }] },
-  { featureType: "road.local", elementType: "labels.text.fill", stylers: [{ color: "#9e9e9e" }] },
-  { featureType: "transit.line", elementType: "geometry", stylers: [{ color: "#e5e5e5" }] },
-  { featureType: "transit.station", elementType: "geometry", stylers: [{ color: "#eeeeee" }] },
-  { featureType: "water", elementType: "geometry", stylers: [{ color: "#c9c9c9" }] },
-  { featureType: "water", elementType: "labels.text.fill", stylers: [{ color: "#9e9e9e" }] }
-];
-
-const defaultCenter = { lat: 13.0827, lng: 80.2707 }; // Chennai
-const libraries = ['places', 'geometry'];
+const defaultCenter = [13.0827, 80.2707]; // Chennai
 const routeColors = ['#0053B3', '#D49F0C', '#10B981', '#EF4444', '#8B5CF6'];
+
+const junctionDotIcon = (color = '#E8C84A') => L.divIcon({
+  className: 'junction-dot',
+  html: `<div style="width: 10px; height: 10px; border-radius: 50%; background-color: ${color}; border: 2px solid white; box-shadow: 0 1px 3px rgba(0,0,0,0.3);"></div>`,
+  iconSize: [10, 10],
+  iconAnchor: [5, 5]
+});
+
+const userLocationIcon = L.divIcon({
+  className: 'user-live-location-marker',
+  html: `<div style="position: relative; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;">
+    <div style="position: absolute; width: 24px; height: 24px; border-radius: 50%; background: rgba(37, 99, 235, 0.4); animation: pulse-ring 2s infinite ease-out;"></div>
+    <div style="width: 14px; height: 14px; border-radius: 50%; background: #2563EB; border: 2.5px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.4); z-index: 2;"></div>
+  </div>`,
+  iconSize: [24, 24],
+  iconAnchor: [12, 12]
+});
 
 const decodePolyline = (t) => {
   let n, o, a = 0, r = 0, s = 0, l = 0, i = [];
@@ -79,13 +76,20 @@ const AuthScreen = () => {
   const [showPassword, setShowPassword] = useState(false);
   
   const [routes, setRoutes] = useState([]);
+  const [userLocation, setUserLocation] = useState(null);
   const mapRef = useRef(null);
-  
-  const { isLoaded } = useJsApiLoader({
-    id: 'google-map-script',
-    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
-    libraries
-  });
+
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          setUserLocation([pos.coords.latitude, pos.coords.longitude]);
+        },
+        (err) => console.log('Location unavailable', err),
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
+    }
+  }, []);
 
   useEffect(() => {
     const fetchRoutes = async () => {
@@ -123,21 +127,23 @@ const AuthScreen = () => {
   }, []);
 
   useEffect(() => {
-    if (mapRef.current && routes.length > 0) {
-      const bounds = new window.google.maps.LatLngBounds();
-      let hasPoints = false;
-      routes.forEach(route => {
-        const pathToUse = (route.decodedPolyline && route.decodedPolyline.length > 0) ? route.decodedPolyline : route.junctionPath;
-        if (pathToUse) {
-          pathToUse.forEach(coord => {
-            bounds.extend(new window.google.maps.LatLng(coord.lat, coord.lng));
-            hasPoints = true;
-          });
+    if (mapRef.current && routes.length > 0 && window.google?.maps) {
+      try {
+        const bounds = new window.google.maps.LatLngBounds();
+        let hasPoints = false;
+        routes.forEach(route => {
+          const pathToUse = (route.decodedPolyline && route.decodedPolyline.length > 0) ? route.decodedPolyline : route.junctionPath;
+          if (pathToUse) {
+            pathToUse.forEach(coord => {
+              bounds.extend(new window.google.maps.LatLng(coord.lat, coord.lng));
+              hasPoints = true;
+            });
+          }
+        });
+        if (hasPoints) {
+          mapRef.current.fitBounds(bounds);
         }
-      });
-      if (hasPoints) {
-        mapRef.current.fitBounds(bounds, { padding: 40 });
-      }
+      } catch (e) {}
     }
   }, [routes]);
 
@@ -291,60 +297,54 @@ const AuthScreen = () => {
           </p>
 
           <div className={styles.mapContainer}>
-            {isLoaded ? (
-              <GoogleMap
-                mapContainerStyle={{ width: '100%', height: '100%' }}
-                center={defaultCenter}
-                zoom={11}
-                options={{
-                  disableDefaultUI: true,
-                  zoomControl: true,
-                  styles: customMapStyle,
-                }}
-                onLoad={(map) => {
-                  mapRef.current = map;
-                }}
-              >
-                {routes.map(route => {
-                  const hasJunctions = route.junctionPath && route.junctionPath.length > 0;
-                  const hasRoadLine = route.decodedPolyline && route.decodedPolyline.length > 0;
-                  
-                  return (
-                    <React.Fragment key={route._id}>
-                      {hasRoadLine && (
-                        <Polyline
-                          path={route.decodedPolyline}
-                          options={{
-                            strokeColor: route.displayColor || '#0053B3',
-                            strokeOpacity: 0.8,
-                            strokeWeight: 4,
-                          }}
-                        />
-                      )}
-                      
-                      {hasJunctions && route.junctionPath.map((pt, index) => (
-                        <Marker 
-                          key={`${route._id}-j-${index}`}
-                          position={pt} 
-                          icon={{
-                            path: window.google.maps.SymbolPath.CIRCLE,
-                            scale: 5,
-                            fillColor: '#E8C84A',
-                            fillOpacity: 1,
-                            strokeColor: '#FFFFFF',
-                            strokeWeight: 2,
-                          }}
-                        />
-                      ))}
-                    </React.Fragment>
-                  );
-                })}
-              </GoogleMap>
-            ) : (
-              <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                Loading map...
-              </div>
-            )}
+            <MapContainer
+              center={defaultCenter}
+              zoom={11}
+              style={{ width: '100%', height: '100%', borderRadius: '16px' }}
+              zoomControl={true}
+            >
+              <TileLayer
+                url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>'
+                subdomains="abcd"
+                maxZoom={19}
+              />
+              {routes.map(route => {
+                const hasJunctions = route.junctionPath && route.junctionPath.length > 0;
+                const hasRoadLine = route.decodedPolyline && route.decodedPolyline.length > 0;
+                const polylinePositions = (route.decodedPolyline || []).map(p => [p.lat, p.lng]);
+                
+                return (
+                  <React.Fragment key={route._id}>
+                    {hasRoadLine && (
+                      <Polyline
+                        positions={polylinePositions}
+                        pathOptions={{
+                          color: route.displayColor || '#0053B3',
+                          opacity: 0.85,
+                          weight: 4,
+                        }}
+                      />
+                    )}
+                    
+                    {hasJunctions && route.junctionPath.map((pt, index) => (
+                      <Marker 
+                        key={`${route._id}-j-${index}`}
+                        position={[pt.lat, pt.lng]} 
+                        icon={junctionDotIcon('#E8C84A')}
+                      />
+                    ))}
+                  </React.Fragment>
+                );
+              })}
+              {userLocation && (
+                <Marker 
+                  position={userLocation} 
+                  icon={userLocationIcon}
+                  title="Your Location"
+                />
+              )}
+            </MapContainer>
           </div>
         </section>
 
