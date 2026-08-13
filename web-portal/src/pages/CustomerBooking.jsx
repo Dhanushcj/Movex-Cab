@@ -122,15 +122,50 @@ const CustomerBooking = () => {
     { id: 'bus', name: 'Forge Bus', capacity: 40, time: '6 min', baseFare: 180, icon: BusIcon, type: 'bus' },
   ];
 
+  const resolveJunctionRealName = async (j) => {
+    if (j.displayName) return j.displayName;
+    if (!j.location || !j.location.coordinates) return j.name;
+    const lng = j.location.coordinates[0];
+    const lat = j.location.coordinates[1];
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`);
+      const data = await res.json();
+      if (data && data.address) {
+        const mainPart = data.address.road || data.address.suburb || data.address.neighbourhood || data.address.amenity || data.address.bus_stop || data.address.town || data.display_name.split(',')[0];
+        const subPart = data.address.city || data.address.town || data.address.county || data.address.state_district || '';
+        const realName = subPart && !mainPart.includes(subPart) ? `${mainPart}, ${subPart}` : mainPart;
+        return realName;
+      }
+      if (data && data.display_name) {
+        return data.display_name.split(',')[0];
+      }
+    } catch (e) {
+      console.warn("Failed to reverse geocode junction", e);
+    }
+    return j.name;
+  };
+
   useEffect(() => {
     const fetchRoutes = async () => {
       try {
         const res = await API.get('/route-manager/routes');
         if (res.data.success) {
-          const processedRoutes = res.data.data.map((r, idx) => ({
-            ...r,
-            displayColor: routeColors[idx % routeColors.length],
-            decodedPolyline: r.polyline ? decodePolyline(r.polyline) : []
+          const processedRoutes = await Promise.all(res.data.data.map(async (r, idx) => {
+            const enrichedJunctions = await Promise.all((r.junctions || []).map(async (j) => {
+              const realName = await resolveJunctionRealName(j);
+              return {
+                ...j,
+                name: realName || j.name,
+                displayName: realName || j.name
+              };
+            }));
+
+            return {
+              ...r,
+              junctions: enrichedJunctions,
+              displayColor: routeColors[idx % routeColors.length],
+              decodedPolyline: r.polyline ? decodePolyline(r.polyline) : []
+            };
           }));
           setRoutes(processedRoutes);
         }
