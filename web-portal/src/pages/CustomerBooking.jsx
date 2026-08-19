@@ -21,8 +21,17 @@ function MapFlyController({ center, zoom }) {
     if (center) {
       const lat = typeof center.lat === 'number' ? center.lat : Array.isArray(center) ? center[0] : null;
       const lng = typeof center.lng === 'number' ? center.lng : Array.isArray(center) ? center[1] : null;
-      if (lat && lng) {
-        map.flyTo([lat, lng], zoom || 14, { animate: true, duration: 1.2 });
+      
+      const parsedLat = parseFloat(lat);
+      const parsedLng = parseFloat(lng);
+      
+      if (!isNaN(parsedLat) && !isNaN(parsedLng)) {
+        const size = map.getSize();
+        if (size.x > 0 && size.y > 0) {
+          map.flyTo([parsedLat, parsedLng], zoom || 14, { animate: true, duration: 1.2 });
+        } else {
+          map.setView([parsedLat, parsedLng], zoom || 14);
+        }
       }
     }
   }, [center, zoom, map]);

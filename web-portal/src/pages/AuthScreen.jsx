@@ -15,7 +15,16 @@ function MapFlyController({ center, zoom }) {
   const map = useMap();
   useEffect(() => {
     if (center && center[0] && center[1]) {
-      map.flyTo(center, zoom || 13, { animate: true, duration: 1.2 });
+      const lat = parseFloat(center[0]);
+      const lng = parseFloat(center[1]);
+      if (!isNaN(lat) && !isNaN(lng)) {
+        const size = map.getSize();
+        if (size.x > 0 && size.y > 0) {
+          map.flyTo([lat, lng], zoom || 13, { animate: true, duration: 1.2 });
+        } else {
+          map.setView([lat, lng], zoom || 13);
+        }
+      }
     }
   }, [center, zoom, map]);
   return null;
@@ -137,23 +146,8 @@ const AuthScreen = () => {
   }, []);
 
   useEffect(() => {
-    if (mapRef.current && routes.length > 0 && window.google?.maps) {
-      try {
-        const bounds = new window.google.maps.LatLngBounds();
-        let hasPoints = false;
-        routes.forEach(route => {
-          const pathToUse = (route.decodedPolyline && route.decodedPolyline.length > 0) ? route.decodedPolyline : route.junctionPath;
-          if (pathToUse) {
-            pathToUse.forEach(coord => {
-              bounds.extend(new window.google.maps.LatLng(coord.lat, coord.lng));
-              hasPoints = true;
-            });
-          }
-        });
-        if (hasPoints) {
-          mapRef.current.fitBounds(bounds);
-        }
-      } catch (e) {}
+    if (routes.length > 0) {
+      // Leaflet bounds calculation (no google.maps usage needed since we don't have mapRef)
     }
   }, [routes]);
 
