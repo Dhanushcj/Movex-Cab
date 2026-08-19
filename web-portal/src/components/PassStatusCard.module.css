@@ -1,0 +1,297 @@
+.statusSection {
+  padding: 6rem 0;
+  background-color: var(--bg-white);
+  position: relative;
+}
+
+.gridContainer {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3.5rem;
+  align-items: center;
+}
+
+.leftText {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.badgePill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--forge-blue);
+  background: var(--bg-soft-blue);
+  padding: 0.35rem 0.85rem;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-blue);
+  margin-bottom: 1rem;
+}
+
+.title {
+  font-size: 2.6rem;
+  color: var(--forge-blue);
+  margin-bottom: 1rem;
+}
+
+.description {
+  font-size: 1.05rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin-bottom: 2rem;
+}
+
+.featuresList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  margin-bottom: 2rem;
+}
+
+.featureItem {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+}
+
+.checkIcon {
+  color: var(--forge-blue);
+}
+
+.toggleSimulatorRow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: var(--bg-section-alt);
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-light);
+  flex-wrap: wrap;
+}
+
+.toggleLabel {
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+}
+
+.toggleBtn {
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 0.4rem 0.75rem;
+  border-radius: var(--radius-sm);
+  background: #FFFFFF;
+  color: var(--text-muted);
+  border: 1px solid var(--border-light);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.toggleBtnActive {
+  background: var(--status-success-bg);
+  color: var(--status-success);
+  border-color: var(--status-success);
+}
+
+.toggleBtnExpired {
+  background: var(--status-error-bg);
+  color: var(--status-error);
+  border-color: var(--status-error);
+}
+
+/* Dashboard Card Right */
+.rightCardWrapper {
+  position: relative;
+}
+
+.dashboardCard {
+  background: #FFFFFF;
+  border: 1.5px solid var(--border-light);
+  border-radius: var(--radius-xl);
+  padding: 2.25rem;
+  box-shadow: 0 8px 25px rgba(7, 90, 170, 0.06);
+  transition: all var(--transition-normal);
+}
+
+.cardActiveGlow {
+  border-color: var(--border-hover);
+}
+
+.cardTopHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--border-light);
+  margin-bottom: 1.5rem;
+}
+
+.cardBrand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.brandLogoBox {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  background: var(--soft-yellow);
+  border: 1px solid var(--accent-yellow);
+  color: var(--forge-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.brandTitle {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 900;
+  font-size: 0.95rem;
+  color: var(--forge-blue);
+  display: block;
+}
+
+.brandSub {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: var(--forge-blue);
+  letter-spacing: 0.05em;
+}
+
+.statusBadgeActive {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: var(--status-success);
+  background: var(--status-success-bg);
+  padding: 0.25rem 0.65rem;
+  border-radius: var(--radius-full);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.statusBadgeExpired {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: var(--status-error);
+  background: var(--status-error-bg);
+  padding: 0.25rem 0.65rem;
+  border-radius: var(--radius-full);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.statusDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.passMainInfo {
+  margin-bottom: 1.5rem;
+}
+
+.passNameTitle {
+  font-size: 1.6rem;
+  color: var(--forge-blue);
+  margin-bottom: 0.2rem;
+}
+
+.passHolder {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.metricsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.metricCard {
+  background: var(--bg-section-alt);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 0.85rem 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.metricLabelGroup {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+  margin-bottom: 0.25rem;
+}
+
+.metricVal {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--forge-blue);
+}
+
+.metricValHighlight {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.availableModesRow {
+  background: var(--bg-section-alt);
+  padding: 0.85rem 1rem;
+  border-radius: var(--radius-md);
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  border: 1px solid var(--border-light);
+}
+
+.modesTitle {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: var(--forge-blue);
+  letter-spacing: 0.05em;
+}
+
+.modesIconsRow {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.modeIconChip {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--forge-blue);
+  background: #FFFFFF;
+  padding: 0.25rem 0.6rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-light);
+}
+
+@media (max-width: 900px) {
+  .gridContainer {
+    grid-template-columns: 1fr;
+  }
+}

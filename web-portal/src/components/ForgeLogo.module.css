@@ -1,0 +1,31 @@
+.logoWrapper {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.logoImg {
+  height: 48px;
+  width: auto;
+  object-fit: contain;
+  display: block;
+  transition: transform var(--transition-fast);
+}
+
+.logoWrapper:hover .logoImg {
+  transform: scale(1.02);
+}
+
+.header .logoImg {
+  height: 44px;
+}
+
+.footer .logoImg {
+  height: 56px;
+}
+
+@media (max-width: 640px) {
+  .header .logoImg {
+    height: 36px;
+  }
+}

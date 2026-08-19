@@ -1,0 +1,112 @@
+Created At: 2026-07-04T04:56:05Z
+Completed At: 2026-07-04T04:56:06Z
+File Path: `file:///d:/Cab%20Application/customer-app/App.tsx`
+Total Lines: 5347
+Total Bytes: 200753
+Showing lines 1 to 800
+The following code has been modified to include a line number before every line, in the format: <line_number>: <original_line>. Please note that any changes targeting the original code should remove the line number, colon, and leading space.
+1: import React, { useState, useEffect, useRef } from 'react';
+2: import messaging from '@react-native-firebase/messaging';
+3: import * as Notifications from 'expo-notifications';
+4: 
+5: import { StatusBar } from 'expo-status-bar';
+6: import { 
+7:   StyleSheet, 
+8:   Text, 
+9:   View, 
+10:   TextInput, 
+11:   TouchableOpacity, 
+12:   ScrollView, 
+13:   ActivityIndicator,
+14:   Alert,
+15:   KeyboardAvoidingView,
+16:   Platform,
+17:   Modal,
+18:   FlatList,
+19:   Keyboard,
+20:   Switch,
+21:   Animated,
+22:   Image,
+23:   SafeAreaView
+24: } from 'react-native';
+25: import MapView, { Marker, PROVIDER_GOOGLE, UrlTile, Polyline, AnimatedRegion } from 'react-native-maps';
+26: import { AuthProvider, useAuth } from './src/context/AuthContext';
+27: import { LocationProvider, useLocation } from './src/context/LocationContext';
+28: import { SocketProvider, useSocket } from './src/context/SocketContext';
+29: import { LanguageProvider, useLanguage } from './src/context/LanguageContext';
+30: import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
+31: import * as Location from 'expo-location';
+32: import Colors from './src/constants/colors';
+33: import * as DocumentPicker from 'expo-document-picker';
+34: import DateTimePicker from '@react-native-community/datetimepicker';
+35: import SlideToStartScreen from './src/components/SlideToStartScreen';
+36: import TripCompletedPaymentSheet from './src/components/TripCompletedPaymentSheet';
+37: import CustomerInRideOptions from './src/components/CustomerInRideOptions';
+38: import CustomerBookedRideSheet from './src/
+<truncated 36161 bytes>
+ter', justifyContent: 'flex-end', height: 44, width: 32 }}>
+770:                     <View style={[styles.pickerPinOuter, { backgroundColor: Colors.danger }]}>
+771:                       <View style={styles.pickerPinInner} />
+772:                     </View>
+773:                     <View style={[styles.pickerPinStem, { backgroundColor: Colors.danger }]} />
+774:                     <View style={styles.pickerPinShadow} />
+775:                   </View>
+776:                 </Marker>
+777:               )}
+778:               {selectedVehicle?.routeDetails?.polyline && (
+779:                 <Polyline key="route-polyline" coordinates={decodePolyline(selectedVehicle.routeDetails.polyline)} strokeColor={Colors.accent} strokeWidth={4} lineCap="round" />
+780:               )}
+781:               {nearbyDrivers.map((d, i) => (
+782:                 <Marker key={`driver-${d._id || i}`} coordinate={{ latitude: d.currentLocation.coordinates[1], longitude: d.currentLocation.coordinates[0] }}>
+783:                   <View style={styles.nearbyVehicleMarker}>
+784:                     <Text style={{ fontSize: 14 }}>{getVehicleEmoji(d.vehicle?.type)}</Text>
+785:                   </View>
+786:                 </Marker>
+787:               ))}
+788:             </MapView>
+789: 
+790:             {/* Transparent overlay to open picker */}
+791:             <TouchableOpacity
+792:               style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, zIndex: 5 }}
+793:               activeOpacity={0.9}
+794:               onPress={() => setPickerMode('pickup')}
+795:             />
+796: 
+797:             {/* Floating top header on map */}
+798:             <View style={{
+799:               position: 'absolute', top: 0, left: 0, right: 0,
+800:               backgroundColor: '#FCFCFC', borderWidth: 1, borderColor: '#DEE0E3',
+The above content does NOT show the entire file contents. If you need to view any lines of the file which were not shown to complete your task, call this tool again to view those lines.
+
+
+---NEXT CHUNK---
+
+Created At: 2026-07-04T05:01:21Z
+Completed At: 2026-07-04T05:01:21Z
+File Path: `file:///d:/Cab%20Application/customer-app/App.tsx`
+Total Lines: 21
+Total Bytes: 475
+Showing lines 1 to 21
+The following code has been modified to include a line number before every line, in the format: <line_number>: <original_line>. Please note that any changes targeting the original code should remove the line number, colon, and leading space.
+1: import { StatusBar } from 'expo-status-bar';
+2: import { StyleSheet, Text, View } from 'react-native';
+3: 
+4: export default function App() {
+5:   return (
+6:     <View style={styles.container}>
+7:       <Text>Open up App.tsx to start working on your app!</Text>
+8:       <StatusBar style="auto" />
+9:     </View>
+10:   );
+11: }
+12: 
+13: const styles = StyleSheet.create({
+14:   container: {
+15:     flex: 1,
+16:     backgroundColor: '#fff',
+17:     alignItems: 'center',
+18:     justifyContent: 'center',
+19:   },
+20: });
+21: 
+The above content shows the entire, complete file contents of the requested file.

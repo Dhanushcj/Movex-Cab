@@ -1,0 +1,110 @@
+.ctaSection {
+  padding: 6rem 0;
+  background-color: var(--bg-white);
+  position: relative;
+}
+
+.ctaBox {
+  background: var(--forge-blue);
+  border-radius: var(--radius-xl);
+  padding: 5rem 3rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 16px 40px rgba(7, 90, 170, 0.18);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.badgePill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--accent-yellow);
+  background: rgba(232, 200, 74, 0.12);
+  padding: 0.35rem 0.85rem;
+  border-radius: var(--radius-full);
+  border: 1px solid rgba(232, 200, 74, 0.3);
+  margin-bottom: 1.5rem;
+}
+
+.zapIcon {
+  color: var(--accent-yellow);
+}
+
+.title {
+  font-size: 3.2rem;
+  color: #FFFFFF;
+  line-height: 1.15;
+  margin-bottom: 1.25rem;
+}
+
+.yellowText {
+  color: var(--accent-yellow);
+}
+
+.subtitle {
+  font-size: 1.15rem;
+  color: rgba(255, 255, 255, 0.85);
+  max-width: 620px;
+  margin: 0 auto 2.5rem auto;
+  line-height: 1.6;
+}
+
+.buttonGroup {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.secondaryWhiteBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  font-family: var(--font-family);
+  font-weight: 700;
+  font-size: 0.95rem;
+  padding: 0.85rem 1.8rem;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-decoration: none;
+  background-color: transparent;
+  color: #FFFFFF;
+  border: 1.5px solid rgba(255, 255, 255, 0.4);
+}
+
+.secondaryWhiteBtn:hover {
+  border-color: var(--accent-yellow);
+  color: var(--accent-yellow);
+  background: rgba(232, 200, 74, 0.1);
+  transform: translateY(-2px);
+}
+
+.guaranteeRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.shieldIcon {
+  color: var(--accent-yellow);
+}
+
+@media (max-width: 768px) {
+  .ctaBox {
+    padding: 3.5rem 1.5rem;
+  }
+  .title {
+    font-size: 2.2rem;
+  }
+}

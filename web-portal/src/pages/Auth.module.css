@@ -1,0 +1,583 @@
+.authPageContainer {
+  height: 100vh;
+  overflow: hidden;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-white);
+  /* Grid pattern and radial highlights */
+  background-image: 
+    radial-gradient(circle at 15% 50%, rgba(7, 90, 170, 0.05), transparent 40%),
+    radial-gradient(circle at 85% 30%, rgba(7, 90, 170, 0.03), transparent 40%),
+    linear-gradient(rgba(7, 90, 170, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(7, 90, 170, 0.03) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
+  background-attachment: fixed;
+  animation: pageEnter 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes pageEnter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.homeButton {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--bg-white);
+  border: 1px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 50;
+  box-shadow: var(--shadow-sm);
+}
+
+.homeButton:hover {
+  background: var(--bg-soft-blue);
+  color: var(--forge-blue);
+  border-color: var(--forge-blue);
+}
+
+.mainLayout {
+  display: flex;
+  flex: 1;
+  max-width: var(--max-width);
+  margin: 0 auto;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 40px 24px;
+  gap: 64px;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Left Section: Promotional */
+.promoSection {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  max-width: 500px;
+  height: 100%;
+}
+
+.brandPill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: var(--bg-soft-blue);
+  color: var(--forge-blue);
+  border-radius: var(--radius-full);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  margin-bottom: 24px;
+  align-self: flex-start;
+}
+
+.brandLogo {
+  height: 18px;
+  width: auto;
+  object-fit: contain;
+}
+
+.promoTitle {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--forge-blue);
+  line-height: 1.15;
+  margin-bottom: 12px;
+  font-family: 'Poppins', sans-serif;
+}
+
+.promoText {
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin-bottom: 32px;
+}
+
+.highlight {
+  color: var(--forge-yellow);
+  font-weight: 600;
+}
+
+/* Visual Map Container */
+.mapContainer {
+  background: var(--bg-white);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-xl);
+  height: 420px;
+  width: 100%;
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  overflow: hidden;
+}
+
+.floatingCard {
+  position: absolute;
+  right: -20px;
+  bottom: -20px;
+  background: var(--bg-white);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  box-shadow: var(--shadow-lg);
+  animation: floatCard 4s ease-in-out infinite;
+  z-index: 10;
+}
+
+.floatingCardSubtitle {
+  font-size: 10px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.floatingCardTitle {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--status-success);
+  margin-bottom: 4px;
+}
+
+.floatingCardText {
+  font-size: 12px;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+/* Right Section: Auth Card */
+.authSection {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+  height: 100%;
+  align-items: center;
+}
+
+.authCard {
+  width: 100%;
+  max-width: 460px;
+  background: var(--bg-white);
+  border: 1px solid var(--border-light);
+  border-radius: 24px;
+  padding: 40px;
+  box-shadow: var(--shadow-md);
+  animation: slideUpFade 0.5s ease-out forwards;
+  opacity: 0;
+  transform: translateY(20px);
+  max-height: 100%;
+  overflow-y: auto;
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.authCard::-webkit-scrollbar {
+  display: none;
+}
+
+@keyframes slideUpFade {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.cardHeader {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.logoWrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.cardTitle {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+
+.cardSubtitle {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* Segmented Toggle */
+.segmentToggle {
+  display: flex;
+  background: var(--bg-section-alt);
+  border: 1px solid var(--border-light);
+  border-radius: 20px;
+  padding: 4px;
+  margin-bottom: 32px;
+}
+
+.segmentBtn {
+  flex: 1;
+  padding: 10px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.segmentBtn.active {
+  background: var(--bg-white);
+  color: var(--forge-blue);
+  box-shadow: 0 2px 8px rgba(7, 90, 170, 0.08);
+}
+
+/* Form Styles */
+.formGroup {
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.inputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.inputIcon {
+  position: absolute;
+  left: 14px;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.input {
+  width: 100%;
+  height: 44px;
+  padding: 0 16px 0 44px;
+  font-size: 14px;
+  color: var(--text-primary);
+  background: var(--bg-white);
+  border: 1.5px solid var(--border-light);
+  border-radius: 12px;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.input:focus {
+  border-color: var(--forge-blue);
+  box-shadow: 0 0 0 4px var(--bg-soft-blue);
+}
+
+.inputError {
+  border-color: var(--status-error);
+}
+
+.passwordToggle {
+  position: absolute;
+  right: 16px;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.passwordToggle:hover {
+  color: var(--forge-blue);
+}
+
+.errorText {
+  color: var(--status-error);
+  font-size: 12px;
+  margin-top: 6px;
+  display: block;
+}
+
+.forgotPasswordRow {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+  margin-bottom: 24px;
+}
+
+.linkBtn {
+  background: transparent;
+  border: none;
+  color: var(--forge-blue);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+}
+
+.linkBtn:hover {
+  text-decoration: underline;
+}
+
+/* Primary Button */
+.btnPrimary {
+  width: 100%;
+  height: 44px;
+  background: var(--forge-blue);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.btnPrimary:hover {
+  background: var(--forge-blue-deep);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.btnPrimary:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 13px;
+  margin-bottom: 24px;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.divider:not(:empty)::before {
+  margin-right: 16px;
+}
+
+.divider:not(:empty)::after {
+  margin-left: 16px;
+}
+
+/* Google Button */
+.btnGoogle {
+  width: 100%;
+  height: 44px;
+  background: var(--bg-white);
+  color: var(--text-primary);
+  border: 1.5px solid var(--border-light);
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+.btnGoogle:hover {
+  background: var(--bg-section-alt);
+  border-color: var(--border-hover);
+}
+
+/* Driver Login */
+.driverLoginRow {
+  text-align: center;
+  margin-bottom: 24px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.driverLoginBtn {
+  background: transparent;
+  border: none;
+  color: var(--forge-blue);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-left: 8px;
+}
+
+.driverLoginBtn:hover {
+  text-decoration: underline;
+}
+
+/* Terms */
+.termsText {
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.termsLink {
+  color: var(--text-muted);
+  text-decoration: underline;
+}
+
+.termsLink:hover {
+  color: var(--forge-blue);
+}
+
+/* Gender Toggle (from previous version, re-styled) */
+.genderRow {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.genderBtn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 52px;
+  padding: 0 16px;
+  background: var(--bg-white);
+  border: 1.5px solid var(--border-light);
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.genderBtn.active {
+  border-color: var(--forge-blue);
+  background: var(--bg-soft-blue);
+}
+
+.genderCircle {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.genderBtn.active .genderCircle {
+  border-color: var(--forge-blue);
+}
+
+.genderDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--forge-blue);
+}
+
+.genderText {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.genderBtn.active .genderText {
+  color: var(--forge-blue);
+}
+
+/* Verify Email specific */
+.verifyEmailContainer {
+  text-align: center;
+  padding: 20px 0;
+}
+
+.verifyText {
+  font-size: 15px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin-bottom: 32px;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .mainLayout {
+    padding: 16px;
+    justify-content: center;
+  }
+  
+  .homeButton {
+    top: 16px;
+    left: 16px;
+    width: 40px;
+    height: 40px;
+  }
+  
+  .promoSection {
+    display: none;
+  }
+  
+  .authSection {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .authCard {
+    padding: 32px 20px;
+    margin: 0 auto;
+  }
+  
+  .formGroup {
+    margin-bottom: 16px;
+  }
+  
+  .input {
+    height: 44px;
+  }
+  
+  .btnPrimary, .btnGoogle {
+    height: 44px;
+    margin-bottom: 16px;
+  }
+  
+  .segmentToggle {
+    margin-bottom: 24px;
+  }
+}

@@ -1,0 +1,183 @@
+.modesSection {
+  padding: 6rem 0;
+  background-color: var(--bg-white);
+  position: relative;
+}
+
+.sectionHeader {
+  text-align: center;
+  max-width: 720px;
+  margin: 0 auto 4rem auto;
+}
+
+.sectionTag {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--forge-blue);
+  background: var(--bg-light-blue);
+  padding: 0.35rem 0.85rem;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-blue);
+  margin-bottom: 1rem;
+  display: inline-block;
+}
+
+.sectionTitle {
+  font-size: 2.6rem;
+  color: var(--forge-blue-text);
+  margin-bottom: 1rem;
+}
+
+.sectionSubtitle {
+  font-size: 1.05rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.modesGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+}
+
+.modeCard {
+  background: #FFFFFF;
+  border: 1.5px solid var(--border-light);
+  border-radius: var(--radius-xl);
+  padding: 2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  transition: all var(--transition-normal);
+  box-shadow: var(--shadow-sm);
+}
+
+.modeCard:hover {
+  transform: translateY(-8px);
+  border-color: var(--forge-yellow);
+  box-shadow: 0 16px 36px rgba(7, 90, 170, 0.12);
+}
+
+.cardTopRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.iconCircle {
+  width: 54px;
+  height: 54px;
+  border-radius: var(--radius-lg);
+  background: var(--forge-yellow);
+  color: var(--forge-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-yellow);
+}
+
+.modeIcon {
+  color: var(--forge-blue);
+}
+
+.statusPill {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: var(--status-success);
+  background: var(--status-success-bg);
+  padding: 0.2rem 0.5rem;
+  border-radius: var(--radius-full);
+}
+
+.statusDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--status-success);
+}
+
+.modeName {
+  font-size: 1.4rem;
+  color: var(--forge-blue-text);
+  margin-bottom: 0.2rem;
+}
+
+.modeTagline {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--forge-blue);
+  margin-bottom: 0.85rem;
+}
+
+.modeDesc {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-bottom: 1.5rem;
+}
+
+.metricsBox {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.65rem;
+  background: var(--bg-light-blue);
+  padding: 0.75rem;
+  border-radius: var(--radius-md);
+  margin-bottom: 1.25rem;
+  border: 1px solid var(--border-light);
+}
+
+.metricItem {
+  display: flex;
+  flex-direction: column;
+}
+
+.metricHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.62rem;
+  font-weight: 800;
+  color: var(--text-muted);
+}
+
+.metricVal {
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: var(--forge-blue);
+  margin-top: 0.1rem;
+}
+
+.cardFooter {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--border-light);
+}
+
+.shieldIcon {
+  color: var(--forge-blue);
+}
+
+.fleetLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+@media (max-width: 1024px) {
+  .modesGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .modesGrid {
+    grid-template-columns: 1fr;
+  }
+}

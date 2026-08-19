@@ -1,0 +1,234 @@
+.walletContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+  font-family: var(--font-family);
+  animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.pageTitle {
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--forge-blue-deep);
+  margin-bottom: 32px;
+  letter-spacing: -0.5px;
+}
+
+.metricsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+  margin-bottom: 40px;
+}
+
+.card {
+  background: var(--bg-white);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-xl);
+  padding: 24px;
+  box-shadow: var(--shadow-md);
+  transition: var(--transition-normal);
+  position: relative;
+  overflow: hidden;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.primaryCard {
+  background: linear-gradient(135deg, var(--forge-blue-deep) 0%, var(--forge-blue) 100%);
+  color: white;
+  border: none;
+  box-shadow: 0 10px 25px rgba(7, 90, 170, 0.3);
+}
+
+.primaryCard:hover {
+  box-shadow: 0 15px 35px rgba(7, 90, 170, 0.4);
+}
+
+/* Decorative circles in primary card */
+.primaryCard::before, .primaryCard::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.primaryCard::before {
+  width: 150px;
+  height: 150px;
+  top: -50px;
+  right: -30px;
+}
+
+.primaryCard::after {
+  width: 100px;
+  height: 100px;
+  bottom: -20px;
+  right: 80px;
+}
+
+.cardLabel {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.primaryCard .cardLabel {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.cardValue {
+  font-size: 48px;
+  font-weight: 800;
+  margin: 0 0 24px 0;
+  letter-spacing: -1px;
+}
+
+.primaryCard .cardValue {
+  color: white;
+}
+
+.cardValueSecondary {
+  font-size: 36px;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 16px 0 8px 0;
+  letter-spacing: -0.5px;
+}
+
+.btnWithdraw {
+  background: white;
+  color: var(--forge-blue-deep);
+  padding: 12px 24px;
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  font-size: 15px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+  position: relative;
+  z-index: 2;
+}
+
+.btnWithdraw:hover {
+  background: #F8FAFC;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.iconWrapper {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.iconSuccess { background: rgba(16, 185, 129, 0.1); color: var(--status-success); }
+.iconInfo { background: var(--bg-soft-blue); color: var(--forge-blue); }
+
+.cardHeader h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.trendText {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.trendSuccess { color: var(--status-success); }
+.trendNeutral { color: var(--text-muted); }
+
+.sectionTitle {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 24px;
+}
+
+.tableContainer {
+  background: var(--bg-white);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.transactionsTable {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.transactionsTable th {
+  padding: 16px 24px;
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: #F8FAFC;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.transactionsTable td {
+  padding: 20px 24px;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-light);
+}
+
+.transactionsTable tr:last-child td {
+  border-bottom: none;
+}
+
+.transactionsTable tr:hover td {
+  background: var(--bg-section-alt);
+}
+
+.amountPositive {
+  color: var(--status-success);
+  font-weight: 700;
+}
+
+.amountNegative {
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+.statusBadge {
+  display: inline-flex;
+  padding: 6px 12px;
+  border-radius: var(--radius-full);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.statusCompleted {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--status-success);
+}

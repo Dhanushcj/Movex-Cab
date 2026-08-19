@@ -1,0 +1,1067 @@
+/* =========================================
+   PAGE LAYOUT
+   ========================================= */
+.pageContainer {
+  padding: 0 0 40px 0;
+  max-width: 1200px;
+  margin: 0 auto;
+  font-family: 'Inter', 'Poppins', sans-serif;
+  color: var(--text-primary, #1F2937);
+}
+
+.pageHeader {
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.pageTitle {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--forge-blue, #0053B3);
+  margin: 0 0 4px 0;
+}
+
+.pageSubtitle {
+  font-size: 14px;
+  color: var(--text-muted, #6B7280);
+  margin: 0;
+}
+
+/* =========================================
+   MAIN GRID (2 COLUMNS)
+   ========================================= */
+.mainGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.leftColumn, .rightColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* =========================================
+   SHARED CARD STYLES
+   ========================================= */
+.cardContainer {
+  background: #FFFFFF;
+  border: 1px solid #E5E7EB;
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.cardTitle {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-muted, #6B7280);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.btnText {
+  background: transparent;
+  border: none;
+  color: var(--forge-blue, #0053B3);
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  padding: 0;
+}
+.btnText:hover {
+  text-decoration: underline;
+}
+
+/* =========================================
+   PREMIUM PASS CARD
+   ========================================= */
+.premiumPassCard {
+  background: var(--forge-blue, #0053B3);
+  border-radius: 16px;
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0, 83, 179, 0.2);
+  margin-bottom: 16px;
+  min-height: 220px;
+  transform: translateZ(0);
+}
+
+.passCardBg {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-image: 
+    linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+  background-size: 40px 40px;
+  z-index: 1;
+}
+
+.passTopRow {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.passBranding {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #FFFFFF;
+}
+
+.badgeActive {
+  background: #10B981;
+  color: #FFFFFF;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 4px 10px;
+  border-radius: 12px;
+}
+
+.passTier {
+  position: relative;
+  z-index: 2;
+  font-size: 32px;
+  font-weight: 800;
+  color: #FFD700;
+  margin: 0 0 4px 0;
+  line-height: 1;
+}
+
+.passDesc {
+  position: relative;
+  z-index: 2;
+  font-size: 13px;
+  color: rgba(255,255,255,0.9);
+  margin: 0 0 20px 0;
+}
+
+.passDivider {
+  position: relative;
+  z-index: 2;
+  height: 1px;
+  background: rgba(255,255,255,0.15);
+  margin-bottom: 20px;
+  width: 65%;
+}
+
+.passInfoGrid {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  gap: 32px;
+}
+
+.passInfoItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.passInfoLabel {
+  font-size: 10px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.6);
+  letter-spacing: 0.5px;
+}
+
+.passInfoValue {
+  font-size: 15px;
+  font-weight: 700;
+  color: #FFFFFF;
+}
+
+.shieldVisual {
+  position: absolute;
+  right: -60px;
+  bottom: -60px;
+  width: 280px;
+  height: 320px;
+  background: linear-gradient(135deg, #FFC107, #D49F0C);
+  border-top-left-radius: 120px;
+  z-index: 1;
+  transform: skewX(-15deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: -10px 0 30px rgba(0,0,0,0.15);
+}
+
+.shieldInner {
+  transform: skewX(15deg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-right: 60px;
+  margin-bottom: 60px;
+}
+
+.shieldText {
+  color: #FFFFFF;
+  font-weight: 800;
+  font-size: 18px;
+  letter-spacing: 1px;
+  margin-top: 4px;
+}
+
+.stars {
+  display: flex;
+  gap: 4px;
+  color: #FFFFFF;
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+/* Pass Controls */
+.passControls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 8px;
+}
+
+.passControlItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.controlLabel {
+  font-size: 13px;
+  color: var(--text-muted, #6B7280);
+}
+
+.statusActive {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #10B981;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.statusDot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: #10B981;
+}
+
+.toggleSwitch {
+  width: 44px;
+  height: 24px;
+  border-radius: 12px;
+  background: #E5E7EB;
+  position: relative;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: all 0.3s;
+}
+
+.toggleSwitch.toggleOn {
+  background: #10B981;
+}
+
+.toggleText {
+  position: absolute;
+  right: 8px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #FFFFFF;
+}
+
+.toggleSwitch::after {
+  content: '';
+  position: absolute;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #FFFFFF;
+  transition: all 0.3s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.toggleSwitch.toggleOn::after {
+  left: 22px;
+}
+
+.toggleSwitch.toggleOn .toggleText {
+  right: auto;
+  left: 6px;
+}
+
+.btnQr {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #F4F8FB;
+  border: 1px solid #E5E7EB;
+  color: var(--forge-blue, #0053B3);
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.btnQr:hover {
+  background: #EAF2F8;
+  border-color: var(--forge-blue, #0053B3);
+}
+
+
+/* =========================================
+   PASS MANAGEMENT CARD
+   ========================================= */
+.passManagementActions {
+  display: flex;
+  gap: 16px;
+}
+
+.pmActionBox {
+  flex: 1;
+  background: #F9FAFB;
+  border: 1px solid #F3F4F6;
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.pmIconBoxUpgrade, .pmIconBoxCancel {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4px;
+}
+
+.pmIconBoxUpgrade { background: #FEF3C7; }
+.pmIconBoxCancel { background: #FEE2E2; }
+
+.pmContent h4 {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary, #1F2937);
+  margin: 0 0 4px 0;
+}
+
+.pmContent p {
+  font-size: 13px;
+  color: var(--text-muted, #6B7280);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.btnUpgrade, .btnCancel {
+  margin-top: auto;
+  padding: 10px 0;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  border: none;
+  transition: 0.2s;
+  width: 100%;
+}
+
+.btnUpgrade {
+  background: var(--forge-blue, #0053B3);
+  color: white;
+}
+.btnUpgrade:hover {
+  filter: brightness(1.1);
+  box-shadow: 0 4px 12px rgba(7, 90, 170, 0.2);
+}
+
+.btnCancel {
+  background: transparent;
+  border: 1px solid #FECACA;
+  color: #DC2626;
+}
+.btnCancel:hover {
+  background: #FEF2F2;
+  border-color: #F87171;
+}
+
+/* =========================================
+   PASS USAGE CARD
+   ========================================= */
+.usageStatsFlex {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.usageStatBox, .usageStatBoxActive {
+  flex: 1;
+  background: #FFFFFF;
+  border: 1px solid #E5E7EB;
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.usageStatBoxActive {
+  border-color: var(--forge-blue, #0053B3);
+  box-shadow: 0 4px 12px rgba(0, 83, 179, 0.08);
+}
+
+.uIconBox, .uIconBoxGold, .uIconBoxGreen {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 12px;
+}
+
+.uIconBox { background: #E0E7FF; }
+.uIconBoxGold { background: #FEF3C7; }
+.uIconBoxGreen { background: #D1FAE5; }
+
+.uLabel {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted, #6B7280);
+  margin-bottom: 8px;
+}
+
+.uValue {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--forge-blue, #0053B3);
+  margin-bottom: 4px;
+}
+
+.uValueBlue {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--forge-blue, #0053B3);
+  margin-bottom: 4px;
+}
+
+.uValueGreen {
+  font-size: 24px;
+  font-weight: 800;
+  color: #10B981;
+  margin-bottom: 4px;
+}
+
+.uSub {
+  font-size: 12px;
+  color: var(--text-muted, #6B7280);
+}
+
+.vehicleCoverageBox {
+  background: #F0F9FF;
+  border: 1px solid #BAE6FD;
+  border-radius: 12px;
+  padding: 16px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.vcLeft {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.vcTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0369A1;
+}
+
+.vcSub {
+  font-size: 12px;
+  color: #0284C7;
+  margin-top: 2px;
+}
+
+.vcIcons {
+  display: flex;
+  gap: 12px;
+}
+
+/* =========================================
+   WHAT'S INCLUDED CARD
+   ========================================= */
+.includedFlex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+}
+
+.includedList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  flex: 1;
+}
+
+.includedItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary, #1F2937);
+}
+
+.checkIcon {
+  color: #10B981;
+  flex-shrink: 0;
+}
+
+.includedIllustration {
+  width: 200px;
+  height: 200px;
+  position: relative;
+  background: #F4F8FB;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.illusBuilding1, .illusBuilding2, .illusBuilding3 {
+  position: absolute;
+  bottom: 0;
+  background: #E5E7EB;
+  border-radius: 4px 4px 0 0;
+}
+.illusBuilding1 { width: 40px; height: 100px; left: 20px; opacity: 0.5; }
+.illusBuilding2 { width: 60px; height: 140px; left: 70px; opacity: 0.7; }
+.illusBuilding3 { width: 40px; height: 80px; right: 20px; opacity: 0.4; }
+
+.illusShield {
+  position: absolute;
+  top: 30px;
+  width: 80px; height: 90px;
+  background: var(--forge-blue, #0053B3);
+  border-radius: 10px 10px 40px 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.illusCar {
+  position: absolute;
+  bottom: 20px;
+  z-index: 3;
+}
+
+/* =========================================
+   BOTTOM ACTIONS
+   ========================================= */
+.bottomActions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: #FFFFFF;
+  border: 1px solid #E5E7EB;
+  border-radius: 16px;
+  padding: 16px 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+}
+
+.btnOutline {
+  background: transparent;
+  border: 1px solid #D1D5DB;
+  color: var(--text-primary, #374151);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 12px 24px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btnOutline:hover {
+  background: #F3F4F6;
+  border-color: #9CA3AF;
+}
+
+.btnPrimary {
+  background: var(--forge-blue, #0053B3);
+  border: none;
+  color: white;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 12px 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btnPrimary:hover {
+  filter: brightness(1.1);
+  box-shadow: 0 4px 12px rgba(7, 90, 170, 0.2);
+  transform: translateY(-2px);
+}
+
+/* =========================================
+   RESPONSIVE
+   ========================================= */
+@media (max-width: 1024px) {
+  .mainGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .routeStatsGrid {
+    flex-wrap: wrap;
+  }
+  .routeStatItem {
+    flex: 1 1 45%;
+    border-bottom: 1px solid #F3F4F6;
+  }
+  .routeStatItem:nth-child(even) {
+    border-right: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .usageStatsFlex {
+    flex-direction: column;
+  }
+  .includedFlex {
+    flex-direction: column-reverse;
+  }
+  .bottomActions {
+    flex-direction: column;
+  }
+  .btnOutline, .btnPrimary {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* =========================================
+   MODAL STYLES
+   ========================================= */
+.modalOverlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.modalContent {
+  background: #FFFFFF;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 400px;
+  padding: 24px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+}
+
+.modalContentWide {
+  background: white;
+  padding: 32px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 900px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.modalTitle {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--forge-blue, #0053B3);
+  margin: 0;
+}
+
+.modalClose {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #6B7280;
+}
+
+.planOption {
+  border: 2px solid #E5E7EB;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  transition: 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.planOption:hover {
+  border-color: var(--accent-yellow, #D49F0C);
+  background: #FEF9C3;
+}
+
+.planInfo h4 {
+  margin: 0 0 4px 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary, #1F2937);
+}
+
+.planInfo p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-muted, #6B7280);
+}
+
+.planPrice {
+  font-weight: 800;
+  color: var(--forge-blue, #0053B3);
+  font-size: 16px;
+}
+
+/* =========================================
+   NO PASS UI
+   ========================================= */
+.noPassHero {
+  background: var(--bg-white, #FFFFFF);
+  border: 1px solid var(--border-light, #E5E7EB);
+  border-radius: 20px;
+  padding: 40px;
+  margin-bottom: 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+}
+
+.npLeft {
+  max-width: 50%;
+}
+
+.npTitle {
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--forge-blue, #0053B3);
+  line-height: 1.2;
+  margin: 0 0 16px 0;
+}
+
+.npSub {
+  font-size: 15px;
+  color: var(--text-muted, #6B7280);
+  line-height: 1.5;
+  margin: 0 0 24px 0;
+}
+
+.btnExploreYellow {
+  background: #EAB308;
+  color: #FFFFFF;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+  box-shadow: 0 4px 12px rgba(234, 179, 8, 0.3);
+}
+
+.btnExploreYellow:hover {
+  background: #CA8A04;
+  transform: translateY(-2px);
+}
+
+.npRight {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.npIllus {
+  position: relative;
+  width: 300px;
+  height: 200px;
+}
+
+.npBuildings {
+  position: absolute;
+  bottom: 40px;
+  left: 0; right: 0;
+  height: 120px;
+  background-image: 
+    linear-gradient(to top, #E5E7EB 100%, transparent 100%),
+    linear-gradient(to top, #D1D5DB 100%, transparent 100%),
+    linear-gradient(to top, #E5E7EB 100%, transparent 100%);
+  background-size: 40px 100px, 60px 140px, 50px 80px;
+  background-position: 20px bottom, 100px bottom, 200px bottom;
+  background-repeat: no-repeat;
+  opacity: 0.5;
+  border-radius: 4px 4px 0 0;
+}
+
+.npShield {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 90px;
+  background: var(--forge-blue, #0053B3);
+  border-radius: 10px 10px 40px 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  z-index: 2;
+}
+
+.npVehicles {
+  position: absolute;
+  bottom: -10px;
+  left: -20px;
+  right: -20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  z-index: 3;
+}
+
+.npSection {
+  margin-bottom: 32px;
+}
+
+.npSectionTitle {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary, #1F2937);
+  margin: 0 0 20px 0;
+}
+
+.npBenefitsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.npBenefitCard {
+  background: var(--bg-white, #FFFFFF);
+  border: 1px solid var(--border-light, #E5E7EB);
+  border-radius: 16px;
+  padding: 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.npIconBox {
+  width: 48px; height: 48px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 16px;
+}
+
+.npBenefitCard h4 {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary, #1F2937);
+  margin: 0 0 8px 0;
+}
+
+.npBenefitCard p {
+  font-size: 13px;
+  color: var(--text-muted, #6B7280);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.npPassesGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.npPassCard {
+  background: var(--bg-white, #FFFFFF);
+  border: 1px solid var(--border-light, #E5E7EB);
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+}
+
+.npPassHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.npPassTier {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text-primary, #1F2937);
+}
+
+.npBadgePop {
+  background: #FEF08A;
+  color: #854D0E;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.npPassDesc {
+  font-size: 13px;
+  color: var(--text-muted, #6B7280);
+  margin: 0 0 20px 0;
+}
+
+.npPassFeats {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+  flex: 1;
+}
+
+.npFeat {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary, #1F2937);
+}
+
+.npPassBottom {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: flex-start;
+  gap: 16px;
+  margin-top: auto;
+}
+
+.npPassPrice {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--text-primary, #1F2937);
+}
+
+.npPassPrice span {
+  font-size: 14px;
+  color: var(--text-muted, #6B7280);
+  font-weight: 500;
+}
+
+.btnBuyYellow {
+  background: #EAB308;
+  color: #FFFFFF;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btnBuyYellow:hover {
+  background: #CA8A04;
+}
+
+.btnBuyOutline {
+  background: transparent;
+  border: 1px solid #6366F1;
+  color: #6366F1;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btnBuyOutline:hover {
+  background: #EEF2FF;
+}
+
+@media (max-width: 900px) {
+  .noPassHero {
+    flex-direction: column;
+    text-align: center;
+  }
+  .npLeft {
+    max-width: 100%;
+    margin-bottom: 32px;
+  }
+  .btnExploreYellow {
+    margin: 0 auto;
+  }
+  .npBenefitsGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .npPassesGrid {
+    grid-template-columns: 1fr;
+  }
+}

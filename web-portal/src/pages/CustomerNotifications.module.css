@@ -1,0 +1,418 @@
+.pageContainer {
+  padding: 40px 0;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.header {
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.headerLeft {
+  max-width: 70%;
+}
+
+.title {
+  font-size: 28px;
+  color: var(--forge-blue, #0066B3);
+  font-weight: 800;
+  margin-bottom: 8px;
+  line-height: 1.2;
+}
+
+.subtitle {
+  color: var(--text-muted, #6B7280);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.headerControls {
+  display: flex;
+  gap: 12px;
+}
+
+.btnControl {
+  background: transparent;
+  border: 1px solid var(--border-light, #E5E7EB);
+  color: var(--text-secondary, #4B5563);
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+}
+
+.btnControl:hover {
+  background: #F9FAFB;
+  border-color: #D1D5DB;
+  color: #1F2937;
+}
+
+.btnMarkRead {
+  color: var(--forge-blue, #0066B3);
+  border-color: rgba(0, 102, 179, 0.2);
+  background: rgba(0, 102, 179, 0.05);
+}
+
+.btnMarkRead:hover {
+  background: rgba(0, 102, 179, 0.1);
+  border-color: rgba(0, 102, 179, 0.3);
+  color: var(--forge-blue, #0066B3);
+}
+
+.btnMarkRead:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.tabsContainer {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 32px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.tabsContainer::-webkit-scrollbar {
+  height: 4px;
+}
+
+.tabsContainer::-webkit-scrollbar-thumb {
+  background: #D1D5DB;
+  border-radius: 4px;
+}
+
+.tabBtn {
+  background: var(--bg-white, #FFFFFF);
+  border: 1px solid var(--border-light, #E5E7EB);
+  color: var(--text-secondary, #4B5563);
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.tabBtn:hover {
+  background: #F9FAFB;
+}
+
+.tabBtn.active {
+  background: var(--forge-blue, #0066B3);
+  color: #FFFFFF;
+  border-color: var(--forge-blue, #0066B3);
+  box-shadow: 0 4px 12px rgba(0, 102, 179, 0.2);
+}
+
+.notificationsList {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.timeGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.groupLabel {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-muted, #6B7280);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+  padding-left: 4px;
+}
+
+.notificationCard {
+  background: var(--bg-white, #FFFFFF);
+  border: 1px solid var(--border-light, #E5E7EB);
+  border-radius: 16px;
+  padding: 16px 20px;
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  transition: all 0.2s;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.notificationCard:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transform: translateY(-1px);
+}
+
+.notificationCard.unread {
+  background: #F0F7FF;
+  border-color: #BFDBFE;
+}
+
+.unreadIndicator {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 4px;
+  background: var(--forge-blue, #0066B3);
+}
+
+.iconWrapper {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.iconRides {
+  background: #EEF2FF;
+  color: #4F46E5;
+}
+
+.iconPasses {
+  background: #FEFCE8;
+  color: #EAB308;
+}
+
+.iconPayments {
+  background: #ECFDF5;
+  color: #10B981;
+}
+
+.iconSystem {
+  background: #F3F4F6;
+  color: #6B7280;
+}
+
+.contentWrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.notifTitle {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary, #1F2937);
+  margin: 0;
+}
+
+.notifTime {
+  font-size: 12px;
+  color: var(--text-muted, #6B7280);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.notifDesc {
+  font-size: 14px;
+  color: var(--text-secondary, #4B5563);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.unreadDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--forge-blue, #0066B3);
+  margin-top: 6px;
+  flex-shrink: 0;
+}
+
+.emptyState {
+  background: var(--bg-white, #FFFFFF);
+  border: 1px dashed #D1D5DB;
+  border-radius: 20px;
+  padding: 60px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 16px;
+}
+
+.emptyIconWrapper {
+  width: 80px;
+  height: 80px;
+  background: #F3F4F6;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #9CA3AF;
+  margin-bottom: 8px;
+}
+
+.emptyTitle {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary, #1F2937);
+  margin: 0;
+}
+
+.emptyDesc {
+  font-size: 15px;
+  color: var(--text-muted, #6B7280);
+  margin: 0;
+  max-width: 300px;
+}
+
+/* Notification Details Modal */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.modalContent {
+  background: var(--bg-white, #FFFFFF);
+  width: 100%;
+  max-width: 500px;
+  border-radius: 20px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modalHeader {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border-light, #E5E7EB);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modalTitle {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary, #1F2937);
+  margin: 0;
+}
+
+.modalClose {
+  background: transparent;
+  border: none;
+  color: #9CA3AF;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.2s;
+}
+
+.modalClose:hover {
+  background: #F3F4F6;
+  color: #4B5563;
+}
+
+.modalBody {
+  padding: 24px;
+}
+
+.modalTypeBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 16px;
+}
+
+.modalTypeBadge.rides { background: #EEF2FF; color: #4F46E5; }
+.modalTypeBadge.passes { background: #FEFCE8; color: #EAB308; }
+.modalTypeBadge.payments { background: #ECFDF5; color: #10B981; }
+.modalTypeBadge.system { background: #F3F4F6; color: #6B7280; }
+
+.modalBodyTitle {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text-primary, #1F2937);
+  margin: 0 0 12px 0;
+}
+
+.modalBodyTime {
+  font-size: 13px;
+  color: var(--text-muted, #6B7280);
+  font-weight: 500;
+  margin: 0 0 20px 0;
+}
+
+.modalBodyDesc {
+  font-size: 15px;
+  color: var(--text-secondary, #4B5563);
+  line-height: 1.6;
+  margin: 0;
+  padding: 16px;
+  background: #F9FAFB;
+  border-radius: 12px;
+  border: 1px solid var(--border-light, #E5E7EB);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .headerLeft {
+    max-width: 100%;
+  }
+  .headerControls {
+    width: 100%;
+  }
+  .btnControl {
+    flex: 1;
+    justify-content: center;
+  }
+  .pageContainer {
+    padding: 24px 20px;
+  }
+}

@@ -1,0 +1,424 @@
+.dashboardContainer {
+  height: calc(100vh - 54px);
+  width: calc(100% + 40px);
+  margin: -20px;
+  position: relative;
+  overflow: hidden;
+  font-family: var(--font-family);
+  background: var(--bg-section-alt);
+}
+
+.mapPanel {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+}
+
+/* Glassmorphism base for floating panels */
+.glassPanel {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: var(--radius-xl);
+  box-shadow: 0 12px 32px rgba(7, 90, 170, 0.12), 0 2px 6px rgba(0, 0, 0, 0.04);
+  position: absolute;
+  z-index: 10;
+  animation: slideFadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes slideFadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* 1. Floating Driver Status Card (Top Left) */
+.statusPanel {
+  top: 24px;
+  left: 24px;
+  width: 320px;
+  padding: 24px;
+}
+
+.statusHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.statusDot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--status-success);
+  box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.2);
+  animation: pulse 2s infinite;
+}
+
+.statusOfflineDot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--text-muted);
+}
+
+.statusTitle {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--forge-blue);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.statusSubtitle {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-weight: 500;
+  margin-bottom: 24px;
+  padding-left: 20px;
+}
+
+.detailRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.detailIcon {
+  color: var(--forge-blue);
+  background: var(--bg-soft-blue);
+  padding: 8px;
+  border-radius: var(--radius-lg);
+  display: flex;
+}
+
+.detailInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.detailLabel {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 2px;
+}
+
+.detailValue {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.toggleBtn {
+  width: 100%;
+  padding: 14px;
+  border-radius: var(--radius-lg);
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 8px;
+}
+
+.btnGoOffline {
+  background: #FEF2F2;
+  color: var(--status-error);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.btnGoOffline:hover {
+  background: #FEE2E2;
+}
+
+.btnGoOnline {
+  background: var(--forge-blue);
+  color: white;
+  border: none;
+  box-shadow: 0 4px 12px rgba(7, 90, 170, 0.2);
+}
+
+.btnGoOnline:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(7, 90, 170, 0.3);
+}
+
+/* 2. Today's Operational Stats (Top Right) */
+.statsPanel {
+  top: 24px;
+  right: 24px;
+  width: 320px;
+  padding: 20px 24px;
+}
+
+.panelTitle {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+}
+
+.statValue {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--forge-blue);
+  line-height: 1.1;
+  margin-bottom: 2px;
+}
+
+.statLabel {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+/* 3. Quick Actions (Bottom Left) */
+.quickActionsPanel {
+  bottom: 24px;
+  left: 24px;
+  padding: 16px;
+  display: flex;
+  gap: 12px;
+}
+
+.actionBtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: var(--bg-white);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  padding: 12px 16px;
+  min-width: 90px;
+  color: var(--text-primary);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.actionBtn:hover {
+  border-color: var(--forge-blue);
+  color: var(--forge-blue);
+  background: var(--bg-soft-blue);
+  transform: translateY(-2px);
+}
+
+/* 4. Ride Request Overlay (Center) */
+.requestOverlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(4px);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.requestCard {
+  background: var(--bg-white);
+  border-radius: var(--radius-xl);
+  width: 400px;
+  overflow: hidden;
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.2);
+  animation: scaleUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes scaleUp {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.reqHeader {
+  background: var(--forge-blue);
+  padding: 24px;
+  color: white;
+  text-align: center;
+  position: relative;
+}
+
+.reqPulse {
+  width: 60px;
+  height: 60px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+  animation: radar 2s infinite;
+}
+
+@keyframes radar {
+  0% { box-shadow: 0 0 0 0 rgba(255,255,255,0.4); }
+  100% { box-shadow: 0 0 0 20px rgba(255,255,255,0); }
+}
+
+.reqTitle {
+  font-size: 20px;
+  font-weight: 800;
+  margin: 0 0 4px;
+  letter-spacing: 0.5px;
+}
+
+.reqSubtitle {
+  font-size: 13px;
+  color: rgba(255,255,255,0.8);
+  margin: 0;
+}
+
+.reqBody {
+  padding: 24px;
+}
+
+.reqTimeline {
+  position: relative;
+  margin-bottom: 24px;
+}
+
+.reqLine {
+  position: absolute;
+  left: 7px;
+  top: 10px;
+  bottom: 10px;
+  width: 2px;
+  background: #E2E8F0;
+  z-index: 1;
+}
+
+.reqStop {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 20px;
+  position: relative;
+  z-index: 2;
+}
+
+.reqStop:last-child {
+  margin-bottom: 0;
+}
+
+.reqDot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: white;
+  border: 4px solid;
+  margin-top: 2px;
+}
+
+.dotPickup { border-color: var(--status-success); }
+.dotDrop { border-color: var(--status-error); }
+
+.reqLocText {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 4px;
+  line-height: 1.3;
+}
+
+.reqLocMeta {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.reqStatsRow {
+  display: flex;
+  justify-content: space-between;
+  background: var(--bg-section);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  margin-bottom: 24px;
+}
+
+.reqStat {
+  text-align: center;
+}
+
+.reqStatValue {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.reqStatLabel {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.reqActions {
+  display: flex;
+  gap: 12px;
+}
+
+.btnDecline {
+  flex: 1;
+  padding: 16px;
+  background: #F1F5F9;
+  color: #475569;
+  border: none;
+  border-radius: var(--radius-lg);
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btnDecline:hover {
+  background: #E2E8F0;
+}
+
+.btnAccept {
+  flex: 2;
+  padding: 16px;
+  background: var(--forge-yellow);
+  color: var(--forge-blue);
+  border: none;
+  border-radius: var(--radius-lg);
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 14px rgba(232, 200, 74, 0.3);
+}
+
+.btnAccept:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(232, 200, 74, 0.4);
+}

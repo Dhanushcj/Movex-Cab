@@ -1,0 +1,451 @@
+.container {
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+  font-family: var(--font-family);
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  height: calc(100vh - 100px); /* Adjust based on header height */
+  box-sizing: border-box;
+}
+
+/* Main Top Layout: Left Panel + Map */
+.mainLayout {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 24px;
+  flex: 1;
+  min-height: 0; /* Important for preventing grid blowout with flex */
+}
+
+@media (max-width: 1024px) {
+  .mainLayout {
+    grid-template-columns: 1fr;
+    flex: none;
+    height: auto;
+  }
+}
+
+/* Base Card Style */
+.card {
+  background: var(--bg-white);
+  border: 1px solid var(--border-light);
+  border-radius: 20px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+/* --- Left Panel: Trip Details --- */
+.statusHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.statusActive {
+  background: #DCFCE7;
+  color: #16A34A;
+}
+
+.statusWaiting {
+  background: #FEF3C7;
+  color: #D97706;
+}
+
+.etaBlock {
+  text-align: right;
+}
+
+.etaBlock h3 {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0 0 2px 0;
+}
+
+.etaBlock p {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 0;
+  font-weight: 600;
+}
+
+/* Location Timeline */
+.timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 20px;
+  background: #F9FAFB;
+  border-radius: 16px;
+  margin-bottom: 24px;
+  position: relative;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 31px;
+  top: 40px;
+  bottom: 40px;
+  width: 2px;
+  background: var(--border-light);
+  border-left: 2px dashed #D1D5DB;
+}
+
+.timelineItem {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  position: relative;
+  z-index: 2;
+}
+
+.timelineIcon {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.iconPickup {
+  background: #FEF3C7;
+  color: #D97706;
+}
+
+.iconDropoff {
+  background: #EEF2FF;
+  color: #4F46E5;
+}
+
+.timelineContent h4 {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin: 0 0 4px 0;
+  letter-spacing: 0.5px;
+}
+
+.timelineContent p {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Customer Info Card */
+.customerCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  border: 1px solid var(--border-light);
+  border-radius: 16px;
+  margin-bottom: 24px;
+}
+
+.customerInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.customerAvatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--bg-soft-blue);
+  color: var(--forge-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.customerDetails h4 {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 2px 0;
+}
+
+.customerRating {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.customerActions {
+  display: flex;
+  gap: 8px;
+}
+
+.btnCircle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--border-light);
+  background: var(--bg-white);
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.btnCircle:hover {
+  background: #F9FAFB;
+  border-color: #D1D5DB;
+}
+
+/* Trip Meta (Fare & Type) */
+.tripMetaGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: auto; /* Pushes buttons to bottom */
+  padding-bottom: 24px;
+}
+
+.metaItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px;
+  background: #F9FAFB;
+  border-radius: 12px;
+  border: 1px solid var(--border-light);
+}
+
+.metaItem span {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.metaItem strong {
+  font-size: 16px;
+  color: var(--text-primary);
+  font-weight: 800;
+}
+
+.metaItem.highlight strong {
+  color: var(--forge-blue);
+}
+
+/* Action Buttons */
+.actionGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.btnPrimaryLarge {
+  width: 100%;
+  padding: 16px;
+  background: var(--forge-blue);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btnPrimaryLarge:hover {
+  filter: brightness(1.1);
+  box-shadow: 0 4px 12px rgba(7, 90, 170, 0.2);
+}
+
+.btnSecondaryAction {
+  width: 100%;
+  padding: 14px;
+  background: transparent;
+  color: #EF4444; /* Destructive red */
+  border: 1px solid #FECACA;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btnSecondaryAction:hover {
+  background: #FEF2F2;
+}
+
+
+/* --- Right Panel: Map Container --- */
+.mapContainer {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid var(--border-light);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+}
+
+.mapNavOverlay {
+  position: absolute;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg-white);
+  padding: 16px 24px;
+  border-radius: var(--radius-full);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 10;
+}
+
+.navIcon {
+  background: var(--forge-blue);
+  color: white;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.navText {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+
+/* --- Bottom Stats Row --- */
+.bottomStatsRow {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr) 250px;
+  gap: 20px;
+}
+
+@media (max-width: 1024px) {
+  .bottomStatsRow {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .bottomStatsRow {
+    grid-template-columns: 1fr;
+  }
+}
+
+.statCard {
+  background: var(--bg-white);
+  border: 1px solid var(--border-light);
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+}
+
+.statIcon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.statIcon.time { background: #EEF2FF; color: #4F46E5; }
+.statIcon.dist { background: #EFF6FF; color: #2563EB; }
+.statIcon.fare { background: #DCFCE7; color: #16A34A; }
+.statIcon.eta  { background: #FEF3C7; color: #D97706; }
+
+.statContent h4 {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  margin: 0 0 4px 0;
+}
+
+.statContent p {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+/* Performance Badge */
+.performanceCard {
+  background: linear-gradient(135deg, #1E3A8A 0%, #2563EB 100%);
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: white;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+}
+
+.perfText h4 {
+  font-size: 14px;
+  font-weight: 700;
+  margin: 0 0 4px 0;
+}
+
+.perfText p {
+  font-size: 12px;
+  color: #BFDBFE;
+  margin: 0;
+}
+
+.perfScore {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 20px;
+  font-weight: 800;
+  background: rgba(255,255,255,0.2);
+  padding: 8px 12px;
+  border-radius: 12px;
+}
