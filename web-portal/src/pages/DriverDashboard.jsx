@@ -9,7 +9,7 @@ import { AuthContext } from '../context/AuthContext';
 import API from '../services/api';
 import styles from './DriverDashboard.module.css';
 
-const center = [13.0827, 80.2707]; // Chennai
+const center = { lat: 13.0827, lng: 80.2707 }; // Chennai
 
 const decodePolyline = (t) => {
   let n, o, a = 0, r = 0, s = 0, l = 0, i = [];
