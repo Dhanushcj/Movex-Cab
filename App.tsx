@@ -1417,6 +1417,10 @@ function HomeScreen({ onRideBooked, onNavigateProfile, onNavigateLanguage, activ
               onSearchClick={() => setShowMetroBookingMap(true)}
               onScheduleRide={() => { setIsScheduling(true); setShowScheduleRideScreen(true); }}
               onTrackRide={() => {
+                if (!scheduledRide) {
+                  Alert.alert('No Active Rides', 'You have no active or scheduled rides to track right now.');
+                  return;
+                }
                 if (scheduledRide.status === 'scheduled') {
                   Alert.alert('Scheduled Ride', 'Driver will be assigned 15 minutes before the pickup time.');
                 } else {
