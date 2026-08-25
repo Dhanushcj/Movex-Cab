@@ -56,7 +56,7 @@ const CustomerTracking = () => {
   const availableTags = ['Punctual Driver', 'Clean Vehicle', 'Smooth Ride', 'Polite Service', 'Safe Driving'];
 
   const toggleTag = (tag) => {
-    setSelectedTags(prev => 
+    setSelectedTags(prev =>
       prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]
     );
   };
@@ -139,7 +139,7 @@ const CustomerTracking = () => {
     const handleDriverLocation = (data) => {
       if (data.location) {
         setDriverInfo(prev => prev ? {
-          ...prev, 
+          ...prev,
           currentLocation: {
             type: 'Point',
             coordinates: [data.location.lng, data.location.lat]
@@ -172,11 +172,11 @@ const CustomerTracking = () => {
           bounds.extend(new window.google.maps.LatLng(coord.lat, coord.lng));
         });
         mapRef.current.fitBounds(bounds, { padding: 50 });
-      } catch (e) {}
+      } catch (e) { }
     }
   }, [decodedRoute, osrmDriverRoute]);
 
-  
+
   useEffect(() => {
     if (status === 'accepted' || status === 'arrived') {
       const intervalId = setInterval(() => {
@@ -188,13 +188,13 @@ const CustomerTracking = () => {
 
   useEffect(() => {
     if (!ride) return;
-    
+
     let origin, destination;
-    
+
     if (status === 'accepted' || status === 'arrived') {
       // Driver navigating to pickup
       origin = driverInfo?.currentLocation?.coordinates?.length >= 2
-        ? { lat: driverInfo.currentLocation.coordinates[1], lng: driverInfo.currentLocation.coordinates[0] } 
+        ? { lat: driverInfo.currentLocation.coordinates[1], lng: driverInfo.currentLocation.coordinates[0] }
         : (ride.pickup?.location?.coordinates?.length >= 2 ? { lat: ride.pickup.location.coordinates[1] - 0.005, lng: ride.pickup.location.coordinates[0] } : null); // Fallback to near pickup
       if (ride.pickup?.location?.coordinates?.length >= 2) {
         destination = { lat: ride.pickup.location.coordinates[1], lng: ride.pickup.location.coordinates[0] };
@@ -204,7 +204,7 @@ const CustomerTracking = () => {
       setOsrmDriverRoute([]);
       return;
     }
-    
+
     if (origin && destination && (origin.lat !== destination.lat || origin.lng !== destination.lng)) {
       const fetchOsrm = async () => {
         try {
@@ -261,7 +261,7 @@ const CustomerTracking = () => {
           </div>
 
           <div className={styles.sidebarContent} style={{ paddingTop: '24px' }}>
-            
+
             {status === 'searching' ? (
               <div className={styles.searchingOverlay}>
                 <div className={styles.spinner}></div>
@@ -288,7 +288,7 @@ const CustomerTracking = () => {
                         <div className={styles.vehicleMake}>{driverInfo.vehicle?.make || 'Toyota Etios'}</div>
                       </div>
                     </div>
-                    
+
                     <div className={styles.driverActionGrid}>
                       <button className={styles.driverActionBtn}>
                         <Phone size={18} />
@@ -424,8 +424,8 @@ const CustomerTracking = () => {
                 {/* Bottom Actions */}
                 <div className={styles.trackingActionFooter}>
                   {status === 'completed' ? (
-                    <button 
-                      className={styles.btnPrimary} 
+                    <button
+                      className={styles.btnPrimary}
                       onClick={() => navigate('/customer/dashboard')}
                     >
                       Done & Return to Dashboard
@@ -439,7 +439,7 @@ const CustomerTracking = () => {
                         SOS
                       </button>
                       {(status === 'searching' || status === 'accepted') && (
-                        <button 
+                        <button
                           className={styles.btnCancelFlex}
                           onClick={async () => {
                             if (window.confirm("Are you sure you want to cancel this ride?")) {
@@ -473,7 +473,7 @@ const CustomerTracking = () => {
             </div>
             {status === 'accepted' && (
               <div className={styles.overlayRouteMeta} style={{ color: '#059669', fontWeight: '700' }}>
-                 Driver arriving in 3 min
+                Driver arriving in 3 min
               </div>
             )}
           </div>
@@ -515,7 +515,7 @@ const CustomerTracking = () => {
                 })}
               />
             )}
-            
+
             {ride?.drop?.location?.coordinates && (
               <Marker
                 position={[ride.drop.location.coordinates[1], ride.drop.location.coordinates[0]]}
