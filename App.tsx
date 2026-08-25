@@ -1619,8 +1619,9 @@ function HomeScreen({ onRideBooked, onNavigateProfile, onNavigateLanguage, activ
           </View>
 
           {/* Î“Ã¶Ã‡Î“Ã¶Ã‡ BOTTOM CARD Î“Ã¶Ã‡Î“Ã¶Ã‡ */}
-          <View style={styles.homeBottomCard}>
-            <View style={styles.sheetHandle} />
+          {!bookingRide && (
+            <View style={styles.homeBottomCard}>
+              <View style={styles.sheetHandle} />
 
             {/* WHERE TO GO search bar */}
             <TouchableOpacity style={styles.homeSearchBar} activeOpacity={0.85} onPress={() => setShowMetroBookingMap(true)}>
@@ -1858,6 +1859,7 @@ function HomeScreen({ onRideBooked, onNavigateProfile, onNavigateLanguage, activ
               </ScrollView>
             )}
           </View>
+          )}
             </View>
           )}
         </View>
