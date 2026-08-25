@@ -10,12 +10,13 @@ import {
   Modal,
   ActivityIndicator,
   Linking,
+  ScrollView
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import API from '../services/api';
-import Colors from '../constants/colors';
+import { ThemeSelector } from './ThemeSelector';
 
 interface SettingsScreenProps {
   visible: boolean;
@@ -31,11 +32,9 @@ export default function SettingsScreen({ visible, onClose }: SettingsScreenProps
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
 
-  // Determine API base path based on user role
   const settingsEndpoint = user?.role === 'driver' ? '/drivers/settings' : '/users/me/settings';
   const deleteEndpoint = user?.role === 'driver' ? '/drivers/me' : '/users/me';
 
-  // Fetch settings when screen becomes visible
   useEffect(() => {
     if (visible) {
       fetchSettings();
@@ -51,7 +50,6 @@ export default function SettingsScreen({ visible, onClose }: SettingsScreenProps
         setBiometricLock(res.data.data.biometricLock ?? false);
       }
     } catch (e: any) {
-      // Use defaults if endpoint not available yet
       setPushNotification(false);
       setBiometricLock(false);
     } finally {
@@ -65,7 +63,6 @@ export default function SettingsScreen({ visible, onClose }: SettingsScreenProps
     try {
       await API.put(settingsEndpoint, { pushNotification: newValue });
     } catch (e: any) {
-      // Revert on failure
       setPushNotification(!newValue);
       Alert.alert('Error', 'Failed to update setting. Please try again.');
     }
@@ -77,7 +74,6 @@ export default function SettingsScreen({ visible, onClose }: SettingsScreenProps
     try {
       await API.put(settingsEndpoint, { biometricLock: newValue });
     } catch (e: any) {
-      // Revert on failure
       setBiometricLock(!newValue);
       Alert.alert('Error', 'Failed to update setting. Please try again.');
     }
@@ -112,99 +108,90 @@ export default function SettingsScreen({ visible, onClose }: SettingsScreenProps
     );
   };
 
-  const handlePrivacyPermission = () => {
-    Linking.openSettings();
-  };
-
-  const handleAboutApp = () => {
-    Alert.alert(
-      'About MoveX',
-      'MoveX Cab Application\nVersion 1.0.0\n\nA modern ride-hailing platform connecting riders with drivers seamlessly.\n\n© 2025 MoveX. All rights reserved.',
-      [{ text: 'OK' }]
-    );
-  };
-
   if (!visible) return null;
 
   return (
     <Modal visible={visible} animationType="slide" statusBarTranslucent>
       <SafeAreaView style={styles.safeArea}>
-        <View style={styles.container}>
-          {/* Header */}
-          <View style={styles.header}>
-            <TouchableOpacity onPress={onClose} style={styles.backButton}>
-              <Feather name="chevron-left" size={24} color={colors.textPrimary} />
-            </TouchableOpacity>
-            <Text style={styles.headerTitle}>Settings</Text>
-            <View style={{ width: 40 }} />
-          </View>
+        <View style={styles.header}>
+          <TouchableOpacity onPress={onClose} style={styles.backButton}>
+            <Feather name="chevron-left" size={24} color={colors.textPrimary} />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Settings</Text>
+          <View style={{ width: 40 }} />
+        </View>
 
+        <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
           {loading ? (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-              <ActivityIndicator size="large" color="#0053B3" />
+            <View style={{ marginTop: 40, justifyContent: 'center', alignItems: 'center' }}>
+              <ActivityIndicator size="large" color={colors.accent} />
             </View>
           ) : (
             <>
-              {/* Push Notification Row */}
-              <View style={styles.toggleSection}>
-                <TouchableOpacity
-                  style={styles.toggleRow}
-                  onPress={togglePushNotification}
-                  activeOpacity={0.7}
-                >
-                  <View style={styles.iconCircle}>
-                    <Feather name="bell" size={18} color="#0053B3" />
-                  </View>
-                  <Text style={styles.toggleLabel}>Push Notification</Text>
-                  <View style={{ flex: 1 }} />
-                  <View style={[styles.toggleTrack, pushNotification && styles.toggleTrackActive]}>
-                    <View
-                      style={[
-                        styles.toggleThumb,
-                        pushNotification && styles.toggleThumbActive,
-                      ]}
-                    />
-                  </View>
-                </TouchableOpacity>
-
-                <View style={styles.divider} />
-
-                {/* Bio Metric Lock Row */}
-                <TouchableOpacity
-                  style={styles.toggleRow}
-                  onPress={toggleBiometricLock}
-                  activeOpacity={0.7}
-                >
-                  <View style={styles.iconCircle}>
-                    <Feather name="lock" size={18} color="#0053B3" />
-                  </View>
-                  <Text style={styles.toggleLabel}>Bio Metric Lock</Text>
-                  <View style={{ flex: 1 }} />
-                  <View style={[styles.toggleTrack, biometricLock && styles.toggleTrackActive]}>
-                    <View
-                      style={[
-                        styles.toggleThumb,
-                        biometricLock && styles.toggleThumbActive,
-                      ]}
-                    />
-                  </View>
-                </TouchableOpacity>
+              {/* Premium Theme Selector */}
+              <View style={styles.sectionContainer}>
+                <ThemeSelector />
               </View>
 
-              {/* Links Card */}
-              <View style={styles.linksCard}>
-                <TouchableOpacity style={styles.linkRow} activeOpacity={0.7} onPress={handlePrivacyPermission}>
-                  <Text style={styles.linkLabel}>Privacy & Permission</Text>
-                  <Feather name="chevron-right" size={22} color={colors.textPrimary} />
-                </TouchableOpacity>
-                <View style={styles.linkDivider} />
-                <TouchableOpacity style={styles.linkRow} activeOpacity={0.7} onPress={handleAboutApp}>
-                  <Text style={styles.linkLabel}>About App</Text>
-                  <Feather name="chevron-right" size={22} color={colors.textPrimary} />
-                </TouchableOpacity>
+              {/* Preferences Section */}
+              <View style={styles.sectionContainer}>
+                <Text style={styles.sectionTitle}>Preferences</Text>
+                <View style={styles.card}>
+                  <TouchableOpacity style={styles.toggleRow} onPress={togglePushNotification} activeOpacity={0.7}>
+                    <View style={[styles.iconCircle, { backgroundColor: colors.accentGlow }]}>
+                      <Feather name="bell" size={20} color={colors.accent} />
+                    </View>
+                    <Text style={styles.toggleLabel}>Push Notifications</Text>
+                    <View style={{ flex: 1 }} />
+                    <View style={[styles.toggleTrack, pushNotification && { backgroundColor: colors.accent }]}>
+                      <View style={[styles.toggleThumb, pushNotification && styles.toggleThumbActive]} />
+                    </View>
+                  </TouchableOpacity>
+
+                  <View style={styles.divider} />
+
+                  <TouchableOpacity style={styles.toggleRow} onPress={toggleBiometricLock} activeOpacity={0.7}>
+                    <View style={[styles.iconCircle, { backgroundColor: colors.accentGlow }]}>
+                      <Feather name="lock" size={20} color={colors.accent} />
+                    </View>
+                    <Text style={styles.toggleLabel}>Biometric Lock</Text>
+                    <View style={{ flex: 1 }} />
+                    <View style={[styles.toggleTrack, biometricLock && { backgroundColor: colors.accent }]}>
+                      <View style={[styles.toggleThumb, biometricLock && styles.toggleThumbActive]} />
+                    </View>
+                  </TouchableOpacity>
+                </View>
               </View>
 
-              {/* Delete Account Button */}
+              {/* Links Section */}
+              <View style={styles.sectionContainer}>
+                <Text style={styles.sectionTitle}>More Options</Text>
+                <View style={styles.card}>
+                  <TouchableOpacity style={styles.linkRow} activeOpacity={0.7} onPress={() => Linking.openSettings()}>
+                    <View style={styles.linkLeft}>
+                      <View style={[styles.iconCircle, { backgroundColor: colors.bgTertiary }]}>
+                        <Feather name="shield" size={20} color={colors.textSecondary} />
+                      </View>
+                      <Text style={styles.linkLabel}>Privacy & Permission</Text>
+                    </View>
+                    <Feather name="chevron-right" size={20} color={colors.textMuted} />
+                  </TouchableOpacity>
+                  
+                  <View style={styles.divider} />
+                  
+                  <TouchableOpacity style={styles.linkRow} activeOpacity={0.7} onPress={() => Alert.alert('About MoveX', 'MoveX Cab Application\nVersion 1.0.0\n\nA modern ride-hailing platform connecting riders with drivers seamlessly.\n\n© 2025 MoveX. All rights reserved.', [{ text: 'OK' }])}>
+                    <View style={styles.linkLeft}>
+                      <View style={[styles.iconCircle, { backgroundColor: colors.bgTertiary }]}>
+                        <Feather name="info" size={20} color={colors.textSecondary} />
+                      </View>
+                      <Text style={styles.linkLabel}>About App</Text>
+                    </View>
+                    <Feather name="chevron-right" size={20} color={colors.textMuted} />
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              {/* Danger Zone */}
               <View style={styles.deleteContainer}>
                 <TouchableOpacity
                   style={styles.deleteButton}
@@ -212,10 +199,10 @@ export default function SettingsScreen({ visible, onClose }: SettingsScreenProps
                   disabled={deleting}
                 >
                   {deleting ? (
-                    <ActivityIndicator size="small" color="#DA0707" />
+                    <ActivityIndicator size="small" color={colors.danger} />
                   ) : (
                     <>
-                      <Feather name="trash-2" size={20} color="#DA0707" />
+                      <Feather name="trash-2" size={18} color={colors.danger} />
                       <Text style={styles.deleteText}>Delete Account</Text>
                     </>
                   )}
@@ -223,7 +210,7 @@ export default function SettingsScreen({ visible, onClose }: SettingsScreenProps
               </View>
             </>
           )}
-        </View>
+        </ScrollView>
       </SafeAreaView>
     </Modal>
   );
@@ -234,126 +221,149 @@ const getStyles = (colors: any) => StyleSheet.create({
     flex: 1,
     backgroundColor: colors.bgPrimary,
   },
-  container: {
-    flex: 1,
-    backgroundColor: colors.bgPrimary,
-    paddingHorizontal: 16,
-  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingTop: Platform.OS === 'ios' ? 10 : 20,
-    paddingBottom: 20,
+    paddingTop: Platform.OS === 'ios' ? 10 : 24,
+    paddingBottom: 16,
+    paddingHorizontal: 16,
+    backgroundColor: colors.bgPrimary,
   },
   backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 24,
-    backgroundColor: colors.border,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: colors.bgSecondary,
     alignItems: 'center',
     justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
   },
   headerTitle: {
-    fontSize: 16,
-    fontWeight: '400',
-    color: '#000000',
+    fontSize: 18,
+    fontWeight: '600',
+    color: colors.textPrimary,
+    letterSpacing: -0.3,
   },
-  toggleSection: {
-    marginBottom: 20,
+  scrollContainer: {
+    paddingBottom: 40,
+  },
+  sectionContainer: {
+    marginBottom: 24,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: colors.textPrimary,
+    marginBottom: 12,
+    paddingHorizontal: 20,
+    letterSpacing: -0.3,
+  },
+  card: {
+    backgroundColor: colors.bgSecondary,
+    borderRadius: 20,
+    marginHorizontal: 16,
+    paddingVertical: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.04,
+    shadowRadius: 16,
+    elevation: 4,
   },
   toggleRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12,
-    gap: 10,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
   },
   iconCircle: {
     width: 40,
     height: 40,
-    borderRadius: 20,
-    backgroundColor: '#F6F8FE',
+    borderRadius: 12, // slightly square but very rounded
     alignItems: 'center',
     justifyContent: 'center',
+    marginRight: 14,
   },
   toggleLabel: {
-    fontSize: 14,
-    fontWeight: '400',
+    fontSize: 15,
+    fontWeight: '500',
     color: colors.textPrimary,
   },
   toggleTrack: {
-    width: 56,
+    width: 52,
     height: 28,
     backgroundColor: colors.border,
-    borderRadius: 16,
+    borderRadius: 14,
     justifyContent: 'center',
-  },
-  toggleTrackActive: {
-    backgroundColor: '#0053B3',
   },
   toggleThumb: {
     position: 'absolute',
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    backgroundColor: '#FAFAFA',
-    left: -3,
-    top: -3,
-    shadowColor: colors.textPrimary,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: '#FFFFFF',
+    left: 2,
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
-    elevation: 3,
+    shadowOpacity: 0.15,
+    shadowRadius: 3,
+    elevation: 2,
   },
   toggleThumbActive: {
-    left: 25,
-    backgroundColor: '#FCFCFC',
+    left: 26,
   },
   divider: {
     height: 1,
-    backgroundColor: colors.border,
-    marginLeft: 50,
-  },
-  linksCard: {
-    backgroundColor: '#FCFCFC',
-    borderRadius: 16,
-    paddingHorizontal: 16,
-    marginBottom: 20,
+    backgroundColor: colors.borderGlass,
+    marginLeft: 70, // Align with text
   },
   linkRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 20,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
   },
-  linkDivider: {
-    height: 1,
-    backgroundColor: colors.bgPrimary,
+  linkLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   linkLabel: {
-    fontSize: 14,
-    fontWeight: '400',
+    fontSize: 15,
+    fontWeight: '500',
     color: colors.textPrimary,
   },
   deleteContainer: {
     alignItems: 'center',
-    marginTop: 40,
+    marginTop: 20,
+    marginBottom: 30,
   },
   deleteButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 12,
-    paddingVertical: 12,
-    paddingHorizontal: 40,
-    borderWidth: 1,
-    borderColor: '#DA0707',
+    gap: 10,
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    backgroundColor: colors.bgSecondary,
+    borderWidth: 1.5,
+    borderColor: 'rgba(239, 68, 68, 0.2)', // Soft red border
     borderRadius: 16,
-    minWidth: 216,
+    minWidth: '80%',
+    shadowColor: colors.danger,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 2,
   },
   deleteText: {
-    fontSize: 14,
-    fontWeight: '400',
-    color: '#DA0707',
+    fontSize: 15,
+    fontWeight: '600',
+    color: colors.danger,
+    letterSpacing: -0.2,
   },
 });

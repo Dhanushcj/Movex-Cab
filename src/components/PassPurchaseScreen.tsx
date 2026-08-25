@@ -80,7 +80,7 @@ export default function PassPurchaseScreen({ onBack, onPassPurchased }: PassPurc
     return (
       <View style={{ width: 20, height: 20, alignItems: 'center', justifyContent: 'center' }}>
         {type === 'check' ? (
-          <Feather name="check" size={16} color="#0053B3" />
+          <Feather name="check" size={16} color="#075AAA" />
         ) : (
           <Feather name="x" size={16} color="#C90303" />
         )}
@@ -91,7 +91,7 @@ export default function PassPurchaseScreen({ onBack, onPassPurchased }: PassPurc
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#0053B3" />
+        <ActivityIndicator size="large" color="#075AAA" />
       </View>
     );
   }
@@ -125,7 +125,7 @@ export default function PassPurchaseScreen({ onBack, onPassPurchased }: PassPurc
       </View>
 
       <Text style={styles.subtitle}>
-        Ride <Text style={{ color: '#0053B3' }}>Smarter</Text> Every Day
+        Ride <Text style={{ color: '#075AAA' }}>Smarter</Text> Every Day
       </Text>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
@@ -240,7 +240,7 @@ export default function PassPurchaseScreen({ onBack, onPassPurchased }: PassPurc
                   </View>
                 ) : null}
                 
-                <View style={[styles.passCard, isSelected && { borderColor: '#0053B3', borderWidth: 2 }, isActivePass && !isSelected && { borderColor: '#47BE61', borderWidth: 2 }]}>
+                <View style={[styles.passCard, isSelected && { borderColor: '#075AAA', borderWidth: 2 }, isActivePass && !isSelected && { borderColor: '#47BE61', borderWidth: 2 }]}>
                   <Text style={[styles.cardTier, { color: highlightColor }]}>{pass.name.toUpperCase()}</Text>
                   <Text style={styles.cardSubtitle}>{subtitle}</Text>
                   
@@ -416,7 +416,7 @@ const getStyles = (colors: any) => StyleSheet.create({
     position: 'absolute',
     top: -14,
     zIndex: 10,
-    backgroundColor: '#0053B3',
+    backgroundColor: '#075AAA',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 16,
@@ -439,11 +439,11 @@ const getStyles = (colors: any) => StyleSheet.create({
     backgroundColor: colors.bgPrimary,
   },
   continueBtn: {
-    backgroundColor: '#0053B3',
+    backgroundColor: '#075AAA',
     paddingVertical: 16,
     borderRadius: 16,
     alignItems: 'center',
-    shadowColor: '#0053B3',
+    shadowColor: '#075AAA',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 12,

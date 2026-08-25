@@ -226,7 +226,7 @@ const getStyles = (Colors: any) => StyleSheet.create({
   pickerOptionTextActive: {
     fontFamily: 'Outfit',
     fontSize: 14,
-    color: '#0053B3',
+    color: '#075AAA',
     fontWeight: '600',
   },
   input: {
@@ -243,7 +243,7 @@ const getStyles = (Colors: any) => StyleSheet.create({
     height: 100,
   },
   submitBtn: {
-    backgroundColor: '#0053B3',
+    backgroundColor: '#075AAA',
     borderRadius: 12,
     padding: 16,
     alignItems: 'center',

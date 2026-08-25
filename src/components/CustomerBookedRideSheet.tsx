@@ -631,9 +631,7 @@ const getStyles = (Colors: any) => StyleSheet.create({
   arrivedRatingCol: { alignItems: 'flex-end' },
 
   arrivedOtpCard: {
-    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
     backgroundColor: '#EEF2FF',
     borderRadius: 18,
     paddingHorizontal: 18,
@@ -641,7 +639,11 @@ const getStyles = (Colors: any) => StyleSheet.create({
     marginBottom: 14,
     borderWidth: 1.5,
     borderColor: '#C7D2FE',
-    gap: 12,
+  },
+  arrivedOtpLabel: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#374151',
   },
   arrivedOtpLeft: {
     flexDirection: 'row',

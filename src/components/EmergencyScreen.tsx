@@ -55,7 +55,7 @@ export default function EmergencyScreen({ visible, onClose }: EmergencyScreenPro
           
           <TouchableOpacity style={styles.actionCard} activeOpacity={0.7} onPress={() => Linking.openURL('tel:108')}>
             <View style={styles.actionIconWrap}>
-              <MaterialCommunityIcons name="ambulance" size={20} color="#0053B3" />
+              <MaterialCommunityIcons name="ambulance" size={20} color="#075AAA" />
             </View>
             <View style={styles.actionTextWrap}>
               <Text style={styles.actionTitle}>Call ambulance</Text>
@@ -67,7 +67,7 @@ export default function EmergencyScreen({ visible, onClose }: EmergencyScreenPro
           
           <TouchableOpacity style={styles.actionCard} activeOpacity={0.7} onPress={() => Linking.openURL('tel:100')}>
             <View style={styles.actionIconWrap}>
-              <MaterialCommunityIcons name="car-emergency" size={20} color="#0053B3" />
+              <MaterialCommunityIcons name="car-emergency" size={20} color="#075AAA" />
             </View>
             <View style={styles.actionTextWrap}>
               <Text style={styles.actionTitle}>Call Police</Text>
@@ -79,7 +79,7 @@ export default function EmergencyScreen({ visible, onClose }: EmergencyScreenPro
           
           <TouchableOpacity style={styles.actionCard} activeOpacity={0.7} onPress={() => Linking.openURL('tel:1073')}>
             <View style={styles.actionIconWrap}>
-              <MaterialCommunityIcons name="car-wrench" size={20} color="#0053B3" />
+              <MaterialCommunityIcons name="car-wrench" size={20} color="#075AAA" />
             </View>
             <View style={styles.actionTextWrap}>
               <Text style={styles.actionTitle}>Call accident help</Text>
@@ -91,7 +91,7 @@ export default function EmergencyScreen({ visible, onClose }: EmergencyScreenPro
           
           <TouchableOpacity style={styles.actionCard} activeOpacity={0.7}>
             <View style={styles.actionIconWrap}>
-              <MaterialCommunityIcons name="card-account-details-outline" size={20} color="#0053B3" />
+              <MaterialCommunityIcons name="card-account-details-outline" size={20} color="#075AAA" />
             </View>
             <View style={styles.actionTextWrap}>
               <Text style={styles.actionTitle}>Insurance card</Text>

@@ -91,7 +91,7 @@ export default function ProfileEditScreen({ onBack, onSave }: { onBack: () => vo
               </View>
               {/* Edit Icon Badge */}
               <View style={styles.editBadge}>
-                <Feather name="camera" size={16} color="#0053B3" />
+                <Feather name="camera" size={16} color="#075AAA" />
               </View>
             </View>
             {user?.role === 'driver' && <Text style={styles.plateId}>{plate}</Text>}

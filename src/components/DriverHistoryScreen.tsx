@@ -7,7 +7,7 @@ import API from '../services/api';
 
 type FilterType = 'All' | 'Completed' | 'Cancelled';
 
-export default function DriverHistoryScreen({ onNavigateHome, onNavigateAchievements, onNavigateWallet }: { onNavigateHome: () => void, onNavigateAchievements?: () => void, onNavigateWallet?: () => void }) {
+export default function DriverHistoryScreen({ onNavigateHome, onNavigateAchievements }: { onNavigateHome: () => void, onNavigateAchievements?: () => void }) {
   const { colors, isDark } = useTheme();
   const styles = getStyles(colors);
   const [activeFilter, setActiveFilter] = useState<FilterType>('All');
@@ -97,7 +97,7 @@ export default function DriverHistoryScreen({ onNavigateHome, onNavigateAchievem
         {/* List */}
         <ScrollView style={styles.listContainer} showsVerticalScrollIndicator={false}>
           {loading ? (
-            <ActivityIndicator size="large" color="#0053B3" style={{ marginTop: 40 }} />
+            <ActivityIndicator size="large" color="#075AAA" style={{ marginTop: 40 }} />
           ) : historyData.length === 0 ? (
             <View style={{ alignItems: 'center', marginTop: 40 }}>
               <Feather name="inbox" size={40} color="#DEE0E3" />
@@ -113,7 +113,7 @@ export default function DriverHistoryScreen({ onNavigateHome, onNavigateAchievem
                 <Text style={styles.timeText}>{item.time}</Text>
               </View>
               <View style={styles.cardRight}>
-                <Text style={[styles.priceText, item.status === 'Cancelled' ? { color: '#F81215' } : { color: '#0053B3' }]}>{item.price}</Text>
+                <Text style={[styles.priceText, item.status === 'Cancelled' ? { color: '#F81215' } : { color: '#075AAA' }]}>{item.price}</Text>
                 <Text style={[styles.statusText, { color: item.statusColor }]}>{item.status}</Text>
               </View>
             </View>
@@ -132,9 +132,7 @@ export default function DriverHistoryScreen({ onNavigateHome, onNavigateAchievem
         <TouchableOpacity style={styles.navItem} onPress={onNavigateAchievements}>
           <Feather name="award" size={24} color="#9098A2" />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem} onPress={onNavigateWallet}>
-          <Feather name="credit-card" size={24} color="#9098A2" />
-        </TouchableOpacity>
+
         <TouchableOpacity style={[styles.navItemActive]}>
           <Feather name="clock" size={18} color="#FCFCFC" />
           <Text style={styles.navTextActive}>History</Text>
@@ -196,7 +194,7 @@ const getStyles = (Colors: any) => StyleSheet.create({
     justifyContent: 'center'
   },
   filterActive: {
-    backgroundColor: '#0053B3'
+    backgroundColor: '#075AAA'
   },
   filterInactive: {
     backgroundColor: '#DEE0E3'
@@ -243,7 +241,7 @@ const getStyles = (Colors: any) => StyleSheet.create({
   priceText: {
     fontSize: 16,
     fontWeight: '400',
-    color: '#0053B3'
+    color: '#075AAA'
   },
   statusText: {
     fontSize: 10,
@@ -273,7 +271,7 @@ const getStyles = (Colors: any) => StyleSheet.create({
   navItemActive: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#0053B3',
+    backgroundColor: '#075AAA',
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 16,

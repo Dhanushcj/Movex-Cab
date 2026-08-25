@@ -418,14 +418,14 @@ export default function RegistrationScreen({ onBack, prefillData = null, isCorre
                 {email.length > 0 && (
                   <TouchableOpacity 
                     style={{ 
-                      backgroundColor: emailVerified ? '#39B45C' : '#0053B3', 
+                      backgroundColor: emailVerified ? '#39B45C' : '#075AAA', 
                       paddingHorizontal: 16, 
                       height: 52, 
                       borderRadius: 12, 
                       justifyContent: 'center', 
                       alignItems: 'center',
                       borderWidth: 1,
-                      borderColor: emailVerified ? '#39B45C' : '#0053B3'
+                      borderColor: emailVerified ? '#39B45C' : '#075AAA'
                     }}
                     onPress={async () => {
                       if (emailVerified) return;
@@ -516,10 +516,10 @@ export default function RegistrationScreen({ onBack, prefillData = null, isCorre
                 >
                   <View style={{
                     width: 20, height: 20, borderRadius: 10, 
-                    borderWidth: 2, borderColor: gender === g ? '#0053B3' : '#DEE0E3',
+                    borderWidth: 2, borderColor: gender === g ? '#075AAA' : '#DEE0E3',
                     alignItems: 'center', justifyContent: 'center'
                   }}>
-                    {gender === g && <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: '#0053B3' }} />}
+                    {gender === g && <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: '#075AAA' }} />}
                   </View>
                   <Text style={{
                     color: gender === g ? Colors.textPrimary : Colors.textMuted,
@@ -638,9 +638,9 @@ const getStyles = (Colors: any) => StyleSheet.create({
     paddingTop: Platform.OS === 'ios' ? 60 : 40,
     paddingHorizontal: 20,
     paddingBottom: 15,
-    backgroundColor: Colors.bgSecondary,
+    backgroundColor: Colors.bgPrimary,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.borderGlass
+    borderBottomColor: Colors.bgTertiary
   },
   backBtn: {
     color: Colors.accent,
@@ -684,12 +684,12 @@ const getStyles = (Colors: any) => StyleSheet.create({
   progressBarBg: {
     width: '100%',
     height: 8,
-    backgroundColor: '#DEE0E3',
+    backgroundColor: Colors.bgTertiary,
     borderRadius: 4
   },
   progressBarFill: {
     height: 8,
-    backgroundColor: '#0053B3',
+    backgroundColor: Colors.accent,
     borderRadius: 4
   },
   screenMainTitle: {
@@ -717,10 +717,10 @@ const getStyles = (Colors: any) => StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     width: '100%',
-    height: 48,
+    height: 56,
     borderWidth: 1,
-    borderColor: '#DEE0E3',
-    borderRadius: 16,
+    borderColor: Colors.borderGlass,
+    borderRadius: 14,
     paddingHorizontal: 16,
     backgroundColor: Colors.bgSecondary,
   },
@@ -757,8 +757,8 @@ const getStyles = (Colors: any) => StyleSheet.create({
     backgroundColor: Colors.bgSecondary,
     borderWidth: 1,
     borderColor: Colors.borderGlass,
-    borderRadius: 12,
-    padding: 15,
+    borderRadius: 14,
+    padding: 16,
     color: Colors.textPrimary,
     fontSize: 15
   },
@@ -775,12 +775,12 @@ const getStyles = (Colors: any) => StyleSheet.create({
     gap: 10
   },
   radioBtn: {
-    paddingVertical: 10,
+    paddingVertical: 12,
     paddingHorizontal: 16,
-    borderRadius: 20,
+    borderRadius: 14,
     borderWidth: 1,
     borderColor: Colors.borderGlass,
-    backgroundColor: Colors.bgSecondary
+    backgroundColor: Colors.bgPrimary
   },
   radioSelected: {
     backgroundColor: Colors.accent,
@@ -798,8 +798,8 @@ const getStyles = (Colors: any) => StyleSheet.create({
     backgroundColor: Colors.bgSecondary,
     borderWidth: 1,
     borderColor: Colors.borderGlass,
-    borderRadius: 12,
-    padding: 15
+    borderRadius: 14,
+    padding: 16
   },
   dateText: {
     color: Colors.textPrimary,
@@ -810,16 +810,16 @@ const getStyles = (Colors: any) => StyleSheet.create({
     fontSize: 15
   },
   uploadBtn: {
-    backgroundColor: 'rgba(52, 152, 219, 0.1)',
+    backgroundColor: Colors.accentSecondary,
     borderWidth: 1,
-    borderColor: 'rgba(52, 152, 219, 0.3)',
-    borderRadius: 12,
-    padding: 15,
+    borderColor: Colors.accent,
+    borderRadius: 14,
+    padding: 16,
     alignItems: 'center'
   },
   uploadBtnText: {
-    color: '#3498db',
-    fontWeight: '600',
+    color: Colors.accent,
+    fontWeight: '700',
     fontSize: 15
   },
   yellowPlateSection: {
@@ -840,31 +840,31 @@ const getStyles = (Colors: any) => StyleSheet.create({
   navBtn: {
     flex: 1,
     padding: 16,
-    borderRadius: 12,
-    backgroundColor: Colors.bgSecondary,
+    borderRadius: 16,
+    backgroundColor: Colors.bgPrimary,
     alignItems: 'center',
     borderWidth: 1,
     borderColor: Colors.borderGlass
   },
   navBtnText: {
     color: Colors.textPrimary,
-    fontWeight: '600',
+    fontWeight: '700',
     fontSize: 16
   },
   navBtnPrimary: {
     flex: 1,
     padding: 16,
-    borderRadius: 12,
+    borderRadius: 16,
     backgroundColor: Colors.accent,
     alignItems: 'center',
     shadowColor: Colors.accent,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 4
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    elevation: 6
   },
   navBtnPrimaryText: {
-    color: Colors.bgSecondary,
+    color: Colors.bgPrimary,
     fontWeight: '700',
     fontSize: 16
   },

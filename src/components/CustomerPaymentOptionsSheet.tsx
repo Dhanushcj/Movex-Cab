@@ -17,7 +17,7 @@ export default function CustomerPaymentOptionsSheet({ amount, onSelect, processi
 
       <View style={styles.optionsRow}>
         <TouchableOpacity style={styles.optionBtn} onPress={() => onSelect('wallet')} disabled={processing}>
-          <MaterialCommunityIcons name="wallet-outline" size={24} color="#0053B3" />
+          <MaterialCommunityIcons name="wallet-outline" size={24} color="#075AAA" />
           <Text style={styles.optionText}>Wallet</Text>
         </TouchableOpacity>
 
@@ -34,7 +34,7 @@ export default function CustomerPaymentOptionsSheet({ amount, onSelect, processi
 
       {processing && (
         <View style={styles.processingContainer}>
-          <ActivityIndicator size="small" color="#0053B3" />
+          <ActivityIndicator size="small" color="#075AAA" />
           <Text style={styles.processingText}>Processing Payment...</Text>
         </View>
       )}
@@ -111,7 +111,7 @@ const getStyles = (Colors: any) => StyleSheet.create({
   processingText: {
     marginLeft: 8,
     fontSize: 14,
-    color: '#0053B3',
+    color: '#075AAA',
     fontWeight: '500'
   },
   cancelBtn: {

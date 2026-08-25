@@ -108,7 +108,7 @@ const getStyles = (Colors: any) => StyleSheet.create({
   thumb: {
     position: 'absolute',
     left: 4,
-    backgroundColor: '#0053B3',
+    backgroundColor: '#075AAA',
     borderRadius: 24,
     alignItems: 'center',
     justifyContent: 'center',

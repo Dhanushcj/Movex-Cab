@@ -130,11 +130,11 @@ export default function SlideToStartScreen({ onStart, onVerify, pickupAddress, c
         {/* Action Buttons */}
         <View style={styles.actionButtonsRow}>
           <TouchableOpacity style={styles.outlineButton}>
-            <Feather name="phone" size={16} color="#0053B3" />
+            <Feather name="phone" size={16} color="#075AAA" />
             <Text style={styles.outlineButtonText}>Call Customer</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.outlineButton}>
-            <Feather name="message-square" size={16} color="#0053B3" />
+            <Feather name="message-square" size={16} color="#075AAA" />
             <Text style={styles.outlineButtonText}>Chat</Text>
           </TouchableOpacity>
         </View>
@@ -323,7 +323,7 @@ const getStyles = (Colors: any) => StyleSheet.create({
   outlineButtonText: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#0053B3',
+    color: '#075AAA',
   },
   waitingTimeRow: {
     flexDirection: 'row',
@@ -413,7 +413,7 @@ const getStyles = (Colors: any) => StyleSheet.create({
     marginTop: 16,
   },
   validateBtnActive: {
-    backgroundColor: '#0053B3',
+    backgroundColor: '#075AAA',
   },
   validateBtnText: {
     color: Colors.bgSecondary,

@@ -14,6 +14,7 @@ import {
   KeyboardAvoidingView
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import AnimatedTouchable from './AnimatedTouchable';
 import { useAuth } from '../context/AuthContext';
 import { Feather } from '@expo/vector-icons';
 import Colors from '../constants/colors';
@@ -192,10 +193,6 @@ export default function AuthScreen({ onNavigateRegister }: { onNavigateRegister:
       style={styles.container} 
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      {/* Background Orbs */}
-      <View style={styles.backgroundOrb1} />
-      <View style={styles.backgroundOrb2} />
-
       {/* Static Top Section */}
       <View style={{ alignItems: 'center', paddingTop: 80, paddingHorizontal: 16, paddingBottom: 10 }}>
         {/* Logo Frame */}
@@ -256,7 +253,7 @@ export default function AuthScreen({ onNavigateRegister }: { onNavigateRegister:
                 We've sent a verification link to <Text style={{fontWeight: 'bold', color: Colors.textPrimary}}>{email}</Text>. Please check your inbox (and spam folder) and click the link to continue.
               </Text>
               
-              <TouchableOpacity 
+              <AnimatedTouchable 
                 style={styles.continueButton} 
                 onPress={async () => {
                   setLoading(true);
@@ -274,10 +271,10 @@ export default function AuthScreen({ onNavigateRegister }: { onNavigateRegister:
                 disabled={loading}
               >
                 {loading ? <ActivityIndicator color={Colors.bgSecondary} /> : <Text style={styles.continueButtonText}>I have verified my email</Text>}
-              </TouchableOpacity>
+              </AnimatedTouchable>
 
-              <TouchableOpacity 
-                style={[styles.continueButton, { backgroundColor: Colors.bgSecondary, borderWidth: 1, borderColor: '#D1D5DB', marginTop: 15 }]}
+              <AnimatedTouchable 
+                style={[styles.continueButton, { backgroundColor: Colors.bgSecondary, borderWidth: 1, borderColor: Colors.borderGlass, marginTop: 15 }]}
                 onPress={async () => {
                   try {
                     await resendVerificationEmail();
@@ -288,7 +285,7 @@ export default function AuthScreen({ onNavigateRegister }: { onNavigateRegister:
                 }}
               >
                 <Text style={[styles.continueButtonText, { color: '#374151' }]}>Resend Verification Email</Text>
-              </TouchableOpacity>
+              </AnimatedTouchable>
               
               <TouchableOpacity style={{ marginTop: 20, alignItems: 'center' }} onPress={() => setMode('login')}>
                 <Text style={{ color: Colors.accent, fontWeight: '600' }}>Back to Login</Text>
@@ -335,14 +332,14 @@ export default function AuthScreen({ onNavigateRegister }: { onNavigateRegister:
               {mode === 'register' && !isGoogleRegister && (
                 <TouchableOpacity 
                   style={{ 
-                    backgroundColor: emailVerified ? '#39B45C' : '#0053B3', 
+                    backgroundColor: emailVerified ? '#39B45C' : '#075AAA', 
                     paddingHorizontal: 16, 
                     height: 52, 
                     borderRadius: 12, 
                     justifyContent: 'center', 
                     alignItems: 'center',
                     borderWidth: 1,
-                    borderColor: emailVerified ? '#39B45C' : '#0053B3'
+                    borderColor: emailVerified ? '#39B45C' : '#075AAA'
                   }}
                   onPress={async () => {
                     if (emailVerified) return;
@@ -489,10 +486,10 @@ export default function AuthScreen({ onNavigateRegister }: { onNavigateRegister:
                   >
                     <View style={{
                       width: 20, height: 20, borderRadius: 10, 
-                      borderWidth: 2, borderColor: gender === g ? '#0053B3' : '#DEE0E3',
+                      borderWidth: 2, borderColor: gender === g ? '#075AAA' : '#DEE0E3',
                       alignItems: 'center', justifyContent: 'center'
                     }}>
-                      {gender === g && <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: '#0053B3' }} />}
+                      {gender === g && <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: '#075AAA' }} />}
                     </View>
                     <Text style={{
                       color: gender === g ? Colors.textPrimary : Colors.textMuted,
@@ -524,30 +521,28 @@ export default function AuthScreen({ onNavigateRegister }: { onNavigateRegister:
 
           {/* Action Button */}
           {!(mode === 'register' && role === 'driver') && mode !== 'forgot_password' && (
-            <TouchableOpacity 
+            <AnimatedTouchable 
               style={styles.continueButton} 
               onPress={mode === 'login' ? handleLogin : handleRegister}
               disabled={loading}
-              activeOpacity={0.8}
             >
               {loading ? (
                 <ActivityIndicator color={Colors.bgSecondary} />
               ) : (
                 <Text style={styles.continueButtonText}>{mode === 'login' ? 'Login' : 'Complete Registration'}</Text>
               )}
-            </TouchableOpacity>
+            </AnimatedTouchable>
           )}
 
           {/* Google Auth Button */}
           {!(mode === 'register' && role === 'driver') && mode !== 'forgot_password' && (
-            <TouchableOpacity 
-              style={[styles.continueButton, { backgroundColor: Colors.bgSecondary, borderWidth: 1, borderColor: '#D1D5DB', marginTop: 15 }]} 
+            <AnimatedTouchable 
+              style={[styles.continueButton, { backgroundColor: Colors.bgSecondary, borderWidth: 1, borderColor: Colors.borderGlass, marginTop: 15 }]} 
               onPress={handleGoogleSignIn}
               disabled={loading}
-              activeOpacity={0.8}
             >
-              <Text style={[styles.continueButtonText, { color: '#374151' }]}>Continue with Google</Text>
-            </TouchableOpacity>
+              <Text style={[styles.continueButtonText, { color: Colors.textPrimary }]}>Continue with Google</Text>
+            </AnimatedTouchable>
           )}
 
           {mode === 'forgot_password' && (
@@ -615,100 +610,84 @@ const getStyles = (Colors: any) => StyleSheet.create({
     backgroundColor: Colors.bgPrimary,
     position: 'relative'
   },
-  backgroundOrb1: {
-    position: 'absolute',
-    width: 601,
-    height: 743,
-    left: -106,
-    top: -400,
-    backgroundColor: '#0053B3',
-    opacity: 0.1,
-    borderRadius: 300,
-  },
-  backgroundOrb2: {
-    position: 'absolute',
-    width: 601,
-    height: 743,
-    left: -50,
-    top: -350,
-    backgroundColor: '#9AC9FE',
-    opacity: 0.1,
-    borderRadius: 300,
-  },
   scrollContent: {
     flexGrow: 1,
-    paddingHorizontal: 16,
-    paddingTop: 80,
+    paddingHorizontal: 24,
+    paddingTop: 40,
     paddingBottom: 40,
     alignItems: 'center'
   },
   logoContainer: {
     alignItems: 'center',
-    marginBottom: 40,
+    marginBottom: 24,
   },
   logoIcon: {
-    width: 200,
-    height: 200,
-    marginBottom: 0,
+    width: 160,
+    height: 160,
   },
   logoTextImg: {
     width: 92,
     height: 19,
-    marginTop: 0,
+    marginTop: -10,
   },
   headerContainer: {
     width: '100%',
     marginBottom: 30,
     paddingHorizontal: 10,
+    alignItems: 'center'
   },
   titleText: {
-    fontFamily: 'sans-serif', // 'Outfit' fallback
-    fontWeight: '400',
-    fontSize: 20,
+    fontWeight: '800',
+    fontSize: 26,
     color: Colors.textPrimary,
     marginBottom: 8,
+    letterSpacing: -0.5
   },
   subtitleText: {
-    fontFamily: 'sans-serif',
-    fontWeight: '400',
+    fontWeight: '500',
     fontSize: 14,
     color: Colors.textMuted,
-    lineHeight: 20,
+    lineHeight: 22,
+    textAlign: 'center',
+    paddingHorizontal: 20
   },
   authTabs: {
     flexDirection: 'row',
     marginBottom: 24,
-    backgroundColor: Colors.borderGlass,
+    backgroundColor: Colors.bgTertiary,
     borderRadius: 24,
-    padding: 4,
-    width: 280,
-    alignSelf: 'center'
+    padding: 6,
+    width: 300,
+    alignSelf: 'center',
+    borderWidth: 1,
+    borderColor: Colors.borderGlass
   },
   authTab: {
     flex: 1,
-    paddingVertical: 12,
+    paddingVertical: 14,
     alignItems: 'center',
-    borderRadius: 20,
+    borderRadius: 18,
   },
   authTabActive: {
     backgroundColor: Colors.bgSecondary,
     shadowColor: Colors.textPrimary,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 3
   },
   authTabText: {
-    color: '#64748B',
+    color: Colors.textSecondary,
     fontWeight: '600',
     fontSize: 14
   },
   authTabTextActive: {
-    color: '#0053B3'
+    color: Colors.accent,
+    fontWeight: '700'
   },
   formContainer: {
     width: '100%',
-    gap: 16,
+    gap: 20,
     marginBottom: 30,
   },
   inputWrapper: {
@@ -716,8 +695,7 @@ const getStyles = (Colors: any) => StyleSheet.create({
     gap: 8,
   },
   inputLabel: {
-    fontFamily: 'sans-serif',
-    fontWeight: '400',
+    fontWeight: '600',
     fontSize: 14,
     color: Colors.textPrimary,
     marginLeft: 4,
@@ -726,91 +704,60 @@ const getStyles = (Colors: any) => StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     width: '100%',
-    height: 48,
+    height: 56,
     borderWidth: 1,
-    borderColor: '#DEE0E3',
-    borderRadius: 16,
+    borderColor: Colors.borderGlass,
+    borderRadius: 14,
     paddingHorizontal: 16,
     backgroundColor: Colors.bgSecondary,
-  },
-  countryCode: {
-    fontFamily: 'sans-serif',
-    fontWeight: '400',
-    fontSize: 14,
-    color: Colors.textMuted,
-  },
-  divider: {
-    width: 1,
-    height: 14,
-    backgroundColor: '#DEE0E3',
-    marginHorizontal: 8,
   },
   inputText: {
     flex: 1,
     height: '100%',
-    fontFamily: 'sans-serif',
-    fontSize: 14,
+    fontSize: 15,
+    fontWeight: '500',
     color: Colors.textPrimary,
   },
-  genderRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 10
-  },
-  genderBtn: {
-    flex: 1,
-    height: 48,
-    borderWidth: 1,
-    borderColor: '#DEE0E3',
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: Colors.bgSecondary
-  },
-  genderBtnActive: {
-    borderColor: '#0053B3',
-    backgroundColor: 'rgba(0, 83, 179, 0.05)'
-  },
-  genderBtnText: {
-    color: Colors.textMuted,
-    fontWeight: '600',
-    fontSize: 14
-  },
-  genderBtnTextActive: {
-    color: '#0053B3'
-  },
   continueButton: {
-    width: 280,
-    height: 48,
-    backgroundColor: '#0053B3',
-    borderRadius: 24,
+    width: '100%',
+    height: 56,
+    backgroundColor: Colors.accent,
+    borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 10,
-    alignSelf: 'center'
+    alignSelf: 'center',
+    shadowColor: Colors.accent,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    elevation: 6
   },
   continueButtonText: {
-    fontFamily: 'sans-serif',
-    fontWeight: '400',
-    fontSize: 14,
+    fontWeight: '700',
+    fontSize: 16,
     color: '#FCFCFC',
+    letterSpacing: 0.5
   },
   roleToggleBtn: {
     marginTop: 10,
     marginBottom: 40,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 20,
+    backgroundColor: Colors.bgTertiary
   },
   roleToggleText: {
-    color: '#0053B3',
-    fontWeight: '600',
+    color: Colors.textPrimary,
+    fontWeight: '700',
     fontSize: 14,
   },
   footerText: {
-    fontFamily: 'sans-serif',
-    fontWeight: '400',
-    fontSize: 10,
-    color: Colors.textPrimary,
+    fontWeight: '500',
+    fontSize: 12,
+    color: Colors.textMuted,
     textAlign: 'center',
-    paddingHorizontal: 20,
-    opacity: 0.7,
+    paddingHorizontal: 30,
+    lineHeight: 18
   }
 });

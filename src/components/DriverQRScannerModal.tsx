@@ -53,7 +53,7 @@ export default function DriverQRScannerModal({ visible, onClose, onScan }: Drive
         ) : !permission.granted ? (
           <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}>
             <Text style={{ color: '#FFF', textAlign: 'center', marginBottom: 20 }}>We need your permission to show the camera</Text>
-            <TouchableOpacity style={{ padding: 12, backgroundColor: colors.primary, borderRadius: 8 }} onPress={requestPermission}>
+            <TouchableOpacity style={{ padding: 12, backgroundColor: colors.accent, borderRadius: 8 }} onPress={requestPermission}>
               <Text style={{ color: '#FFF' }}>Grant Permission</Text>
             </TouchableOpacity>
           </View>
@@ -66,7 +66,7 @@ export default function DriverQRScannerModal({ visible, onClose, onScan }: Drive
               barcodeScannerSettings={{ barcodeTypes: ["qr"] }}
             />
             <View style={[StyleSheet.absoluteFillObject, { backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'center', alignItems: 'center' }]}>
-               <View style={{ width: 250, height: 250, borderWidth: 2, borderColor: colors.primary, backgroundColor: 'transparent' }} />
+               <View style={{ width: 250, height: 250, borderWidth: 2, borderColor: colors.accent, backgroundColor: 'transparent' }} />
                <Text style={{ color: '#FFF', marginTop: 20, fontSize: 16, textAlign: 'center' }}>
                  {processing ? 'Verifying Pass...' : 'Align QR Code within frame'}
                </Text>

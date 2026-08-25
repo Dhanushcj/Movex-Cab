@@ -79,7 +79,7 @@ const getClosestPointOnLine = (pt: any, line: any[]) => {
   return closestPoint || pt;
 };
 
-const routeColors = ['#0053B3', '#D49F0C', '#10B981', '#EF4444', '#8B5CF6'];
+const routeColors = ['#075AAA', '#D49F0C', '#10B981', '#EF4444', '#8B5CF6'];
 
 const MetroBookingMap = ({ onClose, onBookTicket, userLocation, nearbyDrivers = [] }: any) => {
   const { colors } = useTheme();

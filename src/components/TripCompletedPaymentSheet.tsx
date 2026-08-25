@@ -256,7 +256,7 @@ const getStyles = (Colors: any) => StyleSheet.create({
   collectedAmount: {
     fontSize: 32,
     fontWeight: '500',
-    color: '#0053B3',
+    color: '#075AAA',
   },
 
   // Divider
@@ -361,12 +361,12 @@ const getStyles = (Colors: any) => StyleSheet.create({
   // Go Next Order Button
   nextOrderBtn: {
     marginHorizontal: 24,
-    backgroundColor: '#0053B3',
+    backgroundColor: '#075AAA',
     borderRadius: 28,
     height: 56,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#0053B3',
+    shadowColor: '#075AAA',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,

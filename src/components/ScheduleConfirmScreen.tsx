@@ -198,7 +198,7 @@ const styles = StyleSheet.create({
     paddingTop: 20,
   },
   confirmBtn: {
-    backgroundColor: '#0053B3',
+    backgroundColor: '#075AAA',
     borderRadius: 16,
     height: 56,
     alignItems: 'center',
@@ -226,7 +226,7 @@ const styles = StyleSheet.create({
     borderColor: '#E9EAEC',
   },
   vehicleCardSelected: {
-    borderColor: '#0053B3',
+    borderColor: '#075AAA',
     backgroundColor: '#F0F7FF',
     borderWidth: 2,
   },

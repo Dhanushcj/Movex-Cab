@@ -7,13 +7,13 @@ import { getDriverAchievements } from '../services/api';
 
 interface DriverAchievementsScreenProps {
   onNavigateHome: () => void;
-  onNavigateWallet?: () => void;
+
   onNavigateHistory?: () => void;
 }
 
 const DriverAchievementsScreen: React.FC<DriverAchievementsScreenProps> = ({ 
   onNavigateHome,
-  onNavigateWallet,
+
   onNavigateHistory
 }) => {
   const { colors, isDark } = useTheme();
@@ -154,9 +154,7 @@ const DriverAchievementsScreen: React.FC<DriverAchievementsScreenProps> = ({
             <Feather name="award" size={18} color="#FCFCFC" />
             <Text style={styles.navTextActive}>Awards</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.navItem} onPress={onNavigateWallet}>
-            <Feather name="credit-card" size={24} color="#9098A2" />
-          </TouchableOpacity>
+
           <TouchableOpacity style={styles.navItem} onPress={onNavigateHistory}>
             <Feather name="clock" size={24} color="#9098A2" />
           </TouchableOpacity>

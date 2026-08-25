@@ -337,8 +337,8 @@ const getStyles = (colors: any) => StyleSheet.create({
     backgroundColor: colors.bgSecondary,
   },
   typeBtnSelected: {
-    backgroundColor: '#0053B3',
-    borderColor: '#0053B3',
+    backgroundColor: '#075AAA',
+    borderColor: '#075AAA',
   },
   typeBtnText: {
     fontFamily: 'sans-serif',
@@ -436,8 +436,8 @@ const getStyles = (colors: any) => StyleSheet.create({
     backgroundColor: colors.bgSecondary,
   },
   checkboxSelected: {
-    backgroundColor: '#0053B3',
-    borderColor: '#0053B3',
+    backgroundColor: '#075AAA',
+    borderColor: '#075AAA',
   },
   bottomContainer: {
     position: 'absolute',
@@ -449,11 +449,11 @@ const getStyles = (colors: any) => StyleSheet.create({
     backgroundColor: colors.bgPrimary,
   },
   continueBtn: {
-    backgroundColor: '#0053B3',
+    backgroundColor: '#075AAA',
     paddingVertical: 16,
     borderRadius: 16,
     alignItems: 'center',
-    shadowColor: '#0053B3',
+    shadowColor: '#075AAA',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 12,

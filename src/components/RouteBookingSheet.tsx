@@ -26,7 +26,7 @@ const RouteBookingSheet = ({ onRouteSelected, onCancel }: any) => {
     fetchRoutes();
   }, []);
   
-  const routeColors = ['#0053B3', '#D49F0C', '#10B981', '#EF4444', '#8B5CF6'];
+  const routeColors = ['#075AAA', '#D49F0C', '#10B981', '#EF4444', '#8B5CF6'];
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.bgPrimary, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 20 }}>
@@ -40,7 +40,7 @@ const RouteBookingSheet = ({ onRouteSelected, onCancel }: any) => {
 
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={{ gap: 12, paddingBottom: 24 }}>
-          {loading && <ActivityIndicator size="large" color="#0053B3" />}
+          {loading && <ActivityIndicator size="large" color="#075AAA" />}
           {!loading && routes.length === 0 && <Text style={{ color: colors.textSecondary }}>No active routes available.</Text>}
           {routes.map((route, idx) => {
             const baseColor = routeColors[idx % routeColors.length];

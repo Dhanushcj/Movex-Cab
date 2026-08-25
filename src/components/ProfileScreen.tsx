@@ -80,12 +80,12 @@ export default function ProfileScreen({
   const renderOptionRow = (titleKey: string, showToggle: boolean = false, onPress?: () => void, toggleState: boolean = false) => (
     <TouchableOpacity style={styles.optionRow} onPress={onPress} activeOpacity={0.7} disabled={!onPress}>
       <View style={styles.iconCircle}>
-        <Feather name={getIconName(titleKey)} size={18} color="#0053B3" />
+        <Feather name={getIconName(titleKey)} size={18} color="#075AAA" />
       </View>
       <Text style={styles.optionText}>{titleKey === 'Monthly Commute Pass' ? titleKey : t(`profile.${titleKey}`)}</Text>
       <View style={{ flex: 1 }} />
       {showToggle ? (
-        <View style={[styles.toggleTrack, toggleState && { backgroundColor: '#0053B3' }]}>
+        <View style={[styles.toggleTrack, toggleState && { backgroundColor: '#075AAA' }]}>
           <View style={[styles.toggleThumb, toggleState && { transform: [{ translateX: 28 }] }]} />
         </View>
       ) : (
@@ -130,7 +130,7 @@ export default function ProfileScreen({
               </View>
             </View>
             <View style={{ flex: 1 }} />
-            <Feather name="chevron-right" size={24} color="#FFF" />
+            <Feather name="chevron-right" size={24} color="#FFFFFF" />
           </View>
         </TouchableOpacity>
 
@@ -152,7 +152,7 @@ export default function ProfileScreen({
                   <Text style={{ color: Colors.success, fontSize: 12, fontWeight: '700' }}>ACTIVE</Text>
                 </View>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 }}>
-                  <Text style={{ color: '#0053B3', fontSize: 14 }}>{pass.validUntil ? Math.max(0, Math.ceil((new Date(pass.validUntil).getTime() - new Date().getTime()) / (1000 * 3600 * 24))) : 30} days remaining</Text>
+                  <Text style={{ color: '#075AAA', fontSize: 14 }}>{pass.validUntil ? Math.max(0, Math.ceil((new Date(pass.validUntil).getTime() - new Date().getTime()) / (1000 * 3600 * 24))) : 30} days remaining</Text>
                   <TouchableOpacity 
                     onPress={() => handleCancelPass(pass._id)}
                     disabled={cancellingPass === pass._id}
@@ -218,13 +218,13 @@ const getStyles = () => StyleSheet.create({
     color: Colors.textPrimary
   },
   profileCard: {
-    backgroundColor: '#0053B3',
+    backgroundColor: Colors.accent,
     borderRadius: 16,
     padding: 16,
     marginBottom: 20,
-    shadowColor: Colors.textPrimary,
+    shadowColor: Colors.accent,
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.15,
     shadowRadius: 10,
     elevation: 5
   },
@@ -237,42 +237,42 @@ const getStyles = () => StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: '#005FCC',
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#FFFFFF'
   },
   profileDetails: {
     justifyContent: 'center'
   },
   profileName: {
-    color: Colors.textPrimary,
+    color: '#FFFFFF',
     fontSize: 16,
-    fontWeight: '600'
+    fontWeight: '700'
   },
   profileId: {
-    color: Colors.textSecondary,
-    fontSize: 14,
-    marginTop: 4
+    color: 'rgba(255, 255, 255, 0.8)',
+    fontSize: 13,
+    marginTop: 2,
+    marginBottom: 4
   },
   ratingRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 2,
-    marginTop: 4
+    gap: 2
   },
   starIcon: {
-    color: '#FED101',
-    fontSize: 12
+    fontSize: 10
   },
   starIconGray: {
-    color: '#8DABCE',
-    fontSize: 12,
-    opacity: 0.5
+    fontSize: 10,
+    opacity: 0.4
   },
   ratingText: {
-    color: Colors.textPrimary,
-    fontSize: 14,
-    fontWeight: '500',
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontWeight: '600',
     marginLeft: 4
   },
   referralCard: {

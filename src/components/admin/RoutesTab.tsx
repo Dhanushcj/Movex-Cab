@@ -207,7 +207,7 @@ export default function RoutesTab() {
           </View>
         ) : (
           routes.map((route: any, idx: number) => {
-            const palette = ['#0053B3', '#D49F0C', '#10B981', '#EF4444', '#8B5CF6'];
+            const palette = ['#075AAA', '#D49F0C', '#10B981', '#EF4444', '#8B5CF6'];
             const routeColor = palette[idx % palette.length];
             return (
               <View key={route._id} style={styles.routeCard}>
@@ -411,7 +411,7 @@ const getStyles = (colors: any) => StyleSheet.create({
     borderColor: 'rgba(212, 159, 12, 0.3)',
   },
   submitBtn: {
-    backgroundColor: '#0053B3',
+    backgroundColor: '#075AAA',
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',

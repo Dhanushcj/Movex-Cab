@@ -69,7 +69,7 @@ export default function SupportTicketScreen({ visible, onClose }: SupportTicketS
         {/* Content */}
         {loading ? (
             <View style={styles.centerContainer}>
-                <ActivityIndicator size="large" color="#0053B3" />
+                <ActivityIndicator size="large" color="#075AAA" />
             </View>
         ) : tickets.length === 0 ? (
             <View style={styles.emptyState}>
@@ -102,7 +102,7 @@ export default function SupportTicketScreen({ visible, onClose }: SupportTicketS
                         {ticket.resolution && (
                             <View style={styles.adminReplyContainer}>
                                 <View style={styles.adminReplyHeader}>
-                                    <Feather name="corner-down-right" size={14} color="#0053B3" />
+                                    <Feather name="corner-down-right" size={14} color="#075AAA" />
                                     <Text style={styles.adminReplyLabel}>Admin Reply</Text>
                                 </View>
                                 <Text style={styles.adminReplyText}>{ticket.resolution}</Text>
@@ -261,7 +261,7 @@ const getStyles = (Colors: any) => StyleSheet.create({
     fontFamily: 'Outfit',
     fontSize: 12,
     fontWeight: '700',
-    color: '#0053B3',
+    color: '#075AAA',
     marginLeft: 6,
     textTransform: 'uppercase',
   },

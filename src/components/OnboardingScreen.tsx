@@ -173,7 +173,7 @@ const getStyles = (Colors: any) => StyleSheet.create({
   },
   dotActive: {
     width: 28,
-    backgroundColor: '#0053B3',
+    backgroundColor: '#075AAA',
   },
   dotInactive: {
     width: 8,
@@ -208,7 +208,7 @@ const getStyles = (Colors: any) => StyleSheet.create({
     width: '100%',
     maxWidth: 344,
     height: 44,
-    backgroundColor: '#0053B3',
+    backgroundColor: '#075AAA',
     borderRadius: 24,
     justifyContent: 'center',
     alignItems: 'center',
@@ -225,7 +225,7 @@ const getStyles = (Colors: any) => StyleSheet.create({
     maxWidth: 344,
     height: 44,
     borderWidth: 1,
-    borderColor: '#0053B3',
+    borderColor: '#075AAA',
     borderRadius: 24,
     justifyContent: 'center',
     alignItems: 'center',
@@ -235,6 +235,6 @@ const getStyles = (Colors: any) => StyleSheet.create({
     fontWeight: '400',
     fontSize: 14,
     lineHeight: 18,
-    color: '#0053B3',
+    color: '#075AAA',
   },
 });

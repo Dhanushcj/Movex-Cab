@@ -127,7 +127,7 @@ const getStyles = (Colors: any) => StyleSheet.create({
     gap: 12
   },
   langCardActive: {
-    backgroundColor: '#0053B3',
+    backgroundColor: '#075AAA',
     borderWidth: 0
   },
   langCardInactive: {
@@ -146,7 +146,7 @@ const getStyles = (Colors: any) => StyleSheet.create({
   iconTextA: {
     fontSize: 16,
     fontWeight: '500',
-    color: '#0053B3'
+    color: '#075AAA'
   },
   iconTextTa: {
     fontSize: 16,
@@ -177,20 +177,20 @@ const getStyles = (Colors: any) => StyleSheet.create({
     flex: 1,
     height: 44,
     borderWidth: 1,
-    borderColor: '#0053B3',
+    borderColor: '#075AAA',
     backgroundColor: Colors.bgSecondary,
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center'
   },
   cancelText: {
-    color: '#0053B3',
+    color: '#075AAA',
     fontSize: 14
   },
   applyBtn: {
     flex: 1,
     height: 44,
-    backgroundColor: '#0053B3',
+    backgroundColor: '#075AAA',
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center'

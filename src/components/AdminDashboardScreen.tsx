@@ -355,7 +355,7 @@ const getStyles = (Colors: any) => StyleSheet.create({
     top: 0,
     bottom: 0,
     width: 280,
-    backgroundColor: '#0053B3',
+    backgroundColor: '#075AAA',
     zIndex: 100,
     paddingTop: 50,
     shadowColor: Colors.textPrimary,

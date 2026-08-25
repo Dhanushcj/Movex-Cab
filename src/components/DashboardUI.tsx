@@ -1,9 +1,10 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Platform, Image, StyleSheet, Alert, Share } from 'react-native';
-import { Feather } from '@expo/vector-icons';
+import { Feather, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '../context/ThemeContext';
 import Colors from '../constants/colors';
+import AnimatedTouchable from './AnimatedTouchable';
 
 const DashboardUI = ({
   user, 
@@ -13,247 +14,441 @@ const DashboardUI = ({
   onBookRide, 
   onBuyPass, 
   onSearchClick,
-  onScheduleRide,
-  onTrackRide,
-  scheduledRide,
-  onCancelScheduledRide
+  onTrackRide
 }: any) => {
   const { colors, isDark } = useTheme();
-  const pass = activePasses && activePasses.length > 0 ? activePasses[0] : null;
-  const passName = pass 
-    ? String(pass.pass?.name || pass.vehicleType || 'Gold').toLowerCase() 
-    : 'gold';
-  const isDiamond = passName === 'diamond';
-  const themeColor = isDiamond ? '#007BFF' : '#D49F0C';
-  
-  // Calculate progress percentage
-  let progressWidth = 0;
-  if (pass && pass.validUntil) {
-    const start = new Date(pass.purchaseDate || pass.createdAt || Date.now()).getTime();
-    const end = new Date(pass.validUntil).getTime();
-    const now = Date.now();
-    
-    if (end > start) {
-      // Calculate how much time has passed as a percentage
-      const elapsed = now - start;
-      const total = end - start;
-      // We want to show remaining time, so 100% when purchased, down to 0%
-      const remainingPercent = Math.max(0, Math.min(100, ((total - elapsed) / total) * 100));
-      progressWidth = remainingPercent;
-    }
-  }
+  const styles = getStyles(colors);
+
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: colors.bgPrimary }} contentContainerStyle={{ paddingBottom: 120 }}>
-      {/* TOP HEADER */}
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 16, paddingTop: Platform.OS === 'ios' ? 60 : 40 }}>
-        <TouchableOpacity onPress={onProfilePress} style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-          <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: Colors.bgTertiary, overflow: 'hidden', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: Colors.borderGlass }}>
-            <Text style={{ fontSize: 16, fontWeight: '700', color: Colors.accent }}>
-              {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
-            </Text>
-          </View>
-          <View>
-            <Text style={{ fontFamily: 'sans-serif', fontSize: 14, color: colors.textSecondary }}>
-              {(() => {
-                const hour = new Date().getHours();
-                if (hour < 12) return 'Good Morning!';
-                if (hour < 17) return 'Good Afternoon!';
-                return 'Good Evening!';
-              })()}
-            </Text>
-            <Text style={{ fontFamily: 'sans-serif', fontSize: 16, color: colors.textPrimary, fontWeight: 'bold' }}>{user?.name?.split(' ')[0] || 'Rose'}</Text>
-          </View>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={onNotificationPress} style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: colors.bgSecondary, alignItems: 'center', justifyContent: 'center' }}>
-          <Feather name="bell" size={20} color="#262D36" />
-        </TouchableOpacity>
+    <ScrollView style={{ flex: 1, backgroundColor: colors.bgPrimary }} contentContainerStyle={{ paddingBottom: 120 }} showsVerticalScrollIndicator={false}>
+      
+      {/* ── HEADER ── */}
+      <View style={styles.headerContainer}>
+        <AnimatedTouchable onPress={onProfilePress} style={styles.iconBtn}>
+          <Feather name="menu" size={24} color={colors.textPrimary} />
+        </AnimatedTouchable>
+        
+        <View style={styles.logoContainer}>
+          <Image 
+            source={require('../../assets/Frame 3.png')} 
+            style={{ width: 180, height: 60, resizeMode: 'contain' }} 
+          />
+        </View>
+
+        <AnimatedTouchable onPress={onNotificationPress} style={styles.iconBtn}>
+          <Feather name="bell" size={24} color={colors.textPrimary} />
+          <View style={styles.notificationBadge} />
+        </AnimatedTouchable>
       </View>
 
-      {/* MONTHLY PASS CARD */}
-      {pass ? (
-        <View style={{ marginHorizontal: 16, marginTop: 12, borderRadius: 20, overflow: 'hidden' }}>
-          <LinearGradient colors={['#ABCAED', '#EBEBEB']} start={{x:0, y:0}} end={{x:1, y:1}} style={{ padding: 20, height: 198 }}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-              <View>
-                <Text style={{ fontFamily: 'sans-serif', fontSize: 16, color: colors.textPrimary, fontWeight: 'bold' }}>Monthly Pass</Text>
-                <View style={{ backgroundColor: '#ECFDF2', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 20, marginTop: 8, alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                  <Feather name="check" size={10} color="#39B45C" />
-                  <Text style={{ color: '#39B45C', fontSize: 10, fontWeight: 'bold' }}>Active</Text>
-                </View>
-              </View>
-              <View style={{ backgroundColor: themeColor, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8, alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                <Text style={{ color: '#FCFCFC', fontSize: 10, fontWeight: 'bold' }}>{passName.toUpperCase()}</Text>
-                <Feather name="shield" size={10} color="#FCFCFC" />
-              </View>
-            </View>
-            
-            <View style={{ marginTop: 40 }}>
-              <Text style={{ color: colors.textSecondary, fontSize: 10 }}>Valid Till</Text>
-              <Text style={{ color: '#FCFCFC', fontSize: 14, fontWeight: 'bold', marginTop: 4 }}>
-                {pass && pass.validUntil 
-                  ? new Date(pass.validUntil).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-                  : 'July 29, 2026'}
-              </Text>
-            </View>
-            <View style={{ marginTop: 12, height: 8, backgroundColor: colors.iconBg, borderRadius: 4, width: '50%', overflow: 'hidden' }}>
-               <View style={{ width: `${progressWidth}%`, height: 8, backgroundColor: '#0053B3', borderRadius: 4 }} />
-            </View>
-            <Text style={{ color: colors.textPrimary, fontSize: 12, marginTop: 4 }}>
-              {pass && pass.validUntil 
-                ? `${Math.max(0, Math.ceil((new Date(pass.validUntil).getTime() - Date.now()) / (1000 * 3600 * 24)))} Days Left`
-                : (pass && pass.totalRides ? `${pass.totalRides - (pass.ridesCompleted || 0)} Rides Left` : 'Active')}
-            </Text>
-            
-            <Image source={{ uri: 'https://www.pngplay.com/wp-content/uploads/13/White-Tata-Tiago-Transparent-PNG.png' }} style={{ position: 'absolute', right: -20, top: 40, width: 220, height: 120, resizeMode: 'contain' }} />
-          </LinearGradient>
-        </View>
-      ) : (
-        <TouchableOpacity style={{ marginHorizontal: 16, marginTop: 12, borderRadius: 20, overflow: 'hidden' }} activeOpacity={0.9} onPress={onBuyPass}>
-          <LinearGradient colors={['#FFF8E1', '#F5E6C8']} start={{x:0, y:0}} end={{x:1, y:1}} style={{ padding: 20, height: 120, justifyContent: 'center' }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-              <View style={{ width: '70%' }}>
-                <Text style={{ fontFamily: 'sans-serif', fontSize: 18, color: '#D49F0C', fontWeight: 'bold', marginBottom: 4 }}>Get a Pass</Text>
-                <Text style={{ fontFamily: 'sans-serif', fontSize: 13, color: colors.textPrimary }}>Subscribe to enjoy discounted rides & priority booking.</Text>
-              </View>
-              <Feather name="credit-card" size={40} color="rgba(212, 159, 12, 0.3)" />
-            </View>
-          </LinearGradient>
-        </TouchableOpacity>
-      )}
-
-      {/* SCHEDULED RIDE */}
-      {scheduledRide && (
-        <View style={{ marginHorizontal: 16, marginTop: 16, backgroundColor: colors.bgSecondary, borderRadius: 20, padding: 16, borderWidth: 1, borderColor: colors.border }}>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-            <Text style={{ fontFamily: 'sans-serif', fontSize: 16, color: colors.textPrimary, fontWeight: 'bold' }}>Upcoming Ride</Text>
-            <View style={{ backgroundColor: '#EFFAF0', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 12 }}>
-              <Text style={{ color: '#198E1E', fontSize: 12, fontWeight: 'bold' }}>Scheduled</Text>
-            </View>
-          </View>
+      {/* ── HERO SECTION ── */}
+      <View style={styles.heroSection}>
+        <View style={styles.heroTextContainer}>
+          <Text style={[styles.heroTitle, { color: colors.accent }]}>Book.</Text>
+          <Text style={[styles.heroTitle, { color: colors.accent }]}>Ride.</Text>
+          <Text style={[styles.heroTitle, { color: colors.accentSecondary }]}>Arrive Safely.</Text>
           
-          {scheduledRide.pickupDateTime && (
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12, backgroundColor: colors.iconBg, padding: 8, borderRadius: 8, alignSelf: 'flex-start' }}>
-              <Feather name="clock" size={14} color="#0053B3" />
-              <Text style={{ color: '#0053B3', fontSize: 12, fontWeight: 'bold' }}>
-                {new Date(scheduledRide.pickupDateTime).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}
-                {' - '}
-                {new Date(scheduledRide.pickupDateTime).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-              </Text>
-            </View>
-          )}
+          <Text style={[styles.heroSubtitle, { color: colors.textSecondary }]}>
+            Your trusted partner for city commutes, outstation trips, and more.
+          </Text>
 
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 8 }}>
-             <Feather name="home" size={16} color="#198E1E" />
-             <Text style={{ color: colors.textPrimary, fontSize: 14 }} numberOfLines={1}>{scheduledRide.pickup || 'Pickup Location'}</Text>
-          </View>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 16 }}>
-             <Feather name="map-pin" size={16} color="#F85300" />
-             <Text style={{ color: colors.textPrimary, fontSize: 14, flex: 1 }} numberOfLines={1}>{scheduledRide.drop || 'Drop Location'}</Text>
-          </View>
-          <View style={{ flexDirection: 'row', gap: 8 }}>
-            <TouchableOpacity 
-              style={{ flex: 1, backgroundColor: '#0053B3', paddingVertical: 12, borderRadius: 12, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 8 }}
-              onPress={onTrackRide}
-            >
-              <Feather name="navigation" size={16} color="#FFFFFF" />
-              <Text style={{ color: '#FFFFFF', fontSize: 14, fontWeight: 'bold' }}>Track</Text>
-            </TouchableOpacity>
-            
-            <TouchableOpacity 
-              style={{ flex: 1, backgroundColor: '#FFF0F0', paddingVertical: 12, borderRadius: 12, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 8 }}
-              onPress={() => onCancelScheduledRide && onCancelScheduledRide(scheduledRide._id)}
-            >
-              <Feather name="x-circle" size={16} color="#FF3B30" />
-              <Text style={{ color: '#FF3B30', fontSize: 14, fontWeight: 'bold' }}>Cancel</Text>
-            </TouchableOpacity>
-          </View>
+          <AnimatedTouchable style={[styles.heroBtn, { backgroundColor: colors.accent }]} onPress={onBookRide}>
+            <Text style={styles.heroBtnText}>Book Now</Text>
+            <Feather name="chevron-right" size={16} color="#FFF" />
+          </AnimatedTouchable>
         </View>
-      )}
+        <Image 
+          source={require('../../assets/scooter_hero.png')} 
+          style={styles.heroImage} 
+        />
+      </View>
 
-      {/* SEARCH BAR */}
-      <TouchableOpacity style={{ marginHorizontal: 16, marginTop: 16, backgroundColor: colors.bgSecondary, borderRadius: 20, padding: 16, flexDirection: 'row', alignItems: 'center', gap: 12, borderWidth: 1, borderColor: colors.border }} onPress={onSearchClick || onBookRide}>
-        <Feather name="search" size={20} color="#7C848D" />
-        <Text style={{ color: colors.textSecondary, fontSize: 14 }}>Search destination</Text>
-      </TouchableOpacity>
+      {/* ── QUICK ACTIONS ── */}
+      <View style={styles.quickActionsSection}>
+        <View style={styles.sectionHeader}>
+          <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Quick Actions</Text>
+          <Text style={styles.viewAllText}>View All <Feather name="chevron-right" size={12} /></Text>
+        </View>
+        
+        <View style={styles.quickActionsGrid}>
+          {/* Action 1 */}
+          <AnimatedTouchable style={styles.quickActionCard} onPress={onBookRide}>
+            <View style={styles.quickActionIconWrapper}>
+              <Ionicons name="car-outline" size={26} color={colors.accent} />
+            </View>
+            <Text style={[styles.quickActionText, { color: colors.textPrimary }]}>Book Ride</Text>
+          </AnimatedTouchable>
 
-      {/* FOR YOU */}
-      <View style={{ marginHorizontal: 16, marginTop: 24 }}>
-        <Text style={{ fontFamily: 'sans-serif', fontSize: 16, color: colors.textPrimary, fontWeight: 'bold', marginBottom: 12 }}>For you</Text>
-        <View style={{ flexDirection: 'row', justifyContent: 'flex-start', gap: 24 }}>
-          <TouchableOpacity style={{ alignItems: 'center', gap: 8 }} onPress={onBuyPass}>
-            <View style={{ width: 68, height: 68, backgroundColor: colors.bgTertiary, borderRadius: 20, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: colors.border }}>
-               <Feather name="credit-card" size={28} color="#0053B3" />
+          {/* Action 2 */}
+          <AnimatedTouchable style={styles.quickActionCard} onPress={onBuyPass}>
+            <View style={styles.quickActionIconWrapper}>
+              <Ionicons name="ticket-outline" size={26} color={colors.accent} />
             </View>
-            <Text style={{ color: colors.textPrimary, fontSize: 14 }}>Buy Pass</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={{ alignItems: 'center', gap: 8 }} onPress={onBookRide}>
-            <View style={{ width: 68, height: 68, backgroundColor: colors.bgTertiary, borderRadius: 20, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: colors.border }}>
-               <Feather name="navigation" size={28} color="#0053B3" />
+            <Text style={[styles.quickActionText, { color: colors.textPrimary }]}>Buy Pass</Text>
+          </AnimatedTouchable>
+
+          {/* Action 3 */}
+          <AnimatedTouchable style={styles.quickActionCard} onPress={onTrackRide}>
+            <View style={styles.quickActionIconWrapper}>
+              <Ionicons name="map-outline" size={26} color={colors.accent} />
             </View>
-            <Text style={{ color: colors.textPrimary, fontSize: 14 }}>Book Ride</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={{ alignItems: 'center', gap: 8 }} onPress={onScheduleRide}>
-            <View style={{ width: 68, height: 68, backgroundColor: colors.bgTertiary, borderRadius: 20, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: colors.border }}>
-               <Feather name="calendar" size={28} color="#0053B3" />
+            <Text style={[styles.quickActionText, { color: colors.textPrimary }]}>Track Ride</Text>
+          </AnimatedTouchable>
+
+          {/* Action 4 */}
+          <AnimatedTouchable style={styles.quickActionCard} onPress={onProfilePress}>
+            <View style={styles.quickActionIconWrapper}>
+              <Ionicons name="calendar-outline" size={26} color={colors.accent} />
             </View>
-            <Text style={{ color: colors.textPrimary, fontSize: 14 }}>Schedule Ride</Text>
-          </TouchableOpacity>
+            <Text style={[styles.quickActionText, { color: colors.textPrimary }]}>My Bookings</Text>
+          </AnimatedTouchable>
         </View>
       </View>
 
-      {/* AD BANNERS */}
-      <View style={{ marginTop: 32, paddingBottom: 20 }}>
-        <ScrollView 
-          horizontal 
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ paddingHorizontal: 16, gap: 16 }}
-          snapToInterval={300 + 16}
-          decelerationRate="fast"
-          snapToAlignment="center"
+      {/* ── PROMO BANNER ── */}
+      <AnimatedTouchable style={styles.promoContainer} onPress={() => {
+        Alert.alert('Promo Code Activated!', 'Use code MOVEX20 to get 20% off your first ride!');
+        if (onBookRide) onBookRide();
+      }}>
+        <LinearGradient 
+          colors={[colors.accent, '#0F3170']} 
+          start={{x:0, y:0}} end={{x:1, y:1}} 
+          style={styles.promoBanner}
         >
-          {/* Banner 1 */}
-          <TouchableOpacity activeOpacity={0.9} onPress={() => {
-            Alert.alert('Promo Code Activated!', 'Use code SAVE50 to get 50% off your ride! Search for a destination to apply it now.');
-            if (onBookRide) onBookRide();
-          }}>
-            <View style={{ width: 300, height: 140, borderRadius: 20, overflow: 'hidden' }}>
-              <LinearGradient colors={['#FF9A9E', '#FECFEF']} start={{x:0, y:0}} end={{x:1, y:1}} style={{ flex: 1, padding: 20, justifyContent: 'center' }}>
-                <Text style={{ fontFamily: 'sans-serif', fontSize: 18, color: '#D81B60', fontWeight: 'bold' }}>Get 50% Off!</Text>
-                <Text style={{ fontFamily: 'sans-serif', fontSize: 13, color: colors.textPrimary, marginTop: 4, width: '60%' }}>On your first ride this weekend.</Text>
-                <View style={{ backgroundColor: '#D81B60', alignSelf: 'flex-start', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12, marginTop: 12 }}>
-                  <Text style={{ color: '#FCFCFC', fontSize: 12, fontWeight: 'bold' }}>Claim Now</Text>
-                </View>
-                <Feather name="gift" size={64} color="rgba(216, 27, 96, 0.2)" style={{ position: 'absolute', right: -10, bottom: -10 }} />
-              </LinearGradient>
+          <View style={styles.promoContent}>
+            <Text style={styles.promoTitle}>First time using MoveX?</Text>
+            <Text style={styles.promoSubtitle}>Get <Text style={{ color: colors.accentSecondary, fontWeight: '800' }}>20% OFF</Text> on your first booking!</Text>
+            
+            <View style={styles.promoCodeBox}>
+              <Feather name="percent" size={14} color="#FFF" />
+              <Text style={styles.promoCodeText}>Use Code: MOVEX20</Text>
             </View>
-          </TouchableOpacity>
+          </View>
+          <Feather name="gift" size={70} color="rgba(255,193,7, 0.2)" style={styles.promoIcon} />
+        </LinearGradient>
+      </AnimatedTouchable>
 
-          {/* Banner 2 */}
-          <TouchableOpacity activeOpacity={0.9} onPress={async () => {
-            try {
-              await Share.share({
-                message: 'Hey! Join me on this amazing Cab App and get ₹500 off your first ride! Use my invite code: JOINCAB500',
-              });
-            } catch (error) {
-              console.log('Error sharing:', error);
-            }
-          }}>
-            <View style={{ width: 300, height: 140, borderRadius: 20, overflow: 'hidden' }}>
-              <LinearGradient colors={['#a18cd1', '#fbc2eb']} start={{x:0, y:0}} end={{x:1, y:1}} style={{ flex: 1, padding: 20, justifyContent: 'center' }}>
-                <Text style={{ fontFamily: 'sans-serif', fontSize: 18, color: '#4A148C', fontWeight: 'bold' }}>Refer & Earn</Text>
-                <Text style={{ fontFamily: 'sans-serif', fontSize: 13, color: colors.textPrimary, marginTop: 4, width: '60%' }}>Invite friends and earn free rides up to ₹500.</Text>
-                <View style={{ backgroundColor: '#4A148C', alignSelf: 'flex-start', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12, marginTop: 12 }}>
-                  <Text style={{ color: '#FCFCFC', fontSize: 12, fontWeight: 'bold' }}>Invite Friends</Text>
-                </View>
-                <Feather name="users" size={64} color="rgba(74, 20, 140, 0.2)" style={{ position: 'absolute', right: -10, bottom: -10 }} />
-              </LinearGradient>
+      {/* ── HOW IT WORKS ── */}
+      <View style={styles.howItWorksSection}>
+        <View style={styles.sectionHeader}>
+          <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>How it Works</Text>
+        </View>
+
+        <View style={styles.stepsRow}>
+          
+          <View style={styles.stepContainer}>
+            <View style={[styles.stepIconCircle, { backgroundColor: colors.accent }]}>
+              <Feather name="search" size={22} color="#FFF" />
+              <View style={[styles.stepNumberBadge, { backgroundColor: colors.accentSecondary }]}>
+                <Text style={styles.stepNumberText}>1</Text>
+              </View>
             </View>
-          </TouchableOpacity>
-        </ScrollView>
+            <Text style={[styles.stepTitle, { color: colors.textPrimary }]}>Search</Text>
+            <Text style={[styles.stepDesc, { color: colors.textSecondary }]}>Choose a destination</Text>
+          </View>
+
+          <View style={styles.stepDottedLine} />
+
+          <View style={styles.stepContainer}>
+            <View style={[styles.stepIconCircle, { backgroundColor: colors.accent }]}>
+              <Feather name="file-text" size={22} color="#FFF" />
+              <View style={[styles.stepNumberBadge, { backgroundColor: colors.accentSecondary }]}>
+                <Text style={styles.stepNumberText}>2</Text>
+              </View>
+            </View>
+            <Text style={[styles.stepTitle, { color: colors.textPrimary }]}>Book</Text>
+            <Text style={[styles.stepDesc, { color: colors.textSecondary }]}>Pick a cab & ride</Text>
+          </View>
+
+          <View style={styles.stepDottedLine} />
+
+          <View style={styles.stepContainer}>
+            <View style={[styles.stepIconCircle, { backgroundColor: colors.accent }]}>
+              <Feather name="user" size={22} color="#FFF" />
+              <View style={[styles.stepNumberBadge, { backgroundColor: colors.accentSecondary }]}>
+                <Text style={styles.stepNumberText}>3</Text>
+              </View>
+            </View>
+            <Text style={[styles.stepTitle, { color: colors.textPrimary }]}>We Connect</Text>
+            <Text style={[styles.stepDesc, { color: colors.textSecondary }]}>Driver arrives</Text>
+          </View>
+
+          <View style={styles.stepDottedLine} />
+
+          <View style={styles.stepContainer}>
+            <View style={[styles.stepIconCircle, { backgroundColor: colors.accent }]}>
+              <Feather name="check-circle" size={22} color="#FFF" />
+              <View style={[styles.stepNumberBadge, { backgroundColor: colors.accentSecondary }]}>
+                <Text style={styles.stepNumberText}>4</Text>
+              </View>
+            </View>
+            <Text style={[styles.stepTitle, { color: colors.textPrimary }]}>Relax</Text>
+            <Text style={[styles.stepDesc, { color: colors.textSecondary }]}>Safe & happy ride</Text>
+          </View>
+
+        </View>
       </View>
 
     </ScrollView>
   );
 };
+
+const getStyles = (colors: any) => StyleSheet.create({
+  headerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingTop: Platform.OS === 'ios' ? 60 : 40,
+    paddingBottom: 20,
+  },
+  iconBtn: {
+    padding: 8,
+  },
+  logoContainer: {
+    alignItems: 'center',
+  },
+  logoText: {
+    fontSize: 22,
+    fontWeight: '800',
+    letterSpacing: 1,
+  },
+  logoSubtext: {
+    fontSize: 10,
+    fontWeight: '700',
+    letterSpacing: 2,
+    marginTop: -2,
+  },
+  notificationBadge: {
+    position: 'absolute',
+    top: 6,
+    right: 8,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: '#FFC107',
+    borderWidth: 2,
+    borderColor: '#FFF',
+  },
+  
+  heroSection: {
+    paddingHorizontal: 24,
+    marginTop: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    minHeight: 220,
+  },
+  heroTextContainer: {
+    width: '60%',
+    zIndex: 2,
+  },
+  heroTitle: {
+    fontSize: 32,
+    fontWeight: '800',
+    lineHeight: 38,
+    letterSpacing: -0.5,
+  },
+  heroSubtitle: {
+    fontSize: 14,
+    fontWeight: '500',
+    marginTop: 12,
+    marginBottom: 24,
+    lineHeight: 20,
+  },
+  heroBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 24,
+    gap: 8,
+    shadowColor: '#075AAA',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    elevation: 6,
+  },
+  heroBtnText: {
+    color: '#FFF',
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  heroImage: {
+    position: 'absolute',
+    right: -25,
+    top: -5,
+    width: 220,
+    height: 190,
+    resizeMode: 'contain',
+    zIndex: 1,
+    opacity: 1,
+  },
+
+  quickActionsSection: {
+    marginTop: 30,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+    marginBottom: 16,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: '800',
+  },
+  viewAllText: {
+    fontSize: 12,
+    color: '#075AAA',
+    fontWeight: '600',
+  },
+  quickActionsGrid: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    paddingHorizontal: 20,
+    gap: 8,
+  },
+  quickActionCard: {
+    alignItems: 'center',
+    flex: 1,
+    paddingVertical: 14,
+    paddingHorizontal: 2,
+  },
+  quickActionIconWrapper: {
+    width: 48,
+    height: 48,
+    borderRadius: 14,
+    backgroundColor: colors.bgTertiary, // Very light blue
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 10,
+  },
+  quickActionText: {
+    fontSize: 10,
+    fontWeight: '600',
+    textAlign: 'center',
+    lineHeight: 14,
+  },
+
+  promoContainer: {
+    marginHorizontal: 24,
+    marginTop: 32,
+    borderRadius: 24,
+    shadowColor: '#075AAA',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.15,
+    shadowRadius: 20,
+    elevation: 8,
+  },
+  promoBanner: {
+    borderRadius: 24,
+    padding: 24,
+    overflow: 'hidden',
+  },
+  promoContent: {
+    width: '75%',
+    zIndex: 2,
+  },
+  promoTitle: {
+    color: '#FFF',
+    fontSize: 14,
+    fontWeight: '600',
+    opacity: 0.9,
+  },
+  promoSubtitle: {
+    color: '#FFF',
+    fontSize: 18,
+    fontWeight: '500',
+    marginTop: 4,
+    marginBottom: 16,
+    lineHeight: 26,
+  },
+  promoCodeBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.3)',
+    borderRadius: 16,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    gap: 8,
+  },
+  promoCodeText: {
+    color: '#FFF',
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  promoIcon: {
+    position: 'absolute',
+    right: 10,
+    top: '50%',
+    transform: [{ translateY: -35 }],
+    zIndex: 1,
+  },
+
+  howItWorksSection: {
+    marginTop: 36,
+    marginBottom: 40,
+  },
+  stepsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    paddingHorizontal: 24,
+    marginTop: 10,
+  },
+  stepContainer: {
+    alignItems: 'center',
+    width: '23%',
+  },
+  stepIconCircle: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 12,
+  },
+  stepNumberBadge: {
+    position: 'absolute',
+    bottom: -4,
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: '#FFF',
+  },
+  stepNumberText: {
+    color: '#075AAA',
+    fontSize: 10,
+    fontWeight: '800',
+  },
+  stepTitle: {
+    fontSize: 12,
+    fontWeight: '700',
+    textAlign: 'center',
+    marginBottom: 4,
+  },
+  stepDesc: {
+    fontSize: 10,
+    fontWeight: '500',
+    textAlign: 'center',
+    lineHeight: 14,
+  },
+  stepDottedLine: {
+    height: 1,
+    width: 20,
+    borderBottomWidth: 1,
+    borderColor: colors.borderGlass,
+    borderStyle: 'dashed',
+    marginTop: 28,
+  }
+});
 
 export default DashboardUI;

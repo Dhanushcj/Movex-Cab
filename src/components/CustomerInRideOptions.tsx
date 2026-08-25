@@ -1,9 +1,10 @@
 import { useTheme } from '../context/ThemeContext';
 import Colors from '../constants/colors';
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, Alert } from 'react-native';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import API from '../services/api';
+import { useSocket } from '../context/SocketContext';
 
 interface CustomerInRideOptionsProps {
   rideId: string;
@@ -22,6 +23,7 @@ export default function CustomerInRideOptions({
 }: CustomerInRideOptionsProps) {
     const { colors, isDark } = useTheme();
     const styles = getStyles(colors);
+    const { socket } = useSocket();
 
   const [paymentMethod, setPaymentMethod] = useState(initialPaymentMethod || 'cash');
   const [tip, setTip] = useState(0);
@@ -41,6 +43,29 @@ export default function CustomerInRideOptions({
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSOS = () => {
+    Alert.alert(
+      "Emergency SOS",
+      "Are you sure you want to trigger an emergency alert? This will immediately notify administrators.",
+      [
+        { text: "Cancel", style: "cancel" },
+        { 
+          text: "Trigger SOS", 
+          style: "destructive",
+          onPress: () => {
+            if (socket) {
+              socket.emit('sos:trigger', {
+                bookingId: rideId,
+                details: 'Customer triggered SOS from active ride screen'
+              });
+              Alert.alert("SOS Triggered", "Administrators have been notified of your emergency.");
+            }
+          }
+        }
+      ]
+    );
   };
 
   const renderTipOption = (amount: number) => {
@@ -78,7 +103,14 @@ export default function CustomerInRideOptions({
 
       <View style={styles.divider} />
 
-      {/* Payment Selection & Tip removed per request */}
+      {/* Emergency SOS Button */}
+      <TouchableOpacity 
+        style={styles.sosButton} 
+        onPress={handleSOS}
+      >
+        <Feather name="alert-triangle" size={20} color="#FFF" />
+        <Text style={styles.sosButtonText}>EMERGENCY SOS</Text>
+      </TouchableOpacity>
 
     </View>
   );
@@ -145,6 +177,26 @@ const getStyles = (Colors: any) => StyleSheet.create({
     color: '#374151',
     marginBottom: 12,
   },
+  sosButton: {
+    flexDirection: 'row',
+    backgroundColor: '#EF4444',
+    paddingVertical: 14,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 8,
+    shadowColor: '#EF4444',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  sosButtonText: {
+    color: '#FFF',
+    fontSize: 16,
+    fontWeight: '800',
+    letterSpacing: 1,
+  },
   paymentModesRow: {
     flexDirection: 'row',
     gap: 12,
@@ -164,7 +216,7 @@ const getStyles = (Colors: any) => StyleSheet.create({
   },
   payOptionActive: {
     backgroundColor: '#EFF6FF',
-    borderColor: '#0053B3',
+    borderColor: '#075AAA',
   },
   payOptionText: {
     fontSize: 14,
@@ -172,7 +224,7 @@ const getStyles = (Colors: any) => StyleSheet.create({
     color: Colors.textSecondary,
   },
   payOptionTextActive: {
-    color: '#0053B3',
+    color: '#075AAA',
   },
   tipSectionHeader: {
     flexDirection: 'row',
@@ -193,8 +245,8 @@ const getStyles = (Colors: any) => StyleSheet.create({
     borderColor: Colors.borderGlass,
   },
   tipButtonActive: {
-    backgroundColor: '#0053B3',
-    borderColor: '#0053B3',
+    backgroundColor: '#075AAA',
+    borderColor: '#075AAA',
   },
   tipText: {
     fontSize: 14,

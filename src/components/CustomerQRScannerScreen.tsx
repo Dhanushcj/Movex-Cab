@@ -159,7 +159,7 @@ const getStyles = (Colors: any) => StyleSheet.create({
     width: 250,
     height: 250,
     borderWidth: 2,
-    borderColor: '#00C896',
+    borderColor: '#E8C84A',
     backgroundColor: 'transparent',
     borderRadius: 20
   },
@@ -177,7 +177,7 @@ const getStyles = (Colors: any) => StyleSheet.create({
     paddingHorizontal: 20
   },
   permissionBtn: {
-    backgroundColor: '#0053B3',
+    backgroundColor: '#075AAA',
     marginHorizontal: 40,
     padding: 15,
     borderRadius: 8,
