@@ -1474,7 +1474,7 @@ function HomeScreen({ onRideBooked, onNavigateProfile, onNavigateLanguage, activ
                      drop: { address: details.dropoffJunction.name, coordinates: details.dropoffJunction.location.coordinates },
                      vehicleType: details.vehicleType ? details.vehicleType.toLowerCase() : 'any',
                      paymentMethod: 'cash',
-                     route: details.route._id
+                     routeId: details.route._id
                    };
                    const res = await API.post('/bookings', payload);
                    if (res.data.success) {
