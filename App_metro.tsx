@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { getMessaging, onMessage, requestPermission, getToken, AuthorizationStatus } from '@react-native-firebase/messaging';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Notifications from 'expo-notifications';
@@ -2701,7 +2701,7 @@ function TrackingScreen({ ride, onClose }: { ride: any; onClose: () => void }) {
             <View style={styles.starsWrapper}>
               {[1, 2, 3, 4, 5].map((star) => (
                 <TouchableOpacity key={star} onPress={() => setRating(star)}>
-                  <Text style={[styles.starEmoji, rating >= star && { color: colors.warning }]}>Γÿà</Text>
+                  <Text style={[styles.starEmoji, rating >= star && { color: colors.warning }]}>⭐</Text>
                 </TouchableOpacity>
               ))}
             </View>
