@@ -274,6 +274,12 @@ export default function CustomerBookedRideSheet({
         </View>
       </View>
 
+      {/* OTP Banner added for accepted state */}
+      <View style={{ backgroundColor: '#EEF2FF', padding: 12, borderRadius: 12, marginBottom: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+        <Text style={{ fontSize: 14, color: '#4338CA', fontWeight: '600', marginRight: 8 }}>OTP for this ride:</Text>
+        <Text style={{ fontSize: 18, color: '#312E81', fontWeight: 'bold', letterSpacing: 2 }}>{otp}</Text>
+      </View>
+
       {/* Route Card */}
       <View style={styles.routeCard}>
         <View style={styles.routeRow}>

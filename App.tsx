@@ -1411,32 +1411,25 @@ function HomeScreen({ onRideBooked, onNavigateProfile, onNavigateLanguage, activ
               user={user}
               activePasses={activePasses}
               onProfilePress={onNavigateProfile}
+              onMyBookingsPress={() => handleTabPress('trips')}
               onNotificationPress={() => setShowNotificationScreen(true)}
               onBuyPass={() => setShowPassConfig(true)}
               onBookRide={() => setShowMetroBookingMap(true)}
               onSearchClick={() => setShowMetroBookingMap(true)}
               onScheduleRide={() => { setIsScheduling(true); setShowScheduleRideScreen(true); }}
               onTrackRide={() => {
-                if (!scheduledRide) {
-                  Alert.alert('No Active Rides', 'You have no active or scheduled rides to track right now.');
-                  return;
-                }
-                if (scheduledRide.status === 'scheduled') {
-                  Alert.alert('Scheduled Ride', 'Driver will be assigned 15 minutes before the pickup time.');
-                } else {
-                  API.get('/users/me/rides').then(res => {
-                    if (res.data.success) {
-                      const activeBooking = res.data.data.find((r: any) => r.scheduledRideId === scheduledRide._id && !['completed', 'cancelled'].includes(r.status));
-                      if (activeBooking) {
-                        onRideBooked(activeBooking);
-                      } else {
-                        Alert.alert('Ride Update', 'Could not find active tracking details. Please check your rides history.');
-                      }
+                API.get('/users/me/rides').then(res => {
+                  if (res.data.success) {
+                    const activeBooking = res.data.data.find((r: any) => !['completed', 'cancelled', 'payment_pending'].includes(r.status));
+                    if (activeBooking) {
+                      onRideBooked(activeBooking);
+                    } else {
+                      Alert.alert('No Active Rides', 'You have no active rides to track right now.');
                     }
-                  }).catch(() => {
-                    Alert.alert('Error', 'Failed to fetch ride tracking info.');
-                  });
-                }
+                  }
+                }).catch(() => {
+                  Alert.alert('Error', 'Failed to fetch ride tracking info.');
+                });
               }}
               scheduledRide={scheduledRide}
               onCancelScheduledRide={(id: string) => {
@@ -2295,13 +2288,21 @@ function TrackingScreen({ ride, onClose }: { ride: any; onClose: () => void }) {
       API.get(`/bookings/${ride._id}`).then((res) => {
         if (res.data.success) {
           const b = res.data.data;
-          setDriverInfo({
-            name: b.driver?.name || null,
-            phone: b.driver?.phone || null,
-            vehicle: b.driver?.vehicle || null
+          setRideStatus((prev: string) => {
+            const advancedStates = ['accepted', 'arrived', 'in_progress', 'completed'];
+            if (advancedStates.includes(prev) && !advancedStates.includes(b.status)) {
+              return prev; // Ignore stale API data
+            }
+            setTimeout(() => {
+              setDriverInfo({
+                name: b.driver?.name || null,
+                phone: b.driver?.phone || null,
+                vehicle: b.driver?.vehicle || null
+              });
+              setLocalRide(b);
+            }, 0);
+            return b.status;
           });
-          setRideStatus(b.status);
-          setLocalRide(b);
         }
       }).catch(() => {});
     }
@@ -2551,13 +2552,8 @@ function TrackingScreen({ ride, onClose }: { ride: any; onClose: () => void }) {
   if (!ride) return null;
 
   if (rideStatus === 'payment_pending') {
-    return (
-      <CustomerQRScannerScreen 
-        ride={ride} 
-        onPaymentComplete={() => setRideStatus('completed')} 
-        onClose={onClose} 
-      />
-    );
+    setTimeout(() => setRideStatus('completed'), 0);
+    return null;
   }
 
   return (
@@ -2733,7 +2729,7 @@ function TrackingScreen({ ride, onClose }: { ride: any; onClose: () => void }) {
             <View style={styles.starsWrapper}>
               {[1, 2, 3, 4, 5].map((star) => (
                 <TouchableOpacity key={star} onPress={() => setRating(star)}>
-                  <Text style={[styles.starEmoji, rating >= star && { color: colors.warning }]}>Î“Ã¿Ã </Text>
+                  <Text style={[styles.starEmoji, rating >= star && { color: colors.warning }]}>⭐</Text>
                 </TouchableOpacity>
               ))}
             </View>
